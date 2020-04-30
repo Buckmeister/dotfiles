@@ -2,6 +2,6 @@
 
 Although this was never ment to be used by anybody except for myself, feel absolutely free to do so by running the "install.sh" script.
 
-However, please make sure you read it before and you have fully understood what it does.
+However, please make sure you have read it before in order to fully understand what it actually does.
 
 Have a nice day!
