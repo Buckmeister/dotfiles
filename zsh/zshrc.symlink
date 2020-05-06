@@ -25,6 +25,8 @@ function zle-line-finish {
 }
 zle -N zle-line-finish
 
+bindkey -M viins '\e.' insert-last-word
+
 alias ls='ls -G'
 
 # zplug
