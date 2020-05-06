@@ -1,0 +1,98 @@
+" == basic stuff ==
+syntax on
+filetype plugin indent on
+
+set nocompatible
+set hlsearch
+set incsearch
+set relativenumber
+set cursorline
+set cursorcolumn
+set nowrap
+set showmode
+set textwidth=80
+set colorcolumn=+1
+set ignorecase
+set smartcase
+set smarttab
+set smartindent
+set autoindent
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+set backspace=2
+set scrolloff=1
+set sidescrolloff=5
+set mouse=a
+set history=1000
+set completeopt=menuone,menu,longest
+set wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox
+set wildmode=longest,list,full
+set wildmenu
+set t_Co=256
+set splitbelow splitright
+set cmdheight=2
+set backup
+set backupdir=~/.tmp/vimbackup
+set showcmd
+set list
+set listchars=tab:>·,trail:·
+
+if !has('nvim')
+  set clipboard+=autoselect
+  set ttymouse=xterm2
+endif
+
+if has("gui_running")
+  set macligatures
+  set gfn=Fira\ Code:h16.00
+  set transparency=5
+  set guioptions+=a
+endif
+
+" == personal mappings ==
+let mapleader = " "
+map <Up>    <Nop>
+map <Down>  <Nop>
+map <Left>  <Nop>
+map <Right> <Nop>
+" clear search pattern
+map <Leader># :let @/ = ""<CR>
+
+" == plugged ==
+call plug#begin('~/.config/vim-plug')
+
+Plug 'scrooloose/nerdtree', {'on':  'NERDTreeToggle'}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'nbouscal/vim-stylish-haskell'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'gruvbox-community/gruvbox'
+Plug 'neovimhaskell/haskell-vim'
+Plug 'vim-airline/vim-airline'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+"Plug 'dkasak/gruvbox'
+
+call plug#end()
+
+" == gruvbox ==
+set bg=dark
+let g:gruvbox_contrast_dark = 'hard'
+colorscheme gruvbox
+
+" == coc ==
+source ~/.vim/coc-settings.vim
+highlight link CocErrorSign GruvboxRed
+
+" == haskell-vim ==
+let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
+let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
+let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
+let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
+let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
+let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
+let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+
+" == nerd-tree ==
+map <Leader>n :NERDTreeToggle<CR>
+
