@@ -1,4 +1,6 @@
-source ~/.zshenv
+export PROMPT='%(?.%F{green} ✔ .%F{red} 𝙭 %?)%f %B%F{240}%1~%f%b %# '
+export RPROMPT='$vcs_info_msg_0_ ${vim_mode}'
+export ZPLUG_HOME="$HOME/.config/zplug"
 
 setopt no_menu_complete
 setopt auto_menu
@@ -32,7 +34,7 @@ bindkey -M viins '\e.' insert-last-word
 alias ls='ls -G'
 
 # zplug
-source ~/.config/zplug/init.zsh
+source $ZPLUG_HOME/init.zsh
 
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
