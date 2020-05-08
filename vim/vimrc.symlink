@@ -77,7 +77,8 @@ Plug 'wincent/terminus'
 call plug#end()
 
 " == terminus ==
-autocmd VimEnter * silent exec "! echo -ne '\e[2 q'"
+autocmd VimEnter * silent exec "!echo -ne '\e[2 q'" | redraw!
+autocmd VimLeave * silent exec "!echo -ne '\e[5 q'"
 
 " == gruvbox ==
 set bg=dark
