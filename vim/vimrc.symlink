@@ -71,9 +71,13 @@ Plug 'neovimhaskell/haskell-vim'
 Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
+Plug 'wincent/terminus'
 "Plug 'dkasak/gruvbox'
 
 call plug#end()
+
+" == terminus ==
+autocmd VimEnter * silent exec "! echo -ne '\e[2 q'"
 
 " == gruvbox ==
 set bg=dark

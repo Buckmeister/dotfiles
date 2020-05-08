@@ -12,20 +12,41 @@ precmd_functions+=( precmd_vcs_info )
 zstyle ':vcs_info:git:*' formats '%F{240}(%b)%r%f'
 zstyle ':vcs_info:*' enable git
 
+KEYTIMEOUT=5
+
 vim_ins_mode="%F{green}𝓲 %"
 vim_cmd_mode="%F{blue}𝓬 %"
 vim_mode=$vim_ins_mode
 
 function zle-keymap-select {
-  vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+
+  #vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+
+  if [[ ${KEYMAP} == vicmd ]]; then
+     vim_mode=$vim_cmd_mode
+     echo -ne '\e[1 q'
+
+  elif [[ ${KEYMAP} == main ]] ||
+       [[ ${KEYMAP} == viins ]] ||
+       [[ ${KEYMAP} = '' ]]; then
+       vim_mode=$vim_ins_mode
+       echo -ne '\e[5 q'
+  fi
+
   zle reset-prompt
 }
 zle -N zle-keymap-select
 
 function zle-line-finish {
   vim_mode=$vim_ins_mode
+  echo -ne '\e[5 q'
 }
 zle -N zle-line-finish
+
+_fix_cursor() {
+   echo -ne '\e[5 q'
+}
+precmd_functions+=(_fix_cursor)
 
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
