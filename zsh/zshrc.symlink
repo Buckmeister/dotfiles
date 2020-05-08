@@ -12,7 +12,7 @@ precmd_functions+=( precmd_vcs_info )
 zstyle ':vcs_info:git:*' formats '%F{240}(%b)%r%f'
 zstyle ':vcs_info:*' enable git
 
-KEYTIMEOUT=5
+KEYTIMEOUT=1
 
 vim_ins_mode="%F{green}𝓲 %"
 vim_cmd_mode="%F{blue}𝓬 %"
@@ -50,7 +50,7 @@ precmd_functions+=(_fix_cursor)
 
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
-bindkey -M viins '\e.' insert-last-word
+bindkey -M viins '^p' insert-last-word
 
 alias ls='ls -G'
 
