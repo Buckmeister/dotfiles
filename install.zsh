@@ -5,7 +5,7 @@ emulate -LR zsh
 dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
-installDir="$HOME"
+installDir="$HOME/.tmp"
 echo "Installation target directory: '$installDir'"
 
 tmpDir="$HOME/.tmp"
@@ -19,7 +19,7 @@ echo "Backup directory: '$backupDir'"
 symlinkSources=(${(0)"$(find $dotfilesDir -name "*.symlink" -print0)"})
 
 for linkSource in $symlinkSources; do
-  local linkTarget=$installDir/$linkSource:t:r
+  local linkTarget=$installDir/.$linkSource:t:r
   echo "Linking '$linkSource' to '$linkTarget'"
   [[ -e "$linkTarget" ]] && mv "$linkTarget" "$backupDir/"
   [[ -e "$linkTarget" ]] || ln -s "$linkSource" "$linkTarget" 
