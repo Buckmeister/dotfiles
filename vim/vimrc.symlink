@@ -72,7 +72,6 @@ Plug 'vim-airline/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'wincent/terminus'
-"Plug 'dkasak/gruvbox'
 
 call plug#end()
 
