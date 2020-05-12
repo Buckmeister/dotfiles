@@ -2,3 +2,5 @@
 *.swo
 .netrwhist
 .DS_Store
+nvim/nvim.symlink_config/coc-settings.json
+
