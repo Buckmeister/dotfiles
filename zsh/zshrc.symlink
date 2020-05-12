@@ -60,6 +60,13 @@ bindkey -M viins '^p' insert-last-word
 
 alias ls='ls -G'
 
+_dotnet_zsh_complete()
+{
+  local completions=("$(dotnet complete "$words")")
+  reply=( "${(ps:\n:)completions}" )
+}
+compctl -K _dotnet_zsh_complete dotnet
+
 # zplug
 source $ZPLUG_HOME/init.zsh
 
