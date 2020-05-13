@@ -65,6 +65,10 @@ precmd_functions+=(_fix_cursor)
 
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
+
+insert-last-word-forward() zle insert-last-word 1
+zle -N insert-last-word-forward
+bindkey -M viins '^n' insert-last-word-forward
 bindkey -M viins '^p' insert-last-word
 
 alias ls='ls -G'
