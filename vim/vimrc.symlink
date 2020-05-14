@@ -61,7 +61,7 @@ map <Leader># :let @/ = ""<CR>
 " open ghci in terminal buffer
 map <Leader>gh :terminal stack repl<CR><C-L>
 " open gitgraph in terminal buffer
-map <Leader>gg :terminal gitgraph<CR>
+map <Leader>gg :terminal git log --decorate --oneline --graph<CR>
 
 " == plugged ==
 call plug#begin('~/.config/vim-plug')
