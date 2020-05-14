@@ -6,16 +6,22 @@ dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
 installDir="$HOME"
-echo "Installation target directory: '$installDir'"
-[[ -d "$installDir" ]] || mkdir -p "$installDir"
+if [[ ! -d "$installDir" ]]; then
+  echo "Installation target directory: '$installDir'"
+  mkdir -p "$installDir"
+fi
 
 tmpDir="$HOME/.tmp"
-echo "Temp directory: '$tmpDir'"
-[[ -d "$tmpDir" ]] || mkdir -p "$tmpDir"
+if [[ ! -d "$tmpDir" ]];then
+  echo "Temp directory: '$tmpDir'"
+  mkdir -p "$tmpDir"
+fi
 
 backupDir="$tmpDir/dotfilesBackup-"$(date +%s)
-echo "Backup directory: '$backupDir'"
-[[ -d "$backupDir/.config" ]] || mkdir -p "$backupDir/.config"
+if [[ ! -d "$backupDir/.config" ]]; then
+  echo "Backup directory: '$backupDir'"
+  mkdir -p "$backupDir/.config"
+fi
 
 homeSymlinks=(${(0)"$(find $dotfilesDir -name "*.symlink" -print0)"})
 
@@ -28,8 +34,10 @@ done
 
 configSymlinks=(${(0)"$(find $dotfilesDir -name "*.symlink_config" -print0)"})
 
-echo "Creating .config directory: '$installDir/.config'"
-[[ -d "$installDir/.config" ]] || mkdir -p "$installDir/.config"
+if [[ ! -d "$installDir/.config" ]]; then
+  echo "Creating .config directory: '$installDir/.config'"
+  mkdir -p "$installDir/.config"
+fi
 
 for linkSource in $configSymlinks; do
   local linkTarget=$installDir/.config/$linkSource:t:r
@@ -38,11 +46,15 @@ for linkSource in $configSymlinks; do
   [[ -e "$linkTarget" ]] || ln -s "$linkSource" "$linkTarget" 
 done
 
-echo "Creating vim backup directory: '$tmpDir/vimbackup'"
-[[ -d "$tmpDir/vimbackup" ]] || mkdir -p "$tmpDir/vimbackup"
+if [[ ! -d "$tmpDir/vimbackup" ]]; then
+  echo "Creating vim backup directory: '$tmpDir/vimbackup'"
+  mkdir -p "$tmpDir/vimbackup"
+fi
 
-echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
-[[ -d "$installDir/.config/vim-plug" ]] || mkdir -p "$installDir/.config/vim-plug"
+if [[ ! -d "$installDir/.config/vim-plug" ]]; then
+  echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
+  mkdir -p "$installDir/.config/vim-plug"
+fi
 
 if [[ ! -d "$installDir/.config/zplug" ]]; then
   echo "Installing zplug to '$installDir/.config/zplug'"
