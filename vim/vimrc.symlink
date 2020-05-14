@@ -99,4 +99,4 @@ let g:haskell_backpack = 1                " to enable highlighting of backpack k
 
 " == nerd-tree ==
 map <Leader>n :NERDTreeToggle<CR>
-
+map <Leader>g :terminal stack repl<CR><C-L>
