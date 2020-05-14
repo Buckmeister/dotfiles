@@ -58,6 +58,10 @@ map <Left>  <Nop>
 map <Right> <Nop>
 " clear search pattern
 map <Leader># :let @/ = ""<CR>
+" open ghci in terminal buffer
+map <Leader>gh :terminal stack repl<CR><C-L>
+" open gitgraph in terminal buffer
+map <Leader>gg :terminal gitgraph<CR>
 
 " == plugged ==
 call plug#begin('~/.config/vim-plug')
@@ -69,6 +73,7 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'gruvbox-community/gruvbox'
 Plug 'neovimhaskell/haskell-vim'
 Plug 'vim-airline/vim-airline'
+Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'wincent/terminus'
@@ -78,6 +83,12 @@ call plug#end()
 " == terminus ==
 autocmd VimEnter * silent exec "!echo -ne '\e[2 q'" | redraw!
 autocmd VimLeave * silent exec "!echo -ne '\e[5 q'"
+
+" == vim-easy-align ==
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 " == gruvbox ==
 set bg=dark
@@ -99,4 +110,3 @@ let g:haskell_backpack = 1                " to enable highlighting of backpack k
 
 " == nerd-tree ==
 map <Leader>n :NERDTreeToggle<CR>
-map <Leader>g :terminal stack repl<CR><C-L>
