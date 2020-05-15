@@ -63,10 +63,9 @@ map <Leader>gh :terminal stack repl<CR><C-L>
 " open gitgraph in terminal buffer
 map <Leader>gg :terminal git log --decorate --oneline --graph<CR>
 
-" == plugged ==
+" == vim-plug ==
 call plug#begin('~/.config/vim-plug')
 
-Plug 'scrooloose/nerdtree', {'on':  'NERDTreeToggle'}
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'nbouscal/vim-stylish-haskell'
 Plug 'terryma/vim-multiple-cursors'
@@ -108,5 +107,3 @@ let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
 
-" == nerd-tree ==
-map <Leader>n :NERDTreeToggle<CR>
