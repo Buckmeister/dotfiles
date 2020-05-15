@@ -65,23 +65,3 @@ fi
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa &>/dev/null
 
-echo "Installing coc extensions"
-echo "Installing coc-explorer"
-vim +'CocInstall -sync coc-explorer' +qa &>/dev/null
-echo "Installing coc-highlight"
-vim +'CocInstall -sync coc-highlight' +qa &>/dev/null
-echo "Installing coc-html"
-vim +'CocInstall -sync coc-html' +qa &>/dev/null
-echo "Installing coc-json"
-vim +'CocInstall -sync coc-json' +qa &>/dev/null
-echo "Installing coc-omnisharp"
-vim +'CocInstall -sync coc-omnisharp' +qa &>/dev/null
-echo "Installing coc-python"
-vim +'CocInstall -sync coc-python' +qa &>/dev/null
-echo "Installing coc-snippets"
-vim +'CocInstall -sync coc-snippets' +qa &>/dev/null
-echo "Installing coc-tabnine"
-vim +'CocInstall -sync coc-tabnine' +qa &>/dev/null
-echo "Installing coc-vimlsp"
-vim +'CocInstall -sync coc-vimlsp' +qa &>/dev/null
-
