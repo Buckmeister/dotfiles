@@ -45,7 +45,7 @@ endif
 
 if has("gui_running")
   set macligatures
-  set gfn=Fira\ Code:h18.00
+  set gfn=FiraCode\ Nerd\ Font\ Mono:h18.00
   set transparency=5
   set guioptions+=a
 endif
@@ -58,7 +58,7 @@ map <Left>  <Nop>
 map <Right> <Nop>
 " clear search pattern
 map <Leader># :let @/ = ""<CR>
-" open ghci in terminal buffer
+" open stack repl in terminal buffer
 map <Leader>gh :terminal stack repl<CR><C-L>
 " open gitgraph in terminal buffer
 map <Leader>gg :terminal git log --decorate --oneline --graph<CR>
@@ -82,7 +82,7 @@ let g:coc_global_extensions = [
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source ~/.vimrc
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 call plug#begin('~/.config/vim-plug')
@@ -128,4 +128,5 @@ let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
 
+" == echo friendly ascii art cat ==
 autocmd VimEnter * echo "(>^.^<)"
