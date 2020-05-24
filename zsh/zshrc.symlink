@@ -73,6 +73,7 @@ bindkey -M viins '^p' insert-last-word
 
 alias ls='ls -G'
 alias gitgraph='git log --decorate --oneline --graph'
+alias R='R -q'
 
 _dotnet_zsh_complete()
 {

@@ -1,6 +1,7 @@
-local({r <- getOption("repos")
+local({
+       r <- getOption("repos")
        r["CRAN"] <- "https://cloud.r-project.org"
-       options(repos=r)
+       options(repos = r)
 })
 
 if (interactive() && requireNamespace("prettycode", quietly = TRUE)) {
