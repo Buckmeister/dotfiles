@@ -72,11 +72,13 @@ let g:coc_global_extensions = [
 \ 'coc-html',
 \ 'coc-json',
 \ 'coc-omnisharp',
+\ 'coc-pairs',
 \ 'coc-python',
 \ 'coc-snippets',
 \ 'coc-tabnine',
 \ 'coc-vimlsp',
-\ 'coc-yaml'
+\ 'coc-yaml',
+\ 'coc-yank'
 \ ]
 
 " == vim-plug ==
@@ -98,6 +100,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'wincent/terminus'
+Plug 'jalvesaq/Nvim-R'
 
 call plug#end()
 
