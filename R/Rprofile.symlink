@@ -7,6 +7,5 @@ if (interactive() && requireNamespace("prettycode", quietly = TRUE)) {
   prettycode::prettycode()
 }
 if (interactive() && requireNamespace("prompt", quietly = TRUE)) {
-  library(prompt)
-  set_prompt(prompt_fancy)
+  prompt::set_prompt(prompt_fancy)
 }
