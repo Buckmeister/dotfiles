@@ -65,3 +65,6 @@ fi
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa &>/dev/null
 
+echo "Installing R packages"
+$dotfilesDir/R/install.R
+
