@@ -59,8 +59,6 @@ map <Left>  <Nop>
 map <Right> <Nop>
 " clear search pattern
 map <Leader># :let @/ = ""<CR>
-" open stack repl in terminal buffer
-map <Leader>gh :terminal stack repl<CR><C-L>
 " open gitgraph in terminal buffer
 map <Leader>gg :terminal git log --decorate --oneline --graph<CR>
 
@@ -91,16 +89,18 @@ endif
 
 call plug#begin('~/.config/vim-plug')
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'nbouscal/vim-stylish-haskell'
 Plug 'gruvbox-community/gruvbox'
-Plug 'neovimhaskell/haskell-vim'
-Plug 'vim-airline/vim-airline'
-Plug 'mechatroner/rainbow_csv'
 Plug 'junegunn/vim-easy-align'
+Plug 'mechatroner/rainbow_csv'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neovimhaskell/haskell-vim'
+Plug 'nbouscal/vim-stylish-haskell'
+Plug 'sillybun/vim-repl'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'vim-airline/vim-airline'
 Plug 'wincent/terminus'
 
 call plug#end()
@@ -132,6 +132,30 @@ let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
 let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+
+" == vim-repl ==
+nnoremap <leader>gr :REPLToggle<Cr>
+let g:repl_position = 3
+let g:repl_cursor_down = 1
+let g:repl_python_automerge = 1
+
+let g:repl_program = {
+          \ 'python':  ['python3'],
+          \ 'default': ['zsh'],
+          \ 'r':       ['R'],
+          \ 'haskell': ['stack repl'],
+          \ 'lua':     ['lua'],
+          \ 'vim':     ['vim -e'],
+          \ }
+
+let g:repl_exit_commands = {
+          \ 'python3':    'quit()',
+          \ 'stack repl': 'quit()',
+          \ 'R':          'q(save = \"no\")',
+          \ 'bash':       'exit',
+          \ 'zsh':        'exit',
+          \ 'default':    'exit',
+          \ }
 
 " == echo friendly ascii art cat ==
 autocmd VimEnter * echo "(>^.^<)"
