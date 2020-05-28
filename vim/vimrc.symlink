@@ -59,8 +59,6 @@ map <Left>  <Nop>
 map <Right> <Nop>
 " clear search pattern
 map <Leader># :let @/ = ""<CR>
-" open gitgraph in terminal buffer
-map <Leader>gg :terminal git log --decorate --oneline --graph<CR>
 
 " == coc define global plugins for auto install ==
 let g:coc_global_extensions = [
