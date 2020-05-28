@@ -102,7 +102,6 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'wincent/terminus'
-Plug 'jalvesaq/Nvim-R'
 
 call plug#end()
 
