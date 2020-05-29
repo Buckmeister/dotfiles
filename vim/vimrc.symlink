@@ -57,7 +57,6 @@ map <Up>    <Nop>
 map <Down>  <Nop>
 map <Left>  <Nop>
 map <Right> <Nop>
-" clear search pattern
 map <Leader># :let @/ = ""<CR>
 
 " == coc define global plugins for auto install ==
