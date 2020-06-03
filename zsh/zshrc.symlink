@@ -29,8 +29,8 @@ zstyle ':vcs_info:git:*' actionformats '%F{14}%B[%r/%S]%f%u%c%m(%b|%a)'
 
 KEYTIMEOUT=1
 
-vim_ins_mode="%F{green}𝓲 %f"
-vim_cmd_mode="%F{blue}𝓬 %f"
+vim_ins_mode="%F{green}%B𝓲 %f"
+vim_cmd_mode="%F{blue}%B𝓬 %f"
 vim_mode=$vim_ins_mode
 
 function zle-keymap-select {
