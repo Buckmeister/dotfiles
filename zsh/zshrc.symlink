@@ -1,14 +1,16 @@
-export PROMPT='%(?.%F{green} ✔ .%F{red} 𝙭 %?)%f %B%F{12}%1~%f%b %# '
-export RPROMPT='$vcs_info_msg_0_ ${vim_mode}'
+# define ZPLUG_HOME in .config
 export ZPLUG_HOME="$HOME/.config/zplug"
 
+# set up completion through menu select
 setopt no_menu_complete
 setopt auto_menu
 setopt prompt_subst
-autoload -Uz vcs_info
 
 zstyle ':completion:*' menu select
 zmodload zsh/complist
+
+# decrease KEYTIMEOUT in order to avoid waiting when hitting escape
+KEYTIMEOUT=1
 
 # use the vi navigation keys in menu completion
 bindkey -M menuselect 'h' vi-backward-char
@@ -16,65 +18,22 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-precmd_vcs_info() { vcs_info }
-precmd_functions+=( precmd_vcs_info )
-zstyle ':vcs_info:*' disable bzr cdv darcs mtn svk tla cvs svn
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:*' stagedstr "%F{yellow} 𝓼 %f"
-zstyle ':vcs_info:*' unstagedstr "%F{red} 𝓾 %f"
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:*' check-for-staged-changes true
-zstyle ':vcs_info:git:*' formats '%F{14}%B[%r/%S]%f%u%c%m(%b)'
-zstyle ':vcs_info:git:*' actionformats '%F{14}%B[%r/%S]%f%u%c%m(%b|%a)'
-
-KEYTIMEOUT=1
-
-vim_ins_mode="%F{green}%B𝓲 %f"
-vim_cmd_mode="%F{blue}%B𝓬 %f"
-vim_mode=$vim_ins_mode
-
-function zle-keymap-select {
-
-  #vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
-
-  if [[ ${KEYMAP} == vicmd ]]; then
-     vim_mode=$vim_cmd_mode
-     echo -ne '\e[1 q'
-
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]]; then
-       vim_mode=$vim_ins_mode
-       echo -ne '\e[5 q'
-  fi
-
-  zle reset-prompt
-}
-zle -N zle-keymap-select
-
-function zle-line-finish {
-  vim_mode=$vim_ins_mode
-  echo -ne '\e[5 q'
-}
-zle -N zle-line-finish
-
-_fix_cursor() {
-   echo -ne '\e[5 q'
-}
-precmd_functions+=(_fix_cursor)
-
+# define some handy keybindings
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
 insert-last-word-forward() zle insert-last-word 1
 zle -N insert-last-word-forward
+
 bindkey -M viins '^n' insert-last-word-forward
 bindkey -M viins '^p' insert-last-word
 
+# set up common aliases
 alias ls='ls -G'
 alias gitgraph='git log --decorate --oneline --graph'
 alias R='R -q'
 
+# include dotnet completion
 _dotnet_zsh_complete()
 {
   local completions=("$(dotnet complete "$words")")
@@ -88,6 +47,11 @@ source $ZPLUG_HOME/init.zsh
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
+
+zplug "Buckmeister/zsh-vim-mode-cursor"
+zplug "Buckmeister/zsh-light-prompt"
+
+#zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
@@ -104,4 +68,3 @@ if ! zplug check --verbose; then
 fi
 
 zplug load
-
