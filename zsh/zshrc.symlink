@@ -41,17 +41,10 @@ case $OS in
     OS='FreeBSD'
     alias ls='ls -G'
     ;;
-  'WindowsNT')
-    OS='Windows'
-    ;;
   'Darwin') 
     OS='Mac'
     alias ls='ls -G'
     ;;
-  'SunOS')
-    OS='Solaris'
-    ;;
-  'AIX') ;;
   *) ;;
 esac
 
