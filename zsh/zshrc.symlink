@@ -4,6 +4,8 @@ export ZPLUG_HOME="$HOME/.config/zplug"
 # set up completion through menu select
 setopt no_menu_complete
 setopt auto_menu
+
+# activate prompt substitution
 setopt prompt_subst
 
 zstyle ':completion:*' menu select
