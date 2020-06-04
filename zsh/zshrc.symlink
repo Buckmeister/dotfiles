@@ -18,7 +18,7 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-# define some handy keybindings
+# use vi keybindings for history search
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
@@ -44,14 +44,16 @@ compctl -K _dotnet_zsh_complete dotnet
 # zplug
 source $ZPLUG_HOME/init.zsh
 
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
+
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 
-zplug "Buckmeister/zsh-vim-mode-cursor"
-zplug "Buckmeister/zsh-light-prompt"
+zplug "Buckmeister/zsh-vim-mode-cursor", defer:2
+#zplug "Buckmeister/zsh-light-prompt"
 
-#zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
+zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
