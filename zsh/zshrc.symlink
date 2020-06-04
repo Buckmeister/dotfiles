@@ -69,9 +69,9 @@ zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 
 zplug "Buckmeister/zsh-vim-mode-cursor"
-zplug "Buckmeister/zsh-light-prompt"
+#zplug "Buckmeister/zsh-light-prompt"
 
-#zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
+zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
