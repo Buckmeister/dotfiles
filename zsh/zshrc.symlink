@@ -31,7 +31,30 @@ bindkey -M viins '^n' insert-last-word-forward
 bindkey -M viins '^p' insert-last-word
 
 # set up common aliases
-alias ls='ls -G'
+OS="`uname`"
+case $OS in
+  'Linux')
+    OS='Linux'
+    alias ls='ls --color=auto'
+    ;;
+  'FreeBSD')
+    OS='FreeBSD'
+    alias ls='ls -G'
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin') 
+    OS='Mac'
+    alias ls='ls -G'
+    ;;
+  'SunOS')
+    OS='Solaris'
+    ;;
+  'AIX') ;;
+  *) ;;
+esac
+
 alias gitgraph='git log --decorate --oneline --graph'
 alias R='R -q'
 
