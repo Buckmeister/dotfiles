@@ -19,8 +19,16 @@
         "hlintOn": true
       }
     }
+  },
+  "lua": {
+    "cwd": "/usr/local/share/lua-language-server/bin/macOS",
+    "command": "/usr/local/share/lua-language-server/bin/macOS/lua-language-server",
+    "args": ["-E", "-e", "LANG=en", "/usr/local/share/lua-language-server/main.lua"],
+    "filetypes": ["lua"],
+    "rootPatterns": [".git/"]
   }
 },
+"Lua.diagnostics.disable" : ["lowercase-global"],
 "explorer.width": 30,
 "explorer.previewAction.onHover": false,
 "explorer.icon.enableNerdfont": true
