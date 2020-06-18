@@ -2,6 +2,18 @@
 
 emulate -LR zsh
 
+command -v brew > /dev/null 2>&1 || {
+  echo >&2 "Executable 'brew' not found."
+  echo >&2 ""
+  echo >&2 "Use the following to install:"
+  echo >&2 '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
+  echo >&2 ""
+  echo >&2 "Then re-run:"
+  echo >&2 "$0"
+  exit 1
+}
+
+
 dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
@@ -55,6 +67,9 @@ if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
   mkdir -p "$installDir/.config/vim-plug"
 fi
+
+echo "Installing brew packages"
+$dotfilesDir/brew/install_packages.zsh
 
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa &>/dev/null
