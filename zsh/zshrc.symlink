@@ -1,18 +1,19 @@
 # define ZPLUG_HOME in .config
 export ZPLUG_HOME="$HOME/.config/zplug"
 
+# activate prompt substitution
+setopt prompt_subst
+
+# decrease KEYTIMEOUT in order to avoid waiting when hitting escape
+KEYTIMEOUT=1
+
 # set up completion through menu select
 setopt no_menu_complete
 setopt auto_menu
 
-# activate prompt substitution
-setopt prompt_subst
-
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu select
 zmodload zsh/complist
-
-# decrease KEYTIMEOUT in order to avoid waiting when hitting escape
-KEYTIMEOUT=1
 
 # use the vi navigation keys in menu completion
 bindkey -M menuselect 'h' vi-backward-char
