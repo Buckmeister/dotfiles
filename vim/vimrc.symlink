@@ -61,6 +61,7 @@ map <Leader># :let @/ = ""<CR>
 
 " == coc define global plugins for auto install ==
 let g:coc_global_extensions = [
+\ 'coc-clangd',
 \ 'coc-css',
 \ 'coc-explorer',
 \ 'coc-highlight',
@@ -70,8 +71,10 @@ let g:coc_global_extensions = [
 \ 'coc-pairs',
 \ 'coc-python',
 \ 'coc-r-lsp',
+\ 'coc-rls',
 \ 'coc-snippets',
 \ 'coc-tabnine',
+\ 'coc-vetur',
 \ 'coc-vimlsp',
 \ 'coc-yaml',
 \ 'coc-yank'
