@@ -1,6 +1,3 @@
-# define ZPLUG_HOME in .config
-export ZPLUG_HOME="$HOME/.config/zplug"
-
 # activate prompt substitution
 setopt prompt_subst
 
@@ -62,8 +59,6 @@ compctl -K _dotnet_zsh_complete dotnet
 
 # zplug
 source $ZPLUG_HOME/init.zsh
-
-zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
