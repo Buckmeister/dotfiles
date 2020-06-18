@@ -56,15 +56,8 @@ if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   mkdir -p "$installDir/.config/vim-plug"
 fi
 
-if [[ ! -d "$installDir/.config/zplug" ]]; then
-  echo "Installing zplug to '$installDir/.config/zplug'"
-  mkdir -p "$installDir/.config/zplug"
-  git clone https://github.com/zplug/zplug "$installDir/.config/zplug"
-fi
-
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa &>/dev/null
 
 echo "Installing R packages"
 $dotfilesDir/R/install.R
-
