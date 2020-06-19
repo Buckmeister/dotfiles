@@ -23,7 +23,7 @@ command -v brew > /dev/null 2>&1 || {
   echo >&2 ""
   echo >&2 "ERROR: Executable 'brew' not found."
   echo >&2 ""
-  echo >&2 "Use the following to install:"
+  echo >&2 "Use use the following command to install it:"
   echo >&2 '/bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
   echo >&2 ""
   echo >&2 "Then re-run:"
@@ -33,5 +33,5 @@ command -v brew > /dev/null 2>&1 || {
 
 END_OF_HEADER
 
-brew leaves | awk '{print "brew install "$0}' >> $outputScript
 brew cask list | awk '{print "brew cask install "$0}' >> $outputScript
+brew leaves | awk '{print "brew install "$0}' >> $outputScript
