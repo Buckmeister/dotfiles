@@ -68,11 +68,19 @@ if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   mkdir -p "$installDir/.config/vim-plug"
 fi
 
+if [[ ! -d "$HOME/.local/bin" ]]; then
+  echo "Creating ''~/.local/bin' directory: '$installDir/.config/vim-plug'"
+  mkdir -p "$HOME/.local/bin"
+fi
+
+echo "Creating symlink to 'generate_brew_install_script.zsh' in '~/.local/bin'"
+ln -s "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/generate_brew_install_script"
+
 echo "Installing brew packages"
-$dotfilesDir/brew/install_packages.zsh
+"$dotfilesDir/brew/install_packages.zsh"
 
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa &>/dev/null
 
 echo "Installing R packages"
-$dotfilesDir/R/install.R
+"$dotfilesDir/R/install.R"
