@@ -5,6 +5,7 @@ filetype plugin indent on
 set nocompatible
 set hlsearch
 set incsearch
+set number
 set relativenumber
 set cursorline
 set cursorcolumn
