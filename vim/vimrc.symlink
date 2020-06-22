@@ -81,6 +81,11 @@ let g:coc_global_extensions = [
 \ 'coc-yank'
 \ ]
 
+" == shell wrapper ==
+if !empty(glob('~/.vim/shellwrapper.zsh'))
+  set shell=~/.vim/shellwrapper.zsh
+endif
+
 " == vim-plug ==
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
