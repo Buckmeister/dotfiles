@@ -102,6 +102,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
 Plug 'nbouscal/vim-stylish-haskell'
 Plug 'sillybun/vim-repl'
+Plug 'cespare/vim-toml'
+Plug 'maralla/vim-toml-enhance'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
