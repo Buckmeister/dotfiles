@@ -24,10 +24,12 @@ brew cask install font-hack-nerd-font
 brew cask install forklift
 brew cask install google-chrome
 brew cask install hammerspoon
+brew cask install macdown
 brew cask install macvim
 brew cask install min
 brew cask install sizeup
 brew cask install visual-studio-code
+brew install exercism
 brew install ghc
 brew install haskell-stack
 brew install hlint
