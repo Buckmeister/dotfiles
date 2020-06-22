@@ -10,7 +10,7 @@ clear
 shift
 
 # echo a nice blue header line because it's prettier this way :-)
-echo $fg_bold[yellow] "\n== Command Output ==\n"
+echo -e "\e[33;1m\n== Command Output ==\n\e[m"
 
 # run the command:
 eval $@
