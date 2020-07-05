@@ -158,7 +158,7 @@ let g:repl_program = {
 
 let g:repl_exit_commands = {
           \ 'python3':    'quit()',
-          \ 'stack repl': 'quit()',
+          \ 'stack repl': ':q',
           \ 'R':          'q(save = \"no\")',
           \ 'bash':       'exit',
           \ 'zsh':        'exit',
