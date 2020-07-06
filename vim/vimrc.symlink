@@ -100,7 +100,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
-Plug 'nbouscal/vim-stylish-haskell'
+Plug 'sbdchd/neoformat'
 Plug 'sillybun/vim-repl'
 Plug 'cespare/vim-toml'
 Plug 'maralla/vim-toml-enhance'
@@ -140,6 +140,14 @@ let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
 let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+
+" == Neoformat ==
+augroup fmt
+  autocmd!
+  autocmd BufWritePre * undojoin | Neoformat
+augroup END
+
+let g:ormolu_ghc_opt=["TypeApplications", "RankNTypes"]
 
 " == vim-repl ==
 nnoremap <leader>gr :REPLToggle<Cr>
