@@ -36,7 +36,7 @@ brew install hlint
 brew install llvm
 brew install nave
 brew install neovim
-brew install node
+brew install prettier
 brew install r
 brew install rustup-init
 brew install vim
