@@ -57,6 +57,15 @@ _dotnet_zsh_complete()
 }
 compctl -K _dotnet_zsh_complete dotnet
 
+# include ionic completion
+_ionic_zsh_complete()
+{
+  local completions=("$(ionic completion -- "${words[@]}")")
+  reply=( "${(ps: :)completions}" )
+}
+compctl -K _ionic_zsh_complete ionic
+
+
 # zplug
 source $ZPLUG_HOME/init.zsh
 
