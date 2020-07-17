@@ -1,36 +1,36 @@
 {
-"languageserver": {
-  "haskell": {
-    "command": "hie-wrapper",
-    "args": ["--lsp"],
-    "rootPatterns": [
-      "*.cabal",
-      "stack.yaml",
-      "cabal.project",
-      "package.yaml"
-    ],
-    "filetypes": [
-      "hs",
-      "lhs",
-      "haskell"
-    ],
-    "initializationOptions": {
-      "languageServerHaskell": {
-        "hlintOn": true
+  "languageserver": {
+    "haskell": {
+      "command": "hie-wrapper",
+      "args": ["--lsp"],
+      "rootPatterns": [
+        "*.cabal",
+        "stack.yaml",
+        "cabal.project",
+        "package.yaml"
+      ],
+      "filetypes": ["hs", "lhs", "haskell"],
+      "initializationOptions": {
+        "languageServerHaskell": {
+          "hlintOn": true
+        }
       }
+    },
+    "lua": {
+      "cwd": "/usr/local/share/lua-language-server/bin/macOS",
+      "command": "/usr/local/share/lua-language-server/bin/macOS/lua-language-server",
+      "args": [
+        "-E",
+        "-e",
+        "LANG=en",
+        "/usr/local/share/lua-language-server/main.lua"
+      ],
+      "filetypes": ["lua"],
+      "rootPatterns": [".git/"]
     }
   },
-  "lua": {
-    "cwd": "/usr/local/share/lua-language-server/bin/macOS",
-    "command": "/usr/local/share/lua-language-server/bin/macOS/lua-language-server",
-    "args": ["-E", "-e", "LANG=en", "/usr/local/share/lua-language-server/main.lua"],
-    "filetypes": ["lua"],
-    "rootPatterns": [".git/"]
-  }
-},
-"explorer.width": 30,
-"explorer.previewAction.onHover": false,
-"explorer.icon.enableNerdfont": true,
-"rust-client.updateOnStartup": true
+  "explorer.width": 40,
+  "explorer.previewAction.onHover": false,
+  "explorer.icon.enableNerdfont": true,
+  "rust-client.updateOnStartup": true
 }
-
