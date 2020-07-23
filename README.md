@@ -1,6 +1,6 @@
 # Look Mom, I got my own Dotfiles Repository :-)
 
-Although this was never ment to be used by anybody except for myself, feel absolutely free to do so by running the "install.zsh" script.
+Although this was never ment to be used by anybody else except for myself, feel absolutely free to do so by running the "install.zsh" script.
 
 However, please make sure you have read it before in order to fully understand what it actually does.
 
