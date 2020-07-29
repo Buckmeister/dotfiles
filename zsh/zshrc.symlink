@@ -73,6 +73,8 @@ zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 
+zplug "lukechilds/zsh-nvm"
+
 zplug "Buckmeister/zsh-vim-mode-cursor"
 #zplug "Buckmeister/zsh-light-prompt"
 

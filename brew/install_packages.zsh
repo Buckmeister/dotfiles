@@ -34,10 +34,10 @@ brew install ghc
 brew install haskell-stack
 brew install hlint
 brew install llvm
-brew install nave
 brew install neovim
 brew install prettier
 brew install r
 brew install rustup-init
+brew install scipy
 brew install vim
 brew install zplug
