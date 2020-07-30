@@ -65,6 +65,12 @@ _ionic_zsh_complete()
 }
 compctl -K _ionic_zsh_complete ionic
 
+# switch between jdk versions (e.g.: 1.8, 11 or 14)
+jdk() {
+        version=$1
+        export JAVA_HOME=$(/usr/libexec/java_home -v"$version");
+        java -version
+ }
 
 # zplug
 source $ZPLUG_HOME/init.zsh

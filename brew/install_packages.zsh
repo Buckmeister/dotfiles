@@ -13,6 +13,7 @@ command -v brew > /dev/null 2>&1 || {
 }
 
 brew cask install 1password
+brew cask install adoptopenjdk11
 brew cask install amethyst
 brew cask install balenaetcher
 brew cask install brave-browser
