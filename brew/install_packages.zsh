@@ -28,6 +28,7 @@ brew cask install hammerspoon
 brew cask install macdown
 brew cask install macvim
 brew cask install min
+brew cask install postman
 brew cask install sizeup
 brew cask install visual-studio-code
 brew install exercism
@@ -40,5 +41,6 @@ brew install prettier
 brew install r
 brew install rustup-init
 brew install scipy
+brew install uncrustify
 brew install vim
 brew install zplug
