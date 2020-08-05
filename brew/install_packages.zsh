@@ -32,6 +32,7 @@ brew cask install min
 brew cask install postman
 brew cask install sizeup
 brew cask install visual-studio-code
+brew install angular-cli
 brew install exercism
 brew install ghc
 brew install haskell-stack
