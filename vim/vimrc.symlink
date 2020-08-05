@@ -98,15 +98,16 @@ endif
 
 call plug#begin('~/.config/vim-plug')
 
+Plug 'cespare/vim-toml'
 Plug 'gruvbox-community/gruvbox'
 Plug 'junegunn/vim-easy-align'
+Plug 'maralla/vim-toml-enhance'
+Plug 'mattn/emmet-vim'
 Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
 Plug 'sbdchd/neoformat'
 Plug 'sillybun/vim-repl'
-Plug 'cespare/vim-toml'
-Plug 'maralla/vim-toml-enhance'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
@@ -115,6 +116,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'wincent/terminus'
 
 call plug#end()
+
+" == emmet ==
+let g:user_emmet_leader_key=','
 
 " == terminus ==
 autocmd VimEnter * silent exec "!echo -ne '\e[2 q'" | redraw!
