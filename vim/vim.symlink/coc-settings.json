@@ -32,5 +32,6 @@
   "explorer.width": 40,
   "explorer.previewAction.onHover": false,
   "explorer.icon.enableNerdfont": true,
-  "rust-client.updateOnStartup": true
+  "rust-client.updateOnStartup": true,
+  "yank.highlight.enable": false
 }
