@@ -45,5 +45,6 @@ brew install r
 brew install rustup-init
 brew install scipy
 brew install uncrustify
+brew install vifm
 brew install vim
 brew install zplug
