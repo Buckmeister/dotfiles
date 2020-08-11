@@ -15,8 +15,10 @@ command -v brew > /dev/null 2>&1 || {
 brew cask install 1password
 brew cask install adoptopenjdk11
 brew cask install adoptopenjdk8
+brew cask install alacritty
 brew cask install amethyst
 brew cask install balenaetcher
+brew cask install boop
 brew cask install brave-browser
 brew cask install dotnet-sdk
 brew cask install firefox
@@ -37,6 +39,7 @@ brew install exercism
 brew install ghc
 brew install haskell-stack
 brew install hlint
+brew install http-server
 brew install llvm
 brew install mmv
 brew install neovim
