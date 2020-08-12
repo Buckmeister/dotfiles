@@ -20,6 +20,7 @@ brew cask install amethyst
 brew cask install balenaetcher
 brew cask install boop
 brew cask install brave-browser
+brew cask install docker
 brew cask install dotnet-sdk
 brew cask install firefox
 brew cask install font-fira-code
