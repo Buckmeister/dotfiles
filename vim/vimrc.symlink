@@ -9,10 +9,11 @@ set number
 set relativenumber
 set cursorline
 set cursorcolumn
-set nowrap
 set showmode
 set showmatch
 set textwidth=80
+set formatoptions-=t
+set nowrap
 set colorcolumn=+1
 set ignorecase
 set smartcase
@@ -51,6 +52,9 @@ if has("gui_running")
   set transparency=5
   set guioptions+=a
 endif
+
+autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#592929
+autocmd BufEnter * match OverLength /\%80v.*/
 
 " == personal mappings ==
 let mapleader = " "
