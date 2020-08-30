@@ -121,6 +121,7 @@ Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
+Plug 'uiiaoo/java-syntax.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'wincent/terminus'
 
@@ -224,6 +225,9 @@ let g:limelight_conceal_ctermfg = 240
 " Color name (:help gui-colors) or RGB color
 let g:limelight_conceal_guifg = 'DarkGray'
 let g:limelight_conceal_guifg = '#777777'
+
+" == java syntax==
+highlight link JavaIdentifier NONE
 
 " == echo friendly ascii art cat ==
 autocmd VimEnter * echo "(>^.^<)"
