@@ -69,7 +69,7 @@ if [[ ! -d "$installDir/.config/vim-plug" ]]; then
 fi
 
 if [[ ! -d "$HOME/.local/bin" ]]; then
-  echo "Creating ''~/.local/bin' directory: '$installDir/.config/vim-plug'"
+  echo "Creating ''~/.local/bin' directory: '$HOME/.local/bin'"
   mkdir -p "$HOME/.local/bin"
 fi
 
