@@ -13,22 +13,23 @@ command -v brew > /dev/null 2>&1 || {
 }
 
 brew cask install 1password
-brew cask install adoptopenjdk11
-brew cask install adoptopenjdk8
+brew cask install AdoptOpenJDK/openjdk/adoptopenjdk11
+brew cask install AdoptOpenJDK/openjdk/adoptopenjdk8
 brew cask install alacritty
 brew cask install amethyst
 brew cask install balenaetcher
+brew cask install bluegriffon
 brew cask install boop
 brew cask install brave-browser
 brew cask install docker
 brew cask install dotnet-sdk
 brew cask install firefox
-brew cask install font-fira-code
-brew cask install font-firacode-nerd-font
-brew cask install font-hack-nerd-font
+brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
+brew cask install homebrew/cask-fonts/font-hack-nerd-font
 brew cask install forklift
 brew cask install google-chrome
 brew cask install hammerspoon
+brew cask install ibackup-viewer
 brew cask install macdown
 brew cask install macvim
 brew cask install min
