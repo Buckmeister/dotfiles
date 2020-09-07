@@ -18,7 +18,6 @@ brew cask install AdoptOpenJDK/openjdk/adoptopenjdk8
 brew cask install alacritty
 brew cask install amethyst
 brew cask install balenaetcher
-brew cask install bluegriffon
 brew cask install boop
 brew cask install brave-browser
 brew cask install docker
@@ -28,7 +27,6 @@ brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
 brew cask install homebrew/cask-fonts/font-hack-nerd-font
 brew cask install forklift
 brew cask install google-chrome
-brew cask install hammerspoon
 brew cask install ibackup-viewer
 brew cask install macdown
 brew cask install macvim
@@ -49,7 +47,6 @@ brew install prettier
 brew install r
 brew install rustup-init
 brew install scipy
-brew install uncrustify
 brew install vifm
 brew install vim
 brew install zplug
