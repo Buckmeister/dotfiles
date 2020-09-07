@@ -80,7 +80,7 @@ echo "Installing brew packages"
 "$dotfilesDir/brew/install_packages.zsh"
 
 echo "Installing vim plugins"
-vim +'PlugInstall --sync' +'<cr>' +qa! &>/dev/null
+vim +'PlugInstall --sync' +qa! &>/dev/null
 
 echo "Installing R packages"
 "$dotfilesDir/R/install.R"
