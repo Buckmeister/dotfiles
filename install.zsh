@@ -80,7 +80,7 @@ echo "Installing brew packages"
 "$dotfilesDir/brew/install_packages.zsh"
 
 echo "Installing vim plugins"
-vim +'PlugInstall --sync' +qa &>/dev/null
+vim +'PlugInstall --sync' +'<cr>' +qa! &>/dev/null
 
 echo "Installing R packages"
 "$dotfilesDir/R/install.R"
@@ -88,6 +88,9 @@ echo "Installing R packages"
 echo "Copying Terminal template to Downloads folder"
 cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
 
-echo "Fixing folder permission for compinit's audit rules."
+echo "Fixing folder permission to comply to compinit's audit rules."
 chmod 755 /usr/local/share/zsh
 chmod 755 /usr/local/share/zsh/site-functions
+
+echo "Linking brew package vim instead of mvim"
+brew link --overwrite vim
