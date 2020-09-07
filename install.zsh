@@ -85,5 +85,9 @@ vim +'PlugInstall --sync' +qa &>/dev/null
 echo "Installing R packages"
 "$dotfilesDir/R/install.R"
 
-echo "Copy Terminal template to Downloads folder"
+echo "Copying Terminal template to Downloads folder"
 cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
+
+echo "Fixing folder permission for compinit's audit rules."
+chmod 755 /usr/local/share/zsh
+chmod 755 /usr/local/share/zsh/site-functions
