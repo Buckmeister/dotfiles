@@ -33,7 +33,7 @@ command -v brew > /dev/null 2>&1 || {
 
 END_OF_HEADER
 
-brew cask list | awk '{print "brew cask install "$0}' >> "${outputScript}"
+brew list --cask | awk '{print "brew cask install "$0}' >> "${outputScript}"
 brew leaves | awk '{print "brew install "$0}' >> "${outputScript}"
 
 "${scriptPath}/post_generate.zsh"
