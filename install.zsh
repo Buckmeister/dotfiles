@@ -38,7 +38,7 @@ fi
 homeSymlinks=(${(0)"$(find $dotfilesDir -name "*.symlink" -print0)"})
 
 for linkSource in $homeSymlinks; do
-  local linkTarget=$installDir/.$linkSource:t:r
+  linkTarget=$installDir/.$linkSource:t:r
   echo "Linking '$linkSource' to '$linkTarget'"
   [[ -e "$linkTarget" ]] && mv "$linkTarget" "$backupDir/"
   [[ -e "$linkTarget" ]] || ln -s "$linkSource" "$linkTarget"
@@ -52,7 +52,7 @@ if [[ ! -d "$installDir/.config" ]]; then
 fi
 
 for linkSource in $configSymlinks; do
-  local linkTarget=$installDir/.config/$linkSource:t:r
+  linkTarget=$installDir/.config/$linkSource:t:r
   echo "Linking '$linkSource' to '$linkTarget'"
   [[ -e "$linkTarget" ]] && mv "$linkTarget" "$backupDir/.config/"
   [[ -e "$linkTarget" ]] || ln -s "$linkSource" "$linkTarget"
