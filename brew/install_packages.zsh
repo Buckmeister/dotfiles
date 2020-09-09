@@ -47,6 +47,8 @@ brew install prettier
 brew install r
 brew install rustup-init
 brew install scipy
+brew install shellcheck
+brew install shfmt
 brew install vifm
 brew install vim
 brew install zplug
