@@ -74,10 +74,10 @@ if [[ ! -d "$HOME/.local/bin" ]]; then
 fi
 
 echo "Creating symlink to 'generate_brew_install_script.zsh' in '~/.local/bin'"
-ln -s "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/generate_brew_install_script"
+ln -sf "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/generate_brew_install_script"
 
 echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
-ln -s "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
+ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
 echo "Installing brew packages"
 "$dotfilesDir/brew/install_packages.zsh"
