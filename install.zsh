@@ -2,6 +2,19 @@
 
 emulate -LR zsh
 
+zparseopts -D -E -- r=o_no_r -no-r=o_no_r b=o_no_brew -no-brew=o_no_brew h=o_help -help=o_help
+[[ $#o_no_r == 0 ]] && INSTALL_R=true
+[[ $#o_no_brew == 0 ]] && INSTALL_BREW=true
+[[ $#o_help > 0 ]] && {
+  echo
+  echo "Usage: $0 [-r|--no-r] [-b|--no-brew] [-h|--help]"
+  echo
+  echo "  [-b|--no-brew]: Skip installation of brew packages"
+  echo "  [-r|--no-r]:    Skip installation of R packages"
+  echo "  [-h|--help]:    Print usage"
+  exit 0
+}
+
 command -v brew > /dev/null 2>&1 || {
   echo >&2 "Executable 'brew' not found."
   echo >&2 ""
@@ -79,14 +92,18 @@ ln -sf "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/ge
 echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
-echo "Installing brew packages"
-"$dotfilesDir/brew/install_packages.zsh"
+if [[  "$INSTALL_BREW" == "true" ]]; then
+  echo "Installing brew packages"
+  "$dotfilesDir/brew/install_packages.zsh"
+fi
+
+if [[ "$INSTALL_R" == "true" ]]; then
+  echo "Installing R packages"
+  "$dotfilesDir/R/install.R"
+fi
 
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa! &>/dev/null
-
-echo "Installing R packages"
-"$dotfilesDir/R/install.R"
 
 echo "Copying Terminal template to Downloads folder"
 cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
