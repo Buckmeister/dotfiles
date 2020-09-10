@@ -12,6 +12,7 @@ zparseopts -D -E -- r=o_no_r -no-r=o_no_r b=o_no_brew -no-brew=o_no_brew h=o_hel
   echo "  [-b|--no-brew]: Skip installation of brew packages"
   echo "  [-r|--no-r]:    Skip installation of R packages"
   echo "  [-h|--help]:    Print usage"
+  echo
   exit 0
 }
 
