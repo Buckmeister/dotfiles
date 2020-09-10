@@ -1,0 +1,5 @@
+[user]
+	name = Thomas Burk
+	email = t.burk@bckx.de
+[core]
+	excludesfile = /Users/Thomas/.gitignore
