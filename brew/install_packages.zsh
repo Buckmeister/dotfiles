@@ -44,6 +44,7 @@ brew install mmv
 brew install neovim
 brew install prettier
 brew install r
+brew install ripgrep
 brew install rustup-init
 brew install scipy
 brew install shellcheck
