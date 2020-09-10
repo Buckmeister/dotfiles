@@ -24,7 +24,6 @@ brew cask install docker
 brew cask install dotnet-sdk
 brew cask install firefox
 brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
-brew cask install homebrew/cask-fonts/font-hack-nerd-font
 brew cask install forklift
 brew cask install google-chrome
 brew cask install ibackup-viewer
