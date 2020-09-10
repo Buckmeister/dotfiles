@@ -94,6 +94,7 @@ echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
 echo "Installing required brew packages"
+brew install node
 brew install vim
 brew install zplug
 brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
