@@ -96,6 +96,7 @@ ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_m
 echo "Installing required brew packages"
 brew install vim
 brew install zplug
+brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
 
 if [[  "$INSTALL_BREW" == "true" ]]; then
   echo "Installing additional brew packages"
