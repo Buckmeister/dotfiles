@@ -92,8 +92,12 @@ ln -sf "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/ge
 echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
+echo "Installing required brew packages"
+brew install vim
+brew install zplug
+
 if [[  "$INSTALL_BREW" == "true" ]]; then
-  echo "Installing brew packages"
+  echo "Installing additional brew packages"
   "$dotfilesDir/brew/install_packages.zsh"
 fi
 
