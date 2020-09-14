@@ -60,11 +60,13 @@ autocmd BufEnter * match OverLength /\%80v.*/
 let mapleader = " "
 map <Up>    <Nop>
 map <Down>  <Nop>
-map <Left>  <Nop>
-map <Right> <Nop>
+map <Left>  :bp<CR>
+map <Right> :bn<CR>
 map <Leader># :let @/ = ""<CR>
+map <Leader>ba :.!figlet<CR>
 xnoremap J :move '<-2<CR>gv-gv
 xnoremap K :move '<+1<CR>gv-gv
+
 
 " == coc define global plugins for auto install ==
 let g:coc_global_extensions = [
@@ -147,6 +149,7 @@ silent! colorscheme gruvbox
 
 " == coc ==
 source ~/.vim/coc-settings.vim
+nnoremap <Leader>psw :CocSearch <C-R>=expand("<cword>")<CR><CR>
 highlight link CocErrorSign GruvboxRed
 
 " == haskell-vim ==
@@ -191,7 +194,7 @@ let g:repl_exit_commands = {
           \ }
 
 " == Goyo ==
-nnoremap <leader>go :Goyo<Cr>
+nnoremap <Leader>go :Goyo<Cr>
 function! s:goyo_enter()
   if executable('tmux') && strlen($TMUX)
     silent !tmux set status off
