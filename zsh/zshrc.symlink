@@ -39,7 +39,7 @@ case $OS in
     OS='FreeBSD'
     alias ls='ls -G'
     ;;
-  'Darwin') 
+  'Darwin')
     OS='Mac'
     alias ls='ls -G'
     ;;
@@ -48,6 +48,7 @@ esac
 
 alias gitgraph='git log --decorate --oneline --graph'
 alias R='R -q'
+alias dddubd='docker-compose down && docker-compose up --build -d'
 
 # include dotnet completion
 _dotnet_zsh_complete()
