@@ -32,11 +32,14 @@ brew cask install macvim
 brew cask install min
 brew cask install postman
 brew cask install sizeup
+brew cask install skype
 brew cask install visual-studio-code
 brew install angular-cli
+brew install coreutils
 brew install exercism
 brew install figlet
 brew install ghc
+brew install gnupg
 brew install haskell-stack
 brew install hlint
 brew install http-server
@@ -44,6 +47,7 @@ brew install llvm
 brew install mmv
 brew install neovim
 brew install prettier
+brew install python@3.8
 brew install r
 brew install ripgrep
 brew install rustup-init
