@@ -44,13 +44,19 @@ set listchars=tab:>·,trail:·
 if !has('nvim')
   set clipboard+=autoselect
   set ttymouse=xterm2
+
+  " == shell wrapper ==
+  if !empty(glob('~/.vim/shellwrapper.zsh'))
+    set shell=~/.vim/shellwrapper.zsh
+  endif
 endif
 
 if has("gui_running")
   set macligatures
-  set gfn=FiraCode\ Nerd\ Font\ Mono:h18.00
+  set gfn=Hack\ Nerd\ Font\:h18.00
   set transparency=5
   set guioptions+=a
+  highlight Normal guibg=none
 endif
 
 autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#592929
@@ -93,11 +99,6 @@ let g:coc_global_extensions = [
 \ 'coc-yank'
 \ ]
 
-" == shell wrapper ==
-if !empty(glob('~/.vim/shellwrapper.zsh'))
-  set shell=~/.vim/shellwrapper.zsh
-endif
-
 " == vim-plug ==
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -126,8 +127,12 @@ Plug 'tpope/vim-surround'
 Plug 'uiiaoo/java-syntax.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'wincent/terminus'
+Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
+
+" == airline ==
+let g:airline_powerline_fonts = 1
 
 " == emmet ==
 let g:user_emmet_leader_key=','

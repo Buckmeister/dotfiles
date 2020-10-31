@@ -24,6 +24,7 @@ brew cask install docker
 brew cask install dotnet-sdk
 brew cask install firefox
 brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
+brew cask install homebrew/cask-fonts/font-hack-nerd-font
 brew cask install forklift
 brew cask install google-chrome
 brew cask install ibackup-viewer
@@ -44,6 +45,7 @@ brew install haskell-stack
 brew install hlint
 brew install http-server
 brew install llvm
+brew install lz4
 brew install mmv
 brew install neovim
 brew install prettier

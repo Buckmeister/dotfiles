@@ -31,7 +31,7 @@
   },
   "explorer.width": 40,
   "explorer.previewAction.onHover": false,
-  "explorer.icon.enableNerdfont": true,
+  "explorer.icon.enableVimDevicons": true,
   "rust-client.updateOnStartup": true,
   "yank.highlight.enable": false
 }
