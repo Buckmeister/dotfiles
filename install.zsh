@@ -97,7 +97,6 @@ echo "Installing required brew packages"
 brew install node
 brew install vim
 brew install zplug
-brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
 
 if [[  "$INSTALL_BREW" == "true" ]]; then
   echo "Installing additional brew packages"
@@ -121,3 +120,7 @@ chmod 755 /usr/local/share/zsh/site-functions
 
 echo "Linking brew package vim instead of mvim"
 brew link --overwrite vim
+
+echo "Downloading Hack Nerd Font with Powerline Symbols, Devicons and Ligatures"
+curl https://raw.githubusercontent.com/pyrho/hack-font-ligature-nerd-font/master/font/Hack%20Regular%20Nerd%20Font%20Complete%20Mono.ttf --output ~/Library/Fonts/Hack\ Regular\ Nerd\ Font\ Complete\ Mono.ttf
+
