@@ -23,9 +23,13 @@ brew cask install brave-browser
 brew cask install docker
 brew cask install dotnet-sdk
 brew cask install firefox
+brew cask install homebrew/cask-fonts/font-fira-code
+brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
+brew cask install homebrew/cask-fonts/font-powerline-symbols
 brew cask install forklift
 brew cask install google-chrome
 brew cask install ibackup-viewer
+brew cask install kitty
 brew cask install macdown
 brew cask install macvim
 brew cask install min
