@@ -53,7 +53,7 @@ endif
 
 if has("gui_running")
   set macligatures
-  set gfn=Hack\ Nerd\ Font\:h18.00
+  set gfn=FiraCode\ Nerd\ Font:h18.00
   set transparency=5
   set guioptions+=a
   highlight Normal guibg=none
@@ -118,6 +118,7 @@ Plug 'mattn/emmet-vim'
 Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
+Plug 'ObserverOfTime/coloresque.vim'
 Plug 'sbdchd/neoformat'
 Plug 'sillybun/vim-repl'
 Plug 'tpope/vim-commentary'
@@ -130,6 +131,9 @@ Plug 'wincent/terminus'
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
+
+" == coloresque ==
+let g:coloresque_extra_filetypes = ['conf']
 
 " == airline ==
 let g:airline_powerline_fonts = 1
