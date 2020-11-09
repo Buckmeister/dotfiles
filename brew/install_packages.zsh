@@ -53,11 +53,11 @@ brew install neovim
 brew install prettier
 brew install python@3.8
 brew install r
+brew install ranger
 brew install ripgrep
 brew install rustup-init
 brew install scipy
 brew install shellcheck
 brew install shfmt
-brew install vifm
 brew install vim
 brew install zplug
