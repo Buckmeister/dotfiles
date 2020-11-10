@@ -38,6 +38,7 @@ brew cask install sizeup
 brew cask install skype
 brew cask install visual-studio-code
 brew install angular-cli
+brew install bat
 brew install coreutils
 brew install exercism
 brew install figlet
