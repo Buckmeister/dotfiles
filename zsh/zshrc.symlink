@@ -29,6 +29,9 @@ zle -N insert-last-word-forward
 bindkey -M viins '^n' insert-last-word-forward
 bindkey -M viins '^p' insert-last-word
 
+# accept autosuggestions with ctrl-space
+bindkey '^ ' autosuggest-accept
+
 # set up common aliases
 OS="`uname`"
 case $OS in
@@ -83,13 +86,13 @@ zplug "zsh-users/zsh-completions"
 zplug "lukechilds/zsh-nvm"
 zplug "Buckmeister/zsh-vim-mode-cursor"
 if [[ "$TERM" == "xterm-kitty" ]]; then
+  zplug "romkatv/powerlevel10k", as:theme, depth:1
   # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
   # Initialization code that may require console input (password prompts, [y/n]
   # confirmations, etc.) must go above this block; everything else may go below.
   if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
   fi
-  zplug "romkatv/powerlevel10k", as:theme, depth:1
 else
   zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
 fi
