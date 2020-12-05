@@ -15,7 +15,6 @@ command -v brew > /dev/null 2>&1 || {
 brew cask install 1password
 brew cask install AdoptOpenJDK/openjdk/adoptopenjdk11
 brew cask install AdoptOpenJDK/openjdk/adoptopenjdk8
-brew cask install alacritty
 brew cask install amethyst
 brew cask install balenaetcher
 brew cask install boop
@@ -47,6 +46,7 @@ brew install gnupg
 brew install haskell-stack
 brew install hlint
 brew install http-server
+brew install httpie
 brew install llvm
 brew install lz4
 brew install mmv
@@ -60,5 +60,6 @@ brew install rustup-init
 brew install scipy
 brew install shellcheck
 brew install shfmt
+brew install unrar
 brew install vim
 brew install zplug
