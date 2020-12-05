@@ -70,6 +70,11 @@ _ionic_zsh_complete()
 }
 compctl -K _ionic_zsh_complete ionic
 
+autoload -Uz compinit
+compinit
+# Completion for kitty
+kitty + complete setup zsh | source /dev/stdin
+
 # switch between jdk versions (e.g.: 1.8, 11 or 14)
 jdk() {
         version=$1
