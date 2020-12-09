@@ -51,6 +51,8 @@ brew install llvm
 brew install lz4
 brew install mmv
 brew install neovim
+brew install openapi-generator
+brew install perltidy
 brew install prettier
 brew install python@3.8
 brew install r
