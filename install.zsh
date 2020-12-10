@@ -124,3 +124,9 @@ brew link --overwrite vim
 echo "Downloading Hack Nerd Font with Powerline Symbols, Devicons and Ligatures"
 curl https://raw.githubusercontent.com/pyrho/hack-font-ligature-nerd-font/master/font/Hack%20Regular%20Nerd%20Font%20Complete%20Mono.ttf --output ~/Library/Fonts/Hack\ Regular\ Nerd\ Font\ Complete\ Mono.ttf
 
+echo "Downloading Lombok"
+if [[ ! -d "/usr/local/share/lombok" ]]; then
+  echo "Lombok directory '/usr/local/share/lombok'"
+  mkdir -p "/usr/local/share/lombok"
+fi
+curl https://projectlombok.org/downloads/lombok.jar > /usr/local/share/lombok/lombok.jar
