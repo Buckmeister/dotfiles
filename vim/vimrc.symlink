@@ -79,6 +79,7 @@ let g:coc_global_extensions = [
 \ 'coc-angular',
 \ 'coc-clangd',
 \ 'coc-css',
+\ 'coc-docker',
 \ 'coc-emmet',
 \ 'coc-explorer',
 \ 'coc-highlight',
@@ -139,7 +140,7 @@ let g:coloresque_extra_filetypes = ['conf']
 let g:airline_powerline_fonts = 1
 
 " == emmet ==
-let g:user_emmet_leader_key=','
+let g:user_emmet_leader_key='*'
 
 " == terminus ==
 autocmd VimEnter * silent exec "!echo -ne '\e[2 q'" | redraw!
