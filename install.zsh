@@ -13,9 +13,9 @@ zparseopts -D -E -- r=o_no_r -no-r=o_no_r b=o_no_brew -no-brew=o_no_brew u=o_upd
 
 [[ $#o_help > 0 ]] && {
   echo
-  echo "Usage: $0 [-r|--no-r] [-b|--no-brew] [-h|--help]"
+  echo "Usage: $0 [-r|--no-r] [-b|--no-brew] [-u|--update-only] [-h|--help]"
   echo
-  echo "  [-b|--no-brew]:     Skip installation of brew packages"
+  echo "  [-b|--no-brew]:     Skip installation of optinal brew packages"
   echo "  [-r|--no-r]:        Skip installation of R packages"
   echo "  [-u|--update-only]: Skip r and brew package installation completely"
   echo "  [-h|--help]:        Print usage"
