@@ -39,6 +39,7 @@ brew cask install visual-studio-code
 brew install angular-cli
 brew install bat
 brew install coreutils
+brew install diff-so-fancy
 brew install exercism
 brew install figlet
 brew install ghc
@@ -47,6 +48,7 @@ brew install haskell-stack
 brew install hlint
 brew install http-server
 brew install httpie
+brew install jansson
 brew install llvm
 brew install lz4
 brew install mmv
