@@ -2,16 +2,23 @@
 
 emulate -LR zsh
 
-zparseopts -D -E -- r=o_no_r -no-r=o_no_r b=o_no_brew -no-brew=o_no_brew h=o_help -help=o_help
+zparseopts -D -E -- r=o_no_r -no-r=o_no_r b=o_no_brew -no-brew=o_no_brew u=o_update_only -update-only=o_update_only h=o_help -help=o_help
 [[ $#o_no_r == 0 ]] && INSTALL_R=true
 [[ $#o_no_brew == 0 ]] && INSTALL_BREW=true
+[[ $#o_update_only > 0 ]] && {
+  INSTALL_BREW=false
+  INSTALL_R=false
+  UPDATE_ONLY=true
+}
+
 [[ $#o_help > 0 ]] && {
   echo
   echo "Usage: $0 [-r|--no-r] [-b|--no-brew] [-h|--help]"
   echo
-  echo "  [-b|--no-brew]: Skip installation of brew packages"
-  echo "  [-r|--no-r]:    Skip installation of R packages"
-  echo "  [-h|--help]:    Print usage"
+  echo "  [-b|--no-brew]:     Skip installation of brew packages"
+  echo "  [-r|--no-r]:        Skip installation of R packages"
+  echo "  [-u|--update-only]: Skip r and brew package installation completely"
+  echo "  [-h|--help]:        Print usage"
   echo
   exit 0
 }
@@ -77,11 +84,6 @@ if [[ ! -d "$tmpDir/vimbackup" ]]; then
   mkdir -p "$tmpDir/vimbackup"
 fi
 
-if [[ ! -d "$installDir/.config/vim-plug" ]]; then
-  echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
-  mkdir -p "$installDir/.config/vim-plug"
-fi
-
 if [[ ! -d "$HOME/.local/bin" ]]; then
   echo "Creating ''~/.local/bin' directory: '$HOME/.local/bin'"
   mkdir -p "$HOME/.local/bin"
@@ -93,10 +95,13 @@ ln -sf "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/ge
 echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
+if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
-brew install node
-brew install vim
-brew install zplug
+  brew install node
+  brew install vim
+  brew install zplug
+  brew install kitty
+fi
 
 if [[  "$INSTALL_BREW" == "true" ]]; then
   echo "Installing additional brew packages"
@@ -106,6 +111,17 @@ fi
 if [[ "$INSTALL_R" == "true" ]]; then
   echo "Installing R packages"
   "$dotfilesDir/R/install.R"
+fi
+
+echo "Linking brew package vim instead of mvim"
+brew unlink vim && brew link vim
+brew unlink neovim && brew link neovim
+
+if [[ ! -d "$installDir/.config/vim-plug" ]]; then
+  echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
+  mkdir -p "$installDir/.config/vim-plug"
+  echo "Downloading vin-plug"
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 fi
 
 echo "Installing vim plugins"
@@ -118,9 +134,6 @@ echo "Fixing folder permission to comply to compinit's audit rules."
 chmod 755 /usr/local/share/zsh
 chmod 755 /usr/local/share/zsh/site-functions
 
-echo "Linking brew package vim instead of mvim"
-brew link --overwrite vim
-
 echo "Downloading Hack Nerd Font with Powerline Symbols, Devicons and Ligatures"
 curl https://raw.githubusercontent.com/pyrho/hack-font-ligature-nerd-font/master/font/Hack%20Regular%20Nerd%20Font%20Complete%20Mono.ttf --output ~/Library/Fonts/Hack\ Regular\ Nerd\ Font\ Complete\ Mono.ttf
 
@@ -130,3 +143,7 @@ if [[ ! -d "/usr/local/share/lombok" ]]; then
   mkdir -p "/usr/local/share/lombok"
 fi
 curl https://projectlombok.org/downloads/lombok.jar > /usr/local/share/lombok/lombok.jar
+
+echo "Applying git config scripts"
+"$dotfilesDir/git/diff-so-fancy/git-settings.sh"
+"$dotfilesDir/git/osxkeychain/git-settings.sh"
