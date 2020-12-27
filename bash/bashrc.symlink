@@ -16,7 +16,6 @@ export LSCOLORS="ExGxFxDxCxDxDxhbhdacEc"
 export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
 
 export BASH_SILENCE_DEPRECATION_WARNING=1
-export CURRENT_SHELL=$(ps -cho comm $$  | perl -ne 'chomp;print if /["bash""zsh""fish"]/;')
 
 # Set up common aliases
 OS="$(uname)"
@@ -61,7 +60,7 @@ _ionic_bash_complete() {
   local word=${COMP_WORDS[COMP_CWORD]}
 
   local completions
-  # local completions=($(ionic completion -- "$word"))
+   local completions=($(ionic completion -- "$word[@]"))
   if [ $? -ne 0 ]; then
     completions=""
   fi
