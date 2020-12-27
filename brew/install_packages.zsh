@@ -27,6 +27,7 @@ brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
 brew cask install homebrew/cask-fonts/font-powerline-symbols
 brew cask install forklift
 brew cask install google-chrome
+brew cask install hammerspoon
 brew cask install ibackup-viewer
 brew cask install kitty
 brew cask install macdown
@@ -37,11 +38,13 @@ brew cask install sizeup
 brew cask install skype
 brew cask install visual-studio-code
 brew install angular-cli
+brew install bash-completion@2
 brew install bat
 brew install coreutils
 brew install diff-so-fancy
 brew install exercism
 brew install figlet
+brew install fish
 brew install ghc
 brew install gnupg
 brew install haskell-stack
@@ -64,6 +67,7 @@ brew install rustup-init
 brew install scipy
 brew install shellcheck
 brew install shfmt
+brew install starship
 brew install unrar
 brew install vim
 brew install zplug

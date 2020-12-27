@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 # Diff-So-Fancy Settings
 git config --global core.pager "diff-so-fancy | less --tabs=4 -RFX"

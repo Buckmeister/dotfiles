@@ -110,6 +110,7 @@ endif
 call plug#begin('~/.config/vim-plug')
 
 Plug 'cespare/vim-toml'
+Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'

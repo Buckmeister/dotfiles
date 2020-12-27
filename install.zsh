@@ -35,6 +35,7 @@ command -v brew > /dev/null 2>&1 || {
 }
 
 
+# dotfilesDir=$(realpath "$(dirname ${0})")
 dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
@@ -95,6 +96,9 @@ ln -sf "$dotfilesDir/brew/generate_brew_install_script.zsh" "$HOME/.local/bin/ge
 echo "Creating symlink to 'install_maven_wrapper.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_maven_wrapper"
 
+echo "Creating symlink to 'shell.zsh' in '~/.local/bin'"
+ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
+
 if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
   brew install node
@@ -144,6 +148,10 @@ if [[ ! -d "/usr/local/share/lombok" ]]; then
 fi
 curl https://projectlombok.org/downloads/lombok.jar > /usr/local/share/lombok/lombok.jar
 
-echo "Applying git config scripts"
-"$dotfilesDir/git/diff-so-fancy/git-settings.sh"
-"$dotfilesDir/git/osxkeychain/git-settings.sh"
+echo "Applying Post-Install Scripts"
+postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
+
+for piScript in $postInstallScripts; do
+  echo "Executing: '$piScript'"
+  [[ -e "$piScript" ]] && "$piScript"
+done
