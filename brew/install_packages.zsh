@@ -70,4 +70,5 @@ brew install shfmt
 brew install starship
 brew install unrar
 brew install vim
+brew install wget
 brew install zplug
