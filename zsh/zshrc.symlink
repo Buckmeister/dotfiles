@@ -58,14 +58,14 @@ alias dddubd='docker-compose down && docker-compose up --build -d'
 _dotnet_zsh_complete()
 {
   local completions=("$(dotnet complete "$words")")
-  reply=( "${(ps:\n:)completions}" )
+  reply=( "${(ps: :)completions}" )
 }
 compctl -K _dotnet_zsh_complete dotnet
 
 # include ionic completion
 _ionic_zsh_complete()
 {
-  local completions=("$(ionic completion -- "${words[@]}")")
+  local completions=("$(ionic completion -- "$words")")
   reply=( "${(ps: :)completions}" )
 }
 compctl -K _ionic_zsh_complete ionic
@@ -107,4 +107,4 @@ fi
 
 zplug load
 
-eval “$(starship init zsh)”
+eval "$(starship init zsh)"

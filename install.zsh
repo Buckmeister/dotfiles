@@ -35,7 +35,7 @@ command -v brew > /dev/null 2>&1 || {
 }
 
 
-# dotfilesDir=$(realpath "$(dirname ${0})")
+dotfilesDir=$(realpath "$(dirname ${0})")
 dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
@@ -46,7 +46,7 @@ if [[ ! -d "$installDir" ]]; then
 fi
 
 tmpDir="$HOME/.tmp"
-if [[ ! -d "$tmpDir" ]];then
+if [[ ! -d "$tmpDir" ]]; then
   echo "Temp directory: '$tmpDir'"
   mkdir -p "$tmpDir"
 fi

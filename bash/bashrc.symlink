@@ -9,6 +9,7 @@ export EDITOR=nvim
 export VISUAL="$EDITOR"
 
 export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
+export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 
 export LS_COLORS="di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:tw=30;42:ow=34;42:st=37;44:ex=01;32"
 export LSCOLORS="ExGxFxDxCxDxDxhbhdacEc"
@@ -48,7 +49,7 @@ _dotnet_bash_complete() {
 
   local completions
   completions="$(dotnet complete --position "${COMP_POINT}" "${COMP_LINE}" 2>/dev/null)"
-  if [ $? -ne 0 ]; then
+  if [ "$?" != "0" ]; then
     completions=""
   fi
   COMPREPLY=($(compgen -W "$completions" -- "$word"))
@@ -60,8 +61,8 @@ _ionic_bash_complete() {
   local word=${COMP_WORDS[COMP_CWORD]}
 
   local completions
-   local completions=($(ionic completion -- "$word[@]"))
-  if [ $? -ne 0 ]; then
+  completions="$(ionic completion -- "$word")"
+  if [ "$?" != "0" ]; then
     completions=""
   fi
   COMPREPLY=($(compgen -W "$completions" -- "$word"))
@@ -75,16 +76,12 @@ jdk() {
   java -version
 }
 
-if [ "${BASH_VERSINFO[0]}" -gt 4 ] || ([ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 1 ]); then
   # Enable bash completion
-  [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
   # Completion for kitty
   source <(kitty + complete setup bash)
   # Spaceship configuration
-  source <("/usr/local/bin/starship" init bash --print-full-init)
-else # [ ${BASH_VERSINFO[0]} -lt 4 ]
-  # Spaceship configuration
-  source /dev/stdin <<<"$("/usr/local/bin/starship" init bash --print-full-init)"
-  # Completion for kitty
-  source <(kitty + complete setup bash)
+  source <(starship init bash --print-full-init)
+
+if ([ "${BASH_VERSINFO[0]}" -gt 4 ] || ([ "${BASH_VERSINFO[0]}" -eq 4 ] && [ "${BASH_VERSINFO[1]}" -ge 1 ])); then
 fi

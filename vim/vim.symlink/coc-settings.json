@@ -32,7 +32,6 @@
   "explorer.width": 40,
   "explorer.previewAction.onHover": false,
   "explorer.icon.enableVimDevicons": true,
-  "rust-client.updateOnStartup": true,
   "yank.highlight.enable": false,
   "java.jdt.ls.vmargs": "-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication -javaagent:/usr/local/share/lombok/lombok.jar -Xbootclasspath/a:/usr/local/share/lombok/lombok.jar"
 }
