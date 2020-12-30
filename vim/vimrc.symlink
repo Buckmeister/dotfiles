@@ -40,6 +40,9 @@ set backupdir=~/.tmp/vimbackup
 set showcmd
 set list
 set listchars=tab:>·,trail:·
+set title
+set titlestring=vim\ %-25.55F\ %a%r%m
+set titlelen=70
 
 if !has('nvim')
   set clipboard+=autoselect

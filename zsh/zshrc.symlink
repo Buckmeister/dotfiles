@@ -70,6 +70,17 @@ _ionic_zsh_complete()
 }
 compctl -K _ionic_zsh_complete ionic
 
+# Set terminal title
+prmptcmd()
+{
+  [[ -t 1 ]] || return
+  case $TERM in
+    *xterm*) print -Pn "\e]2; ${STARSHIP_SHELL} %~\a"
+      ;;
+  esac
+}
+precmd_functions=(prmptcmd)
+
 autoload -Uz compinit
 compinit
 # Completion for kitty

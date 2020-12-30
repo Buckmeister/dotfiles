@@ -1,0 +1,6 @@
+[env_var]
+variable = "STARSHIP_SHELL"
+default = "unknown"
+style = "white bold dimmed"
+format = "with [${env_value}]($style) "
+
