@@ -36,7 +36,6 @@ command -v brew > /dev/null 2>&1 || {
 
 
 dotfilesDir=$(realpath "$(dirname ${0})")
-dotfilesDir=$(pwd)
 echo "Dotfiles source directory: '$dotfilesDir'"
 
 installDir="$HOME"
