@@ -1,0 +1,7 @@
+command -v exa >/dev/null 2>&1 && alias ls='exa'
+command -v bat >/dev/null 2>&1 && alias cat='bat'
+alias gitgraph='git log --decorate --graph'
+alias R='R -q'
+alias dddubd='docker-compose down && docker-compose up --build -d'
+alias ponysay='ponysay -bround'
+alias ponythink='ponythink -bunicode'

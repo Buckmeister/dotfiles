@@ -21,28 +21,8 @@ export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
 
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
-
 # Set up common aliases
-OS="$(uname)"
-case $OS in
-'Linux')
-  OS='Linux'
-  alias ls='ls --color=auto'
-  ;;
-'FreeBSD')
-  OS='FreeBSD'
-  alias ls='ls -G'
-  ;;
-'Darwin')
-  OS='Mac'
-  alias ls='ls -G'
-  ;;
-*) ;;
-esac
-
-alias gitgraph='git log --decorate --graph'
-alias R='R -q'
-alias dddubd='docker-compose down && docker-compose up --build -d'
+source ~/.aliases
 
 # Bash configuration
 set -o vi

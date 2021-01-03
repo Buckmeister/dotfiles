@@ -33,26 +33,7 @@ bindkey -M viins '^p' insert-last-word
 bindkey '^ ' autosuggest-accept
 
 # set up common aliases
-OS="`uname`"
-case $OS in
-  'Linux')
-    OS='Linux'
-    alias ls='ls --color=auto'
-    ;;
-  'FreeBSD')
-    OS='FreeBSD'
-    alias ls='ls -G'
-    ;;
-  'Darwin')
-    OS='Mac'
-    alias ls='ls -G'
-    ;;
-  *) ;;
-esac
-
-alias gitgraph='git log --decorate --graph'
-alias R='R -q'
-alias dddubd='docker-compose down && docker-compose up --build -d'
+source ~/.aliases
 
 # include dotnet completion
 _dotnet_zsh_complete()
