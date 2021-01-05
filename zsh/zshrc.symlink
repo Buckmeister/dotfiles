@@ -60,10 +60,13 @@ prmptcmd()
       ;;
   esac
 }
-precmd_functions=(prmptcmd)
+precmd_functions+=(prmptcmd)
+
+FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
 autoload -Uz compinit
 compinit
+
 # Completion for kitty
 kitty + complete setup zsh | source /dev/stdin
 
