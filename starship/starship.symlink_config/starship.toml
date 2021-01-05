@@ -4,3 +4,6 @@ default = "unknown"
 style = "white bold dimmed"
 format = "with [${env_value}]($style) "
 
+[docker_context]
+disabled = "false"
+only_with_files = "true"
