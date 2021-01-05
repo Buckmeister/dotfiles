@@ -106,7 +106,7 @@ echo "Installing required brew packages"
   brew install kitty
 fi
 
-if [[  "$INSTALL_BREW" == "true" ]]; then
+if [[ "$INSTALL_BREW" == "true" ]]; then
   echo "Installing additional brew packages"
   "$dotfilesDir/brew/install_packages.zsh"
 fi
@@ -134,8 +134,7 @@ echo "Copying Terminal template to Downloads folder"
 cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
 
 echo "Fixing folder permission to comply to compinit's audit rules."
-chmod 755 /usr/local/share/zsh
-chmod 755 /usr/local/share/zsh/site-functions
+chmod -R go-w /usr/local/share
 
 echo "Downloading Hack Nerd Font with Powerline Symbols, Devicons and Ligatures"
 curl https://raw.githubusercontent.com/pyrho/hack-font-ligature-nerd-font/master/font/Hack%20Regular%20Nerd%20Font%20Complete%20Mono.ttf --output ~/Library/Fonts/Hack\ Regular\ Nerd\ Font\ Complete\ Mono.ttf
@@ -146,6 +145,15 @@ if [[ ! -d "/usr/local/share/lombok" ]]; then
   mkdir -p "/usr/local/share/lombok"
 fi
 curl https://projectlombok.org/downloads/lombok.jar > /usr/local/share/lombok/lombok.jar
+
+echo "Downloading Bash PreExec"
+curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
+
+echo "Installing Docker Completions"
+[ -d /Applications/Docker.app/Contents/Resources/etc ] && {
+  etc=/Applications/Docker.app/Contents/Resources/etc
+  ln -s $etc/docker.zsh-completion /usr/local/share/zsh/site-functions/_docker
+}
 
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
