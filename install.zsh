@@ -117,8 +117,9 @@ if [[ "$INSTALL_R" == "true" ]]; then
 fi
 
 echo "Linking brew package vim instead of mvim"
-brew unlink vim && brew link vim
-brew unlink neovim && brew link neovim
+brew unlink vim && brew link --overwrite vim
+brew unlink neovim && brew link --overwrite neovim
+ln -sf /usr/local/bin/nvim /usr/local/bin/vi
 
 if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
