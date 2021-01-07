@@ -51,16 +51,48 @@ _ionic_zsh_complete()
 }
 compctl -K _ionic_zsh_complete ionic
 
+# Shorten PWD uniquely
+function shorten_pwd {
+  cur_pwd=$(pwd | sed "s#$(echo $HOME)#~#")
+  paths=(${(s:/:)cur_pwd})
+
+  if [[ "${cur_pwd:0:1}" == "~" ]]; then
+    cur_path="~/"
+    cur_short_path="~/"
+    shift paths
+  else
+    cur_path="/"
+    cur_short_path="/"
+  fi
+  for directory in ${paths[@]}
+  do
+    if [[ "$directory" == "~" ]]; then
+      break
+    fi
+    cur_dir=''
+    for (( i=0; i<${#directory}; i++ )); do
+      cur_dir+="${directory:$i:1}"
+      matching=("$(echo ${cur_path} |sed "s#~#$(echo $HOME)#")""$cur_dir"*/)
+      if [[ ${#matching[@]} -eq 1 ]]; then
+        break
+      fi
+    done
+    cur_path+="$directory/"
+    cur_short_path+="$cur_dir/"
+  done
+
+  print "${cur_short_path: : -1}"
+}
 # Set terminal title
-prmptcmd()
+set_title()
 {
   [[ -t 1 ]] || return
   case $TERM in
-    *xterm*) print -Pn "\e]2; ${STARSHIP_SHELL} %~\a"
+    *xterm*) print -Pn "\e]2; ${STARSHIP_SHELL} $(shorten_pwd)\a"
       ;;
   esac
 }
-precmd_functions+=(prmptcmd)
+precmd_functions+=(set_title)
 
 FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
