@@ -24,7 +24,7 @@ set expandtab
 set shiftwidth=2
 set softtabstop=2
 set backspace=2
-set scrolloff=1
+set scrolloff=8
 set sidescrolloff=5
 set mouse=a
 set history=1000
@@ -132,6 +132,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'uiiaoo/java-syntax.vim'
 Plug 'vim-airline/vim-airline'
+Plug 'voldikss/vim-floaterm'
 Plug 'wincent/terminus'
 Plug 'ryanoasis/vim-devicons'
 
