@@ -29,6 +29,10 @@
       "rootPatterns": [".git/"]
     }
   },
+  "suggest.enablePreview": true,
+  "suggest.maxPreviewWidth": 40,
+  "suggest.labelMaxLength": 40,
+  "suggest.detailMaxLength": 40,
   "explorer.width": 40,
   "explorer.previewAction.onHover": false,
   "explorer.icon.enableVimDevicons": false,
