@@ -41,6 +41,7 @@ brew install angular-cli
 brew install bash-completion@2
 brew install bat
 brew install cowsay
+brew install csvkit
 brew install diff-so-fancy
 brew install exa
 brew install exercism
@@ -57,6 +58,8 @@ brew install jansson
 brew install jq
 brew install llvm
 brew install lz4
+brew install maven
+brew install maven-completion
 brew install mmv
 brew install neovim
 brew install noti
@@ -79,3 +82,4 @@ brew install unrar
 brew install vim
 brew install wget
 brew install zplug
+brew install zsh-completions
