@@ -71,6 +71,7 @@ brew install python@3.8
 brew install r
 brew install ranger
 brew install ripgrep
+brew install rust-analyzer
 brew install rustup-init
 brew install scipy
 brew install shellcheck
