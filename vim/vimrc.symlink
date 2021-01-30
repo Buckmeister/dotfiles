@@ -183,8 +183,6 @@ augroup fmt
   autocmd BufWritePre * undojoin | Neoformat
 augroup END
 
-let g:ormolu_ghc_opt=["TypeApplications", "RankNTypes"]
-
 " == vim-repl ==
 nnoremap <leader>gr :REPLToggle<Cr>
 let g:repl_position = 3
