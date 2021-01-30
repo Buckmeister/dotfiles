@@ -1,4 +1,10 @@
 #!/usr/bin/env zsh
 
 npm -g install \
-  bash-language-server
+  @angular/language-server \
+  bash-language-server \
+  dockerfile-language-server-nodejs \
+  neovim \
+  typescript-language-server \
+  vim-language-server \
+  yaml-language-server
