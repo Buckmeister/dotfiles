@@ -7,4 +7,5 @@ npm -g install \
   neovim \
   typescript-language-server \
   vim-language-server \
+  vscode-json-languageserver \
   yaml-language-server
