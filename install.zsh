@@ -98,6 +98,9 @@ ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_m
 echo "Creating symlink to 'shell.zsh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
 
+echo "Creating symlink to 'jdt.ls.sh' in '~/.local/bin'"
+ln -sf "$dotfilesDir/jdt.ls/jdt.ls.sh" "$HOME/.local/bin/jdt.ls"
+
 if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
   brew install node
@@ -155,6 +158,12 @@ echo "Installing Docker Completions"
   etc=/Applications/Docker.app/Contents/Resources/etc
   ln -s $etc/docker.zsh-completion /usr/local/share/zsh/site-functions/_docker
 }
+echo
+
+echo "Installing JDT.LS"
+[ -d "/usr/local/share/jdt.ls" ] && rm -rf "/usr/local/share/jdt.ls/*"
+curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
 
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
