@@ -42,6 +42,7 @@ brew install bash-completion@2
 brew install bat
 brew install cowsay
 brew install csvkit
+brew install deno
 brew install diff-so-fancy
 brew install exa
 brew install exercism
@@ -50,6 +51,7 @@ brew install figlet
 brew install fish
 brew install ghc
 brew install gnupg
+brew install grip
 brew install haskell-stack
 brew install hlint
 brew install http-server
@@ -78,9 +80,11 @@ brew install shellcheck
 brew install shellharden
 brew install shfmt
 brew install starship
+brew install texlab
 brew install tldr
 brew install unrar
 brew install vim
+brew install webkit2png
 brew install wget
 brew install zplug
 brew install zsh-completions
