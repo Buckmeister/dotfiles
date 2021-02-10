@@ -116,7 +116,8 @@ zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 zplug "lukechilds/zsh-nvm"
-zplug "Buckmeister/zsh-vi-mode-cursor"
+# zplug "Buckmeister/zsh-vi-mode-cursor"
+zplug "jeffreytse/zsh-vi-mode"
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
