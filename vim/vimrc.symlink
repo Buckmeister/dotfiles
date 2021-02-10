@@ -67,8 +67,8 @@ autocmd BufEnter * match OverLength /\%80v.*/
 
 " == personal mappings ==
 let mapleader = " "
-map <Up>    <Nop>
-map <Down>  <Nop>
+map <Up>    :tabn<CR>
+map <Down>  :tabp<CR>
 map <Left>  :bp<CR>
 map <Right> :bn<CR>
 map <Leader># :let @/ = ""<CR>
