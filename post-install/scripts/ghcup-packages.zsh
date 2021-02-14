@@ -2,4 +2,4 @@
 
 echo "Installing GHCPUP Packages"
 ghcup install hls
-ghcup upgrade hls
+ghcup upgrade
