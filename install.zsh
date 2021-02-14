@@ -165,8 +165,13 @@ echo "Installing JDT.LS"
 curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
 tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
 
+echo "Installing OmniSharp"
+[ -d "/usr/local/share/omnisharp" ] && rm -rf "/usr/local/share/omnisharp/*"
+curl -fLo "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --create-dirs "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.37.6/omnisharp-osx.tar.gz"
+tar xzf "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --directory="/usr/local/share/omnisharp"
+
 echo "Installing GHCUP"
-[ -d "/usr/local/share/ghcp" ] && rm -rf "/usr/local/share/ghcup/*"
+[ -d "/usr/local/share/ghcup" ] && rm -rf "/usr/local/share/ghcup/*"
 curl -fLo "/usr/local/share/ghcup/ghcup" --create-dirs "https://downloads.haskell.org/~ghcup/x86_64-apple-darwin-ghcup"
 chmod 755 "/usr/local/share/ghcup/ghcup"
 ln -s "/usr/local/share/ghcup/ghcup" ~/.local/bin/
