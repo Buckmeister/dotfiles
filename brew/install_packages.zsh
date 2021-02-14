@@ -40,6 +40,7 @@ brew cask install visual-studio-code
 brew install angular-cli
 brew install bash-completion@2
 brew install bat
+brew install cmake
 brew install cowsay
 brew install csvkit
 brew install deno
@@ -59,6 +60,7 @@ brew install httpie
 brew install jansson
 brew install jq
 brew install llvm
+brew install luarocks
 brew install lz4
 brew install maven
 brew install maven-completion
