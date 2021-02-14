@@ -27,7 +27,7 @@ insert-last-word-forward() zle insert-last-word 1
 zle -N insert-last-word-forward
 
 bindkey -M viins '^n' insert-last-word-forward
-bindkey -M viins '^p' insert-last-word
+bindkey -M viins '^l' insert-last-word
 
 # accept autosuggestions with ctrl-space
 bindkey '^ ' autosuggest-accept
