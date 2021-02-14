@@ -165,6 +165,12 @@ echo "Installing JDT.LS"
 curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
 tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
 
+echo "Installing GHCUP"
+[ -d "/usr/local/share/ghcp" ] && rm -rf "/usr/local/share/ghcup/*"
+curl -fLo "/usr/local/share/ghcup/ghcup" --create-dirs "https://downloads.haskell.org/~ghcup/x86_64-apple-darwin-ghcup"
+chmod 755 "/usr/local/share/ghcup/ghcup"
+ln -s "/usr/local/share/ghcup/ghcup" ~/.local/bin/
+
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
 
