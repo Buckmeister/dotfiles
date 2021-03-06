@@ -56,10 +56,10 @@ brew install grip
 brew install haskell-stack
 brew install hlint
 brew install http-server
-brew install httpie
 brew install jansson
 brew install jq
 brew install llvm
+brew install luajit
 brew install luarocks
 brew install lz4
 brew install maven
@@ -77,6 +77,7 @@ brew install ranger
 brew install ripgrep
 brew install rust-analyzer
 brew install rustup-init
+brew install sbcl
 brew install scipy
 brew install shellcheck
 brew install shellharden
@@ -84,6 +85,7 @@ brew install shfmt
 brew install starship
 brew install texlab
 brew install tldr
+brew install tree-sitter
 brew install unrar
 brew install vim
 brew install webkit2png
