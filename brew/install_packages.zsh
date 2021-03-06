@@ -21,6 +21,7 @@ brew cask install boop
 brew cask install brave-browser
 brew cask install docker
 brew cask install dotnet-sdk
+brew cask install electrum
 brew cask install firefox
 brew cask install homebrew/cask-fonts/font-fira-code
 brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
