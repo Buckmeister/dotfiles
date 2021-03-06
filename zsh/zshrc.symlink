@@ -12,6 +12,7 @@ setopt auto_menu
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu select
 zmodload zsh/complist
+zmodload zsh/zpty
 
 # use the vi navigation keys in menu completion
 bindkey -M menuselect 'h' vi-backward-char
