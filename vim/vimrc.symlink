@@ -146,6 +146,7 @@ let g:coloresque_extra_filetypes = ['conf']
 
 " == airline ==
 let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
 
 " == emmet ==
 let g:user_emmet_leader_key='*'
