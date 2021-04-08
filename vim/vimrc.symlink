@@ -26,15 +26,15 @@ set softtabstop=2
 set backspace=2
 set scrolloff=8
 set sidescrolloff=5
+set shortmess+=c
 set mouse=a
 set history=1000
 set completeopt=menuone,menu,longest
 set wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox
 set wildmode=longest,list,full
 set wildmenu
-set t_Co=256
 set splitbelow splitright
-set cmdheight=2
+set cmdheight=1
 set backup
 set backupdir=~/.tmp/vimbackup
 set showcmd
@@ -42,7 +42,21 @@ set list
 set listchars=tab:>·,trail:·
 set title
 set titlestring=vim\ %-15.20F\ %a%r%m
-set titlelen=70
+
+set t_Co=256
+
+let colorterm=$COLORTERM
+if colorterm=='truecolor' || colorterm=='24bit'
+  " set termguicolors in case the given terminal supports it
+  if has('termguicolors')
+    set termguicolors
+  endif
+  " set escape characters for true colors, if screen is used
+  if &term =~# '^screen'
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  endif
+endif
 
 if !has('nvim')
   set clipboard+=autoselect
@@ -56,15 +70,17 @@ endif
 
 if has("gui_running")
   set macligatures
-  set gfn=FiraCode\ Nerd\ Font:h18.00
+  set gfn=Iosevka\ Nerd\ Font\ Mono:h16.00
   set transparency=5
   set guioptions+=a
-  highlight Normal guibg=none
+  set cmdheight=2
 endif
 
+" == Overlength ==
 autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#592929
 autocmd BufEnter * match OverLength /\%80v.*/
 autocmd FileType man match OverLength /\%160v.*/
+autocmd FileType netrw match OverLength /\%160v.*/ | set nocursorcolumn
 
 " == personal mappings ==
 let mapleader = " "
@@ -79,6 +95,14 @@ xnoremap K :move '<+1<CR>gv-gv
 vmap < <gv
 vmap > >gv
 
+nnoremap ü <C-]>
+nnoremap Ü <C-O>
+
+nnoremap <leader>lcd :lcd %:h<CR>
+nnoremap <leader>tcd :tcd %:h<CR>
+
+" Open files located in the same dir in with the current file is edited
+nnoremap <leader>ew :e <C-R>=expand("%:.:h") . "/"<CR>
 
 " == coc define global plugins for auto install ==
 let g:coc_global_extensions = [
@@ -127,6 +151,10 @@ Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
 Plug 'ObserverOfTime/coloresque.vim'
+Plug 'sainnhe/edge'
+Plug 'sainnhe/gruvbox-material'
+Plug 'sainnhe/sonokai'
+Plug 'sainnhe/everforest'
 Plug 'sbdchd/neoformat'
 Plug 'sillybun/vim-repl'
 Plug 'tpope/vim-commentary'
@@ -135,6 +163,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'uiiaoo/java-syntax.vim'
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'voldikss/vim-floaterm'
 Plug 'wincent/terminus'
 Plug 'ryanoasis/vim-devicons'
@@ -144,16 +173,27 @@ call plug#end()
 " == coloresque ==
 let g:coloresque_extra_filetypes = ['conf']
 
+" == colorscheme ==
+set background=dark
+let g:gruvbox_background = 'hard'
+silent! colorscheme gruvbox
+
 " == airline ==
-let g:airline_powerline_fonts = 1
+let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+
+let colorterm=$COLORTERM
+if colorterm=="truecolor" || colorterm=="24bit"
+  let g:airline_left_sep = "\uE0B4"
+  let g:airline_right_sep = "\uE0B6"
+else
+  let g:airline_left_sep = "\u205E"
+  let g:airline_right_sep = "\u205E"
+endif
 
 " == emmet ==
 let g:user_emmet_leader_key='*'
-
-" == terminus ==
-autocmd VimEnter * silent exec "!echo -ne '\e[2 q'" | redraw!
-autocmd VimLeave * silent exec "!echo -ne '\e[5 q'"
 
 " == vim-easy-align ==
 " Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -161,16 +201,10 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-" == gruvbox ==
-set bg=dark
-let g:gruvbox_contrast_dark = 'hard'
-silent! colorscheme gruvbox
-highlight Normal ctermbg=none
 
 " == coc ==
 source ~/.vim/coc-settings.vim
 nnoremap <Leader>psw :CocSearch <C-R>=expand("<cword>")<CR><CR>
-highlight link CocErrorSign GruvboxRed
 
 " == haskell-vim ==
 let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
@@ -181,7 +215,7 @@ let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
 
-" == Neoformat ==
+" == Neofomat ==
 augroup fmt
   autocmd!
   autocmd BufWritePre * undojoin | Neoformat
@@ -231,7 +265,7 @@ function! s:goyo_leave()
   endif
   set showmode
   set showcmd
-  set scrolloff=5
+  set scrolloff=8
   Limelight!
 endfunction
 

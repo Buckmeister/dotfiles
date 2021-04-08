@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 script=$0
-if [ -L  "${script}" ]; then
+if [ -L "${script}" ]; then
   script=$(readlink "${script}")
 fi
 
@@ -11,12 +11,12 @@ echo "Output directory: ${scriptPath}"
 outputScript=${scriptPath}/install_packages.zsh
 echo "Output script: ${outputScript}"
 
-command -v brew > /dev/null 2>&1 || {
+command -v brew >/dev/null 2>&1 || {
   echo >&2 "Executable 'brew' not found.. Exiting."
   exit 1
 }
 
-cat << END_OF_HEADER > "${outputScript}"
+cat <<END_OF_HEADER >"${outputScript}"
 #!/usr/bin/env zsh
 
 command -v brew > /dev/null 2>&1 || {
@@ -33,8 +33,7 @@ command -v brew > /dev/null 2>&1 || {
 
 END_OF_HEADER
 
-brew list --cask | awk '{print "brew cask install "$0}' >> "${outputScript}"
-brew leaves | awk '{print "brew install "$0}' >> "${outputScript}"
+brew list --cask | awk '{print "brew install "$0}' >>"${outputScript}"
+brew leaves | awk '{print "brew install "$0}' >>"${outputScript}"
 
 "${scriptPath}/post_generate.zsh"
-

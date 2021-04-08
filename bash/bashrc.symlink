@@ -59,11 +59,11 @@ jdk() {
 
 # Set terminal title
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
-prmptcmd()
-{
+prmptcmd() {
   [[ -t 1 ]] || return
   case $TERM in
-    *xterm*) echo -en "\033]0; ${STARSHIP_SHELL} $(pwd | sed "s#$(echo $HOME)#~#") \007"
+    *xterm*)
+      echo -en "\033]0; ${STARSHIP_SHELL} $(pwd | sed "s#$(echo $HOME)#~#") \007"
       ;;
   esac
 }
@@ -75,3 +75,5 @@ precmd_functions+=(prmptcmd)
 source <(kitty + complete setup bash)
 # Spaceship configuration
 source <(starship init bash --print-full-init)
+# Neofetch
+/usr/bin/env neofetch

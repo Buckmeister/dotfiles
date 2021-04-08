@@ -34,7 +34,6 @@ command -v brew > /dev/null 2>&1 || {
   exit 1
 }
 
-
 dotfilesDir=$(realpath "$(dirname ${0})")
 echo "Dotfiles source directory: '$dotfilesDir'"
 
@@ -104,7 +103,7 @@ ln -sf "$dotfilesDir/jdt.ls/jdt.ls.sh" "$HOME/.local/bin/jdt.ls"
 if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
   brew install node
-  brew install vim
+  brew install macvim
   brew install zplug
   brew install kitty
 fi
@@ -118,11 +117,6 @@ if [[ "$INSTALL_R" == "true" ]]; then
   echo "Installing R packages"
   "$dotfilesDir/R/install.R"
 fi
-
-echo "Linking brew package vim instead of mvim"
-brew unlink vim && brew link --overwrite vim
-brew unlink neovim && brew link --overwrite neovim
-ln -sf /usr/local/bin/nvim /usr/local/bin/vi
 
 if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
@@ -140,9 +134,6 @@ cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
 echo "Fixing folder permission to comply to compinit's audit rules."
 chmod -R go-w /usr/local/share
 
-echo "Downloading Hack Nerd Font with Powerline Symbols, Devicons and Ligatures"
-curl https://raw.githubusercontent.com/pyrho/hack-font-ligature-nerd-font/master/font/Hack%20Regular%20Nerd%20Font%20Complete%20Mono.ttf --output ~/Library/Fonts/Hack\ Regular\ Nerd\ Font\ Complete\ Mono.ttf
-
 echo "Downloading Lombok"
 if [[ ! -d "/usr/local/share/lombok" ]]; then
   echo "Lombok directory '/usr/local/share/lombok'"
@@ -156,7 +147,7 @@ curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec
 echo "Installing Docker Completions"
 [ -d /Applications/Docker.app/Contents/Resources/etc ] && {
   etc=/Applications/Docker.app/Contents/Resources/etc
-  ln -s $etc/docker.zsh-completion /usr/local/share/zsh/site-functions/_docker
+  ln -sf $etc/docker.zsh-completion /usr/local/share/zsh/site-functions/_docker
 }
 echo
 

@@ -12,83 +12,103 @@ command -v brew > /dev/null 2>&1 || {
   exit 1
 }
 
-brew cask install 1password
-brew cask install AdoptOpenJDK/openjdk/adoptopenjdk11
-brew cask install AdoptOpenJDK/openjdk/adoptopenjdk8
-brew cask install amethyst
-brew cask install balenaetcher
-brew cask install boop
-brew cask install brave-browser
-brew cask install docker
-brew cask install dotnet-sdk
-brew cask install electrum
-brew cask install firefox
-brew cask install homebrew/cask-fonts/font-fira-code
-brew cask install homebrew/cask-fonts/font-fira-code-nerd-font
-brew cask install homebrew/cask-fonts/font-powerline-symbols
-brew cask install forklift
-brew cask install google-chrome
-brew cask install hammerspoon
-brew cask install ibackup-viewer
-brew cask install kitty
-brew cask install macdown
-brew cask install macvim
-brew cask install min
-brew cask install postman
-brew cask install sizeup
-brew cask install skype
-brew cask install visual-studio-code
+brew install 1password
+brew install adoptopenjdk11
+brew install adoptopenjdk8
+brew install amethyst
+brew install balenaetcher
+brew install boop
+brew install brave-browser
+brew install docker
+brew install dotnet-sdk
+brew install electrum
+brew install firefox
+brew install font-code-new-roman-nerd-font
+brew install font-fira-code
+brew install font-fira-code-nerd-font
+brew install font-hack-nerd-font
+brew install font-hasklug-nerd-font
+brew install font-iosevka
+brew install font-iosevka-nerd-font
+brew install font-jetbrains-mono-nerd-font
+brew install font-monoid-nerd-font
+brew install font-powerline-symbols
+brew install font-sauce-code-pro-nerd-font
+brew install forklift
+brew install google-chrome
+brew install hammerspoon
+brew install ibackup-viewer
+brew install kitty
+brew install macdown
+brew install min
+brew install postman
+brew install sizeup
+brew install skype
+brew install visual-studio-code
 brew install angular-cli
 brew install bash-completion@2
-brew install bat
+brew install ccls
+brew install clang-format
 brew install cmake
 brew install cowsay
 brew install csvkit
 brew install deno
 brew install diff-so-fancy
+brew install docker
+brew install eth-p/software/bat-extras
+brew install eth-p/software/bat-extras-batdiff
+brew install eth-p/software/bat-extras-batgrep
+brew install eth-p/software/bat-extras-batman
+brew install eth-p/software/bat-extras-batpipe
+brew install eth-p/software/bat-extras-batwatch
+brew install eth-p/software/bat-extras-prettybat
 brew install exa
 brew install exercism
 brew install fd
 brew install figlet
 brew install fish
+brew install flow
 brew install ghc
 brew install gnupg
 brew install grip
 brew install haskell-stack
 brew install hlint
+brew install htop
 brew install http-server
 brew install jansson
 brew install jq
-brew install llvm
+brew install libtermkey
+brew install libvterm
 brew install luajit
+brew install luajit-openresty
 brew install luarocks
+brew install luv
 brew install lz4
+brew install macvim
 brew install maven
 brew install maven-completion
 brew install mmv
-brew install neovim
+brew install msgpack
+brew install neofetch
 brew install noti
 brew install openapi-generator
 brew install perltidy
 brew install ponysay
-brew install prettier
 brew install python@3.8
 brew install r
 brew install ranger
-brew install ripgrep
 brew install rust-analyzer
 brew install rustup-init
 brew install sbcl
 brew install scipy
 brew install shellcheck
 brew install shellharden
-brew install shfmt
+brew install showkey
 brew install starship
 brew install texlab
 brew install tldr
 brew install tree-sitter
 brew install unrar
-brew install vim
 brew install webkit2png
 brew install wget
 brew install zplug

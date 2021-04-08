@@ -15,4 +15,7 @@ export LSCOLORS="ExGxFxDxCxDxDxhbhdacEc"
 
 export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin"
 
-export MANPAGER="vi +Man!"
+export BAT_CONFIG="$HOME/.config/bat"
+
+# export MANPAGER="col -bx | bat -l man"
+export MANPAGER="col -bx | vi -c 'Man!' -"

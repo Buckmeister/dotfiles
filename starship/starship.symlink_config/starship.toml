@@ -1,7 +1,7 @@
 [env_var]
 variable = "STARSHIP_SHELL"
 default = "unknown"
-style = "white bold dimmed"
+style = "blue bold"
 format = "with [${env_value}]($style) "
 
 [docker_context]

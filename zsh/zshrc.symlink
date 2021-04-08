@@ -27,14 +27,23 @@ bindkey -M vicmd 'j' history-substring-search-down
 insert-last-word-forward() zle insert-last-word 1
 zle -N insert-last-word-forward
 
-bindkey -M viins '^n' insert-last-word-forward
-bindkey -M viins '^l' insert-last-word
+bindkey -M viins '^g' insert-last-word-forward
+bindkey -M viins '^h' insert-last-word
 
 # accept autosuggestions with ctrl-space
 bindkey '^ ' autosuggest-accept
+# accept autosuggestions with ctrl-enter
+bindkey '^[M' autosuggest-execute
 
 # set up common aliases
-source ~/.aliases
+if [  -f "$HOME/.aliases" ]; then
+  source "$HOME/.aliases"
+fi
+
+# use batdiff with diff-so-fancy instead of diff
+diff() {
+  /usr/bin/env batdiff $* | /usr/bin/env diff-so-fancy
+}
 
 # include dotnet completion
 _dotnet_zsh_complete()
@@ -42,6 +51,7 @@ _dotnet_zsh_complete()
   local completions=("$(dotnet complete "$words")")
   reply=( "${(ps: :)completions}" )
 }
+
 compctl -K _dotnet_zsh_complete dotnet
 
 # include ionic completion
@@ -135,5 +145,6 @@ if ! zplug check --verbose; then
 fi
 
 zplug load
-
 eval "$(starship init zsh)"
+# Neofetch
+/usr/bin/env neofetch
