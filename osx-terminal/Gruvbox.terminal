@@ -309,7 +309,7 @@
 	ABkAAAAAAAAAAAAAAAAAAADY
 	</data>
 	<key>UseBoldFonts</key>
-	<true/>
+	<false/>
 	<key>UseBrightBold</key>
 	<false/>
 	<key>columnCount</key>

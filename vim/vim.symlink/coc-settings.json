@@ -38,6 +38,7 @@
   "explorer.icon.enableVimDevicons": false,
   "explorer.icon.enableNerdfont": true,
   "explorer.filename.colored.enable": false,
+  "git.enableGutters": true,
   "yank.highlight.enable": false,
   "java.jdt.ls.vmargs": "-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication -javaagent:/usr/local/share/lombok/lombok.jar -Xbootclasspath/a:/usr/local/share/lombok/lombok.jar"
 }

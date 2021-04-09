@@ -27,6 +27,7 @@ set backspace=2
 set scrolloff=8
 set sidescrolloff=5
 set shortmess+=c
+set ttyfast
 set mouse=a
 set history=1000
 set completeopt=menuone,menu,longest
@@ -47,11 +48,9 @@ set t_Co=256
 
 let colorterm=$COLORTERM
 if colorterm=='truecolor' || colorterm=='24bit'
-  " set termguicolors in case the given terminal supports it
   if has('termguicolors')
     set termguicolors
   endif
-  " set escape characters for true colors, if screen is used
   if &term =~# '^screen'
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -61,16 +60,11 @@ endif
 if !has('nvim')
   set clipboard+=autoselect
   set ttymouse=xterm2
-
-  " == shell wrapper ==
-  if !empty(glob('~/.vim/shellwrapper.zsh'))
-    set shell=~/.vim/shellwrapper.zsh
-  endif
 endif
 
 if has("gui_running")
   set macligatures
-  set gfn=Iosevka\ Nerd\ Font\ Mono:h16.00
+  set gfn=Iosevka\ Nerd\ Font:h16.00
   set transparency=5
   set guioptions+=a
   set cmdheight=2
@@ -112,6 +106,7 @@ let g:coc_global_extensions = [
 \ 'coc-docker',
 \ 'coc-emmet',
 \ 'coc-explorer',
+\ 'coc-git',
 \ 'coc-highlight',
 \ 'coc-html',
 \ 'coc-java',
@@ -139,7 +134,7 @@ endif
 
 call plug#begin('~/.config/vim-plug')
 
-Plug 'cespare/vim-toml'
+" Plug 'cespare/vim-toml'
 Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
 Plug 'junegunn/goyo.vim'
@@ -175,13 +170,33 @@ let g:coloresque_extra_filetypes = ['conf']
 
 " == colorscheme ==
 set background=dark
-let g:gruvbox_background = 'hard'
-silent! colorscheme gruvbox
+
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_transparent_background = 1
+let g:gruvbox_material_better_performance = 1
+
+let colorterm=$COLORTERM
+if colorterm=="truecolor" || colorterm=="24bit"
+  let g:gruvbox_material_enable_bold = 1
+  let g:gruvbox_material_enable_italic = 1
+  let g:gruvbox_material_palette = 'material'
+else
+  let g:gruvbox_material_disable_italic_comment = 1
+  let g:gruvbox_material_palette = 'original'
+endif
+silent! colorscheme gruvbox-material
 
 " == airline ==
-let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
-let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
+
+let g:airline#parts#ffenc#skip_expected_string = 'utf-8[unix]'
+
+let g:airline#extensions#branch#enabled = 1
+let g:airline#extensions#hunks#enabled = 1
+let g:airline#extensions#hunks#non_zero_only = 0
+let g:airline#extensions#hunks#coc_git = 1
+let g:airline#extensions#hunks#hunk_symbols = ["\uf0fe:", "\uf14c:", "\uf146:"]
+let g:airline#extensions#tabline#enabled = 1
 
 let colorterm=$COLORTERM
 if colorterm=="truecolor" || colorterm=="24bit"
@@ -218,8 +233,9 @@ let g:haskell_backpack = 1                " to enable highlighting of backpack k
 " == Neofomat ==
 augroup fmt
   autocmd!
-  autocmd BufWritePre * undojoin | Neoformat
+  au BufWritePre * try | undojoin | Neoformat | catch /^Vim\%((\a\+)\)\=:E790/ | finally | silent Neoformat | endtry
 augroup END
+
 
 " == vim-repl ==
 nnoremap <leader>gr :REPLToggle<Cr>
