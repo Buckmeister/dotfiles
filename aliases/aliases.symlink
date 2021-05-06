@@ -1,8 +1,9 @@
 # vim:set ft=bash:
-command -v exa >/dev/null 2>&1 && alias ls='exa'
+command -v exa >/dev/null 2>&1 && alias ls='exa --icons --git'
 command -v bat >/dev/null 2>&1 && alias cat='bat'
 command -v fd >/dev/null 2>&1 && alias find='fd'
 command -v nvn >/dev/null 2>&1 && alias vi='nvn'
+command -v nvn >/dev/null 2>&1 && alias nvin='nvn -v'
 
 alias gitgraph='git log --decorate --graph'
 alias R='R -q'

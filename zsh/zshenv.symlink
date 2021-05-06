@@ -18,4 +18,4 @@ export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin"
 export BAT_CONFIG="$HOME/.config/bat"
 
 # export MANPAGER="col -bx | bat -l man"
-export MANPAGER="col -bx | vi -c 'Man!' -"
+export MANPAGER="col -bx | nvn -c 'Man!' -"

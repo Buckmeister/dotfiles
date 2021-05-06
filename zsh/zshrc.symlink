@@ -1,4 +1,3 @@
-
 # activate prompt substitution
 setopt prompt_subst
 
@@ -46,21 +45,21 @@ diff() {
 }
 
 # include dotnet completion
-_dotnet_zsh_complete()
-{
-  local completions=("$(dotnet complete "$words")")
-  reply=( "${(ps: :)completions}" )
-}
+# _dotnet_zsh_complete()
+# {
+#   local completions=("$(dotnet complete "$words")")
+#   reply=( "${(ps: :)completions}" )
+# }
 
-compctl -K _dotnet_zsh_complete dotnet
+# compctl -K _dotnet_zsh_complete dotnet
 
 # include ionic completion
-_ionic_zsh_complete()
-{
-  local completions=("$(ionic completion -- "$words")")
-  reply=( "${(ps: :)completions}" )
-}
-compctl -K _ionic_zsh_complete ionic
+# _ionic_zsh_complete()
+# {
+#   local completions=("$(ionic completion -- "$words")")
+#   reply=( "${(ps: :)completions}" )
+# }
+# compctl -K _ionic_zsh_complete ionic
 
 # Shorten PWD uniquely
 function shorten_pwd {
@@ -127,7 +126,6 @@ zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 zplug "lukechilds/zsh-nvm"
-# zplug "Buckmeister/zsh-vi-mode-cursor"
 zplug "jeffreytse/zsh-vi-mode"
 
 # Set the priority when loading
@@ -144,7 +142,17 @@ if ! zplug check --verbose; then
     fi
 fi
 
+# The Fuck
+eval $(thefuck --alias)
+
+# Starship
 zplug load
 eval "$(starship init zsh)"
+
 # Neofetch
-/usr/bin/env neofetch
+if [[ "$TERM" = "xterm-kitty" ]]; then
+  NEOFETCH_ARGS="--backend 'kitty' --bar_char '🬋' '🬇' --disk_display 'bar' --memory_display 'bar' --memory_unit 'mib' --title_fqdn 'off' --underline_char '🭸'"
+fi
+
+echo
+eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)

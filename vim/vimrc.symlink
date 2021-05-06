@@ -134,13 +134,14 @@ endif
 
 call plug#begin('~/.config/vim-plug')
 
-" Plug 'cespare/vim-toml'
+Plug 'cespare/vim-toml'
 Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
-Plug 'maralla/vim-toml-enhance'
+Plug 'kristijanhusak/defx-git'
+Plug 'kristijanhusak/defx-icons'
 Plug 'mattn/emmet-vim'
 Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -161,6 +162,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'voldikss/vim-floaterm'
 Plug 'wincent/terminus'
+Plug 'rafaqz/ranger.vim'
 Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
@@ -299,6 +301,19 @@ let g:limelight_conceal_guifg = '#777777'
 
 " == java syntax==
 highlight link JavaIdentifier NONE
+
+" == ranger ==
+let g:ranger_terminal = 'kitty -e'
+
+map <leader>rr :RangerEdit<cr>
+map <leader>rv :RangerVSplit<cr>
+map <leader>rs :RangerSplit<cr>
+map <leader>rt :RangerTab<cr>
+map <leader>ri :RangerInsert<cr>
+map <leader>ra :RangerAppend<cr>
+map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
+map <leader>rd :RangerCD<cr>
+map <leader>rld :RangerLCD<cr>
 
 " == echo friendly ascii art cat ==
 autocmd VimEnter * echo "(>^.^<)"

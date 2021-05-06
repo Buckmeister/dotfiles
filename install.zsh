@@ -83,6 +83,11 @@ if [[ ! -d "$tmpDir/vimbackup" ]]; then
   mkdir -p "$tmpDir/vimbackup"
 fi
 
+if [[ ! -d "$tmpDir/emacsbackup" ]]; then
+  echo "Creating vim backup directory: '$tmpDir/emacsbackup'"
+  mkdir -p "$tmpDir/emacsbackup"
+fi
+
 if [[ ! -d "$HOME/.local/bin" ]]; then
   echo "Creating ''~/.local/bin' directory: '$HOME/.local/bin'"
   mkdir -p "$HOME/.local/bin"

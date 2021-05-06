@@ -22,6 +22,7 @@ brew install brave-browser
 brew install docker
 brew install dotnet-sdk
 brew install electrum
+brew install --cask emacs
 brew install firefox
 brew install font-code-new-roman-nerd-font
 brew install font-fira-code
@@ -45,6 +46,7 @@ brew install postman
 brew install sizeup
 brew install skype
 brew install visual-studio-code
+brew install adns
 brew install angular-cli
 brew install bash-completion@2
 brew install ccls
@@ -56,12 +58,6 @@ brew install deno
 brew install diff-so-fancy
 brew install docker
 brew install eth-p/software/bat-extras
-brew install eth-p/software/bat-extras-batdiff
-brew install eth-p/software/bat-extras-batgrep
-brew install eth-p/software/bat-extras-batman
-brew install eth-p/software/bat-extras-batpipe
-brew install eth-p/software/bat-extras-batwatch
-brew install eth-p/software/bat-extras-prettybat
 brew install exa
 brew install exercism
 brew install fd
@@ -70,6 +66,7 @@ brew install fish
 brew install flow
 brew install ghc
 brew install gnupg
+brew install gping
 brew install grip
 brew install haskell-stack
 brew install hlint
@@ -79,6 +76,7 @@ brew install jansson
 brew install jq
 brew install libtermkey
 brew install libvterm
+brew install lolcat
 brew install luajit
 brew install luajit-openresty
 brew install luarocks
@@ -101,11 +99,13 @@ brew install rust-analyzer
 brew install rustup-init
 brew install sbcl
 brew install scipy
+brew install sdl2
 brew install shellcheck
 brew install shellharden
 brew install showkey
 brew install starship
 brew install texlab
+brew install thefuck
 brew install tldr
 brew install tree-sitter
 brew install unrar
