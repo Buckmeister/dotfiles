@@ -22,7 +22,6 @@ brew install brave-browser
 brew install docker
 brew install dotnet-sdk
 brew install electrum
-brew install --cask emacs
 brew install firefox
 brew install font-code-new-roman-nerd-font
 brew install font-fira-code
@@ -72,7 +71,6 @@ brew install haskell-stack
 brew install hlint
 brew install htop
 brew install http-server
-brew install jansson
 brew install jq
 brew install libtermkey
 brew install libvterm
@@ -94,6 +92,7 @@ brew install perltidy
 brew install ponysay
 brew install python@3.8
 brew install r
+brew install railwaycat/emacsmacport/emacs-mac
 brew install ranger
 brew install rust-analyzer
 brew install rustup-init
