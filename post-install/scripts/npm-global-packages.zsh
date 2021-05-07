@@ -5,6 +5,7 @@ npm -g install \
   bash-language-server \
   dockerfile-language-server-nodejs \
   neovim \
+  tree-sitter-cli \
   typescript-language-server \
   vim-language-server \
   vls \
