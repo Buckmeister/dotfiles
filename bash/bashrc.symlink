@@ -75,5 +75,3 @@ precmd_functions+=(prmptcmd)
 source <(kitty + complete setup bash)
 # Spaceship configuration
 source <(starship init bash --print-full-init)
-# Neofetch
-/usr/bin/env neofetch
