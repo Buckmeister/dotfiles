@@ -1,11 +1,95 @@
-; vim: ft=lisp
+;; vim: ft=lisp
 
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 
+;; Mac specific settings
+(when (string= system-type "darwin")
+
+	(menu-bar-mode 1)
+
+  (defun set-exec-path-from-shell-PATH ()
+
+		(interactive)
+		(let ((path-from-shell (replace-regexp-in-string
+				"[ \t\n]*$" "" (shell-command-to-string
+				"$SHELL --login -c 'echo $PATH'"))))
+				(setenv "PATH" path-from-shell)
+				(setq exec-path (split-string path-from-shell path-separator))))
+
+	(set-exec-path-from-shell-PATH)
+
+  (global-set-key (kbd "s-x") 'kill-region)
+  (global-set-key (kbd "s-c") 'kill-ring-save)
+  (global-set-key (kbd "s-v") 'yank)
+
+  (global-set-key (kbd "s-z") 'undo)
+
+  (global-set-key (kbd "s-s") 'save-buffer)
+  (global-set-key (kbd "s-w") 'delete-window)
+  (global-set-key (kbd "s-q") 'save-buffers-kill-terminal)
+
+  (setq mac-option-modifier 'meta)
+  (setq mac-right-option-modifier 'none)
+  (setq mac-command-modifier 'super)
+
+  ;; Enable Ligatures
+  (if (fboundp 'mac-auto-operator-composition-mode)
+      (mac-auto-operator-composition-mode 1)))
+
+(server-start)
+
+(set-default-coding-systems 'utf-8)
+(set-fringe-mode 10)
+
+(set-frame-parameter nil 'internal-border-width 10)
+(set-frame-parameter (selected-frame) 'alpha '(95 95))
+
+(add-to-list 'default-frame-alist '(alpha 95 95))
+
+(setq fast-but-imprecise-scrolling t)
+
+(setq initial-buffer-choice t)
+
 (setq backup-directory-alist `(("." . "~/.tmp/emacsbackup")))
 (setq backup-by-copying t)
+
+(add-to-list 'auto-mode-alist '("\\zshrc.symlink\\'" . sh-mode))
+(add-to-list 'auto-mode-alist '("\\emacs.symlink\\'" . emacs-lisp-mode))
+
+(add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
+
+(global-set-key (kbd "<escape>")  'keyboard-escape-quit)
+
+(set-face-attribute
+  'default nil
+  :inherit nil
+  :stipple nil
+  :inverse-video nil
+  :box nil
+  :strike-through nil
+  :overline nil
+  :underline nil
+  :slant 'normal
+  :weight 'normal
+  :height 160
+  :width 'normal
+  :family "Fira Code")
+
+
+(setq display-line-numbers-type 'relative)
+(column-number-mode)
+
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(setq-default tab-width 2)
 
 (require 'cl-lib)
 
@@ -14,7 +98,7 @@
 (package-initialize)
 
 (defvar my-packages
-  '(auto-package-update evil gruvbox-theme rainbow-mode use-package)
+  '(use-package)
   "List of packages to ensure are installed at launch.")
 
 (defun my-packages-installed-p ()
@@ -29,9 +113,68 @@
       (package-install p))))
 
 (require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package all-the-icons)
+
+(use-package company
+  :diminish
+  :bind (
+  :map company-active-map
+        ("C-j" . company-select-next)
+        ("C-k" . company-select-previous)
+  :map company-search-map
+        ("C-j" . company-select-next)
+        ("C-k" . company-select-previous)
+        ("C-ä" . company-toggle-filtering))
+  :hook
+  (emacs-lisp-mode . company-mode)
+  :config
+  (global-company-mode 1))
+
+(use-package company-box
+  :diminish
+  :hook (company-mode . company-box-mode))
+
+(use-package dash
+	:config
+	(global-dash-fontify-mode))
+
+(use-package diff-hl
+  :init
+  (diff-hl-margin-mode t)
+  :hook (
+  (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+  (magit-post-refresh . diff-hl-magit-post-refresh))
+  :config
+  (global-diff-hl-mode 1))
+
+(use-package diminish)
+
+(use-package doom-modeline
+  ;; run once in order to install all necessary fonts
+  ;; (all-the-icons-install-fonts)
+  :custom-face
+  (mode-line ((t (:height 0.85))))
+  (mode-line-inactive ((t (:height 0.85))))
+  :init
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-height 15)
+  (setq doom-modeline-icon t)
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-minor-modes t)
+  (setq doom-modeline-lsp t)
+  (setq doom-modeline-buffer-file-name-style 'truncate-except-project)
+  (doom-modeline-init)
+  :config
+  (doom-modeline-mode 1))
 
 (use-package evil
   :init
+  (global-set-key (kbd "C-M-u") 'universal-argument)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
@@ -39,34 +182,131 @@
   :config
   (evil-mode 1))
 
-(use-package gruvbox-theme
-  :defer t
+(use-package evil-commentary
+	:diminish
+	:config
+	(evil-commentary-mode 1))
+
+(use-package evil-leader
+	:init
+  (global-evil-leader-mode 1)
+  :config 
+	(evil-leader/set-leader "<SPC>")
+	(evil-leader/set-key "gs" 'magit-status)
+	(evil-leader/set-key "wk" 'kill-buffer-and-window)
+	(evil-leader/set-key "wo" 'delete-other-windows))
+
+(use-package evil-matchit
+	:config
+	(global-evil-matchit-mode 1))
+
+(use-package evil-paredit
+	:hook
+	(emacs-lisp-mode . evil-paredit-mode))
+
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1)
+	(add-to-list 'evil-surround-operator-alist '(evil-paredit-change . change))
+	(add-to-list 'evil-surround-operator-alist '(evil-paredit-delete . delete)))
+
+(use-package evil-visualstar
+	:config
+	(global-evil-visualstar-mode))
+
+(use-package ivy
+  :diminish
+  :bind (("C-#" . swiper)
+  :map ivy-minibuffer-map
+  ("TAB" . ivy-alt-done)
+  ("C-l" . ivy-alt-done)
+  ("C-j" . ivy-next-line)
+  ("C-k" . ivy-previous-line)
+  :map ivy-switch-buffer-map
+  ("C-k" . ivy-previous-line)
+  ("C-l" . ivy-done)
+  ("C-d" . ivy-switch-buffer-kill)
+  :map ivy-reverse-i-search-map
+  ("C-k" . ivy-previous-line)
+  ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package lsp-java
+  :hook
+  (java-mode . lsp))
+
+(use-package lsp-mode
   :init
-  (load-theme 'gruvbox-dark-hard t))
+  (setq lsp-enable-snippet t)
+  :config
+  (lsp-mode 1))
+
+(use-package lsp-ui)
+
+(use-package magit
+  :bind (("C-c g" . magit-file-dispatch)))
+
+(use-package material-theme
+  :config
+  (load-theme 'material t))
+
+(use-package monitor)
+
+(use-package neotree
+  :bind
+  (("C-c t" . neotree-toggle))
+        :config
+  (setq neo-smart-open t)
+        (setq neo-window-fixed-size nil))
+
+
+(use-package no-littering)
+
+(use-package org
+  :config
+  (setq org-tags-column 0))
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+
+(use-package paredit
+  :hook (
+  (emacs-lisp-mode       . enable-paredit-mode)
+  (eval-expression-minibuffer-setup . paredit-mode)
+  (ielm-mode             . enable-paredit-mode)
+  (lisp-mode             . enable-paredit-mode)
+  (lisp-interaction-mode . enable-paredit-mode)
+  (scheme-mode           . enable-paredit-mode)))
+
+(use-package rainbow-delimiters
+        :hook
+        (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
   :config
   (rainbow-mode 1))
 
-(set-face-attribute 'default nil :inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 98 :width 'normal :foundry "JB  " :family "JetBrains Mono")
+(use-package swiper)
 
-(when (string= system-type "darwin")
-  (set-face-attribute 'default nil :inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 150 :width 'normal :foundry "JB  " :family "JetBrains Mono"))
+(use-package tree-sitter)
+(use-package tree-sitter-langs)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["#3c3836" "#fb4933" "#b8bb26" "#fabd2f" "#83a598" "#d3869b" "#8ec07c" "#ebdbb2"])
- '(custom-safe-themes
-   '("e6df46d5085fde0ad56a46ef69ebb388193080cc9819e2d6024c9c6e27388ba9" "7661b762556018a44a29477b84757994d8386d6edee909409fabe0631952dad9" "6b5c518d1c250a8ce17463b7e435e9e20faa84f3f7defba8b579d4f5925f60c1" default))
- '(package-selected-packages '(gruvbox-theme use-package evil))
- '(pdf-view-midnight-colors '("#fdf4c1" . "#1d2021")))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(use-package undo-tree
+  :diminish
+  :init
+  (global-undo-tree-mode 1))
+
+(use-package which-key
+	:diminish
+	:init
+	(setq which-key-show-early-on-C-h t)
+	(setq which-key-idle-delay 10000)
+	(setq which-key-idle-secondary-delay 0.05)
+	:config
+	(which-key-mode 1))
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file) (load custom-file))
