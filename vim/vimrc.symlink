@@ -134,6 +134,7 @@ endif
 
 call plug#begin('~/.config/vim-plug')
 
+Plug 'andymass/vim-matchup'
 Plug 'cespare/vim-toml'
 Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
@@ -142,6 +143,7 @@ Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kristijanhusak/defx-git'
 Plug 'kristijanhusak/defx-icons'
+Plug 'liuchengxu/vim-which-key'
 Plug 'mattn/emmet-vim'
 Plug 'mechatroner/rainbow_csv'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -218,6 +220,8 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
+" == vim-which-key ==
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 
 " == coc ==
 source ~/.vim/coc-settings.vim
