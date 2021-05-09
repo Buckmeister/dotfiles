@@ -150,9 +150,11 @@ zplug load
 eval "$(starship init zsh)"
 
 # Neofetch
-if [[ "$TERM" = "xterm-kitty" ]]; then
-  NEOFETCH_ARGS="--backend 'kitty' --bar_char '🬋' '🬇' --disk_display 'bar' --memory_display 'bar' --memory_unit 'mib' --title_fqdn 'off' --underline_char '🭸'"
-echo
-eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)
-fi
+function neofetch() {
+  if [[ "$TERM" = "xterm-kitty" ]]; then
+    NEOFETCH_ARGS="--backend 'kitty' --bar_char '🬋' '🬇' --disk_display 'bar' --memory_display 'bar' --memory_unit 'mib' --title_fqdn 'off' --underline_char '🭸'"
+  echo
+  eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)
+  fi
+}
 
