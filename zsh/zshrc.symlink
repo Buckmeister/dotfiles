@@ -1,3 +1,6 @@
+# Determine OS Type
+OS_TYPE=$(uname)
+
 # activate prompt substitution
 setopt prompt_subst
 
@@ -40,8 +43,11 @@ if [  -f "$HOME/.aliases" ]; then
 fi
 
 # use batdiff with diff-so-fancy instead of diff
-diff() {
+
+command -v batdiff >/dev/null 2>&1 && command -v diff-so-fancy >/dev/null 2>&1 && {
+  diff() {
   /usr/bin/env batdiff $* | /usr/bin/env diff-so-fancy
+  }
 }
 
 # include dotnet completion
@@ -104,7 +110,7 @@ set_title()
 }
 precmd_functions+=(set_title)
 
-FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+[ "$OS_TYPE" = "Darwin" ] && FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
 autoload -Uz compinit
 compinit

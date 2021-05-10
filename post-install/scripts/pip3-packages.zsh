@@ -6,5 +6,4 @@ pip3 install -U \
   ranger-fm \
   jedi-language-server \
   Pillow \
-  pynvim \
-  pywall
+  pynvim

@@ -63,11 +63,14 @@ if !has('nvim')
 endif
 
 if has("gui_running")
-  set macligatures
-  set gfn=Iosevka\ Nerd\ Font:h16.00
-  set transparency=5
+  set gfn=JetBrainsMonoMedium\ Nerd\ Font\ Mono\ Medium\ 16
   set guioptions+=a
   set cmdheight=2
+  if has("mac")
+    set macligatures
+    set transparency=5
+    set gfn=Iosevka\ Nerd\ Font:h16.00
+  endif
 endif
 
 " == Overlength ==
@@ -187,20 +190,62 @@ let g:coloresque_extra_filetypes = ['conf']
 " == colorscheme ==
 set background=dark
 
+let g:edge_style = 'aura'
+let g:edge_cursor = 'auto'
+let g:edge_sign_column_background = 'none'
+let g:edge_transparent_background = 1
+let g:edge_diagnostic_text_highlight = 1
+let g:edge_diagnostic_line_highlight = 1
+let g:edge_better_performance = 1
+
+let g:everforest_background = 'hard'
+let g:everforest_cursor = 'auto'
+let g:everforest_transparent_background = 1
+let g:everforest_sign_column_background = 'none'
+let g:everforest_diagnostic_text_highlight = 1
+let g:everforest_diagnostic_line_highlight = 1
+let g:everforest_better_performance = 1
+
 let g:gruvbox_material_background = 'hard'
 let g:gruvbox_material_transparent_background = 1
 let g:gruvbox_material_better_performance = 1
 
+let g:sonokai_style = 'maia'
+let g:sonokai_cursor = 'auto'
+let g:sonokai_sign_column_background = 'none'
+let g:sonokai_menu_selection_background = 'red'
+let g:sonokai_transparent_background = 1
+let g:sonokai_diagnostic_text_highlight = 1
+let g:sonokai_diagnostic_line_highlight = 1
+let g:sonokai_material_better_performance = 1
+
 let colorterm=$COLORTERM
 if colorterm=="truecolor" || colorterm=="24bit"
+  let g:edge_enable_italic = 1
+
+  let g:everforest_enable_italic = 1
+
   let g:gruvbox_material_enable_bold = 1
   let g:gruvbox_material_enable_italic = 1
   let g:gruvbox_material_palette = 'material'
+
+  let g:sonokai_enable_italic = 1
 else
+  let g:edge_disable_italic_comment = 1
+
+  let g:everforest_disable_italic_comment = 1
+
   let g:gruvbox_material_disable_italic_comment = 1
   let g:gruvbox_material_palette = 'original'
+
+  let g:sonokai_disable_italic_comment = 1
+  let g:sonokai_transparent_background = 0
 endif
-silent! colorscheme gruvbox-material
+
+" silent! colorscheme edge
+" silent! colorscheme everforest
+" silent! colorscheme gruvbox-material
+silent! colorscheme sonokai
 
 " == airline ==
 let g:airline_powerline_fonts = 1
