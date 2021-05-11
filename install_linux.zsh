@@ -99,18 +99,18 @@ postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "
 
 for piScript in $postInstallScripts; do
   echo "Executing: '$piScript'"
-  [[ -e "$piScript" ]] && echo "$piScript"
+  [[ -e "$piScript" ]] && "$piScript"
 done
 
 # Manual steps for Ubuntu Budgie 21.04
+#
+# sudo chown -R thomas:thomas /usr/local
 #
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
 # Unzip to: ~/.local/share/fonts
 #
-# sudo mkdir /usr/local/opt
-# sudo chown thomas:thomas /usr/local/opt
 # curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 #
 # sh -c "$(curl -fsSL https://starship.rs/install.sh)"
@@ -118,10 +118,6 @@ done
 # curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 # mv /usr/bin/kitty /usr/bin/kitty.0.19
 # ln -s ~/.local/kitty.app/bin/kitty /usr/bin/
-#
-# ./post-install/scripts/pip3-packages.zsh
-# pip3 install ueberzug
-# pip install pynvim
 #
 # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # ./post-install/scripts/cargo-packages.zsh
@@ -131,6 +127,35 @@ done
 # ln -s $HOME/.local/share/diff-so-fancy/diff-so-fancy ~/.local/bin/
 #
 # Download: https://github.com/dandavison/delta/releases/download/0.6.0/delta-0.6.0-x86_64-unknown-linux-gnu.tar.gz
-# Untar to ~/.local/share/delta
+# Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ./
+#
+# curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer
+# chmod +x ~/.local/bin/rust-analyzer
+#
+# curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+# sudo python2 get-pip.py
+# pip2 install pynvim
+#
+# ./R/install.R
+#
+# Download: https://github.com/haskell/haskell-language-server/releases/latest
+# Unzip to: ~/.local/bin/
+#
+# Download: https://github.com/latex-lsp/texlab/releases
+# Unzip to: ~/.local/bin/
+#
+# curl -sSL https://get.haskellstack.org/ | sh
+# curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+# chmod go-w /home/thomas/.ghci
+#
+# Download: https://github.com/OmniSharp/omnisharp-roslyn/releases/latest
+# Unzip to: /usr/local/share/omnisharp
+#
+# curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+# tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
+# ln -sf "$dotfilesDir/jdt.ls/jdt.ls.mac.sh" "$HOME/.local/bin/jdt.ls"
+# cpan Neovim::Ext
+# cpan App::cpanminus
+# cpan Perl::LanguageServer
 #

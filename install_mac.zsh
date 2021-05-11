@@ -103,7 +103,7 @@ echo "Creating symlink to 'shell.zsh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
 
 echo "Creating symlink to 'jdt.ls.sh' in '~/.local/bin'"
-ln -sf "$dotfilesDir/jdt.ls/jdt.ls.sh" "$HOME/.local/bin/jdt.ls"
+ln -sf "$dotfilesDir/jdt.ls/jdt.ls.mac.sh" "$HOME/.local/bin/jdt.ls"
 
 if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
