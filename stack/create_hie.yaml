@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+echo "cradle: { stack: {}}" > hie.yaml
+

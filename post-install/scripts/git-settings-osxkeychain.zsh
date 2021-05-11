@@ -1,3 +1,7 @@
 #!/usr/bin/env zsh
 
-git config --global credential.helper osxkeychain
+if [[ "$(uname)" == "Darwin" ]]; then
+  git config --global credential.helper osxkeychain
+else
+  # git config --global credential.helper osxkeychain
+fi

@@ -42,4 +42,5 @@ toilet-fonts
 vim-gui-common
 xclip
 xorg-dev
+zplug
 zsh

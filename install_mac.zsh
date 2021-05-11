@@ -105,6 +105,9 @@ ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
 echo "Creating symlink to 'jdt.ls.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/jdt.ls/jdt.ls.mac.sh" "$HOME/.local/bin/jdt.ls"
 
+echo "Creating symlink to 'create_hie.yaml' in '~/.local/bin'"
+ln -sf "$dotfilesDir/stack/create_hie.yaml" "$HOME/.local/bin/"
+
 if [[ ! "$UPDATE_ONLY" == "true" ]]; then
 echo "Installing required brew packages"
   brew install node
@@ -170,7 +173,7 @@ echo "Installing GHCUP"
 [ -d "/usr/local/share/ghcup" ] && rm -rf "/usr/local/share/ghcup/*"
 curl -fLo "/usr/local/share/ghcup/ghcup" --create-dirs "https://downloads.haskell.org/~ghcup/x86_64-apple-darwin-ghcup"
 chmod 755 "/usr/local/share/ghcup/ghcup"
-ln -s "/usr/local/share/ghcup/ghcup" ~/.local/bin/
+ln -sf "/usr/local/share/ghcup/ghcup" ~/.local/bin/
 
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})

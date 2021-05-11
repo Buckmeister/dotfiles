@@ -81,6 +81,28 @@ ln -sf "$dotfilesDir/apt/install_apt_packages.sh" "$HOME/.local/bin/install_apt_
 echo "Creating symlink to 'shell.zsh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
 
+echo "Creating symlink to 'jdt.ls.sh' in '~/.local/bin'"
+ln -sf "$dotfilesDir/jdt.ls/jdt.ls.linux.sh" "$HOME/.local/bin/jdt.ls"
+
+echo "Creating symlink to 'create_hie.yaml' in '~/.local/bin'"
+ln -sf "$dotfilesDir/stack/create_hie.yaml" "$HOME/.local/bin/"
+
+echo "Installing apt packages"
+install_apt_packages
+sudo chown -R $USERNAME /usr/local
+
+echo "Installing haskell toolchain"
+curl -sSL https://get.haskellstack.org/ | sh
+curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+chmod go-w /home/thomas/.ghci
+
+echo "Installing rust toolchain"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+echo "Installing starship shell prompt"
+sh -c "$(curl -fsSL https://starship.rs/install.sh)"
+
+echo "Installing vim-plug"
 if [[ ! -d "$installDir/.config/vim-plug" ]]; then
   echo "Creating vim-plug directory: '$installDir/.config/vim-plug'"
   mkdir -p "$installDir/.config/vim-plug"
@@ -94,6 +116,37 @@ vim +'PlugInstall --sync' +qa! &>/dev/null
 echo "Downloading Bash PreExec"
 curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
 
+echo "Installing R packages"
+"$dotfilesDir/R/install.R"
+
+echo "Installing JDT.LS"
+[ -d "/usr/local/share/jdt.ls" ] && rm -rf "/usr/local/share/jdt.ls/*"
+curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
+
+# echo "Installing OmniSharp"
+# [ -d "/usr/local/share/omnisharp" ] && rm -rf "/usr/local/share/omnisharp/*"
+# curl -fLo "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --create-dirs "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.37.6/omnisharp-osx.tar.gz"
+# tar xzf "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --directory="/usr/local/share/omnisharp"
+
+curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer
+chmod +x ~/.local/bin/rust-analyzer
+
+cpan Neovim::Ext
+cpan App::cpanminus
+cpan Perl::LanguageServer
+
+echo "Installing kitty"
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+mv /usr/bin/kitty /usr/bin/kitty.0.19
+echo "Creating kitty symlink"
+sudo ln -s ~/.local/kitty.app/bin/kitty /usr/bin/
+
+echo "Installing diff-so-fancy"
+mkdir -p ~/.local/share/diff-so-fancy
+https://github.com/so-fancy/diff-so-fancy ~/.local/share/diff-so-fancy
+ln -s $HOME/.local/share/diff-so-fancy/diff-so-fancy ~/.local/bin/
+
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
 
@@ -104,8 +157,6 @@ done
 
 # Manual steps for Ubuntu Budgie 21.04
 #
-# sudo chown -R thomas:thomas /usr/local
-#
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
@@ -113,49 +164,17 @@ done
 #
 # curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 #
-# sh -c "$(curl -fsSL https://starship.rs/install.sh)"
-#
-# curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-# mv /usr/bin/kitty /usr/bin/kitty.0.19
-# ln -s ~/.local/kitty.app/bin/kitty /usr/bin/
-#
-# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# ./post-install/scripts/cargo-packages.zsh
-#
-# mkdir -p ~/.local/share/diff-so-fancy
-# https://github.com/so-fancy/diff-so-fancy ~/.local/share/diff-so-fancy
-# ln -s $HOME/.local/share/diff-so-fancy/diff-so-fancy ~/.local/bin/
-#
 # Download: https://github.com/dandavison/delta/releases/download/0.6.0/delta-0.6.0-x86_64-unknown-linux-gnu.tar.gz
 # Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ./
-#
-# curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer
-# chmod +x ~/.local/bin/rust-analyzer
 #
 # curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 # sudo python2 get-pip.py
 # pip2 install pynvim
 #
-# ./R/install.R
-#
-# Download: https://github.com/haskell/haskell-language-server/releases/latest
-# Unzip to: ~/.local/bin/
-#
 # Download: https://github.com/latex-lsp/texlab/releases
 # Unzip to: ~/.local/bin/
 #
-# curl -sSL https://get.haskellstack.org/ | sh
-# curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
-# chmod go-w /home/thomas/.ghci
-#
 # Download: https://github.com/OmniSharp/omnisharp-roslyn/releases/latest
 # Unzip to: /usr/local/share/omnisharp
-#
-# curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
-# tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
-# ln -sf "$dotfilesDir/jdt.ls/jdt.ls.mac.sh" "$HOME/.local/bin/jdt.ls"
-# cpan Neovim::Ext
-# cpan App::cpanminus
-# cpan Perl::LanguageServer
 #

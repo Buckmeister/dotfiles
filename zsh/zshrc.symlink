@@ -127,7 +127,7 @@ jdk() {
 [ "$OS_TYPE" = "Darwin" ] && export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
 
 # zplug
-[ "$OS_TYPE" = "Darwin" ] && ln -s /usr/local/opt/zplug ./.zplug
+[ "$OS_TYPE" = "Darwin" ] && ln -sf /usr/local/opt/zplug ./.zplug
 source $ZPLUG_HOME/init.zsh
 
 zplug "zsh-users/zsh-history-substring-search"
