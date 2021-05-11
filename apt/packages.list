@@ -12,6 +12,7 @@ ghc
 git
 hlint
 kitty
+libio-aio-perl
 libffi8ubuntu1
 libffi-dev
 libgmp10
