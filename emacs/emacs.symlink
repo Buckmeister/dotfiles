@@ -4,6 +4,7 @@
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 
+
 ;; Mac specific settings
 (when (string= system-type "darwin")
 
@@ -48,6 +49,7 @@
 (set-frame-parameter nil 'internal-border-width 10)
 (set-frame-parameter (selected-frame) 'alpha '(96 96))
 
+(setq default-frame-alist '((undecorated . t)))
 (add-to-list 'default-frame-alist '(alpha 96 96))
 
 (setq fast-but-imprecise-scrolling t)
@@ -186,7 +188,16 @@
   :init
   (setq evil-collection-setup-minibuffer 1)
   :config
-  (evil-collection-init))
+  (evil-collection-init)
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+  )
 
 (use-package evil-commentary
   :diminish
@@ -295,13 +306,9 @@
 (use-package org
   :config
   (setq org-tags-column 0))
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
-
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
 
 (use-package paredit
+  :diminish
   :hook (
   (emacs-lisp-mode       . enable-paredit-mode)
   (eval-expression-minibuffer-setup . paredit-mode)
