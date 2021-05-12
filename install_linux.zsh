@@ -147,6 +147,14 @@ mkdir -p ~/.local/share/diff-so-fancy
 https://github.com/so-fancy/diff-so-fancy ~/.local/share/diff-so-fancy
 ln -s $HOME/.local/share/diff-so-fancy/diff-so-fancy ~/.local/bin/
 
+echo "Installing luarocks"
+rm -rf ~/.tmp/luarocks*
+cd ~/.tmp
+wget https://luarocks.org/releases/luarocks-3.7.0.tar.gz
+tar zxpf luarocks-3.7.0.tar.gz
+cd luarocks-3.7.0
+./configure && make && sudo make install
+
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
 
@@ -162,11 +170,9 @@ done
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
 # Unzip to: ~/.local/share/fonts
 #
-# curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
-#
 # Download: https://github.com/dandavison/delta/releases/download/0.6.0/delta-0.6.0-x86_64-unknown-linux-gnu.tar.gz
 # Untar to: ~/.local/share/delta
-# ln -s $HOME/.local/share/delta/delta ./
+# ln -s $HOME/.local/share/delta/delta ~/.local/bin/
 #
 # curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 # sudo python2 get-pip.py

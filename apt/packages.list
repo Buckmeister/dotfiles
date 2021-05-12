@@ -1,6 +1,7 @@
 bat
 build-essential
 ccls
+cmake
 curl
 exa
 fd-find
@@ -12,14 +13,18 @@ ghc
 git
 hlint
 kitty
-libio-aio-perl
 libffi8ubuntu1
 libffi-dev
 libgmp10
 libgmp-dev
+libio-aio-perl
+liblua5.2-dev
 libncurses5
 libncurses-dev
 libtinfo5
+libtolua-dev
+lua5.2
+luajit
 maven
 neofetch
 nodejs
@@ -35,6 +40,7 @@ ranger
 r-recommended
 ruby-neovim
 stylish-haskell
+texlive
 thefuck
 tldr
 toilet
