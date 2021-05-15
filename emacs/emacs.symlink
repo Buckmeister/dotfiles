@@ -281,6 +281,10 @@
 (use-package lsp-mode
   :init
   (setq lsp-enable-snippet t)
+  (defalias 'perl-mode 'cperl-mode)
+  :hook
+  (rust-mode . lsp)
+  (cperl-mode . lsp)
   :config
   (lsp-mode 1))
 
@@ -330,6 +334,8 @@
 (use-package rainbow-mode
   :config
   (rainbow-mode 1))
+
+(use-package rust-mode)
 
 (use-package swiper)
 
