@@ -3,6 +3,7 @@ build-essential
 ccls
 cmake
 curl
+emacs
 exa
 fd-find
 figlet
