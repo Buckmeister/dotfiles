@@ -240,6 +240,8 @@
   :config
   (global-evil-visualstar-mode))
 
+(use-package haskell-mode)
+
 (use-package helpful
   :custom
   (counsel-describe-function-function #'helpful-callable)
@@ -281,6 +283,10 @@
   (setq lsp-enable-snippet t)
   :config
   (lsp-mode 1))
+
+(use-package lsp-haskell
+  :hook
+  (haskell-mode . lsp))
 
 (use-package lsp-ui)
 
