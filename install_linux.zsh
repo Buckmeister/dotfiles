@@ -88,7 +88,7 @@ echo "Creating symlink to 'create_hie.yaml' in '~/.local/bin'"
 ln -sf "$dotfilesDir/stack/create_hie.yaml" "$HOME/.local/bin/"
 
 echo "Installing apt packages"
-$dotfilesDir/apt/install_apt_packages
+$dotfilesDir/apt/install_apt_packages.sh
 sudo chown -R $USERNAME /usr/local
 
 echo "Installing haskell toolchain"
