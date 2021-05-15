@@ -170,7 +170,7 @@ done
 # Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
 # Unzip to: ~/.local/share/fonts
 #
-# Download: https://github.com/dandavison/delta/releases/download/0.6.0/delta-0.6.0-x86_64-unknown-linux-gnu.tar.gz
+# Download: https://github.com/dandavison/delta/releases/latest
 # Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ~/.local/bin/
 #
