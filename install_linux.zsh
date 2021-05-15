@@ -138,7 +138,7 @@ cpan Perl::LanguageServer
 
 echo "Installing kitty"
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-mv /usr/bin/kitty /usr/bin/kitty.0.19
+sudo mv /usr/bin/kitty /usr/bin/kitty.0.19
 echo "Creating kitty symlink"
 sudo ln -s ~/.local/kitty.app/bin/kitty /usr/bin/
 

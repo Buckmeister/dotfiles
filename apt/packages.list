@@ -18,11 +18,13 @@ libffi-dev
 libgmp10
 libgmp-dev
 libio-aio-perl
+libcurl4-openssl-dev
 liblua5.2-dev
 libncurses5
 libncurses-dev
 libtinfo5
 libtolua-dev
+libxml2-dev
 lua5.2
 luajit
 maven
