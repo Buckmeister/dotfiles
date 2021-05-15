@@ -144,7 +144,7 @@ sudo ln -s ~/.local/kitty.app/bin/kitty /usr/bin/
 
 echo "Installing diff-so-fancy"
 mkdir -p ~/.local/share/diff-so-fancy
-https://github.com/so-fancy/diff-so-fancy ~/.local/share/diff-so-fancy
+git clone https://github.com/so-fancy/diff-so-fancy ~/.local/share/diff-so-fancy
 ln -s $HOME/.local/share/diff-so-fancy/diff-so-fancy ~/.local/bin/
 
 echo "Installing luarocks"
@@ -155,6 +155,26 @@ tar zxpf luarocks-3.7.0.tar.gz
 cd luarocks-3.7.0
 ./configure && make && sudo make install
 
+echo "Installing fonts"
+cd ~/.tmp
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
+unzip FiraCode.zip -d ~/.local/share/fonts
+unzip Iosevka.zip -d ~/.local/share/fonts
+unzip JetBrainsMono.zip -d ~/.local/share/fonts
+rm FiraCode.zip
+rm Iosevka.zip
+rm JetBrainsMono.zip
+
+echo "Installing Python 2 pip"
+cd ~/.tmp
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+sudo python2 get-pip.py
+pip2 install pynvim
+rm get-pip.py
+
 echo "Applying Post-Install Scripts"
 postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
 
@@ -164,19 +184,10 @@ for piScript in $postInstallScripts; do
 done
 
 # Manual steps for Ubuntu Budgie 21.04
-#
-# Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
-# Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
-# Download: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-# Unzip to: ~/.local/share/fonts
-#
 # Download: https://github.com/dandavison/delta/releases/latest
 # Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ~/.local/bin/
 #
-# curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-# sudo python2 get-pip.py
-# pip2 install pynvim
 #
 # Download: https://github.com/latex-lsp/texlab/releases
 # Unzip to: ~/.local/bin/
