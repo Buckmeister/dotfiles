@@ -88,7 +88,7 @@ echo "Creating symlink to 'create_hie.yaml' in '~/.local/bin'"
 ln -sf "$dotfilesDir/stack/create_hie.yaml" "$HOME/.local/bin/"
 
 echo "Installing apt packages"
-install_apt_packages
+$dotfilesDir/apt/install_apt_packages
 sudo chown -R $USERNAME /usr/local
 
 echo "Installing haskell toolchain"
@@ -154,15 +154,16 @@ wget https://luarocks.org/releases/luarocks-3.7.0.tar.gz
 tar zxpf luarocks-3.7.0.tar.gz
 cd luarocks-3.7.0
 ./configure && make && sudo make install
+sudo chown -R $USERNAME /usr/local
 
 echo "Installing fonts"
 cd ~/.tmp
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-unzip FiraCode.zip -d ~/.local/share/fonts
-unzip Iosevka.zip -d ~/.local/share/fonts
-unzip JetBrainsMono.zip -d ~/.local/share/fonts
+unzip FiraCode.zip -d ~/.local/share/fonts -o
+unzip Iosevka.zip -d ~/.local/share/fonts -o
+unzip JetBrainsMono.zip -d ~/.local/share/fonts -o
 rm FiraCode.zip
 rm Iosevka.zip
 rm JetBrainsMono.zip
