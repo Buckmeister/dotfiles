@@ -169,14 +169,13 @@ rm JetBrainsMono.zip
 
 echo "Installing Python 2 pip"
 cd ~/.tmp
-wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
 curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 sudo python2 get-pip.py
 pip2 install pynvim
 rm get-pip.py
 
 echo "Applying Post-Install Scripts"
-postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm 755 -name "*.zsh" -print0)"})
+postInstallScripts=(${(0)"$(find "${dotfilesDir}/post-install" -perm /555 -name "*.zsh" -print0)"})
 
 for piScript in $postInstallScripts; do
   echo "Executing: '$piScript'"
