@@ -3,5 +3,6 @@
 .netrwhist
 .DS_Store
 nvim/nvim.symlink_config/coc-settings.json
+ipython/ipython.symlink/profile_default/history.sqlite
 vim/vim.symlink/autoload/plug.vim*
 __pycache__
