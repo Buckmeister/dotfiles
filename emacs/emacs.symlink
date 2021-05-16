@@ -137,6 +137,14 @@
   :bind (
   ("M-x" . counsel-M-x)))
 
+(use-package csharp-mode)
+
+(use-package dap-mode
+  :defer t
+  :after lsp-mode
+  :config
+  (dap-auto-configure-mode))
+
 (use-package dash
   :config
   (global-dash-fontify-mode))
@@ -282,9 +290,12 @@
   :init
   (setq lsp-enable-snippet t)
   (defalias 'perl-mode 'cperl-mode)
+  :defer t
+  :commands (lsp lsp-deferred)
   :hook
-  (rust-mode . lsp)
-  (cperl-mode . lsp)
+  (cperl-mode  . lsp)
+  (csharp-mode . lsp)
+  (rust-mode   . lsp)
   :config
   (lsp-mode 1))
 
@@ -292,7 +303,20 @@
   :hook
   (haskell-mode . lsp))
 
-(use-package lsp-ui)
+(use-package lsp-pyright
+  :defer t
+  :config
+  (setq lsp-pyright-disable-language-service nil
+        lsp-pyright-disable-organize-imports nil
+        lsp-pyright-auto-import-completions t
+        lsp-pyright-use-library-code-for-types t)
+  :hook ((python-mode . (lambda () 
+                          (require 'lsp-pyright) (lsp)))))
+
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-sideline-enable nil
+        lsp-ui-doc-delay 2))
 
 (use-package magit
   :bind (("C-c g" . magit-file-dispatch)))
@@ -326,6 +350,27 @@
   (lisp-mode             . enable-paredit-mode)
   (lisp-interaction-mode . enable-paredit-mode)
   (scheme-mode           . enable-paredit-mode)))
+
+(use-package python
+  :config
+  (setq python-indent-guess-indent-offset-verbose nil)
+  (cond
+  ((executable-find "ipython")
+   (progn
+     (setq python-shell-buffer-name "IPython")
+     (setq python-shell-interpreter "ipython")
+     (setq python-shell-interpreter-args "-i --simple-prompt")))
+  ((executable-find "ipython3")
+   (progn
+     (setq python-shell-buffer-name "IPython")
+     (setq python-shell-interpreter "ipython")
+     (setq python-shell-interpreter-args "-i --simple-prompt")))
+  ((executable-find "python3")
+   (setq python-shell-interpreter "python3"))
+  ((executable-find "python2")
+   (setq python-shell-interpreter "python2"))
+  (t
+  (setq python-shell-interpreter "python"))))
 
 (use-package rainbow-delimiters
   :hook
