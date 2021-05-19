@@ -1,3 +1,4 @@
+background_opacity: 0.98
 font:
   bold:
     family: "FiraCode Nerd Font Mono"
@@ -20,7 +21,6 @@ window:
     y: 10
   startup_mode: Windowed
   draw_bold_text_with_bright_colors: true
-  background_opacity: 0.5
 schemes:
   afterglow: &afterglow
     primary:
