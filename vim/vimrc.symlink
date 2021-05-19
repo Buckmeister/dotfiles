@@ -49,6 +49,8 @@ set t_Co=256
 let colorterm=$COLORTERM
 if colorterm=='truecolor' || colorterm=='24bit'
   if has('termguicolors')
+    let &t_ZH="\e[3m"
+    let &t_ZR="\e[23m"
     set termguicolors
   endif
   if &term =~# '^screen'
@@ -128,7 +130,7 @@ let g:coc_global_extensions = [
 \ 'coc-json',
 \ 'coc-omnisharp',
 \ 'coc-pairs',
-\ 'coc-python',
+\ 'coc-pyright',
 \ 'coc-r-lsp',
 \ 'coc-rust-analyzer',
 \ 'coc-snippets',
