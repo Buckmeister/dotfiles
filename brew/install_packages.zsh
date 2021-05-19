@@ -15,6 +15,7 @@ command -v brew > /dev/null 2>&1 || {
 brew install 1password
 brew install adoptopenjdk11
 brew install adoptopenjdk8
+brew install alacritty
 brew install amethyst
 brew install balenaetcher
 brew install boop
@@ -29,6 +30,7 @@ brew install font-fira-code-nerd-font
 brew install font-hack-nerd-font
 brew install font-hasklug-nerd-font
 brew install font-iosevka
+brew install font-iosevka-aile
 brew install font-iosevka-nerd-font
 brew install font-jetbrains-mono-nerd-font
 brew install font-monoid-nerd-font
@@ -71,6 +73,7 @@ brew install haskell-stack
 brew install hlint
 brew install htop
 brew install http-server
+brew install ipython
 brew install jq
 brew install libtermkey
 brew install libvterm
