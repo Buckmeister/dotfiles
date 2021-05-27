@@ -4,7 +4,5 @@ pip3 install -U \
   httpie \
   httpie-jwt-auth \
   ranger-fm \
-  jedi-language-server \
   Pillow \
-  pynvim \
-  python-language-server
+  pynvim
