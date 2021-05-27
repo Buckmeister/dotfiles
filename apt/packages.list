@@ -15,7 +15,6 @@ git
 hlint
 ipython3
 kitty
-libffi8ubuntu1
 libffi-dev
 libgmp10
 libgmp-dev
@@ -41,6 +40,7 @@ python3-jedi
 python3-pip
 python3-setuptools
 ranger
+ripgrep
 r-recommended
 ruby-neovim
 stylish-haskell
