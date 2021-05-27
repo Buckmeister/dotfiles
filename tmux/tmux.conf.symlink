@@ -1,0 +1,34 @@
+set -g window-status-current-style "underscore"
+set -g status-right ""
+
+set -g mode-keys vi
+set -g status-keys vi
+
+set -g status-bg darkgray
+set -g status-fg black
+
+%if #{TMUX}
+set -g status-bg red
+%endif
+
+set-option -sa terminal-overrides ",xterm*:Tc"
+set -g default-terminal "screen-256color"
+
+set -g bell-action none
+set -g remain-on-exit on
+
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+set -g mouse on
+# unbind -n MouseDrag1Pane
+
+bind F set -w window-size
+bind m set monitor-activity
+bind y set synchronize-panes\; display 'synchronize-panes #{?synchronize-panes,on,off}'
+
+new  -d -nzero -sdefault
+neww -d -none
+neww -d -ntwo
+neww -d -nthree
