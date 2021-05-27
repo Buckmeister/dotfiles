@@ -128,7 +128,7 @@ jdk() {
 
 # zplug
 if [ "$OS_TYPE" = "Darwin" ];then
-  ln -sf /usr/local/opt/zplug ~/.zplug
+  [ ! -e ~/.zplug ] && ln -sf /usr/local/opt/zplug ~/.zplug
   source $ZPLUG_HOME/init.zsh
 else
   source /usr/share/zplug/init.zsh
