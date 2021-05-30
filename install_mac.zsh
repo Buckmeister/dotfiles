@@ -55,7 +55,7 @@ if [[ ! -d "$backupDir/.config" ]]; then
   mkdir -p "$backupDir/.config"
 fi
 
-homeSymlinks=(${(0)"$(find $dotfilesDir -name "*.symlink" -print0)"})
+homeSymlinks=(${(0)"$(find $dotfilesDir -path "$dotfilesDir/.git" -prune -false -o -name "*.symlink" -print0)"})
 
 for linkSource in $homeSymlinks; do
   linkTarget=$installDir/.$linkSource:t:r
@@ -64,7 +64,7 @@ for linkSource in $homeSymlinks; do
   [[ -e "$linkTarget" ]] || ln -s "$linkSource" "$linkTarget"
 done
 
-configSymlinks=(${(0)"$(find $dotfilesDir -name "*.symlink_config" -print0)"})
+configSymlinks=(${(0)"$(find $dotfilesDir -path "$dotfilesDir/.git" -prune -false -o -name "*.symlink_config" -print0)"})
 
 if [[ ! -d "$installDir/.config" ]]; then
   echo "Creating .config directory: '$installDir/.config'"
