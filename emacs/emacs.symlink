@@ -219,6 +219,7 @@
   (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key "bl" 'counsel-switch-buffer)
   (evil-leader/set-key "ft" 'neotree-toggle)
+  (evil-leader/set-key "ff" 'projectile-find-file)
   (evil-leader/set-key "gs" 'magit-status)
   (evil-leader/set-key "hc" 'helpful-command)
   (evil-leader/set-key "hf" 'counsel-describe-function)
@@ -350,6 +351,17 @@
   (lisp-mode             . enable-paredit-mode)
   (lisp-interaction-mode . enable-paredit-mode)
   (scheme-mode           . enable-paredit-mode)))
+
+(use-package projectile
+  :diminish
+  :init
+  (when (file-directory-p "~/.config/dotfiles")
+    (setq projectile-project-search-path '("~/.config/dotfiles")))
+  (setq projectile-switch-project-action 'projectile-dired)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :config
+  (projectile-mode))
 
 (use-package python
   :config
