@@ -22,6 +22,8 @@ window:
     y: 10
   startup_mode: Windowed
   draw_bold_text_with_bright_colors: true
+key_bindigs:
+  - { key: Space, mods: Control, chars: "\x00" }
 schemes:
   afterglow: &afterglow
     primary:
