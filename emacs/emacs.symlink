@@ -137,6 +137,10 @@
   :bind (
   ("M-x" . counsel-M-x)))
 
+(use-package counsel-projectile
+  :config
+  (counsel-projectile-mode))
+
 (use-package csharp-mode)
 
 (use-package dap-mode
@@ -355,8 +359,8 @@
 (use-package projectile
   :diminish
   :init
-  (when (file-directory-p "~/.config/dotfiles")
-    (setq projectile-project-search-path '("~/.config/dotfiles")))
+  (when (file-directory-p "~/Development")
+    (setq projectile-project-search-path '("~/Development")))
   (setq projectile-switch-project-action 'projectile-dired)
   :bind-keymap
   ("C-c p" . projectile-command-map)
