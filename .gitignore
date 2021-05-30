@@ -6,3 +6,5 @@ nvim/nvim.symlink_config/coc-settings.json
 ipython/ipython.symlink/profile_default/history.sqlite
 vim/vim.symlink/autoload/plug.vim*
 __pycache__
+karabiner/karabiner.symlink_config/assets
+karabiner/karabiner.symlink_config/automatic_backups
