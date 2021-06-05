@@ -185,6 +185,12 @@
   :config
   (doom-modeline-mode 1))
 
+(use-package edwina
+  :init
+  (setq display-buffer-base-action '(display-buffer-below-selected))
+  :config
+  (edwina-mode 1))
+
 (use-package evil
   :init
   (global-set-key (kbd "C-M-u") 'universal-argument)
