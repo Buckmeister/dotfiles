@@ -56,6 +56,8 @@
 
 (setq initial-buffer-choice t)
 
+(setq delete-by-moving-to-trash t)
+
 (setq backup-directory-alist `(("." . "~/.tmp/emacsbackup")))
 (setq backup-by-copying t)
 
@@ -164,6 +166,16 @@
 
 (use-package diminish)
 
+(use-package dired
+  :ensure nil
+  :after evil-collection
+  :commands (dired dired-jump)
+  :bind (("C-x C-j" . dired-jump))
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-up-directory
+    "l" 'dired-find-file))
+
 (use-package doom-modeline
   ;; run once in order to install all necessary fonts
   ;; (all-the-icons-install-fonts)
@@ -194,10 +206,11 @@
 (use-package evil
   :init
   (global-set-key (kbd "C-M-u") 'universal-argument)
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-undo-system 'undo-tree)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
-  (setq evil-respect-visual-line-mode t)
   :config
   (evil-mode 1))
 
@@ -271,6 +284,14 @@
   ([remap describe-key]      . helpful-key)
   ([remap describe-variable] . counsel-describe-variable))
 
+(use-package highlight-indentation
+  :hook
+  (yaml-mode . highlight-indentation-mode)
+  (python-mode . highlight-indentation-mode)
+  :config
+  (set-face-background 'highlight-indentation-face "#444444")
+  (set-face-background 'highlight-indentation-current-column-face "#555555"))
+
 (use-package ivy
   :diminish
   :bind (("C-#" . swiper)
@@ -307,6 +328,7 @@
   (cperl-mode  . lsp)
   (csharp-mode . lsp)
   (rust-mode   . lsp)
+  (yaml-mode   . lsp)
   :config
   (lsp-mode 1))
 
@@ -326,7 +348,7 @@
 
 (use-package lsp-ui
   :config
-  (setq lsp-ui-sideline-enable nil
+  (setq lsp-ui-sideline-enable t
         lsp-ui-doc-delay 2))
 
 (use-package magit
@@ -422,6 +444,10 @@
   (setq which-key-idle-secondary-delay 0.05)
   :config
   (which-key-mode 1))
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 
 (diminish 'eldoc-mode)
 

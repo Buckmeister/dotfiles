@@ -1,3 +1,4 @@
+command_timeout = 10000
 [env_var]
 variable = "STARSHIP_SHELL"
 default = "unknown"
@@ -7,3 +8,6 @@ format = "with [${env_value}]($style) "
 [docker_context]
 disabled = "false"
 only_with_files = "true"
+
+[rlang]
+disabled = "true"
