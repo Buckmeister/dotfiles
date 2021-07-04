@@ -1,5 +1,5 @@
 alt_send_esc: false
-background_opacity: 0.98
+background_opacity: 0.95
 font:
   bold:
     family: "FiraCode Nerd Font Mono"
@@ -1293,4 +1293,4 @@ schemes:
       cyan: "0x00ffff"
       white: "0xffffff"
 
-colors: *afterglow
+colors: *gruvbox_material

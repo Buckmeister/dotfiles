@@ -4,8 +4,8 @@ set -g status-right ""
 set -g mode-keys vi
 set -g status-keys vi
 
-set -g status-bg white
-set -g status-fg black
+set -g status-bg "#272827"
+set -g status-fg "#d8bd92"
 
 %if #{TMUX}
 set -g status-bg red
