@@ -102,6 +102,9 @@ ln -sf "$dotfilesDir/maven/install_maven_wrapper.sh" "$HOME/.local/bin/install_m
 echo "Creating symlink to 'shell.zsh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/zsh/shell.zsh" "$HOME/.local/bin/shell"
 
+echo "Creating symlink to 'shorten_path.zsh' in '~/.local/bin'"
+ln -sf "$dotfilesDir/zsh/shorten_path.zsh" "$HOME/.local/bin/shorten_path"
+
 echo "Creating symlink to 'jdt.ls.sh' in '~/.local/bin'"
 ln -sf "$dotfilesDir/jdt.ls/jdt.ls.mac.sh" "$HOME/.local/bin/jdt.ls"
 
