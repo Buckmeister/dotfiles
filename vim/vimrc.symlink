@@ -246,8 +246,8 @@ endif
 
 " silent! colorscheme edge
 " silent! colorscheme everforest
-" silent! colorscheme gruvbox-material
-silent! colorscheme sonokai
+silent! colorscheme gruvbox-material
+" silent! colorscheme sonokai
 
 " == airline ==
 let g:airline_powerline_fonts = 1
