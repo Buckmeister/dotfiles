@@ -23,7 +23,12 @@ window:
   startup_mode: Windowed
   draw_bold_text_with_bright_colors: true
 key_bindigs:
-  - { key: Space, mods: Control, chars: "\x00" }
+  - { key: 49, mods: Control, chars: "\x00" }
+  - { key: 17, mods: Control|Shift, chars: "\x01\x63" }
+  - { key: 13, mods: Control|Shift, chars: "\x01\x64" }
+  - { key: 124, mods: Control|Shift, chars: "\x01\x6e" }
+  - { key: 123, mods: Control|Shift, chars: "\x01\x70" }
+
 schemes:
   afterglow: &afterglow
     primary:
