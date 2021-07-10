@@ -35,6 +35,7 @@ bind C-a send-prefix
 set -g mouse on
 # unbind -n MouseDrag1Pane
 
+bind d run-shell ~/.config/tmux/sh/smart-kill-pane.sh
 bind F set -w window-size
 bind m set monitor-activity
 bind y set synchronize-panes\; display 'synchronize-panes #{?synchronize-panes,on,off}'
@@ -43,3 +44,5 @@ new  -d -stmux
 neww -d
 neww -d
 neww -d
+
+
