@@ -4,7 +4,6 @@
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 
-
 ;; Mac specific settings
 (when (string= system-type "darwin")
 
@@ -42,6 +41,8 @@
       (mac-auto-operator-composition-mode 1)))
 
 (server-start)
+
+(setq gc-cons-threshold (* 2 1000 1000))
 
 (set-default-coding-systems 'utf-8)
 (set-fringe-mode 10)
@@ -140,9 +141,7 @@
 (use-package company-box
   :diminish
   :hook
-  (company-mode . company-box-mode)
-  :config
-  (setq company-frontends '(company-tng-frontend company-box-frontend)))
+  (company-mode . company-box-mode))
 
 (use-package counsel
   :bind (
@@ -184,6 +183,26 @@
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-up-directory
     "l" 'dired-find-file))
+
+(use-package dired-single
+  :commands (dired dired-jump))
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package dired-open
+  :commands (dired dired-jump)
+  :config
+  (setq dired-open-extensions '(("png" . "feh")
+                                ("mkv" . "mpv"))))
+
+(use-package dired-hide-dotfiles
+  :init
+  (setq evil-want-keybinding nil)
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
 
 (use-package doom-modeline
   ;; run once in order to install all necessary fonts
@@ -250,13 +269,14 @@
   :config 
   (evil-leader/set-leader "<SPC>")
   (evil-leader/set-key "bl" 'counsel-switch-buffer)
-  (evil-leader/set-key "ft" 'neotree-toggle)
+  (evil-leader/set-key "ft" 'treemacs)
   (evil-leader/set-key "ff" 'projectile-find-file)
   (evil-leader/set-key "gs" 'magit-status)
   (evil-leader/set-key "hc" 'helpful-command)
   (evil-leader/set-key "hf" 'counsel-describe-function)
   (evil-leader/set-key "hk" 'helpful-key)
   (evil-leader/set-key "hv" 'counsel-describe-variable)
+  (evil-leader/set-key "hw" 'which-key-show-top-level)
   (evil-leader/set-key "wk" 'kill-buffer-and-window)
   (evil-leader/set-key "wo" 'delete-other-windows)
   (evil-leader/set-key "xc" 'counsel-M-x)
@@ -355,6 +375,9 @@
   :hook ((python-mode . (lambda () 
                           (require 'lsp-pyright) (lsp)))))
 
+(use-package lsp-treemacs
+  :after lsp)
+
 (use-package lsp-ui
   :config
   (setq lsp-ui-sideline-enable t
@@ -368,13 +391,6 @@
   (load-theme 'material t))
 
 (use-package monitor)
-
-(use-package neotree
-  :bind
-  (("C-c ft" . neotree-toggle))
-  :config
-  (setq neo-smart-open t)
-  (setq neo-window-fixed-size nil))
 
 ;; NOTE: If you want to move everything out of the ~/.emacs.d folder
 ;; reliably, set `user-emacs-directory` before loading no-littering!
@@ -447,6 +463,12 @@
 
 (use-package tree-sitter)
 (use-package tree-sitter-langs)
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
 
 (use-package undo-tree
   :diminish
