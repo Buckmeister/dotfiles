@@ -11,3 +11,4 @@ only_with_files = "true"
 
 [rlang]
 disabled = "true"
+detect_files = []
