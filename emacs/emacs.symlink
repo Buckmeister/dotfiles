@@ -197,8 +197,6 @@
                                 ("mkv" . "mpv"))))
 
 (use-package dired-hide-dotfiles
-  :init
-  (setq evil-want-keybinding nil)
   :hook (dired-mode . dired-hide-dotfiles-mode)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
@@ -225,20 +223,14 @@
   :config
   (doom-modeline-mode 1))
 
-(use-package edwina
-  :init
-  (setq display-buffer-base-action '(display-buffer-below-selected))
-  :config
-  (edwina-mode 1))
-
 (use-package evil
   :init
   (global-set-key (kbd "C-M-u") 'universal-argument)
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-tree)
+  (setq evil-want-C-u-scroll t)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
   :config
   (evil-mode 1))
 
