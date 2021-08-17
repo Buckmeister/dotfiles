@@ -161,9 +161,9 @@ cd ~/.tmp
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-unzip FiraCode.zip -d ~/.local/share/fonts -o
-unzip Iosevka.zip -d ~/.local/share/fonts -o
-unzip JetBrainsMono.zip -d ~/.local/share/fonts -o
+unzip -o FiraCode.zip -d ~/.local/share/fonts
+unzip -o Iosevka.zip -d ~/.local/share/fonts
+unzip -o JetBrainsMono.zip -d ~/.local/share/fonts
 rm FiraCode.zip
 rm Iosevka.zip
 rm JetBrainsMono.zip
