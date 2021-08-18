@@ -35,6 +35,7 @@ lua5.2
 luajit
 maven
 neofetch
+net-tools
 nodejs
 npm
 openjdk-11-jdk
