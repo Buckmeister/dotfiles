@@ -62,5 +62,6 @@ vim-gui-common
 xcape
 xclip
 xorg-dev
+zathura
 zplug
 zsh
