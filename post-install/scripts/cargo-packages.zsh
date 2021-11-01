@@ -5,5 +5,5 @@ command -v rustup > /dev/null 2>&1 || {
 }
 
 rustup update
-cargo install viu
+cargo install viu exa
 

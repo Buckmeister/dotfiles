@@ -88,6 +88,9 @@ echo "Creating symlink to 'create_hie.yaml' in '~/.local/bin'"
 ln -sf "$dotfilesDir/stack/create_hie.yaml" "$HOME/.local/bin/"
 
 echo "Installing apt packages"
+# sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo add-apt-repository ppa:neovim-ppa/stable
+sudo apt-get update
 $dotfilesDir/apt/install_apt_packages.sh
 sudo chown -R $USERNAME /usr/local
 
@@ -124,11 +127,6 @@ echo "Installing JDT.LS"
 curl -fLo "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --create-dirs "https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
 tar xzf "/usr/local/share/jdt.ls/jdt-language-server-latest.tar.gz" --directory="/usr/local/share/jdt.ls"
 
-# echo "Installing OmniSharp"
-# [ -d "/usr/local/share/omnisharp" ] && rm -rf "/usr/local/share/omnisharp/*"
-# curl -fLo "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --create-dirs "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.37.6/omnisharp-osx.tar.gz"
-# tar xzf "/usr/local/share/omnisharp/omnisharp-osx.tar.gz" --directory="/usr/local/share/omnisharp"
-
 curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux -o ~/.local/bin/rust-analyzer
 chmod +x ~/.local/bin/rust-analyzer
 
@@ -154,7 +152,12 @@ wget https://luarocks.org/releases/luarocks-3.7.0.tar.gz
 tar zxpf luarocks-3.7.0.tar.gz
 cd luarocks-3.7.0
 ./configure && make && sudo make install
+
+echo "Fixing permissions for compinit"
 sudo chown -R $USERNAME /usr/local
+sudo chown -R root:thomas /usr/local/zsh
+sudo chmod -R 770 /usr/local/zsh
+
 
 echo "Installing fonts"
 cd ~/.tmp
@@ -183,7 +186,7 @@ for piScript in $postInstallScripts; do
   [[ -e "$piScript" ]] && "$piScript"
 done
 
-# Manual steps for Ubuntu Budgie 21.04
+# Manual steps for Zorin 16 so far
 # Download: https://github.com/dandavison/delta/releases/latest
 # Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ~/.local/bin/

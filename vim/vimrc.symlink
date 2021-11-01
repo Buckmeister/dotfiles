@@ -43,6 +43,7 @@ set list
 set listchars=tab:>·,trail:·
 set title
 set titlestring=vim\ %-15.20F\ %a%r%m
+set laststatus=2
 
 set t_Co=256
 
@@ -155,6 +156,7 @@ Plug 'andymass/vim-matchup'
 Plug 'cespare/vim-toml'
 Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
+Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
@@ -178,8 +180,8 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'uiiaoo/java-syntax.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-utils/vim-man'
 Plug 'voldikss/vim-floaterm'
 Plug 'wincent/terminus'
@@ -250,6 +252,21 @@ endif
 " silent! colorscheme everforest
 silent! colorscheme gruvbox-material
 " silent! colorscheme sonokai
+
+" == ligtline ==
+let g:lightline = {
+      \ 'colorscheme': 'gruvbox_material',
+      \ 'active': {
+      \   'right': [ [ 'lineinfo' ],
+      \              [ 'percent' ],
+      \              [ 'fileformat', 'fileencoding', 'filetype', 'charvaluehex' ] ]
+      \ },
+      \ 'component': {
+      \   'charvaluehex': '0x%B'
+      \ },
+      \ 'separator': { 'left': "\uE0B4", 'right': "\uE0B6" },
+      \ 'subseparator': { 'left': '', 'right': '' }
+      \ }
 
 " == airline ==
 let g:airline_powerline_fonts = 1

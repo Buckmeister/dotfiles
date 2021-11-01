@@ -1,0 +1,3 @@
+#!/bin/sh
+
+command -v xcape && xcape -e 'Caps_Lock=Escape'
