@@ -1,9 +1,11 @@
+env:
+  TERM: xterm-256color
 alt_send_esc: false
-background_opacity: 0.95
+# background_opacity: 0.95
 font:
   bold:
     family: "FiraCode Nerd Font Mono"
-    style: Bold
+    style: Medium
   bold_italic:
     family: "JetBrainsMono Nerd Font Mono"
     style: "Bold Italic"
@@ -12,11 +14,14 @@ font:
     style: Italic
   normal:
     family: "FiraCode Nerd Font Mono"
-    style: Retina
+    style: Regular
   size: 16.0
   use_thin_strokes: true
 window:
   decorations: none
+  dimensions:
+   columns: 133
+   lines: 40
   padding:
     x: 10
     y: 10
@@ -1298,4 +1303,4 @@ schemes:
       cyan: "0x00ffff"
       white: "0xffffff"
 
-colors: *gruvbox_material
+colors: *doom_one
