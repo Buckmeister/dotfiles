@@ -37,6 +37,7 @@ brew install font-monoid-nerd-font
 brew install font-powerline-symbols
 brew install font-sauce-code-pro-nerd-font
 brew install forklift
+brew install genymotion
 brew install google-chrome
 brew install hammerspoon
 brew install ibackup-viewer
@@ -47,6 +48,7 @@ brew install min
 brew install postman
 brew install sizeup
 brew install skype
+brew install virtualbox
 brew install visual-studio-code
 brew install adns
 brew install angular-cli
