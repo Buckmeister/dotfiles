@@ -116,6 +116,13 @@ fi
 echo "Installing vim plugins"
 vim +'PlugInstall --sync' +qa! &>/dev/null
 
+echo "Downloading Lombok"
+if [[ ! -d "/usr/local/share/lombok" ]]; then
+  echo "Lombok directory '/usr/local/share/lombok'"
+  mkdir -p "/usr/local/share/lombok"
+fi
+curl https://projectlombok.org/downloads/lombok.jar > /usr/local/share/lombok/lombok.jar
+
 echo "Downloading Bash PreExec"
 curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bash-preexec.sh
 
