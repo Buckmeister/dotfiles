@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-JAR=/usr/local/share/jdt.ls/plugins/org.eclipse.equinox.launcher_1.6.0.v20200915-1508.jar
-JAR=/usr/local/share/jdt.ls/plugins/org.eclipse.equinox.launcher_1.6.100.v20201223-0822.jar
+JAR=$(find /usr/local/share/jdt.ls -name '*org.eclipse.equinox.launcher_*'  | tail -n 1)
 JDTLS_CONFIG=/usr/local/share/jdt.ls/config_mac
 
 "$JAVA_HOME/bin/java" \
