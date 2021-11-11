@@ -5,4 +5,5 @@ pip3 install -U \
   httpie-jwt-auth \
   ranger-fm \
   Pillow \
+  powerline-status \
   pynvim
