@@ -17,3 +17,10 @@ else
   let g:airline_left_sep = "\u205E"
   let g:airline_right_sep = "\u205E"
 endif
+
+function! s:airlineReload()
+  call airline#update_statusline()
+  call airline#update_tabline()
+endfunction
+
+command! AirlineReload :call s:airlineReload()

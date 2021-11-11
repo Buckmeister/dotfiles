@@ -2,10 +2,18 @@ let $VIMUSERRUNTIME = fnamemodify($MYVIMRC, ':p:h')
 
 try
 
+if !has('nvim')
+  echom "Please use my vim config instead :-)"
+  call input("Press any key to continue") | quit
+  throw "Please use my vim config instead :-)"
+  finish
+endif
+
 if !has('nvim-0.5')
   echom "Incompatible Version:"
   echom " -> Please use neovim > 0.5"
   call input("Press any key to continue") | quit
+  finish
 endif
 
 " == setup ==
@@ -74,11 +82,19 @@ source $VIMUSERRUNTIME/nvn-neoformat.vim
 " == floaterm ==
 source $VIMUSERRUNTIME/nvn-floaterm.vim
 
+" == vim-lightline ==
+source $VIMUSERRUNTIME/nvn-lightline.vim
+
 " == vim-airline ==
 source $VIMUSERRUNTIME/nvn-airline.vim
 
+" == statusline switch ==
+source $VIMUSERRUNTIME/nvn-statusline-switcher.vim
+
+" == custom highlights ==
+source $VIMUSERRUNTIME/nvn-custom-highlights.vim
+
 " == colorscheme ==
-source $VIMUSERRUNTIME/nvn-cs-gruvbox-material.vim
 "
 " == the following colorschemes are preinstalled ==
 " == and can be activated by uncommenting one of ==
@@ -87,11 +103,27 @@ source $VIMUSERRUNTIME/nvn-cs-gruvbox-material.vim
 " source $VIMUSERRUNTIME/nvn-cs-edge.vim
 " source $VIMUSERRUNTIME/nvn-cs-everforest.vim
 " source $VIMUSERRUNTIME/nvn-cs-gruvbox-material.vim
+" source $VIMUSERRUNTIME/nvn-cs-onedark.vim
 " source $VIMUSERRUNTIME/nvn-cs-sonokai.vim
 "
+function! s:colors_set(schemename)
+  let s:statusline_theme = substitute(a:schemename, "-", "_", "g")
+  let g:lightline.colorscheme=s:statusline_theme
+  let g:airline_theme=s:statusline_theme
 
-" == custom highlights ==
-source $VIMUSERRUNTIME/nvn-custom-highlights.vim
+  execute('silent! source $VIMUSERRUNTIME/nvn-cs-'. a:schemename .'.vim')
+  execute('silent! StatuslineSet '. g:statusline_current)
+endfunction
+
+command! -nargs=1 ColorsSet :call s:colors_set(<q-args>)
+
+if executable('tmux') && strlen($TMUX)
+  let g:tui_colorscheme = 'onedark'
+else
+  let g:tui_colorscheme = 'gruvbox-material'
+endif
+
+call s:colors_set(g:tui_colorscheme)
 
 " == init.lua ==
 lua require('init')

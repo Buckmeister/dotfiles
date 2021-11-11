@@ -1,3 +1,11 @@
+" == I really don't like it, when I do 'so %' in a nvim session :-)
+if has('nvim')
+  echom "Please use my nvim config instead :-)"
+  call input("Press any key to continue") | quit
+  throw "Please use my nvim config instead :-)"
+  finish
+endif
+
 " == basic stuff ==
 syntax on
 filetype plugin indent on
@@ -63,17 +71,6 @@ endif
 if !has('nvim')
   set clipboard+=autoselect
   set ttymouse=xterm2
-endif
-
-if has("gui_running")
-  set gfn=JetBrainsMonoMedium\ Nerd\ Font\ Mono\ Medium\ 16
-  set guioptions+=a
-  set cmdheight=2
-  if has("mac")
-    set macligatures
-    set transparency=5
-    set gfn=Iosevka\ Nerd\ Font:h16.00
-  endif
 endif
 
 " == Overlength ==
@@ -157,6 +154,7 @@ Plug 'cespare/vim-toml'
 Plug 'dag/vim-fish'
 Plug 'gruvbox-community/gruvbox'
 Plug 'itchyny/lightline.vim'
+Plug 'joshdick/onedark.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
@@ -199,28 +197,28 @@ set background=dark
 let g:edge_style = 'aura'
 let g:edge_cursor = 'auto'
 let g:edge_sign_column_background = 'none'
-let g:edge_transparent_background = 1
+let g:edge_transparent_background = 0
 let g:edge_diagnostic_text_highlight = 1
 let g:edge_diagnostic_line_highlight = 1
 let g:edge_better_performance = 1
 
 let g:everforest_background = 'hard'
 let g:everforest_cursor = 'auto'
-let g:everforest_transparent_background = 1
+let g:everforest_transparent_background = 0
 let g:everforest_sign_column_background = 'none'
 let g:everforest_diagnostic_text_highlight = 1
 let g:everforest_diagnostic_line_highlight = 1
 let g:everforest_better_performance = 1
 
 let g:gruvbox_material_background = 'hard'
-let g:gruvbox_material_transparent_background = 1
+let g:gruvbox_material_transparent_background = 0
 let g:gruvbox_material_better_performance = 1
 
 let g:sonokai_style = 'maia'
 let g:sonokai_cursor = 'auto'
 let g:sonokai_sign_column_background = 'none'
 let g:sonokai_menu_selection_background = 'red'
-let g:sonokai_transparent_background = 1
+let g:sonokai_transparent_background = 0
 let g:sonokai_diagnostic_text_highlight = 1
 let g:sonokai_diagnostic_line_highlight = 1
 let g:sonokai_material_better_performance = 1
@@ -248,14 +246,10 @@ else
   let g:sonokai_transparent_background = 0
 endif
 
-" silent! colorscheme edge
-" silent! colorscheme everforest
-silent! colorscheme gruvbox-material
-" silent! colorscheme sonokai
 
 " == ligtline ==
 let g:lightline = {
-      \ 'colorscheme': 'gruvbox_material',
+      \ 'colorscheme': 'edge',
       \ 'active': {
       \   'right': [ [ 'lineinfo' ],
       \              [ 'percent' ],
@@ -396,6 +390,54 @@ map <leader>ra :RangerAppend<cr>
 map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
 map <leader>rd :RangerCD<cr>
 map <leader>rld :RangerLCD<cr>
+
+" == colorschemes ==
+let g:gui_colorscheme = 'onedark'
+
+if executable('tmux') && strlen($TMUX)
+  let g:tui_colorscheme = 'edge'
+else
+  let g:tui_colorscheme = 'gruvbox-material'
+endif
+
+
+function! s:lightlineReload()
+  call lightline#init()
+  call lightline#colorscheme()
+  call lightline#update()
+endfunction
+
+command! LightlineReload :call s:lightlineReload()
+
+function! s:colors_set(schemename)
+  let s:new_colorscheme = a:schemename
+  let s:new_lightline_colorscheme = substitute(a:schemename, "-", "_", "g")
+
+  execute('silent! colorscheme '.s:new_colorscheme)
+  let g:lightline.colorscheme = s:new_lightline_colorscheme
+  call s:lightlineReload()
+endfunction
+
+command! -nargs=1 ColorsSet :call s:colors_set(<q-args>)
+
+if !has("gui_running")
+  call s:colors_set(g:tui_colorscheme)
+endif
+
+" == gui settings ==
+if has("gui_running")
+  set gfn=Iosevka\ Term\ Regular\ 16
+  set guioptions+=a
+  set cmdheight=2
+
+  call s:colors_set(g:gui_colorscheme)
+
+  if has("mac")
+    set gfn=Iosevka\ Nerd\ Font:h16.00
+    set macligatures
+    set transparency=5
+  endif
+endif
 
 " == echo friendly ascii art cat ==
 autocmd VimEnter * echo "(>^.^<)"

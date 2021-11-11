@@ -32,7 +32,7 @@ nnoremap <leader>Y gg"+yG
 nnoremap <leader>d "_d
 vnoremap <leader>d "_d
 
-" Open files located in the same dir in with the current file is edited
+" Open files located in the same dir in which the current file is edited
 nnoremap <leader>ew :e <C-R>=expand("%:.:h") . "/"<CR>
 
 function! OnTabEnter(path)
