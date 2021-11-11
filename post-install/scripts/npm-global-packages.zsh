@@ -14,6 +14,4 @@ npm -g install \
   vscode-css-languageserver-bin \
   vscode-html-languageserver-bin \
   vscode-json-languageserver \
-  yaml-language-server \
-  yo \
-  @microsoft/generator-sharepoint
+  yaml-language-server
