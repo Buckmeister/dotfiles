@@ -118,13 +118,17 @@ compinit
 # Completion for kitty
 kitty + complete setup zsh | source /dev/stdin
 
-# switch between jdk versions (e.g.: 1.8, 11 or 14)
-jdk() {
-        version=$1
-        export JAVA_HOME=$(/usr/libexec/java_home -v"$version");
-        java -version
- }
-[ "$OS_TYPE" = "Darwin" ] && export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
+if [ "$OS_TYPE" = "Darwin" ]; then
+  # switch between jdk versions (e.g.: 1.8, 11 or 14)
+  jdk() {
+          version=$1
+          export JAVA_HOME=$(/usr/libexec/java_home -v"$version");
+          java -version
+   }
+  export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
+else
+  export JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"
+fi
 
 # zplug
 if [ "$OS_TYPE" = "Darwin" ];then
