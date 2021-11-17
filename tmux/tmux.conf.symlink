@@ -1,29 +1,28 @@
 # vim:ft=tmux
-set -g window-status-current-style "underscore"
-set -g status-right ""
+set-option -sa terminal-overrides ",xterm*:Tc"
+set -g default-terminal "xterm-256color"
+
+set -sg escape-time 0
 
 set -g mode-keys vi
 set -g status-keys vi
 
-# set -g status-bg "#272827"
-# set -g status-fg "#d8bd92"
-set -g status-bg "#282c34"
-set -g status-fg "#bbc2cf"
+set -g window-status-format '#I:#(shorten_path #{pane_current_path})#F'
+set -g window-status-current-format '#I:#(shorten_path #{pane_current_path})#F'
+
+set-option -g status-style fg=white,dim,bg=colour235
+
+set-option -g status-right-length 140
+set-option -g status-right "#[fg=red,dim,bg=default]#(tmux-mem-cpu-load -g 0) "
+set-option -ag status-right " #[fg=white,bg=default]%a %H:%M:%S #[fg=blue]%Y-%m-%d #[fg=white,dim]"
+
+# set -g status-right '#(powerline tmux right)'
 
 %if #{TMUX}
 set -g status-bg red
 %endif
 
-set-option -sa terminal-overrides ",xterm*:Tc"
-set -g default-terminal "xterm-256color"
-
-set-option -g set-titles on
-set-option -g set-titles-string "#S / #W"
-
-set -g window-status-format '#I:#(shorten_path #{pane_current_path})#F'
-set -g window-status-current-format '#I:#(shorten_path #{pane_current_path})#F'
-
-# status bar updates every 15s by default**, change to 1s here 
+# status bar updates every 15s by default**, change to 1s here
 # (this step is optional - a lower latency might have negative battery/cpu usage impacts)
 set -g status-interval 1
 
@@ -34,17 +33,15 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
-set -g mouse on
-# unbind -n MouseDrag1Pane
 
 bind d run-shell ~/.config/tmux/sh/smart-kill-pane.sh
 bind F set -w window-size
-bind m set monitor-activity
 bind y set synchronize-panes\; display 'synchronize-panes #{?synchronize-panes,on,off}'
+
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-selection
 
 new  -d -sƛ
 neww -d
 neww -d
 neww -d
-
-
