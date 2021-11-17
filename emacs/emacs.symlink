@@ -65,6 +65,7 @@
 (add-to-list 'auto-mode-alist '("\\zshrc.symlink\\'" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\emacs.symlink\\'" . emacs-lisp-mode))
 
+(add-hook 'emacs-lisp-mode-hook (lambda() (setq mode-name "λ")))
 (add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
 
 (global-set-key (kbd "<escape>")  'keyboard-escape-quit)
@@ -394,8 +395,6 @@
 ;; auto save files in the same path as it uses for sessions
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-
-;; Org Mode Configuration ------------------------------------------------------
 
 (defun bck/org-font-setup ()
   ;; Replace list hyphen with dot
