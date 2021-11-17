@@ -1,6 +1,7 @@
 # Used for OS specific things like brew support
 OS_TYPE=$(uname)
 
+[[ $COLORTERM = *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
 # activate prompt substitution
 setopt prompt_subst
 
