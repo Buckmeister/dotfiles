@@ -208,6 +208,7 @@ done
 # Download: https://github.com/microsoft/Git-Credential-Manager-Core/releases/latest
 # Run: sudo dpkg -i <path-to-package>
 # Run: git-credential-manager-core configure
+# Run: git config --global credential.credentialStore gpg
 #
 # Clone: git clone https://github.com/thewtex/tmux-mem-cpu-load.git
 # cd tmux-mem-cpu-load
