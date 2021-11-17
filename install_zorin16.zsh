@@ -205,3 +205,6 @@ done
 # Download: https://github.com/OmniSharp/omnisharp-roslyn/releases/latest
 # Unzip to: /usr/local/share/omnisharp
 #
+# Download: https://github.com/microsoft/Git-Credential-Manager-Core/releases/latest
+# Run: sudo dpkg -i <path-to-package>
+# Run: git-credential-manager-core configure
