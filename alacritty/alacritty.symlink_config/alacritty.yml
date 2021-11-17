@@ -33,6 +33,12 @@ key_bindigs:
   - { key: 13, mods: Control|Shift, chars: "\x01\x64" }
   - { key: 124, mods: Control|Shift, chars: "\x01\x6e" }
   - { key: 123, mods: Control|Shift, chars: "\x01\x70" }
+shell:
+  program: "/bin/zsh"
+  args:
+    - "-l"
+    - "-c"
+    - "tmux attach"
 
 schemes:
   afterglow: &afterglow
