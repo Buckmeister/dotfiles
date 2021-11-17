@@ -38,6 +38,7 @@ brew install font-powerline-symbols
 brew install font-sauce-code-pro-nerd-font
 brew install forklift
 brew install genymotion
+brew install git-credential-manager-core
 brew install google-chrome
 brew install hammerspoon
 brew install ibackup-viewer
@@ -78,6 +79,7 @@ brew install htop
 brew install http-server
 brew install ipython
 brew install jq
+brew install libvterm
 brew install lolcat
 brew install luajit
 brew install luarocks
@@ -109,6 +111,7 @@ brew install texlab
 brew install thefuck
 brew install tldr
 brew install tmux
+brew install tmux-mem-cpu-load
 brew install unrar
 brew install webkit2png
 brew install wget
