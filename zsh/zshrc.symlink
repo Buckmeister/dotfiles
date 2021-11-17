@@ -132,12 +132,13 @@ else
 fi
 
 # zplug
+export ZPLUG_HOME=$HOME/.zplug
 if [ "$OS_TYPE" = "Darwin" ];then
-  [ ! -e ~/.zplug ] && ln -sf /usr/local/opt/zplug ~/.zplug
-  source $ZPLUG_HOME/init.zsh
+  export ZPLUG_ROOT=/usr/local/opt/zplug
 else
-  source /usr/share/zplug/init.zsh
+ export ZPLUG_ROOT=/usr/share/zplug
 fi
+source $ZPLUG_ROOT/init.zsh
 
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-autosuggestions"
