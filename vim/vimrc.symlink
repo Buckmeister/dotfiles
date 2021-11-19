@@ -395,7 +395,7 @@ map <leader>rld :RangerLCD<cr>
 let g:gui_colorscheme = 'onedark'
 
 if executable('tmux') && strlen($TMUX)
-  let g:tui_colorscheme = 'edge'
+  let g:tui_colorscheme = 'gruvbox-material'
 else
   let g:tui_colorscheme = 'gruvbox-material'
 endif
