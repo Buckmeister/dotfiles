@@ -41,6 +41,9 @@ bind y set synchronize-panes\; display 'synchronize-panes #{?synchronize-panes,o
 bind-key -T copy-mode-vi v send-keys -X begin-selection
 bind-key -T copy-mode-vi y send-keys -X copy-selection
 
+new  -d -sλ
+neww -d
+
 new  -d -sƛ
 neww -d
 neww -d
