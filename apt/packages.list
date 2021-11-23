@@ -17,6 +17,7 @@ git
 gnome-font-viewer
 gnome-tweak-tool
 hlint
+htop
 ipython3
 kitty
 libcurl4-openssl-dev
