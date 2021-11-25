@@ -7,6 +7,8 @@ set -sg escape-time 0
 set -g mode-keys vi
 set -g status-keys vi
 
+set -g mouse on
+
 set -g window-status-format '#I:#(shorten_path #{pane_current_path})#F'
 set -g window-status-current-format '#I:#(shorten_path #{pane_current_path})#F'
 
