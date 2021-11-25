@@ -47,11 +47,9 @@
 (set-default-coding-systems 'utf-8)
 (set-fringe-mode 10)
 
-(set-frame-parameter nil 'internal-border-width 10)
-(set-frame-parameter (selected-frame) 'alpha '(96 96))
-
 (setq default-frame-alist '((undecorated . t)))
 (add-to-list 'default-frame-alist '(alpha 96 96))
+(add-to-list 'default-frame-alist '(internal-border-width . 7))
 
 (setq fast-but-imprecise-scrolling t)
 
