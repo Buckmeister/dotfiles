@@ -68,27 +68,50 @@ if colorterm=='truecolor' || colorterm=='24bit'
   endif
 endif
 
+" == Overlength Coloring ==
+highlight OverLength ctermbg=darkgrey guibg=#592929
+
+function s:default_overlength_settings()
+  match OverLength /\%80v.*/
+endfunction
+autocmd BufEnter * call s:default_overlength_settings()
+
+function! s:man_settings()
+  match OverLength /\%160v.*/
+  setlocal colorcolumn=0
+  setlocal norelativenumber
+  setlocal nonumber
+endfunction
+autocmd FileType man call s:man_settings()
+
+function! s:netrw_settings()
+  match OverLength /\%160v.*/
+  setlocal colorcolumn=0
+  setlocal nocursorcolumn
+  setlocal norelativenumber
+  setlocal nonumber
+endfunction
+autocmd FileType netrw call s:netrw_settings()
+
 if !has('nvim')
   set clipboard+=autoselect
   set ttymouse=xterm2
 endif
 
-" == Overlength ==
-autocmd BufEnter * highlight OverLength ctermbg=darkgrey guibg=#592929
-autocmd BufEnter * match OverLength /\%80v.*/
-autocmd FileType man match OverLength /\%160v.*/
-autocmd FileType netrw match OverLength /\%160v.*/ | set nocursorcolumn
-
 " == personal mappings ==
 let mapleader = " "
+
 map <Up>    :tabn<CR>
 map <Down>  :tabp<CR>
 map <Left>  :bp<CR>
 map <Right> :bn<CR>
+
 map <Leader># :let @/ = ""<CR>
 map <Leader>ba :.!figlet<CR>
+
 xnoremap J :move '<-2<CR>gv-gv
 xnoremap K :move '<+1<CR>gv-gv
+
 vmap < <gv
 vmap > >gv
 
@@ -98,7 +121,7 @@ nnoremap Ü <C-O>
 nnoremap <leader>lcd :lcd %:h<CR>
 nnoremap <leader>tcd :tcd %:h<CR>
 
-" Use visual selection as search term
+" == Use visual selection as search term ==
 function! s:VSetSearch()
   let temp = @@
   norm! gvy
@@ -110,7 +133,7 @@ endfunction
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>/<CR>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>?<CR>
 
-" Open files located in the same dir in with the current file is edited
+" == Open files located in the same dir in with the current file is edited ==
 nnoremap <leader>ew :e <C-R>=expand("%:.:h") . "/"<CR>
 
 " == coc define global plugins for auto install ==
@@ -391,6 +414,15 @@ map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
 map <leader>rd :RangerCD<cr>
 map <leader>rld :RangerLCD<cr>
 
+" == floaterm settings ==
+let g:floaterm_keymap_toggle = '<Leader>t'
+let g:floaterm_opener = 'drop'
+let g:floaterm_autoclose = 2
+let g:floaterm_autohide = 2
+let g:floaterm_width = 0.8
+let g:floaterm_height = 0.8
+let g:floaterm_borderchars = "─│─│╭╮╯╰"
+
 " == colorschemes ==
 let g:gui_colorscheme = 'onedark'
 
@@ -429,6 +461,7 @@ if has("gui_running")
   set gfn=Iosevka\ Term\ Regular\ 16
   set guioptions+=a
   set cmdheight=2
+  set tb=
 
   call s:colors_set(g:gui_colorscheme)
 
