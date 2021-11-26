@@ -19,6 +19,7 @@ gnome-tweak-tool
 hlint
 htop
 ipython3
+jq
 kitty
 libcurl4-openssl-dev
 libffi-dev
