@@ -425,10 +425,10 @@ let g:floaterm_borderchars = "─│─│╭╮╯╰"
 
 " == colorschemes ==
 let g:gui_colorscheme = 'onedark'
+let g:tui_colorscheme = 'onedark'
 
-if executable('tmux') && strlen($TMUX)
-  let g:tui_colorscheme = 'gruvbox-material'
-else
+let terminal=$TERM
+if  terminal=='xterm-kitty'
   let g:tui_colorscheme = 'gruvbox-material'
 endif
 
