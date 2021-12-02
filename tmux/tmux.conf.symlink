@@ -43,6 +43,8 @@ set -g prefix C-a
 unbind C-b
 bind C-a send-prefix
 
+bind-key ä source-file ~/.tmux.conf \; display-message "~/.tmux.conf reloaded"
+bind-key ö split-window -h "$EDITOR ~/.tmux.conf"
 
 bind d run-shell ~/.config/tmux/sh/smart-kill-pane.sh
 bind F set -w window-size
