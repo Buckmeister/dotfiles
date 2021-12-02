@@ -19,5 +19,6 @@ export PYGMENTIZE_STYLE=solarized-dark
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin:$PATH"
 
 export BAT_CONFIG="$HOME/.config/bat"
+export PAGER="bat"
 
-export MANPAGER="vim -c MANPAGER -"
+export MANPAGER="nvim -c MANPAGER -"
