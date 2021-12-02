@@ -13,6 +13,7 @@ function! s:man_settings() abort
   setlocal softtabstop=8
   setlocal shiftwidth=8
   setlocal signcolumn=yes
+  setlocal norelativenumber
   setlocal nonumber
   setlocal nolist
   if has('colorcolumn')
