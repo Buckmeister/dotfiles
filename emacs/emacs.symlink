@@ -113,6 +113,9 @@
 
 (use-package all-the-icons)
 
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
 (use-package auto-package-update
   :custom
   (auto-package-update-interval 7)
@@ -185,9 +188,6 @@
 
 (use-package dired-single
   :commands (dired dired-jump))
-
-(use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package dired-open
   :commands (dired dired-jump)
