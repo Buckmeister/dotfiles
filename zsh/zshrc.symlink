@@ -2,6 +2,7 @@
 OS_TYPE=$(uname)
 
 [[ $COLORTERM = *(24bit|truecolor)* ]] || zmodload zsh/nearcolor
+
 # activate prompt substitution
 setopt prompt_subst
 
@@ -16,6 +17,23 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' menu select
 zmodload zsh/complist
 zmodload zsh/zpty
+
+function _showbuffers()
+{
+    local nl=$'\n' kr
+    typeset -T kr KR $'\n'
+    KR=($killring)
+    typeset +g -a buffers
+    buffers+="      Pre: ${PREBUFFER:-$nl}"
+    buffers+="  Buffer: $BUFFER$nl"
+    buffers+="     Cut: $CUTBUFFER$nl"
+    buffers+="       L: $LBUFFER$nl"
+    buffers+="       R: $RBUFFER$nl"
+    buffers+="Killring:$nl$nl$kr"
+    zle -M "$buffers"
+}
+zle -N showbuffers _showbuffers
+bindkey  -M vicmd "ö" showbuffers
 
 # use vi navigation keys in menu completion
 bindkey -M menuselect 'h' vi-backward-char
@@ -38,6 +56,14 @@ bindkey '^ ' autosuggest-accept
 # accept autosuggestions with ctrl-enter
 bindkey '^[M' autosuggest-execute
 
+# zsh-fzy configuration
+bindkey -M vicmd 'gd' fzy-cd-widget
+bindkey -M vicmd 'gf' fzy-file-widget
+bindkey -M vicmd 'gh' fzy-history-widget
+bindkey -M vicmd 'gp' fzy-proc-widget
+
+zstyle :fzy:file command rg --files
+
 # set up common aliases
 if [  -f "$HOME/.aliases" ]; then
   source "$HOME/.aliases"
@@ -52,64 +78,65 @@ command -v batdiff >/dev/null 2>&1 && command -v diff-so-fancy >/dev/null 2>&1 &
 }
 
 # include dotnet completion
-# _dotnet_zsh_complete()
-# {
-#   local completions=("$(dotnet complete "$words")")
-#   reply=( "${(ps: :)completions}" )
-# }
+_dotnet_zsh_complete()
+{
+  local completions=("$(dotnet complete "$words")")
 
-# compctl -K _dotnet_zsh_complete dotnet
+  reply=( "${(ps:\n:)completions}" )
+}
+
+compctl -K _dotnet_zsh_complete dotnet
 
 # include ionic completion
-# _ionic_zsh_complete()
-# {
-#   local completions=("$(ionic completion -- "$words")")
-#   reply=( "${(ps: :)completions}" )
-# }
-# compctl -K _ionic_zsh_complete ionic
+_ionic_zsh_complete()
+{
+  local completions=("$(ionic completion -- "$words")")
+  reply=( "${(ps: :)completions}" )
+}
+compctl -K _ionic_zsh_complete ionic
 
 # Shorten PWD uniquely
 function shorten_pwd {
-  cur_pwd=$(pwd | sed "s#$(echo $HOME)#~#")
-  paths=(${(s:/:)cur_pwd})
+cur_pwd=$(pwd | sed "s#$(echo $HOME)#~#")
+paths=(${(s:/:)cur_pwd})
 
-  if [[ "${cur_pwd:0:1}" == "~" ]]; then
-    cur_path="~/"
-    cur_short_path="~/"
-    shift paths
-  else
-    cur_path="/"
-    cur_short_path="/"
+if [[ "${cur_pwd:0:1}" == "~" ]]; then
+  cur_path="~/"
+  cur_short_path="~/"
+  shift paths
+else
+  cur_path="/"
+  cur_short_path="/"
+fi
+for directory in ${paths[@]}
+do
+  if [[ "$directory" == "~" ]]; then
+    break
   fi
-  for directory in ${paths[@]}
-  do
-    if [[ "$directory" == "~" ]]; then
+  cur_dir=''
+  for (( i=0; i<${#directory}; i++ )); do
+    cur_dir+="${directory:$i:1}"
+    matching=("$(echo ${cur_path} |sed "s#~#$(echo $HOME)#")""$cur_dir"*/)
+    if [[ ${#matching[@]} -eq 1 ]]; then
       break
     fi
-    cur_dir=''
-    for (( i=0; i<${#directory}; i++ )); do
-      cur_dir+="${directory:$i:1}"
-      matching=("$(echo ${cur_path} |sed "s#~#$(echo $HOME)#")""$cur_dir"*/)
-      if [[ ${#matching[@]} -eq 1 ]]; then
-        break
-      fi
-    done
-    cur_path+="$directory/"
-    cur_short_path+="$cur_dir/"
   done
+  cur_path+="$directory/"
+  cur_short_path+="$cur_dir/"
+done
 
-  print "${cur_short_path: : -1}"
+print "${cur_short_path: : -1}"
 }
 # Set terminal title
 set_title()
 {
-  [[ -t 1 ]] || return
-  case $TERM in
-    *xterm*) print -Pn "\e]2; ${STARSHIP_SHELL} $(shorten_pwd)\a"
-      ;;
-  esac
+[[ -t 1 ]] || return
+case $TERM in
+  *xterm*) print -Pn "\e]2; ${STARSHIP_SHELL} $(shorten_pwd)\a"
+    ;;
+esac
 }
-precmd_functions+=(set_title)
+# precmd_functions+=(set_title)
 
 [ "$OS_TYPE" = "Darwin" ] && FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
@@ -120,12 +147,12 @@ compinit
 kitty + complete setup zsh | source /dev/stdin
 
 if [ "$OS_TYPE" = "Darwin" ]; then
-  # switch between jdk versions (e.g.: 1.8, 11 or 14)
+# switch between jdk versions (e.g.: 1.8, 11 or 14)
   jdk() {
           version=$1
           export JAVA_HOME=$(/usr/libexec/java_home -v"$version");
           java -version
-   }
+  }
   export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
 else
   export JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"
@@ -134,30 +161,33 @@ fi
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 if [ "$OS_TYPE" = "Darwin" ];then
-  export ZPLUG_ROOT=/usr/local/opt/zplug
+export ZPLUG_ROOT=/usr/local/opt/zplug
 else
- export ZPLUG_ROOT=/usr/share/zplug
+export ZPLUG_ROOT=/usr/share/zplug
 fi
 source $ZPLUG_ROOT/init.zsh
 
 zplug "zsh-users/zsh-history-substring-search"
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#535965'
 zplug "zsh-users/zsh-autosuggestions"
+
 zplug "zsh-users/zsh-completions"
 zplug "lukechilds/zsh-nvm"
-zplug "jeffreytse/zsh-vi-mode"
 
 # Set the priority when loading
 # e.g., zsh-syntax-highlighting must be loaded
 # after executing compinit command and sourcing other plugins
 # (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
+zplug "aperezdc/zsh-fzy", defer:2
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
+  printf "Install? [y/N]: "
+  if read -q; then
+      echo; zplug install
+  fi
 fi
 
 # The Fuck
@@ -169,10 +199,13 @@ eval "$(starship init zsh)"
 
 # Neofetch
 function neofetch() {
-  if [[ "$TERM" = "xterm-kitty" ]]; then
-    NEOFETCH_ARGS="--backend 'kitty' --bar_char '🬋' '🬇' --disk_display 'bar' --memory_display 'bar' --memory_unit 'mib' --title_fqdn 'off' --underline_char '🭸'"
-  echo
-  eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)
-  fi
+if [[ "$TERM" = "xterm-kitty" ]]; then
+  NEOFETCH_ARGS="--backend 'kitty' --bar_char '🬋' '🬇' --disk_display 'bar' --memory_display 'bar' --memory_unit 'mib' --title_fqdn 'off' --underline_char '🭸'"
+fi
+echo
+eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)
 }
 
+source $HOME/Development/ZSH-VI-Mode-Cursor/Repo/zsh-vi-mode-cursor.zsh
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

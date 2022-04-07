@@ -1,12 +1,13 @@
 export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=10000000
 export SAVEHIST=10000000
+export HISTORY_SUBSTRING_SEARCH_FUZZY='true'
 
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-export EDITOR=vi
+export EDITOR=nvim
 export VISUAL="$EDITOR"
 
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
@@ -19,6 +20,7 @@ export PYGMENTIZE_STYLE=solarized-dark
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin:$PATH"
 
 export BAT_CONFIG="$HOME/.config/bat"
-export PAGER="bat"
 
-export MANPAGER="nvim -c MANPAGER -"
+export MANPAGER="nvn -c MANPAGER -"
+
+export FZF_PREVIEW_PREVIEW_BAT_THEME="OneHalfDark"

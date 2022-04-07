@@ -1,8 +1,18 @@
 ;; vim: ft=lisp
 
+;; -*- lexical-binding: t; -*-
+
 (tool-bar-mode -1)
+(tooltip-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
+
+(setq fast-but-imprecise-scrolling t)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
+(setq scroll-step 1)
+(setq scroll-margin 5)
 
 ;; Mac specific settings
 (when (string= system-type "darwin")
@@ -11,47 +21,48 @@
     ;; virtual desktop support if "menu-bar-mode" is deactivated.
     (menu-bar-mode 1)
 
-  (defun set-exec-path-from-shell-PATH ()
+    (setq use-dialog-box nil) ;; Disable dialog boxes since they weren't working in Mac OSX
 
-    (interactive)
-    (let ((path-from-shell (replace-regexp-in-string
-          "[ \t\n]*$" "" (shell-command-to-string
-          "$SHELL --login -c 'echo $PATH'"))))
-          (setenv "PATH" path-from-shell)
-          (setq exec-path (split-string path-from-shell path-separator))))
+    (defun set-exec-path-from-shell-PATH ()
 
-  (set-exec-path-from-shell-PATH)
+      (interactive)
+      (let ((path-from-shell (replace-regexp-in-string
+                              "[ \t\n]*$" "" (shell-command-to-string
+                                              "$SHELL --login -c 'echo $PATH'"))))
+        (setenv "PATH" path-from-shell)
+        (setq exec-path (split-string path-from-shell path-separator))))
 
-  (global-set-key (kbd "s-x") 'kill-region)
-  (global-set-key (kbd "s-c") 'kill-ring-save)
-  (global-set-key (kbd "s-v") 'yank)
+    (set-exec-path-from-shell-PATH)
 
-  (global-set-key (kbd "s-z") 'undo)
+    (global-set-key (kbd "s-x") 'kill-region)
+    (global-set-key (kbd "s-c") 'kill-ring-save)
+    (global-set-key (kbd "s-v") 'yank)
 
-  (global-set-key (kbd "s-s") 'save-buffer)
-  (global-set-key (kbd "s-w") 'delete-window)
-  (global-set-key (kbd "s-q") 'save-buffers-kill-terminal)
+    (global-set-key (kbd "s-z") 'undo)
 
-  (setq mac-option-modifier 'meta)
-  (setq mac-right-option-modifier 'none)
-  (setq mac-command-modifier 'super)
+    (global-set-key (kbd "s-s") 'save-buffer)
+    (global-set-key (kbd "s-w") 'delete-window)
+    (global-set-key (kbd "s-q") 'save-buffers-kill-terminal)
 
-  ;; Enable Ligatures (currently only supported in Emacs for Mac).
-  (if (fboundp 'mac-auto-operator-composition-mode)
-      (mac-auto-operator-composition-mode 1)))
+    (setq mac-option-modifier 'meta)
+    (setq mac-right-option-modifier 'none)
+    (setq mac-command-modifier 'super)
+
+    ;; Enable Ligatures (currently only supported in Emacs for Mac).
+    (if (fboundp 'mac-auto-operator-composition-mode)
+        (mac-auto-operator-composition-mode 1)))
 
 (server-start)
-
-(setq gc-cons-threshold (* 2 1000 1000))
 
 (set-default-coding-systems 'utf-8)
 (set-fringe-mode 10)
 
 (setq default-frame-alist '((undecorated . t)))
-(add-to-list 'default-frame-alist '(alpha 96 96))
 (add-to-list 'default-frame-alist '(internal-border-width . 7))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-(setq fast-but-imprecise-scrolling t)
+;; (add-to-list 'default-frame-alist '(alpha 96 96))
+;; (set-frame-parameter (selected-frame) 'alpha '(96 96))
 
 (setq initial-buffer-choice t)
 
@@ -59,6 +70,9 @@
 
 (setq backup-directory-alist `(("." . "~/.tmp/emacsbackup")))
 (setq backup-by-copying t)
+
+(setq history-length 25)
+(savehist-mode 1)
 
 (add-to-list 'auto-mode-alist '("\\zshrc.symlink\\'" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\emacs.symlink\\'" . emacs-lisp-mode))
@@ -69,12 +83,21 @@
 (global-set-key (kbd "<escape>")  'keyboard-escape-quit)
 
 (set-face-attribute
-  'default nil
-  :height 160
-  :family "Fira Code")
+ 'default nil
+ :height 160
+ :family "FiraCode Nerd Font")
+
+(set-face-attribute
+ 'variable-pitch nil
+ :height 160
+ :family "MesloLGSDZ Nerd Font")
+
+(set-face-attribute
+ 'fixed-pitch nil
+ :height 160
+ :family "JetBrainsMono Nerd Font")
 
 (setq display-line-numbers-type 'relative)
-(column-number-mode)
 
 (dolist (mode '(text-mode-hook
                 prog-mode-hook
@@ -84,7 +107,9 @@
 (dolist (mode '(org-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq-default tab-width 4)
+(show-paren-mode 1)
+
+(setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
 
 (require 'cl-lib)
@@ -125,16 +150,95 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
+(use-package centaur-tabs
+  :after doom-modeline evil
+  :init
+  (centaur-tabs-mode t)
+  (centaur-tabs-enable-buffer-reordering)
+  (centaur-tabs-headline-match)
+  :config
+  (centaur-tabs-change-fonts "VictorMono Nerd Font" 160)
+  (setq centaur-tabs-style "rounded"
+        centaur-tabs-height 32
+        centaur-tabs-show-navigation-buttons nil
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker " "
+        centaur-tabs-set-icons t
+        centaur-tabs-plain-icons t
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-set-bar 'over
+        centaur-tabs-adjust-buffer-order t
+        uniquify-separator "/"
+        uniquify-buffer-name-style 'forward)
+
+  (defun centaur-tabs-buffer-groups ()
+    "`centaur-tabs-buffer-groups' control buffers' group rules.
+
+  Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+  All buffer name start with * will group to \"Emacs\".
+  Other buffer group by `centaur-tabs-get-group-name' with project name."
+    (list
+     (cond
+      ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
+      ;; "Remote")
+      ((or (string-equal "*" (substring (buffer-name) 0 1))
+           (memq major-mode '(magit-process-mode
+                              magit-status-mode
+                              magit-diff-mode
+                              magit-log-mode
+                              magit-file-mode
+                              magit-blob-mode
+                              magit-blame-mode
+                              )))
+       "Emacs")
+      ((derived-mode-p 'prog-mode)
+       "Editing")
+      ((derived-mode-p 'dired-mode)
+       "Dired")
+      ((memq major-mode '(helpful-mode
+                          help-mode))
+       "Help")
+      ((memq major-mode '(org-mode
+                          org-agenda-clockreport-mode
+                          org-src-mode
+                          org-agenda-mode
+                          org-beamer-mode
+                          org-indent-mode
+                          org-bullets-mode
+                          org-cdlatex-mode
+                          org-agenda-log-mode
+                          diary-mode))
+       "OrgMode")
+      (t
+       (centaur-tabs-get-group-name (current-buffer))))))
+  :hook
+  (dashboard-mode . centaur-tabs-local-mode)
+  (term-mode . centaur-tabs-local-mode)
+  (calendar-mode . centaur-tabs-local-mode)
+  (org-agenda-mode . centaur-tabs-local-mode)
+  (helpful-mode . centaur-tabs-local-mode)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward)
+  ("C-c t s" . centaur-tabs-counsel-switch-group)
+  ("C-c t p" . centaur-tabs-group-by-projectile-project)
+  ("C-c t g" . centaur-tabs-group-buffer-groups)
+  (:map evil-normal-state-map
+        ("g t" . centaur-tabs-forward)
+        ("g T" . centaur-tabs-backward)
+        ("<right>" . centaur-tabs-forward)
+        ("<left>" . centaur-tabs-backward)))
+
 (use-package company
   :diminish
   :bind (
-  :map company-active-map
-  ("C-j" . company-select-next)
-  ("C-k" . company-select-previous)
-  :map company-search-map
-  ("C-j" . company-select-next)
-  ("C-k" . company-select-previous)
-  ("C-ä" . company-toggle-filtering))
+         :map company-active-map
+         ("C-j" . company-select-next)
+         ("C-k" . company-select-previous)
+         :map company-search-map
+         ("C-j" . company-select-next)
+         ("C-k" . company-select-previous)
+         ("C-ä" . company-toggle-filtering))
   :hook
   (emacs-lisp-mode . company-mode)
   :config
@@ -146,8 +250,7 @@
   (company-mode . company-box-mode))
 
 (use-package counsel
-  :bind (
-  ("M-x" . counsel-M-x)))
+  :bind (("M-x" . counsel-M-x)))
 
 (use-package counsel-projectile
   :config
@@ -165,16 +268,23 @@
   :config
   (global-dash-fontify-mode))
 
+(use-package default-text-scale
+  :config
+  (default-text-scale-mode))
+
 (use-package diff-hl
   :init
   (diff-hl-margin-mode t)
   :hook (
-  (magit-pre-refresh  . diff-hl-magit-pre-refresh)
-  (magit-post-refresh . diff-hl-magit-post-refresh))
+         (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh))
   :config
   (global-diff-hl-mode 1))
 
-(use-package diminish)
+(use-package diminish
+  :init
+  (diminish 'eldoc-mode)
+  (diminish 'unimpaired-mode))
 
 (use-package dired
   :ensure nil
@@ -202,11 +312,12 @@
     "H" 'dired-hide-dotfiles-mode))
 
 (use-package doom-modeline
+  :after doom-themes
   ;; run once in order to install all necessary fonts
   ;; (all-the-icons-install-fonts)
-  :custom-face
-  (mode-line ((t (:height 0.85))))
-  (mode-line-inactive ((t (:height 0.85))))
+  ;; :custom-face
+  ;; (mode-line ((t (:height 0.85))))
+  ;; (mode-line-inactive ((t (:height 0.85))))
   :init
   (setq doom-modeline-bar-width 3)
   (setq doom-modeline-buffer-modification-icon t)
@@ -222,6 +333,32 @@
   :config
   (doom-modeline-mode 1))
 
+(use-package doom-themes
+  :after evil
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-vibrant t)
+
+  (doom-themes-neotree-config)
+  (setq doom-themes-treemacs-theme "doom-colors"
+        doom-themes-treemacs-enable-variable-pitch t
+        doom-themes-treemacs-variable-pitch-face 'variable-pitch 
+        )
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
+
+(use-package embark
+  :after evil-leader
+  :bind
+  (("C-ö" . 'embark-act)
+   ("C-h B" . 'embark-bindings))
+  :init
+  (setq prefix-help-command #'embark-prefix-help-comand)
+  :config
+  (evil-leader/set-key "ea" 'embark-act)
+  (evil-leader/set-key "ed" 'embark-dwim))
+
 (use-package evil
   :init
   (global-set-key (kbd "C-M-u") 'universal-argument)
@@ -230,6 +367,7 @@
   (setq evil-want-C-u-scroll t)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
+  (setq-default evil-shift-width tab-width)
   :config
   (evil-mode 1))
 
@@ -237,17 +375,9 @@
   :after evil
   :init
   (setq evil-collection-setup-minibuffer 1)
+  ;; (setq evil-collection-want-company-extended-keybindings t)
   :config
-  (evil-collection-init)
-  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
-  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line)
-
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
-
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
-  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
-  )
+  (evil-collection-init))
 
 (use-package evil-commentary
   :diminish
@@ -259,7 +389,9 @@
   (global-evil-leader-mode 1)
   :config 
   (evil-leader/set-leader "<SPC>")
-  (evil-leader/set-key "bl" 'counsel-switch-buffer)
+  (evil-leader/set-key "ee" 'eval-last-sexp)
+  (evil-leader/set-key "er" 'neotree-toggle)
+  (evil-leader/set-key "fb" 'counsel-switch-buffer)
   (evil-leader/set-key "ft" 'treemacs)
   (evil-leader/set-key "ff" 'projectile-find-file)
   (evil-leader/set-key "gs" 'magit-status)
@@ -268,25 +400,20 @@
   (evil-leader/set-key "hk" 'helpful-key)
   (evil-leader/set-key "hv" 'counsel-describe-variable)
   (evil-leader/set-key "hw" 'which-key-show-top-level)
-  (evil-leader/set-key "wk" 'kill-buffer-and-window)
-  (evil-leader/set-key "wo" 'delete-other-windows)
-  (evil-leader/set-key "xc" 'counsel-M-x)
-  (evil-leader/set-key "xe" 'eval-last-sexp)
+  (evil-leader/set-key "j" 'previous-buffer)
+  (evil-leader/set-key "k" 'next-buffer)
+  (evil-leader/set-key "s" 'text-scale-adjust)
+  (evil-leader/set-key "u"  'basic-save-buffer)
+  (evil-leader/set-key "x"  'evil-delete-buffer)
   )
 
 (use-package evil-matchit
   :config
   (global-evil-matchit-mode 1))
 
-(use-package evil-paredit
-  :hook
-  (paredit-mode . evil-paredit-mode))
-
 (use-package evil-surround
   :config
-  (global-evil-surround-mode 1)
-  (add-to-list 'evil-surround-operator-alist '(evil-paredit-change . change))
-  (add-to-list 'evil-surround-operator-alist '(evil-paredit-delete . delete)))
+  (global-evil-surround-mode 1))
 
 (use-package evil-visualstar
   :config
@@ -315,19 +442,21 @@
 (use-package ivy
   :diminish
   :bind (("C-#" . swiper)
-  :map ivy-minibuffer-map
-  ("TAB" . ivy-alt-done)
-  ("C-l" . ivy-alt-done)
-  ("C-j" . ivy-next-line)
-  ("C-k" . ivy-previous-line)
-  :map ivy-switch-buffer-map
-  ("C-k" . ivy-previous-line)
-  ("C-l" . ivy-done)
-  ("C-d" . ivy-switch-buffer-kill)
-  :map ivy-reverse-i-search-map
-  ("C-k" . ivy-previous-line)
-  ("C-d" . ivy-reverse-i-search-kill))
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
   :config
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line)
   (ivy-mode 1))
 
 (use-package ivy-rich
@@ -357,7 +486,6 @@
   (haskell-mode . lsp))
 
 (use-package lsp-pyright
-  :defer t
   :config
   (setq lsp-pyright-disable-language-service nil
         lsp-pyright-disable-organize-imports nil
@@ -377,22 +505,22 @@
 (use-package magit
   :bind (("C-c g" . magit-file-dispatch)))
 
-(use-package material-theme
-  :config
-  (load-theme 'material t))
-
 (use-package monitor)
+
+(use-package neotree
+  :after doom-themes)
 
 ;; NOTE: If you want to move everything out of the ~/.emacs.d folder
 ;; reliably, set `user-emacs-directory` before loading no-littering!
-(setq user-emacs-directory "~/.cache/emacs")
-
-(use-package no-littering)
+;; (setq user-emacs-directory "~/.cache/emacs")
 
 ;; no-littering doesn't set this by default so we must place
 ;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+;; (setq auto-save-file-name-transforms
+;;       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
+;; (use-package no-littering)
+
 
 (defun bck/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -401,15 +529,15 @@
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
   ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.4)
-                  (org-level-2 . 1.3)
-                  (org-level-3 . 1.25)
+  (dolist (face '((org-level-1 . 1.5)
+                  (org-level-2 . 1.4)
+                  (org-level-3 . 1.3)
                   (org-level-4 . 1.2)
-                  (org-level-5 . 1.3)
-                  (org-level-6 . 1.3)
-                  (org-level-7 . 1.3)
-                  (org-level-8 . 1.3)))
-    (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'bold :height (cdr face)))
+                  (org-level-5 . 1.4)
+                  (org-level-6 . 1.4)
+                  (org-level-7 . 1.4)
+                  (org-level-8 . 1.4)))
+    (set-face-attribute (car face) nil :font "NotoSansDisplay Nerd Font" :weight 'semibold :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -421,15 +549,33 @@
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (defun bck/org-mode-setup ()
-  (org-indent-mode)
+  (org-indent-mode 1)
   (variable-pitch-mode 1)
   (visual-line-mode 1))
 
 (use-package org
   :hook (org-mode . bck/org-mode-setup)
   :config
-  (setq org-ellipsis " ▾")
-  (bck/org-font-setup))
+  (setq org-ellipsis " ▾"
+        org-hide-emphasis-markers t
+        org-src-fontify-natively t
+        org-fontify-quote-and-verse-blocks t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2
+        org-capture-bookmark nil
+        truncate-string-ellipsis " …")
+
+  (bck/org-font-setup)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup))
 
 (use-package org-bullets
   :after org
@@ -490,7 +636,9 @@
 (use-package rust-mode)
 
 (use-package swiper)
+
 (use-package treemacs
+  :after doom-themes
   :defer t
   :init
   (with-eval-after-load 'winum
@@ -516,7 +664,7 @@
           treemacs-is-never-other-window           nil
           treemacs-max-git-entries                 5000
           treemacs-missing-project-action          'ask
-          treemacs-move-forward-on-expand          nil
+          treemacs-move-forward-on-expand          t
           treemacs-no-png-images                   nil
           treemacs-no-delete-other-windows         t
           treemacs-project-follow-cleanup          nil
@@ -610,8 +758,8 @@
 (use-package which-key
   :diminish
   :init
-  (setq which-key-show-early-on-C-h t)
-  (setq which-key-idle-delay 10000)
+  ;; (setq which-key-show-early-on-C-h t)
+  (setq which-key-idle-delay 1)
   (setq which-key-idle-secondary-delay 0.05)
   :config
   (which-key-mode 1))
@@ -620,7 +768,6 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 
-(diminish 'eldoc-mode)
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file) (load custom-file))

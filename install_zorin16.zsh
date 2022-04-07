@@ -60,6 +60,10 @@ done
 if [[ ! -d "$tmpDir/vimbackup" ]]; then
   echo "Creating vim backup directory: '$tmpDir/vimbackup'"
   mkdir -p "$tmpDir/vimbackup"
+  echo "Creating vim undo directory: '$tmpDir/vimbackup/undo'"
+  mkdir -p "$tmpDir/vimbackup/undo"
+  echo "Creating vim swapfile directory: '$tmpDir/vimbackup/swap'"
+  mkdir -p "$tmpDir/vimbackup/swap"
 fi
 
 if [[ ! -d "$tmpDir/emacsbackup" ]]; then
@@ -161,8 +165,8 @@ cd luarocks-3.7.0
 ./configure && make && sudo make install
 
 echo "Fixing permissions for compinit"
-sudo chown -R $USERNAME /usr/local
-sudo chown -R root:thomas /usr/local/zsh
+sudo chown -R $USER
+sudo chown -R root:$USER /usr/local/zsh
 sudo chmod -R 770 /usr/local/zsh
 
 
@@ -198,6 +202,7 @@ done
 # Untar to: ~/.local/share/delta
 # ln -s $HOME/.local/share/delta/delta ~/.local/bin/
 #
+# TODO: installation of addtional nerd-fonts
 #
 # Download: https://github.com/latex-lsp/texlab/releases
 # Unzip to: ~/.local/bin/

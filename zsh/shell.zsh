@@ -13,16 +13,16 @@ _shell(){
     _usage
   fi
 
-  if [[ "$1" == "b" ]]; then
-    /usr/bin/env bash -i
+  if [[ "$1" =~ "^[bB]" ]]; then
+    exec /usr/bin/env bash -i
   fi
 
-  if [[ "$1" == "f" ]]; then
-    /usr/bin/env fish -i
+  if [[ "$1" =~ "^[fF]" ]]; then
+    exec /usr/bin/env fish -i
   fi
 
-  if [[ "$1" == "z" ]]; then
-    /usr/bin/env zsh -i
+  if [[ "$1" =~ "^[fF]" ]]; then
+    exec /usr/bin/env zsh -i
   fi
 }
 

@@ -11,7 +11,5 @@ npm -g install \
   typescript-language-server \
   vim-language-server \
   vls \
-  vscode-css-languageserver-bin \
-  vscode-html-languageserver-bin \
-  vscode-json-languageserver \
+  vscode-langservers-extracted \
   yaml-language-server

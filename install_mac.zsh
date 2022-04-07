@@ -38,7 +38,7 @@ dotfilesDir=$(realpath "$(dirname ${0})")
 echo "Dotfiles source directory: '$dotfilesDir'"
 
 installDir="$HOME"
-if [[ ! -d "$installDir" ]]; then
+if [ ! -d "$installDir" ]; then
   echo "Installation target directory: '$installDir'"
   mkdir -p "$installDir"
 fi
@@ -81,6 +81,10 @@ done
 if [[ ! -d "$tmpDir/vimbackup" ]]; then
   echo "Creating vim backup directory: '$tmpDir/vimbackup'"
   mkdir -p "$tmpDir/vimbackup"
+  echo "Creating vim undo directory: '$tmpDir/vimbackup/undo'"
+  mkdir -p "$tmpDir/vimbackup/undo"
+  echo "Creating vim swapfile directory: '$tmpDir/vimbackup/swap'"
+  mkdir -p "$tmpDir/vimbackup/swap"
 fi
 
 if [[ ! -d "$tmpDir/emacsbackup" ]]; then
@@ -141,6 +145,7 @@ vim +'PlugInstall --sync' +qa! &>/dev/null
 
 echo "Copying Terminal template to Downloads folder"
 cp "$dotfilesDir/osx-terminal/Gruvbox.terminal" "$HOME/Downloads"
+cp "$dotfilesDir/osx-terminal/OneDark.terminal" "$HOME/Downloads"
 
 echo "Fixing folder permission to comply to compinit's audit rules."
 chmod -R go-w /usr/local/share
