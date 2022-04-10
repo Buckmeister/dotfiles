@@ -177,7 +177,11 @@ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zi
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
 unzip -o FiraCode.zip -d ~/.local/share/fonts
 unzip -o Iosevka.zip -d ~/.local/share/fonts
+unzip -o Hack.zip -d ~/.local/share/fonts
 unzip -o JetBrainsMono.zip -d ~/.local/share/fonts
+unzip -o Meslo.zip -d ~/.local/share/fonts
+unzip -o Noto.zip -d ~/.local/share/fonts
+unzip -o ProFont.zip -d ~/.local/share/fonts
 rm FiraCode.zip
 rm Iosevka.zip
 rm JetBrainsMono.zip
