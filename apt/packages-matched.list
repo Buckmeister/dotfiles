@@ -1,0 +1,266 @@
+# ============================================================================
+# APT Package List - Matched from Homebrew packages
+# Generated to mirror Thomas's macOS setup on Linux systems
+# ============================================================================
+
+# ============================================================================
+# Development Tools & Languages
+# ============================================================================
+
+# Version Control & GitHub
+git
+gh
+
+# Development essentials
+build-essential
+cmake
+curl
+wget
+gnupg
+
+# Programming Languages & Runtimes
+python3
+python3-dev
+python3-pip
+python3-setuptools
+ipython3
+black
+flake8
+python3-jedi
+
+# Node.js ecosystem (via NodeSource or snap)
+# Note: npm install -g @angular/cli for angular-cli
+
+# Rust toolchain
+# Note: Install via rustup, not apt packages
+
+# Ruby
+ruby-dev
+ruby-neovim
+
+# Java
+openjdk-11-jdk
+maven
+
+# C/C++
+ccls
+clang-format
+
+# R
+r-base
+r-recommended
+
+# Haskell
+ghc
+haskell-stack
+hlint
+
+# Lua
+lua5.2
+luajit
+liblua5.2-dev
+
+# ============================================================================
+# Text Editors & IDEs
+# ============================================================================
+
+# Terminal editors
+# Note: Install neovim via PPA or AppImage
+
+# GUI editors
+# Note: Install via snap or direct download:
+# - Visual Studio Code: snap install code --classic
+# - Emacs: emacs
+
+# ============================================================================
+# Terminal Tools & Utilities
+# ============================================================================
+
+# Modern CLI replacements
+bat
+fd-find  # Note: command is 'fdfind' on Ubuntu
+ripgrep
+exa      # Note: may need to install via cargo or snap
+
+# File management
+ranger
+tree
+unrar
+
+# Text processing & search
+jq
+fzf
+# Note: Install via git: https://github.com/junegunn/fzf
+
+# Terminal multiplexer
+tmux
+
+# System monitoring
+htop
+neofetch
+
+# Fun terminal tools
+cowsay
+figlet
+lolcat
+toilet
+toilet-fonts
+
+# Networking
+telnet
+w3m
+
+# Archive tools
+p7zip-full
+zip
+unzip
+
+# ============================================================================
+# System Utilities
+# ============================================================================
+
+# Clipboard & X11 tools
+xclip
+xorg-dev
+
+# Package management helpers
+bash-completion
+zsh
+zsh-completions
+
+# Development libraries
+libcurl4-openssl-dev
+libffi-dev
+libgif-dev
+libgmp-dev
+libgnutls28-dev
+libio-aio-perl
+libncurses5
+libncurses-dev
+libpng-dev
+libtiff-dev
+libtinfo5
+libtolua-dev
+libxml2-dev
+net-tools
+
+# ============================================================================
+# Desktop Applications (GUI)
+# ============================================================================
+
+# Terminal emulators
+kitty
+# Note: Alacritty via snap or cargo install
+
+# Browsers
+firefox-esr
+# Note: Google Chrome, Brave via direct download
+# Note: Tor Browser via direct download
+
+# Communication
+# Note: Skype via snap or direct download
+# Note: Mumble available as 'mumble'
+
+# Development tools
+# Note: Postman via snap
+
+# Virtualization
+# Note: VirtualBox via official repo
+# Note: Docker via official repo
+
+# ============================================================================
+# Fonts
+# ============================================================================
+
+fonts-firacode
+fonts-jetbrains-mono
+fonts-powerline
+fonts-noto
+# Note: Nerd Fonts require manual installation
+
+# ============================================================================
+# Documentation & Text Processing
+# ============================================================================
+
+texlive
+texinfo
+texi2html
+pandoc
+
+# PDF viewers
+zathura
+
+# ============================================================================
+# Security & Privacy
+# ============================================================================
+
+pass
+gnupg
+
+# ============================================================================
+# Multimedia
+# ============================================================================
+
+# Image viewers/managers
+shotwell
+gnome-font-viewer
+
+# Audio control
+pavucontrol
+
+# ============================================================================
+# Desktop Environment Tools
+# ============================================================================
+
+gnome-tweak-tool
+evolution
+evolution-ews
+geary
+
+# Keyboard remapping
+xcape
+
+# ============================================================================
+# Language Servers & Development Support
+# ============================================================================
+
+# Note: Many language servers need to be installed via:
+# - npm (typescript, html, css, json)
+# - pip (python-lsp-server)
+# - cargo (rust-analyzer)
+# - Manual download (lua-language-server, solargraph)
+
+# Help systems
+tldr
+thefuck
+
+# ============================================================================
+# Notes on Package Differences & Alternatives
+# ============================================================================
+
+# Packages with different names:
+# - fd -> fd-find (command: fdfind)
+# - bat -> bat (same name, different repo sometimes)
+# - exa -> exa (may need snap or cargo)
+
+# Packages requiring manual installation:
+# - eza (replacement for exa)
+# - starship (install via curl)
+# - gh (GitHub CLI - via official repo)
+# - docker (via official repo)
+# - nodejs/npm (via NodeSource)
+# - rustup/cargo (via rustup.rs)
+# - nvm (for Node version management)
+
+# macOS-specific packages (no Linux equivalent):
+# - amethyst (use i3, sway, or similar window managers)
+# - hammerspoon (use autokey or similar)
+# - karabiner-elements (use xmodmap or setxkbmap)
+# - sizeup (use window manager features)
+# - macos-trash (use 'trash-cli' package)
+
+# GUI applications requiring Flatpak/Snap:
+# - Blender: snap install blender --classic
+# - VS Code: snap install code --classic
+# - Postman: snap install postman
+# - Skype: snap install skype --classic
