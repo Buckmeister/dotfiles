@@ -716,8 +716,8 @@ function prompt_backup_location() {
 
     case "$choice" in
         1)
-            # Use default location - return empty string to stdout (not /dev/tty)
-            echo ""
+            # Use default location - return special marker
+            printf "DEFAULT"
             ;;
         2)
             # Prompt for custom location
@@ -734,20 +734,20 @@ function prompt_backup_location() {
             if [[ -z "$custom_path" ]]; then
                 printf "\n${UI_ERROR_COLOR}❌ Error: Path cannot be empty. Using default location.${COLOR_RESET}\n" > /dev/tty
                 sleep 2
-                echo ""
+                printf "DEFAULT"
             else
-                echo "$custom_path"
+                printf "%s" "$custom_path"
             fi
             ;;
         c|C)
             # User cancelled - return to stdout
-            echo "CANCELLED"
+            printf "CANCELLED"
             ;;
         *)
             # Invalid choice, use default
             printf "\n${UI_WARNING_COLOR}⚠️  Invalid choice. Using default location.${COLOR_RESET}\n" > /dev/tty
             sleep 1
-            echo ""
+            printf "DEFAULT"
             ;;
     esac
 
@@ -778,12 +778,14 @@ function execute_backup_repo() {
 
     # Build backup command with optional target directory
     local backup_cmd
-    if [[ -n "$backup_target" ]]; then
-        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh" -t "'"$backup_target"'"'
-        printf "${UI_INFO_COLOR}📁 Using custom location: ${COLOR_BOLD}$backup_target${COLOR_RESET}\n\n"
-    else
+    if [[ "$backup_target" == "DEFAULT" ]]; then
+        # Use default location (no -t flag)
         backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
         printf "${UI_INFO_COLOR}📁 Using default location: ${COLOR_BOLD}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
+    else
+        # Use custom location
+        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh" -t "'"$backup_target"'"'
+        printf "${UI_INFO_COLOR}📁 Using custom location: ${COLOR_BOLD}$backup_target${COLOR_RESET}\n\n"
     fi
 
     # Execute the backup script
