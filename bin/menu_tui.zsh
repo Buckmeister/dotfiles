@@ -716,21 +716,23 @@ function prompt_backup_location() {
 
     case "$choice" in
         1)
-            # Use default location
-            echo ""  # Return empty string for default
+            # Use default location - return empty string to stdout (not /dev/tty)
+            echo ""
             ;;
         2)
             # Prompt for custom location
-            printf "${UI_ACCENT_COLOR}Enter custom backup directory path:${COLOR_RESET}\n"
-            printf "${ONEDARK_COMMENT}(Tip: Use ~ for home directory, e.g., ~/Desktop)${COLOR_RESET}\n"
-            printf "${UI_SUCCESS_COLOR}➜ ${COLOR_RESET}"
+            {
+                printf "${UI_ACCENT_COLOR}Enter custom backup directory path:${COLOR_RESET}\n"
+                printf "${ONEDARK_COMMENT}(Tip: Use ~ for home directory, e.g., ~/Desktop)${COLOR_RESET}\n"
+                printf "${UI_SUCCESS_COLOR}➜ ${COLOR_RESET}"
+            } > /dev/tty
 
             local custom_path
-            read custom_path
+            read custom_path < /dev/tty
 
             # Validate path is not empty
             if [[ -z "$custom_path" ]]; then
-                printf "\n${UI_ERROR_COLOR}❌ Error: Path cannot be empty. Using default location.${COLOR_RESET}\n"
+                printf "\n${UI_ERROR_COLOR}❌ Error: Path cannot be empty. Using default location.${COLOR_RESET}\n" > /dev/tty
                 sleep 2
                 echo ""
             else
@@ -738,12 +740,12 @@ function prompt_backup_location() {
             fi
             ;;
         c|C)
-            # User cancelled
+            # User cancelled - return to stdout
             echo "CANCELLED"
             ;;
         *)
             # Invalid choice, use default
-            printf "\n${UI_WARNING_COLOR}⚠️  Invalid choice. Using default location.${COLOR_RESET}\n"
+            printf "\n${UI_WARNING_COLOR}⚠️  Invalid choice. Using default location.${COLOR_RESET}\n" > /dev/tty
             sleep 1
             echo ""
             ;;
