@@ -123,12 +123,12 @@ This allows scripts to adapt their behavior automatically.
 
 ## 🛠️ Advanced Usage
 
-### Skip Post-Install Scripts, do only Dotfile linking
+### Skip Post-Install Scripts, Do Only Dotfile Linking
 ```bash
 ./bin/setup.zsh --skip-pi
 ```
 
-### Run All Post-Install Scripts Silently, do Dotfile linking, as well
+### Run All Post-Install Scripts Silently, Including Dotfile Linking
 ```bash
 ./bin/librarian.zsh --all-pi
 ```
