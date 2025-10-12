@@ -7,7 +7,6 @@
 .DS_Store
 
 # Editor-specific
-nvim/nvim.symlink_config/coc-settings.json
 vim/vim.symlink/autoload/plug.vim*
 
 # Runtime and cache files
