@@ -687,32 +687,32 @@ function execute_librarian_diagnostics() {
 
 # Show fancy backup location dialog
 function prompt_backup_location() {
-    clear_screen
-    show_cursor
+    # Redirect all output to /dev/tty to ensure immediate display
+    {
+        clear_screen
+        show_cursor
 
-    # Small delay to let terminal catch up with screen clearing
-    sleep 0.2
+        draw_header "Repository Backup" "Choose Backup Location"
 
-    draw_header "Repository Backup" "Choose Backup Location"
+        printf "${UI_INFO_COLOR}The backup will create a timestamped ZIP archive of your dotfiles repository.${COLOR_RESET}\n\n"
 
-    printf "${UI_INFO_COLOR}The backup will create a timestamped ZIP archive of your dotfiles repository.${COLOR_RESET}\n\n"
+        printf "${UI_ACCENT_COLOR}═══ Backup Location Options ═══${COLOR_RESET}\n\n"
+        printf "  ${UI_SUCCESS_COLOR}[1]${COLOR_RESET} ${UI_INFO_COLOR}Default location${COLOR_RESET}\n"
+        printf "      ${ONEDARK_COMMENT}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
+        printf "  ${UI_SUCCESS_COLOR}[2]${COLOR_RESET} ${UI_INFO_COLOR}Custom location${COLOR_RESET}\n"
+        printf "      ${ONEDARK_COMMENT}Specify your own backup directory${COLOR_RESET}\n\n"
+        printf "  ${UI_ERROR_COLOR}[c]${COLOR_RESET} ${UI_INFO_COLOR}Cancel${COLOR_RESET}\n\n"
 
-    printf "${UI_ACCENT_COLOR}═══ Backup Location Options ═══${COLOR_RESET}\n\n"
-    printf "  ${UI_SUCCESS_COLOR}[1]${COLOR_RESET} ${UI_INFO_COLOR}Default location${COLOR_RESET}\n"
-    printf "      ${ONEDARK_COMMENT}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
-    printf "  ${UI_SUCCESS_COLOR}[2]${COLOR_RESET} ${UI_INFO_COLOR}Custom location${COLOR_RESET}\n"
-    printf "      ${ONEDARK_COMMENT}Specify your own backup directory${COLOR_RESET}\n\n"
-    printf "  ${UI_ERROR_COLOR}[c]${COLOR_RESET} ${UI_INFO_COLOR}Cancel${COLOR_RESET}\n\n"
+        printf "${UI_ACCENT_COLOR}Choose an option [1/2/c]: ${COLOR_RESET}"
+    } > /dev/tty
 
-    printf "${UI_ACCENT_COLOR}Choose an option [1/2/c]: ${COLOR_RESET}"
-
-    # Flush any pending input from the buffer (like leftover Enter key from menu)
-    local dummy
-    while read -t 0.01 -k1 -s dummy; do :; done
+    # Force terminal to sync and give user time to see the prompt
+    sleep 0.3
 
     local choice
-    read -k1 -s choice
-    printf "\n\n"
+    read -t 0.01 > /dev/null 2>&1  # Flush any stale input
+    read -k1 -s choice < /dev/tty
+    printf "\n\n" > /dev/tty
 
     case "$choice" in
         1)
