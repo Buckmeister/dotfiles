@@ -329,15 +329,6 @@ else
     echo "   🎹 Every great composition starts with a single note."
 fi
 
-# ============================================================================
-# Post-Install Scripts Execution (The Librarian's Original Purpose)
-# ============================================================================
-
-echo
-echo "🎯 The Librarian's Original Purpose:"
-echo "   Would you like to run post-install scripts? 🎵"
-echo
-
 } # End of generate_report function
 
 # ============================================================================
