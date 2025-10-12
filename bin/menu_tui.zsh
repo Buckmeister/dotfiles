@@ -870,6 +870,15 @@ function run_interactive_menu() {
 # ============================================================================
 
 function initialize_menu() {
+    # Clear all arrays first to prevent duplicates
+    menu_items=()
+    menu_descriptions=()
+    menu_commands=()
+    menu_types=()
+    menu_selected=()
+    current_item=0
+    total_items=0
+
     # Add link dotfiles option
     add_menu_item "$MENU_LINK_DOTFILES" "Create symlinks for all dotfiles" \
                   'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/link_dotfiles.zsh"'
