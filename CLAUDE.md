@@ -2,85 +2,122 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Team Context & Project Information
+## Project Overview
 
-**IMPORTANT**: Before working on any tasks, please review these files to understand the project context and team dynamics:
+This is a personal dotfiles repository featuring a beautifully crafted, cross-platform configuration management system. It uses a symlink-based architecture to manage configuration files across different applications and tools, with intelligent OS detection, an interactive TUI menu, and comprehensive automation.
 
-- **TeamBio.md**: Contains information about team member Thomas Burk, including his background, interests, and project goals. Understanding his passion for IT and music integration helps tailor solutions and communication appropriately.
-
-- **Meetings.md**: Contains internal project notes, meeting summaries, and current project status. This file is git-ignored and contains sensitive context about project history, challenges, and ongoing objectives. Always consider this information when planning work and making recommendations.
-
-These files provide essential context for understanding not just the technical aspects of the repository, but also the human element and project journey. Please incorporate this understanding into all interactions and technical decisions.
+The repository showcases a harmonious blend of technical sophistication and user-friendly design, with every component working together like a well-orchestrated symphony.
 
 ## Repository Architecture
 
-This is a personal dotfiles repository that uses a symlink-based architecture to manage configuration files across different applications and tools. The repository structure follows these conventions:
+The repository structure follows these conventions:
 
 ### Symlink Patterns
 - `*.symlink` files → linked to `~/.{basename}`
 - `*.symlink_config` directories → linked to `~/.config/{basename}`
 - `*.symlink_local_bin.*` files → linked to `~/.local/bin/{basename}`
 
-### Key Components
-- **Primary Setup Script**: `setup.zsh` - Cross-platform, OS-aware setup with automatic detection
-- **Legacy Scripts**: `install_mac.zsh`, `install_zorin16.zsh` - Platform-specific (deprecated)
-- **Package Management**: `brew/install_packages.zsh` contains all Homebrew packages
-- **Post-Install Scripts**: `post-install/scripts/` contains modular, OS-aware installation scripts
-- **Configuration Directories**: Each application has its own directory (vim, zsh, tmux, etc.)
+**Examples:**
+- `zsh/zshrc.symlink` → `~/.zshrc`
+- `nvim/nvim.symlink_config/` → `~/.config/nvim/`
+- `github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+
+### Core Infrastructure
+
+The system is built on a shared library architecture:
+
+- **`bin/setup.zsh`** - Cross-platform setup orchestrator with automatic OS detection
+- **`bin/menu_tui.zsh`** - Interactive TUI menu with OneDark color scheme
+- **`bin/librarian.zsh`** - System health checker and status reporter
+- **`bin/link_dotfiles.zsh`** - Symlink creation engine
+- **`bin/backup_dotfiles_repo.zsh`** - Comprehensive backup system
+
+### Shared Libraries (`bin/lib/`)
+
+- **`colors.zsh`** - OneDark color scheme constants and theming
+- **`ui.zsh`** - Progress bars, headers, and beautiful terminal output
+- **`utils.zsh`** - OS detection, common utilities, and helper functions
+- **`greetings.zsh`** - Friendly, encouraging messages for user interaction
+
+### Convenience Wrappers
+
+- **`./setup`** - POSIX shell wrapper that ensures zsh is available before running `bin/setup.zsh`
+- **`./backup`** - POSIX shell wrapper for `bin/backup_dotfiles_repo.zsh`
+
+These wrappers provide helpful error messages and OS-specific installation instructions if zsh is missing.
 
 ### OS Detection and Context
-The setup.zsh script automatically detects the operating system and exports context variables:
+
+The setup.zsh script automatically detects the operating system and exports context variables that all post-install scripts receive:
+
 - `DF_OS`: Detected OS (macos, linux, windows, unknown)
 - `DF_PKG_MANAGER`: Package manager (brew, apt, choco)
 - `DF_PKG_INSTALL_CMD`: Installation command for the detected package manager
 
-All post-install scripts receive these variables and can adapt their behavior accordingly.
+This allows all scripts to adapt their behavior cross-platform automatically.
 
 ## Common Commands
 
 ### Primary Setup (Recommended)
+
 ```bash
-# Full cross-platform setup (creates symlinks, installs tools)
-./setup.zsh
+# Full cross-platform setup (creates symlinks, launches interactive menu)
+./setup
 
 # Skip post-install scripts (symlinks only)
-./setup.zsh --skip-pi
+./bin/setup.zsh --skip-pi
 
-# Show help and detected OS
-./setup.zsh --help
+# Show help and detected OS information
+./bin/setup.zsh --help
 ```
 
-### Legacy Setup Scripts (Deprecated)
-```bash
-# Legacy macOS setup (use ./setup.zsh instead)
-./install_mac.zsh
+### Interactive Menu
 
-# Legacy Linux setup (use ./setup.zsh instead)
-./install_zorin16.zsh
+The TUI menu (`bin/menu_tui.zsh`) provides an elegant interface for managing post-install scripts:
+
+**Navigation:**
+- `↑`/`↓` or `j`/`k` - Move through options
+- `Space` - Select/deselect items
+- `a` - Select all
+- `Enter` - Execute selected scripts
+- `q` - Quit
+
+### Post-Install Scripts
+
+All scripts in `post-install/scripts/` are modular and OS-aware:
+
+```bash
+# Individual post-install scripts
+./post-install/scripts/cargo-packages.zsh       # Rust packages
+./post-install/scripts/npm-global-packages.zsh  # Node.js global packages
+./post-install/scripts/pip-packages.zsh         # Python packages
+./post-install/scripts/ruby-gems.zsh            # Ruby gems
+./post-install/scripts/language-servers.zsh     # LSP servers
+./post-install/scripts/toolchains.zsh           # Development toolchains
+./post-install/scripts/fonts.zsh                # Font installation
+./post-install/scripts/vim-setup.zsh            # Vim/Neovim setup
+./post-install/scripts/bash-preexec.zsh         # Bash preexec hook
+./post-install/scripts/lombok.zsh               # Java Lombok
+
+# Run all post-install scripts silently
+./bin/librarian.zsh --all-pi
 ```
 
-### Package Management
+### System Management
+
 ```bash
+# System health check and status report
+./bin/librarian.zsh
+
+# Create a backup of the dotfiles repository
+./backup
+
 # Generate new brew install script from current system
 ~/.local/bin/generate_brew_install_script
-
-# Individual post-install scripts (OS-aware)
-./post-install/scripts/cargo-packages.zsh
-./post-install/scripts/npm-global-packages.zsh
-./post-install/scripts/pip-packages.zsh
-./post-install/scripts/ruby-gems.zsh
-./post-install/scripts/vim-setup.zsh
-./post-install/scripts/toolchains.zsh
-./post-install/scripts/language-servers.zsh
-./post-install/scripts/fonts.zsh
-./post-install/scripts/lombok.zsh
-./post-install/scripts/bash-preexec.zsh
-
-# System health and status reporting
-./post-install/scripts/librarian.zsh
 ```
 
 ### GitHub Downloaders
+
 ```bash
 # General GitHub release/tag downloader
 ~/.local/bin/get_github_url -u username -r repository [options]
@@ -90,12 +127,13 @@ All post-install scripts receive these variables and can adapt their behavior ac
 ```
 
 ### Testing and Validation
+
 ```bash
-# System health check and status report
-./post-install/scripts/librarian.zsh
+# System health check and comprehensive status
+./bin/librarian.zsh
 
 # Manual verification steps:
-# 1. Run setup.zsh in clean environment
+# 1. Run ./setup in clean environment
 # 2. Check symlink creation with `ls -la ~` and `ls -la ~/.config`
 # 3. Verify application configs load correctly
 # 4. Use librarian.zsh to get comprehensive system status
@@ -107,9 +145,11 @@ All post-install scripts receive these variables and can adapt their behavior ac
 - **zsh**: Main shell with zplug plugin management
 - **bash**: Backup configuration for compatibility
 - **aliases**: Shared command aliases across shells
+- **starship**: Cross-shell prompt with custom configuration
+- **p10k**: Powerlevel10k theme configuration
 
 ### Development Tools
-- **vim/nvim**: Vim configuration with vim-plug package manager
+- **vim/nvim**: Neovim configuration with lazy.nvim package manager
 - **emacs**: Emacs configuration for macOS
 - **git**: Git settings and diff-so-fancy integration
 - **tmux**: Terminal multiplexer configuration
@@ -124,21 +164,90 @@ All post-install scripts receive these variables and can adapt their behavior ac
 - **hammerspoon**: macOS automation (installed via brew)
 - **local/bin/**: Custom utility scripts
 
-## Development Notes
+## Language Support
 
-### Language Support
-The dotfiles include configurations for:
-- **Haskell**: GHC, Stack, HIE setup
-- **Rust**: Cargo packages and rust-analyzer
-- **Python**: IPython, pip packages
-- **JavaScript/Node**: npm global packages
-- **Java**: JDT.LS language server, Maven
+The dotfiles include comprehensive configurations for:
+
+- **Rust**: Cargo packages, rust-analyzer LSP
+- **Python**: IPython, pip packages, Python LSP servers
+- **JavaScript/Node**: npm global packages, TypeScript support
+- **Java**: JDT.LS language server, Maven wrapper
 - **C#**: OmniSharp language server
+- **Haskell**: GHC, Stack, HIE setup
+- **Ruby**: Gems, Solargraph LSP
+- **Go**: Go toolchain and gopls
+- **And more...**
+
+## Design Philosophy
+
+### User Experience
+
+This repository prioritizes a delightful user experience:
+
+- **Friendly Messages**: Every output is warm and encouraging
+- **Visual Consistency**: OneDark color scheme throughout
+- **Progress Feedback**: Clear progress bars and status updates
+- **Error Handling**: Helpful, actionable error messages with OS-specific guidance
+- **Cross-Platform**: Seamless experience on macOS and Linux
+
+### Code Organization
+
+- **Shared Libraries**: DRY principle with reusable UI and utility functions
+- **Modularity**: Each post-install script is independent and focused
+- **Fallback Protection**: Graceful degradation when libraries are unavailable
+- **Context Awareness**: All scripts receive OS and package manager context
 
 ### Backup Strategy
-Installation scripts automatically backup existing configurations to `~/.tmp/dotfilesBackup-{timestamp}/` before creating symlinks.
 
-### Platform Support
-- **Primary**: macOS (install_mac.zsh)
-- **Secondary**: Ubuntu/Zorin (install_zorin16.zsh)
+Installation scripts automatically backup existing configurations to `~/.tmp/dotfilesBackup-{timestamp}/` before creating symlinks. The `./backup` command creates comprehensive ZIP archives stored in `~/Downloads/dotfiles_repo_backups/`.
+
+## Platform Support
+
+- **Primary**: macOS (Homebrew ecosystem)
+- **Secondary**: Ubuntu/Debian Linux (apt ecosystem)
 - **Portable**: Cross-platform configs where possible
+- **Planned**: Windows support via WSL
+
+## Development Workflow
+
+### Making Changes
+
+1. Edit configuration files in their respective directories
+2. Test changes locally
+3. Use `./bin/librarian.zsh` to verify system health
+4. Create meaningful git commits with clear messages
+5. Push to GitHub
+
+### Adding New Post-Install Scripts
+
+1. Create script in `post-install/scripts/` with `.zsh` extension
+2. Make it executable: `chmod +x post-install/scripts/your-script.zsh`
+3. Use shared libraries for consistent UI:
+   ```zsh
+   source "$SCRIPT_DIR/../bin/lib/colors.zsh"
+   source "$SCRIPT_DIR/../bin/lib/ui.zsh"
+   source "$SCRIPT_DIR/../bin/lib/utils.zsh"
+   ```
+4. Access OS context via `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
+5. Add to interactive menu automatically (detected by menu_tui.zsh)
+
+### Adding New Configurations
+
+1. Create directory for application (e.g., `myapp/`)
+2. Add configuration files with appropriate symlink suffix
+3. Run `./bin/link_dotfiles.zsh` to create symlinks
+4. Verify with `./bin/librarian.zsh`
+
+## Notes for AI Assistants
+
+When working with this codebase:
+
+- **Maintain Consistency**: Use the shared libraries for all UI output
+- **Follow Conventions**: Respect the symlink naming patterns
+- **Be Friendly**: Keep the warm, encouraging tone in all messages
+- **Test Cross-Platform**: Consider both macOS and Linux when making changes
+- **Use Context Variables**: Leverage `DF_OS`, `DF_PKG_MANAGER`, etc. for adaptability
+- **Document Changes**: Update this file and README.md as appropriate
+- **Preserve the Vision**: This is a "symphony" - every component should harmonize
+
+The goal is to create not just a functional dotfiles system, but a delightful experience that brings joy to daily development work.
