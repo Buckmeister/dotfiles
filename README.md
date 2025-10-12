@@ -22,13 +22,15 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 ## 🚀 Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
+# Clone the repository with submodules
+git clone --recurse-submodules https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
 cd ~/.config/dotfiles
 
 # Run the cross-platform setup
 ./setup
 ```
+
+**Note**: The `--recurse-submodules` flag ensures that the Neovim configuration (managed as a separate repository) is cloned automatically.
 
 That's it! The setup script will:
 1. Detect your operating system
@@ -55,7 +57,7 @@ That's it! The setup script will:
 ### Configuration Files
 Meticulously crafted configurations for:
 - **Shells**: zsh, bash, starship prompt
-- **Editors**: Neovim, Vim, Emacs
+- **Editors**: [Neovim](https://github.com/Buckmeister/lualoves.nvim) (git submodule), Vim, Emacs
 - **Terminals**: Kitty, Alacritty
 - **Tools**: tmux, git, ranger, and more
 - **macOS**: Karabiner keyboard remapping
@@ -141,6 +143,30 @@ This allows scripts to adapt their behavior automatically.
 ### Create a Backup
 ```bash
 ./backup
+```
+
+### Managing the Neovim Submodule
+
+The Neovim configuration is managed as a git submodule pointing to [lualoves.nvim](https://github.com/Buckmeister/lualoves.nvim).
+
+```bash
+# Update Neovim config to latest from lualoves.nvim
+cd ~/.config/dotfiles
+git submodule update --remote nvim/nvim.symlink_config
+git add nvim/nvim.symlink_config
+git commit -m "Update Neovim submodule"
+
+# Work directly on Neovim config
+cd nvim/nvim.symlink_config
+# Make changes, commit, and push
+git add .
+git commit -m "Update Neovim config"
+git push
+
+# Return to dotfiles and update submodule reference
+cd ../..
+git add nvim/nvim.symlink_config
+git commit -m "Update Neovim submodule reference"
 ```
 
 ### GitHub Download Tools
