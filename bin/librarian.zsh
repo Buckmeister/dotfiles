@@ -83,9 +83,9 @@ echo
 # ============================================================================
 
 # Check core setup - use SCRIPT_DIR directly for reliability
-dotfiles_root="$SCRIPT_DIR/.."
+dotfiles_root="$(cd "$SCRIPT_DIR/.." && pwd)"
 print_info "📋 Core System Status:"
-print_success "   Dotfiles directory: $(cd "$dotfiles_root" && pwd)"
+print_success "   Dotfiles directory: $dotfiles_root"
 
 # Check for setup scripts
 if [[ -x "$dotfiles_root/bin/setup.zsh" ]]; then
@@ -224,10 +224,14 @@ echo
 
 # Check execution mode based on arguments
 case "${1:-}" in
-    "--skip-pi"|"--help"|"--status")
-        if [[ "${1:-}" != "--status" ]]; then
-            echo "📚 Post-install scripts skipped. The Librarian's work is complete. $(get_random_friend_greeting) 💙"
-        fi
+    "--status")
+        # Explicit status check - just show report and exit
+        echo
+        exit 0
+        ;;
+    "--skip-pi"|"--help")
+        # Show friendly exit message for these flags
+        echo "📚 Post-install scripts skipped. The Librarian's work is complete. $(get_random_friend_greeting) 💙"
         echo
         exit 0
         ;;
