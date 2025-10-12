@@ -74,7 +74,7 @@ Modular, OS-aware installation for:
 
 ## 🎹 The Interactive Experience
 
-When you run `./bin/setup.zsh`, you're greeted with an elegant TUI menu:
+When you run `./setup`, you're greeted with an elegant TUI menu:
 
 ```
 ╔══════════════════════════════════════════════╗
@@ -127,12 +127,12 @@ This allows scripts to adapt their behavior automatically.
 
 ### Skip Post-Install Scripts, Do Only Dotfile Linking
 ```bash
-./bin/setup.zsh --skip-pi
+./setup --skip-pi
 ```
 
 ### Run All Post-Install Scripts Silently, Including Dotfile Linking
 ```bash
-./bin/librarian.zsh --all-pi
+./setup --all-modules
 ```
 
 ### System Health Check
