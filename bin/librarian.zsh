@@ -59,8 +59,25 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 }
 
 # ============================================================================
+# Pager Selection (bat with fallback to less/cat)
+# ============================================================================
+
+function select_pager() {
+    if command_exists bat; then
+        echo "bat --paging=always --style=plain --color=always"
+    elif command_exists less; then
+        echo "less -R"
+    else
+        echo "cat"
+    fi
+}
+
+# ============================================================================
 # Librarian System Health & Status Reporter
 # ============================================================================
+
+# Function to generate the full report (so we can pipe it through a pager)
+function generate_report() {
 
 # Detect if we're being called from setup (with DF_OS context)
 if [[ -n "$DF_OS" ]]; then
@@ -99,6 +116,18 @@ fi
 # Check symlinks
 symlink_count=$(find ~/.local/bin -name "*" -type l 2>/dev/null | wc -l | tr -d ' ')
 echo "   📎 Active symlinks in ~/.local/bin: $symlink_count"
+
+# Check git status of dotfiles repo
+if [[ -d "$dotfiles_root/.git" ]]; then
+    cd "$dotfiles_root"
+    git_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+    git_status=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [[ $git_status -eq 0 ]]; then
+        print_success "   Git repository: clean (branch: $git_branch)"
+    else
+        print_warning "   Git repository: $git_status uncommitted changes (branch: $git_branch)"
+    fi
+fi
 
 # Check if vim/nvim is available using shared utility
 if command_exists nvim; then
@@ -196,6 +225,77 @@ done
 echo "   📊 Configuration files found: $config_count/${#configs[@]}"
 
 # ============================================================================
+# Detailed Symlink Inventory
+# ============================================================================
+
+echo
+echo "🔗 Detailed Symlink Inventory:"
+echo
+
+# Local bin symlinks
+print_info "📂 ~/.local/bin/ symlinks:"
+if [[ -d ~/.local/bin ]]; then
+    local_bin_links=($(find ~/.local/bin -type l 2>/dev/null | sort))
+    if [[ ${#local_bin_links[@]} -gt 0 ]]; then
+        for link in $local_bin_links; do
+            link_name=$(basename "$link")
+            link_target=$(readlink "$link")
+            if [[ -e "$link" ]]; then
+                echo "   ✅ $link_name → $link_target"
+            else
+                echo "   ❌ $link_name → $link_target (broken)"
+            fi
+        done
+    else
+        print_info "   No symlinks found"
+    fi
+else
+    print_warning "   ~/.local/bin not found"
+fi
+
+echo
+
+# Config directory symlinks
+print_info "📂 ~/.config/ symlinks:"
+if [[ -d ~/.config ]]; then
+    config_links=($(find ~/.config -maxdepth 1 -type l 2>/dev/null | sort))
+    if [[ ${#config_links[@]} -gt 0 ]]; then
+        for link in $config_links; do
+            link_name=$(basename "$link")
+            link_target=$(readlink "$link")
+            if [[ -e "$link" ]]; then
+                echo "   ✅ $link_name → $link_target"
+            else
+                echo "   ❌ $link_name → $link_target (broken)"
+            fi
+        done
+    else
+        print_info "   No symlinks found"
+    fi
+else
+    print_warning "   ~/.config not found"
+fi
+
+echo
+
+# Home directory dotfiles
+print_info "📂 ~/ dotfile symlinks:"
+home_dotfiles=($(find ~ -maxdepth 1 -name ".*" -type l 2>/dev/null | sort))
+if [[ ${#home_dotfiles[@]} -gt 0 ]]; then
+    for link in $home_dotfiles; do
+        link_name=$(basename "$link")
+        link_target=$(readlink "$link")
+        if [[ -e "$link" ]]; then
+            echo "   ✅ $link_name → $link_target"
+        else
+            echo "   ❌ $link_name → $link_target (broken)"
+        fi
+    done
+else
+    print_info "   No dotfile symlinks found in ~/"
+fi
+
+# ============================================================================
 # Artistic Conclusion
 # ============================================================================
 
@@ -222,11 +322,18 @@ echo "🎯 The Librarian's Original Purpose:"
 echo "   Would you like to run post-install scripts? 🎵"
 echo
 
+} # End of generate_report function
+
+# ============================================================================
+# Main Execution Logic
+# ============================================================================
+
 # Check execution mode based on arguments
 case "${1:-}" in
     "--status")
-        # Explicit status check - just show report and exit
-        echo
+        # Explicit status check - show verbose report through pager
+        PAGER=$(select_pager)
+        generate_report | eval $PAGER
         exit 0
         ;;
     "--skip-pi"|"--help")
@@ -300,9 +407,10 @@ case "${1:-}" in
         DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$SCRIPT_DIR/menu_tui.zsh"
         ;;
     *)
-        # Default: show status only (health check mode)
+        # Default: show verbose status through pager (health check mode)
         # This is the normal behavior when running ./bin/librarian.zsh directly
-        echo
+        PAGER=$(select_pager)
+        generate_report | eval $PAGER
         exit 0
         ;;
 esac
