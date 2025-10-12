@@ -601,10 +601,9 @@ function execute_librarian_diagnostics() {
     clear_screen
     show_cursor
 
-    printf "${COLOR_BOLD}${UI_ACCENT_COLOR}📚 Running Librarian Status & Diagnostics...${COLOR_RESET}\n\n"
-
-    # Execute the librarian with --skip-pi to show status only
-    local librarian_cmd='DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --skip-pi'
+    # Execute the librarian with --status to show full verbose report
+    # The librarian will handle its own output (through pager if interactive)
+    local librarian_cmd='DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --status'
     eval "$librarian_cmd"
 
     printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
@@ -742,7 +741,7 @@ function initialize_menu() {
 
     # Add librarian status and diagnostics (below execute button)
     add_menu_item "$MENU_LIBRARIAN" "Run system health check and status report" \
-                  'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --skip-pi'
+                  'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --status'
 
     add_menu_item "$MENU_QUIT" "Exit the menu system" ""
 }
