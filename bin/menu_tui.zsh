@@ -691,7 +691,7 @@ function prompt_backup_location() {
     show_cursor
 
     # Small delay to let terminal catch up with screen clearing
-    sleep 0.1
+    sleep 0.2
 
     draw_header "Repository Backup" "Choose Backup Location"
 
@@ -706,8 +706,12 @@ function prompt_backup_location() {
 
     printf "${UI_ACCENT_COLOR}Choose an option [1/2/c]: ${COLOR_RESET}"
 
+    # Flush any pending input from the buffer (like leftover Enter key from menu)
+    local dummy
+    while read -t 0.01 -k1 -s dummy; do :; done
+
     local choice
-    read -k1 -s choice  # Added -s flag for silent read
+    read -k1 -s choice
     printf "\n\n"
 
     case "$choice" in
