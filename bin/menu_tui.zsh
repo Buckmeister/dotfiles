@@ -86,6 +86,7 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 [[ -z "$ITEM_CONTROL_COLOR" ]] && ITEM_CONTROL_COLOR="$UI_WARNING_COLOR"      # Use shared yellow
 [[ -z "$ITEM_ACTION_COLOR" ]] && ITEM_ACTION_COLOR="$UI_SUCCESS_COLOR"       # Use shared green
 [[ -z "$ITEM_LIBRARIAN_COLOR" ]] && ITEM_LIBRARIAN_COLOR="$UI_ACCENT_COLOR"     # Use shared purple
+[[ -z "$ITEM_BACKUP_COLOR" ]] && ITEM_BACKUP_COLOR="$ONEDARK_BLUE"           # Use OneDark blue
 [[ -z "$ITEM_QUIT_COLOR" ]] && ITEM_QUIT_COLOR="$UI_ERROR_COLOR"           # Use shared red
 [[ -z "$ITEM_SELECTED_COLOR" ]] && ITEM_SELECTED_COLOR="$UI_SUCCESS_COLOR"     # Use shared green
 [[ -z "$ITEM_DEFAULT_COLOR" ]] && ITEM_DEFAULT_COLOR="$ONEDARK_FG"            # Use shared foreground
@@ -105,6 +106,7 @@ readonly MENU_LINK_DOTFILES="Link Dotfiles"
 readonly MENU_SELECT_ALL="Select All"
 readonly MENU_EXECUTE="Execute Selected"
 readonly MENU_LIBRARIAN="Librarian"
+readonly MENU_BACKUP="Backup"
 readonly MENU_QUIT="Quit"
 
 # Menu state variables
@@ -153,7 +155,7 @@ function wait_for_keypress() {
 # Returns: 0 if control item, 1 if actionable item
 function is_control_menu_item() {
     local title="$1"
-    [[ "$title" == "$MENU_SELECT_ALL" || "$title" == "$MENU_EXECUTE" || "$title" == "$MENU_LIBRARIAN" || "$title" == "$MENU_QUIT" ]]
+    [[ "$title" == "$MENU_SELECT_ALL" || "$title" == "$MENU_EXECUTE" || "$title" == "$MENU_LIBRARIAN" || "$title" == "$MENU_BACKUP" || "$title" == "$MENU_QUIT" ]]
 }
 
 # Validate menu item index
@@ -309,6 +311,10 @@ function draw_menu_item() {
             checkbox="📚 "
             color="$ITEM_LIBRARIAN_COLOR"
             ;;
+        "$MENU_BACKUP")
+            checkbox="💾 "
+            color="$ITEM_BACKUP_COLOR"
+            ;;
         "$MENU_QUIT")
             checkbox="🚪 "
             color="$ITEM_QUIT_COLOR"
@@ -422,7 +428,7 @@ function update_selection_counter() {
 
 # Process user keyboard input and handle menu navigation
 # Args: key (string) - the pressed key or key sequence
-# Returns: 0=continue, 1=quit, 2=execute selected, 3=run librarian, 4=execute current item
+# Returns: 0=continue, 1=quit, 2=execute selected, 3=run librarian, 4=run backup, 5=full redraw done, 6=execute current item
 function handle_menu_navigation() {
     local keyinput="$1"
 
@@ -453,6 +459,9 @@ function handle_menu_navigation() {
                 "$MENU_LIBRARIAN")
                     return 3  # Signal to run librarian
                     ;;
+                "$MENU_BACKUP")
+                    return 4  # Signal to run backup
+                    ;;
                 "$MENU_QUIT")
                     return 1  # Signal to quit
                     ;;
@@ -480,6 +489,9 @@ function handle_menu_navigation() {
                 "$MENU_LIBRARIAN")
                     return 3  # Signal to run librarian
                     ;;
+                "$MENU_BACKUP")
+                    return 4  # Signal to run backup
+                    ;;
                 "$MENU_QUIT")
                     return 1  # Signal to quit
                     ;;
@@ -491,7 +503,7 @@ function handle_menu_navigation() {
                     ;;
                 *)
                     # For regular items, execute immediately
-                    return 4  # Signal to execute current item
+                    return 6  # Signal to execute current item
                     ;;
             esac
             ;;
@@ -611,6 +623,23 @@ function execute_librarian_diagnostics() {
     hide_cursor
 }
 
+# Execute the backup repository operation
+function execute_backup_repo() {
+    # Clear screen before execution to avoid painting over menu
+    clear_screen
+    show_cursor
+
+    printf "${COLOR_BOLD}${ITEM_BACKUP_COLOR}💾 Repository Backup${COLOR_RESET}\n\n"
+
+    # Execute the backup script (simple version for now - Phase 3 will add interactive prompt)
+    local backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
+    eval "$backup_cmd"
+
+    printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+    read -k1
+    hide_cursor
+}
+
 # ============================================================================
 # Main Menu Loop
 # ============================================================================
@@ -663,8 +692,8 @@ function run_interactive_menu() {
                 # Reset tracking state after full redraw
                 previous_current_item=$current_item
                 ;;
-            4)  # Execute current item
-                execute_single_menu_item $((current_item + 1))
+            4)  # Run backup
+                execute_backup_repo
                 # Redraw complete menu after execution
                 draw_complete_menu
                 # Reset tracking state after full redraw
@@ -672,6 +701,13 @@ function run_interactive_menu() {
                 ;;
             5)  # Already updated - no further action needed
                 # Do nothing, the handler already updated what was needed
+                ;;
+            6)  # Execute current item
+                execute_single_menu_item $((current_item + 1))
+                # Redraw complete menu after execution
+                draw_complete_menu
+                # Reset tracking state after full redraw
+                previous_current_item=$current_item
                 ;;
             0)  # Continue - just update the display efficiently
                 update_menu_display
@@ -742,6 +778,10 @@ function initialize_menu() {
     # Add librarian status and diagnostics (below execute button)
     add_menu_item "$MENU_LIBRARIAN" "Run system health check and status report" \
                   'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --status'
+
+    # Add backup repository option (below librarian)
+    add_menu_item "$MENU_BACKUP" "Create repository backup archive" \
+                  '"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
 
     add_menu_item "$MENU_QUIT" "Exit the menu system" ""
 }
