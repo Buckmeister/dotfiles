@@ -63,6 +63,12 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 # ============================================================================
 
 function select_pager() {
+    # Check if stdout is a terminal
+    if [[ ! -t 1 ]]; then
+        echo "cat"
+        return
+    fi
+
     if command_exists bat; then
         echo "bat --paging=always --style=plain --color=always"
     elif command_exists less; then
@@ -70,6 +76,17 @@ function select_pager() {
     else
         echo "cat"
     fi
+}
+
+function use_pager() {
+    # Check if stdout is a terminal, if not just output directly
+    if [[ ! -t 1 ]]; then
+        cat
+        return
+    fi
+
+    PAGER=$(select_pager)
+    eval $PAGER
 }
 
 # ============================================================================
@@ -332,8 +349,7 @@ echo
 case "${1:-}" in
     "--status")
         # Explicit status check - show verbose report through pager
-        PAGER=$(select_pager)
-        generate_report | eval $PAGER
+        generate_report | use_pager
         exit 0
         ;;
     "--skip-pi"|"--help")
@@ -409,8 +425,7 @@ case "${1:-}" in
     *)
         # Default: show verbose status through pager (health check mode)
         # This is the normal behavior when running ./bin/librarian.zsh directly
-        PAGER=$(select_pager)
-        generate_report | eval $PAGER
+        generate_report | use_pager
         exit 0
         ;;
 esac
