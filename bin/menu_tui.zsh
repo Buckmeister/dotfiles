@@ -258,7 +258,7 @@ function draw_menu_header() {
     draw_header "Dotfiles Management System" "Interactive Menu"
 
     printf "${UI_INFO_COLOR}Navigation: ↑/↓ or j/k = up/down  Space = select  Enter = run  q = quit${COLOR_RESET}\n"
-    printf "${UI_ACCENT_COLOR}Shortcuts:  l = librarian  b = backup  a = select/deselect all  x = execute  ? = help${COLOR_RESET}\n"
+    printf "${UI_ACCENT_COLOR}Shortcuts:  l = librarian  b = backup  a = (de)select all  x = execute  ? = help${COLOR_RESET}\n"
     printf "\n"
 }
 
