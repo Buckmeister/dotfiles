@@ -82,10 +82,10 @@ echo
 # System Health Checks
 # ============================================================================
 
-# Check core setup using shared utility
-dotfiles_root=$(get_dotfiles_dir)
+# Check core setup - use SCRIPT_DIR directly for reliability
+dotfiles_root="$SCRIPT_DIR/.."
 print_info "📋 Core System Status:"
-print_success "   Dotfiles directory: $dotfiles_root"
+print_success "   Dotfiles directory: $(cd "$dotfiles_root" && pwd)"
 
 # Check for setup scripts
 if [[ -x "$dotfiles_root/bin/setup.zsh" ]]; then
@@ -224,8 +224,10 @@ echo
 
 # Check execution mode based on arguments
 case "${1:-}" in
-    "--skip-pi"|"--help")
-        echo "📚 Post-install scripts skipped. The Librarian's work is complete. $(get_random_friend_greeting) 💙"
+    "--skip-pi"|"--help"|"--status")
+        if [[ "${1:-}" != "--status" ]]; then
+            echo "📚 Post-install scripts skipped. The Librarian's work is complete. $(get_random_friend_greeting) 💙"
+        fi
         echo
         exit 0
         ;;
@@ -283,13 +285,20 @@ case "${1:-}" in
         echo
         exit 0
         ;;
+    "--menu")
+        # Launch the interactive TUI menu
+        echo "🎼 Launching the enhanced interactive menu..."
+        echo "   Use ↑↓ or j/k to navigate, Space to select, Enter to execute!"
+        echo
+        sleep 1
+
+        # Export environment for the TUI menu and launch it
+        DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$SCRIPT_DIR/menu_tui.zsh"
+        ;;
+    *)
+        # Default: show status only (health check mode)
+        # This is the normal behavior when running ./bin/librarian.zsh directly
+        echo
+        exit 0
+        ;;
 esac
-
-# Launch the interactive TUI menu
-echo "🎼 Launching the enhanced interactive menu..."
-echo "   Use ↑↓ or j/k to navigate, Space to select, Enter to execute!"
-echo
-sleep 1
-
-# Export environment for the TUI menu and launch it
-DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$SCRIPT_DIR/menu_tui.zsh"
