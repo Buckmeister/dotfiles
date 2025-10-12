@@ -258,6 +258,7 @@ function draw_menu_header() {
     draw_header "Dotfiles Management System" "Interactive Menu"
 
     printf "${UI_INFO_COLOR}Navigation: ↑/↓ or j/k = up/down  Space = select  Enter = run  q = quit${COLOR_RESET}\n"
+    printf "${UI_ACCENT_COLOR}Shortcuts:  l = librarian  b = backup  a = select/deselect all  x = execute  ? = help${COLOR_RESET}\n"
     printf "\n"
 }
 
@@ -511,6 +512,31 @@ function handle_menu_navigation() {
         q|Q)
             return 1  # Signal to quit
             ;;
+        # l - launch librarian (global shortcut)
+        l|L)
+            return 3  # Signal to run librarian
+            ;;
+        # b - backup (global shortcut)
+        b|B)
+            return 4  # Signal to run backup
+            ;;
+        # a - toggle select/deselect all (global shortcut)
+        a|A)
+            toggle_all_actionable_items
+            # Force a complete redraw since many items changed
+            draw_complete_menu
+            return 5  # Signal that full redraw already done
+            ;;
+        # x - execute selected items (global shortcut)
+        x|X)
+            return 2  # Signal to execute selected items
+            ;;
+        # ? - show help (global shortcut)
+        '?')
+            show_menu_help
+            draw_complete_menu
+            return 5  # Signal that full redraw already done
+            ;;
     esac
 
     return 0  # Continue
@@ -519,6 +545,42 @@ function handle_menu_navigation() {
 # ============================================================================
 # Menu Action Execution Functions
 # ============================================================================
+
+# Show menu help dialog
+function show_menu_help() {
+    clear_screen
+    show_cursor
+
+    draw_header "Menu Help" "Keyboard Shortcuts & Navigation"
+
+    printf "${UI_INFO_COLOR}═══ Navigation ═══${COLOR_RESET}\n"
+    printf "  ${UI_ACCENT_COLOR}↑ / k${COLOR_RESET}      Move up\n"
+    printf "  ${UI_ACCENT_COLOR}↓ / j${COLOR_RESET}      Move down\n"
+    printf "  ${UI_ACCENT_COLOR}Space${COLOR_RESET}      Toggle selection / Activate button\n"
+    printf "  ${UI_ACCENT_COLOR}Enter${COLOR_RESET}      Execute current item / Activate button\n"
+    printf "  ${UI_ACCENT_COLOR}q${COLOR_RESET}          Quit menu\n\n"
+
+    printf "${UI_INFO_COLOR}═══ Global Shortcuts ═══${COLOR_RESET}\n"
+    printf "  ${UI_ACCENT_COLOR}l${COLOR_RESET}          Launch Librarian (system health & status)\n"
+    printf "  ${UI_ACCENT_COLOR}b${COLOR_RESET}          Backup repository\n"
+    printf "  ${UI_ACCENT_COLOR}a${COLOR_RESET}          Toggle Select/Deselect All items\n"
+    printf "  ${UI_ACCENT_COLOR}x${COLOR_RESET}          Execute selected items\n"
+    printf "  ${UI_ACCENT_COLOR}?${COLOR_RESET}          Show this help screen\n\n"
+
+    printf "${UI_INFO_COLOR}═══ Menu Items ═══${COLOR_RESET}\n"
+    printf "  ${ITEM_LINK_COLOR}🔗 Link Dotfiles${COLOR_RESET}    Create symlinks for configuration files\n"
+    printf "  ${ITEM_CONTROL_COLOR}📋 Select All${COLOR_RESET}       Select/deselect all post-install scripts\n"
+    printf "  ${ITEM_ACTION_COLOR}⚡ Execute Selected${COLOR_RESET}  Run all selected operations\n"
+    printf "  ${ITEM_LIBRARIAN_COLOR}📚 Librarian${COLOR_RESET}        System health check and status report\n"
+    printf "  ${ITEM_BACKUP_COLOR}💾 Backup${COLOR_RESET}           Create repository backup archive\n"
+    printf "  ${ITEM_QUIT_COLOR}🚪 Quit${COLOR_RESET}              Exit the menu system\n\n"
+
+    printf "${UI_SUCCESS_COLOR}💡 Tip: ${COLOR_RESET}${UI_INFO_COLOR}Use global shortcuts for quick access to common operations!${COLOR_RESET}\n\n"
+
+    printf "${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+    read -k1
+    hide_cursor
+}
 
 # Execute a specific menu item by index
 # Args: index (int) - 1-based index of the menu item to execute
