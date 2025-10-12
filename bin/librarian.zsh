@@ -69,9 +69,8 @@ function select_pager() {
         return
     fi
 
-    if command_exists bat; then
-        echo "bat --paging=always --style=plain --color=always"
-    elif command_exists less; then
+    # Skip bat for now, use less or cat
+    if command_exists less; then
         echo "less -R"
     else
         echo "cat"
@@ -79,14 +78,14 @@ function select_pager() {
 }
 
 function use_pager() {
-    # Check if stdout is a terminal, if not just output directly
-    if [[ ! -t 1 ]]; then
+    # When called in a pipeline, we need to ensure less has access to the terminal
+    # Check if we're actually in an interactive terminal (check stderr)
+    if [[ -t 2 ]] && command_exists less; then
+        # Read from stdin (the piped content), write to /dev/tty (the terminal)
+        less -R > /dev/tty
+    else
         cat
-        return
     fi
-
-    PAGER=$(select_pager)
-    eval $PAGER
 }
 
 # ============================================================================
