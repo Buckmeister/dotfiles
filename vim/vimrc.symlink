@@ -1,0 +1,785 @@
+" == I really don't like it, when I do 'so %' in a nvim session :-)
+if has('nvim')
+  echom "Please use my nvim config instead :-)"
+  call input("Press any key to continue") | quit
+  throw "Please use my nvim config instead :-)"
+  finish
+endif
+
+let $VIMUSERRUNTIME = fnamemodify($MYVIMRC, ':p:h')
+
+" == basic stuff ==
+syntax on
+filetype plugin indent on
+
+set   autoindent
+set   background=dark
+set   backspace=indent,eol,start
+set nobackup
+set   clipboard=unnamed
+set   colorcolumn=+2
+set nocompatible
+set   completeopt=menu,menuone,popup,noselect,noinsert
+set   completepopup=height:10,width:60,highlight:NormalFloat
+set   directory=~/.tmp/vimbackup/swap
+set   cursorline
+set   expandtab
+set   formatoptions-=tcro
+set   hidden
+set   history=1000
+set   hlsearch
+set   ignorecase
+set   incsearch
+set   laststatus=2
+set   list
+set   listchars=tab:>·,trail:·
+set   mouse=a
+set noshowmode
+set   number
+set   previewpopup=height:20,width:60
+set   previewwindow
+set   pumheight=12
+set   relativenumber
+set noruler
+set   scrolloff=8
+set   shiftwidth=2
+set   shortmess+=c
+set   showcmd
+set   showmatch
+set   showtabline=2
+set   sidescrolloff=5
+set   signcolumn=yes
+set   smartcase
+set   smartindent
+set   smarttab
+set   softtabstop=2
+set   splitbelow
+set   splitright
+set   textwidth=81
+set   title
+set   titlelen=70
+set   titlestring=%t%(\ %M%)%(\ (%{pathshorten(expand(\"%:~:.:h\"))})%)%(\ %a%)
+set   ttyfast
+set   undodir=~/.tmp/vimbackup/undo
+set   undofile
+set   updatetime=300
+set   viminfo='1000
+set   wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox
+set   wildmenu
+set   wildmode=full
+if has("patch4336")
+  set wildoptions=pum,tagfile
+endif
+set nowrap
+set nowritebackup
+
+let colorterm=$COLORTERM
+if colorterm=='truecolor' || colorterm=='24bit'
+  if has('termguicolors')
+    let &t_ZH="\e[3m"
+    let &t_ZR="\e[23m"
+    set termguicolors
+  endif
+  if &term =~# '^screen'
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  endif
+endif
+
+" == key mappings ==
+inoremap <nowait>kj <C-c>
+inoremap <nowait>jk <C-c>
+
+nnoremap <C-l> <Cmd>nohlsearch<Bar>diffupdate<CR><C-l>
+
+map <Space> <Nop>
+let mapleader = "\<Space>"
+let localleader = ","
+
+map <Up>    <Nop>
+map <Down>  <Nop>
+map <Left>  <Nop>
+map <Right> <Nop>
+
+noremap <Up>    <C-w>k
+noremap <Down>  <C-w>j
+noremap <Left>  <C-w>h
+noremap <Right> <C-w>l
+noremap <C-H>   <C-w>w
+
+noremap <S-Up>    <Cmd>resize -2<CR>
+noremap <S-Down>  <Cmd>resize +2<CR>
+noremap <S-Left>  <Cmd>vertical resize -2<CR>
+noremap <S-Right> <Cmd>vertical resize +2<CR>
+
+noremap <Leader>j <Cmd>bp<CR>
+noremap <Leader>k <Cmd>bn<CR>
+
+noremap <C-Left>  <Cmd>bp<CR>
+noremap <C-Right> <Cmd>bn<CR>
+
+nnoremap <A-Up> :m .-2<CR>==
+nnoremap <A-Down> :m .+1<CR>==
+nnoremap ∆ :m .-2<CR>==
+nnoremap º :m .+1<CR>==
+
+inoremap <A-Up> <Esc>:m .-2<CR>==gi
+inoremap <A-Down> <Esc>:m .+1<CR>==gi
+inoremap ∆ <Esc>:m .-2<CR>==gi
+inoremap º <Esc>:m .+1<CR>==gi
+
+xnoremap <A-Up> :m '<-2<CR>gv=gv
+xnoremap <A-Down> :m '>+1<CR>gv=gv
+xnoremap ∆ :m '<-2<CR>gv=gv
+xnoremap º :m '>+1<CR>gv=gv
+
+xmap < <gv
+xmap > >gv
+
+nnoremap <Leader>d "_d
+nnoremap <Leader>y "+y
+nnoremap <Leader>Y gg"+yG
+
+xnoremap <Leader>d "_d
+xnoremap <Leader>y "+y
+xnoremap p "_dP
+
+nnoremap <nowait> <Leader>r <Cmd>FzyFind<CR>
+
+noremap <Leader>aq <Cmd>quitall<CR>
+noremap <Leader>ba <Cmd>.!figlet<CR>
+noremap <Leader>ew <Cmd>e <C-R>=expand("%:.:h") . "/"<CR>
+noremap <Leader>o  <Cmd>only<CR>
+noremap <Leader>u  <Cmd>update<CR>
+noremap <Leader>w  <Cmd>wincmd w<CR>
+noremap <Leader>x  <Cmd>Bdelete<CR>
+
+nnoremap <S-F1>  <Cmd>cc<CR>
+nnoremap <F2>    <Cmd>cnext<CR>
+nnoremap <S-F2>  <Cmd>cprev<CR>
+nnoremap <F3>    <Cmd>cnfile<CR>
+nnoremap <S-F3>  <Cmd>cpfile<CR>
+nnoremap <F4>    <Cmd>cfirst<CR>
+nnoremap <S-F4>  <Cmd>clast<CR>
+
+" == visual star search ==
+function! s:VSetSearch()
+  let temp = @@
+  norm! gvy
+  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+  call histadd('/', substitute(@/, '[?/]', '\="\\%d".char2nr(submatch(0))', 'g'))
+  let @@ = temp
+endfunction
+
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>/<CR>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>?<CR>
+
+" == netrw ==
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+let g:netrw_preview   = 1
+
+" == autocmds ==
+function! s:wide_column_settings()
+  setlocal norelativenumber
+  setlocal nonumber
+  setlocal textwidth=200
+endfunction
+autocmd FileType netrw call <SID>wide_column_settings()
+
+augroup _auto_resize
+  autocmd!
+  autocmd VimResized * tabdo wincmd =
+augroup end
+
+augroup _cursorline_off_on_deativated_window
+  autocmd!
+  autocmd WinLeave * set nocursorline
+  autocmd WinEnter * set cursorline
+augroup end
+
+" == coc define global plugins for auto install ==
+let g:coc_global_extensions = [
+      \ 'coc-angular',
+      \ 'coc-clangd',
+      \ 'coc-css',
+      \ 'coc-docker',
+      \ 'coc-emmet',
+      \ 'coc-explorer',
+      \ 'coc-fzf-preview',
+      \ 'coc-git',
+      \ 'coc-highlight',
+      \ 'coc-html',
+      \ 'coc-java',
+      \ 'coc-json',
+      \ '@yaegassy/coc-nginx',
+      \ 'coc-omnisharp',
+      \ 'coc-pairs',
+      \ 'coc-perl',
+      \ 'coc-prettier',
+      \ 'coc-pyright',
+      \ 'coc-r-lsp',
+      \ 'coc-rust-analyzer',
+      \ 'coc-snippets',
+      \ 'coc-spell-checker',
+      \ 'coc-sh',
+      \ 'coc-sqlfluff',
+      \ 'coc-sumneko-lua',
+      \ 'coc-swagger',
+      \ 'coc-tabnine',
+      \ 'coc-texlab',
+      \ 'coc-toml',
+      \ 'coc-tsserver',
+      \ 'coc-vetur',
+      \ 'coc-vimlsp',
+      \ 'coc-xml',
+      \ 'coc-yaml',
+      \ 'coc-yank'
+      \ ]
+
+" == vim-plug ==
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.config/vim-plug')
+
+Plug 'bfrg/vim-fzy'
+Plug 'Buckmeister/vim-bbye'
+Plug 'itchyny/lightline.vim'
+Plug 'joshdick/onedark.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'lambdalisue/battery.vim'
+" Plug 'lambdalisue/vim-manpager'
+Plug 'liuchengxu/vim-which-key'
+Plug 'luochen1990/rainbow'
+Plug 'mechatroner/rainbow_csv'
+Plug 'mengelbrecht/lightline-bufferline'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neovimhaskell/haskell-vim'
+Plug 'ObserverOfTime/coloresque.vim'
+Plug 'rakr/vim-one'
+Plug 'ryanoasis/vim-devicons'
+Plug 'romainl/vim-cool'
+Plug 'sainnhe/edge'
+Plug 'sainnhe/gruvbox-material'
+Plug 'sainnhe/sonokai'
+Plug 'sainnhe/everforest'
+Plug 'sbdchd/neoformat'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'uiiaoo/java-syntax.vim'
+Plug 'voldikss/vim-floaterm'
+Plug 'wincent/terminus'
+Plug 'yuki-yano/fzf-preview.vim', { 'branch': 'release/rpc' }
+
+call plug#end()
+
+" == battery ==
+
+" Examples:
+" '    '
+" '    '
+
+let g:battery#symbol_charging =     '➚  '
+let g:battery#symbol_discharging =  '➘  '
+
+	let g:battery#graph_indicators = [
+	      \ '  ',
+	      \ '  ',
+	      \ '  ',
+	      \ '  ',
+	      \ '  ',
+	      \]
+
+let g:battery#component_format ='%s%g'
+let g:airline#extensions#battery#enabled = 1
+
+let g:battery#update_statusline = 1 " For statusline.
+
+" == coc ==
+source ~/.vim/coc-settings.vim
+
+" == coloresque ==
+let g:coloresque_extra_filetypes = ['conf']
+
+" == floaterm settings ==
+let g:floaterm_keymap_toggle = '<Leader>tt'
+let g:floaterm_opener = 'drop'
+let g:floaterm_autoclose = 2
+let g:floaterm_autohide = 2
+let g:floaterm_width = 0.8
+let g:floaterm_height = 0.8
+let g:floaterm_borderchars = "─│─│╭╮╯╰"
+
+" == fzf-preview
+set rtp+=/usr/local/opt/fzf
+nmap <Leader>f [fzf-p]
+xmap <Leader>f [fzf-p]
+
+nnoremap <silent> [fzf-p]f     :<C-u>CocCommand fzf-preview.DirectoryFiles<CR>
+nnoremap <silent> [fzf-p]p     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
+nnoremap <silent> [fzf-p]gs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
+nnoremap <silent> [fzf-p]ga    :<C-u>CocCommand fzf-preview.GitActions<CR>
+nnoremap <silent> [fzf-p]b     :<C-u>CocCommand fzf-preview.Buffers<CR>
+nnoremap <silent> [fzf-p]B     :<C-u>CocCommand fzf-preview.AllBuffers<CR>
+nnoremap <silent> [fzf-p]o     :<C-u>CocCommand fzf-preview.FromResources buffer project_mru<CR>
+nnoremap <silent> [fzf-p]<C-o> :<C-u>CocCommand fzf-preview.Jumps<CR>
+nnoremap <silent> [fzf-p]g;    :<C-u>CocCommand fzf-preview.Changes<CR>
+nnoremap <silent> [fzf-p]/     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
+nnoremap <silent> [fzf-p]*     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
+nnoremap          [fzf-p]gr    :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
+xnoremap          [fzf-p]gr    "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
+nnoremap <silent> [fzf-p]t     :<C-u>CocCommand fzf-preview.BufferTags<CR>
+nnoremap <silent> [fzf-p]q     :<C-u>CocCommand fzf-preview.QuickFix<CR>
+nnoremap <silent> [fzf-p]l     :<C-u>CocCommand fzf-preview.LocationList<CR>
+
+" == haskell-vim ==
+let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
+let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
+let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
+let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
+let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
+let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
+let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+
+" == java syntax==
+highlight link JavaIdentifier NONE
+
+" == Goyo ==
+nnoremap <Leader>go :Goyo<Cr>
+function! s:goyo_enter()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status off
+    " silent !tmux list-panes -F '\#F' | grep -q Z || tmux resize-pane -Z
+  endif
+  " set noshowmode
+  " set noshowcmd
+  " set scrolloff=999
+  Limelight
+endfunction
+
+function! s:goyo_leave()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status=2
+    " silent !tmux list-panes -F '\#F' | grep -q Z && tmux resize-pane -Z
+  endif
+  " set showmode
+  " set showcmd
+  " set scrolloff=8
+  Limelight!
+endfunction
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
+
+" == Limelight ==
+" Color name (:help cterm-colors) or ANSI code
+let g:limelight_conceal_ctermfg = 'gray'
+let g:limelight_conceal_ctermfg = 240
+
+" Color name (:help gui-colors) or RGB color
+let g:limelight_conceal_guifg = 'DarkGray'
+let g:limelight_conceal_guifg = '#777777'
+
+" == Neofomat ==
+augroup fmt
+  autocmd!
+  " autocmd BufWritePre * undojoin | Neoformat
+  autocmd BufWritePre * try | undojoin | Neoformat | catch /^Vim\%((\a\+)\)\=:E790/ | finally | silent Neoformat | endtry
+augroup END
+
+" == fzy ==
+let g:fzy = {
+      \ 'findcmd': 'fd --type f',
+      \ 'popupwin': 1,
+      \   'popup': {
+        \     'minwidth': 90,
+        \     'borderchars': ['─', '│', '─', '│', '╭', '╮', '╯', '╰'],
+        \     'padding': [1, 1, 1, 1]
+        \   }
+        \ }
+
+" == lightline ==
+let g:lightline = {
+  \  'minwidth': {
+  \  'small': '60',
+  \  'medium': '90',
+  \  'large': '110',
+  \  },
+  \  'enable': {
+  \  'statusline': '1',
+  \  'tabline': '1',
+  \  },
+  \  'active': {
+  \  'left': [ [ 'mode', 'paste' ], [ 'fugitive' ], [ 'filename' ] ],
+  \  'right': [ [  'lineinfo' , 'percent' ],
+  \  [ 'battery' ],
+  \  [ 'fileformat', 'fileencoding', 'filetype' ] ]
+  \  },
+  \  'inactive': {
+  \  'left': [  [ 'filename' ] ],
+  \  'right': [ [ 'filetype' ] ]
+  \  },
+  \  'tabline': {
+  \  'left': [ ['buffers'] ],
+  \  'right': [ ['close'] ]
+  \  },
+  \  'colorscheme': 'onedark',
+  \  'component': {
+  \  'close': '%999X  ',
+  \  'filename': '%=%<%{LightlineFileinfo()}%=',
+  \  },
+  \  'component_expand': {
+  \  'buffers': 'lightline#bufferline#buffers',
+  \  },
+  \  'component_type': {
+  \  'buffers': 'tabsel',
+  \  'close': 'raw',
+  \  'filename': 'raw',
+  \  },
+  \  'component_function': {
+  \  'battery': 'battery#component',
+  \  'fugitive': 'LightlineFugitive',
+  \  'mode': 'LightlineMode',
+  \  'fileencoding': 'LightlineFileencoding',
+  \  'fileformat': 'LightlineFileformat',
+  \  'fileinfo': 'LightlineFileinfo',
+  \  'filetype': 'LightlineFiletype',
+  \  'lineinfo': 'LightlineLineinfo',
+  \  'percent': 'LightlinePercent',
+  \  }
+  \  }
+
+" Examples:
+"   let g:lightline.separator = { 'left': '', 'right': '' }
+"   let g:lightline.subseparator = { 'left': '', 'right': '' }
+
+"   let g:lightline.separator = { 'left': '', 'right': '' }
+"   let g:lightline.subseparator = { 'left': '', 'right': '' }
+
+"   let g:lightline.separator = { 'left': '▸', 'right': '◂' }
+"   let g:lightline.subseparator = { 'left': '▸', 'right': '◂' }
+
+"   let g:lightline.separator = { 'left': '⁞', 'right': '⁞' }
+"   let g:lightline.subseparator = { 'left': '⁞', 'right': '⁞' }
+
+"   let g:lightline.separator = { 'left': '⊙', 'right': '⊙' }
+"   let g:lightline.subseparator = { 'left': '⊙', 'right': '⊙' }
+"
+" let g:lightline.tabline_separator = { 'left': '', 'right': '' }
+" let g:lightline.tabline_separator = { 'left': '⁞', 'right': '⁞' }
+"
+
+let colorterm=$COLORTERM
+if colorterm=="truecolor" || colorterm=="24bit"
+  let g:lightline.separator = { 'left': '', 'right': '' }
+  let g:lightline.subseparator = { 'left': ' ', 'right': ' ' }
+
+  let g:lightline.tabline_separator = { 'left': ' ', 'right': '' }
+else
+  let g:lightline.separator = { 'left': '⁞', 'right': '⁞' }
+  let g:lightline.subseparator = { 'left': '', 'right': '' }
+
+  let g:lightline.tabline_separator = { 'left': '⁞', 'right': '⁞' }
+endif
+
+function! LightlineFileencoding()
+  if winwidth(0) >= g:lightline.minwidth.large 
+    let current_encoding = &fenc !=# '' ? &fenc : &enc
+    return current_encoding =~# 'utf-8' ? '' : current_encoding
+  else
+    return ''
+  endif
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) >= g:lightline.minwidth.large 
+        \ ? &fileformat =~# 'unix'
+        \    ? ''
+        \    : &fileformat
+        \ : ''
+endfunction
+
+function! LightlineFiletype()
+  let padding = " "
+  return '' . (
+        \ winwidth(0) >= g:lightline.minwidth.small 
+        \ ? (&filetype !=# ''
+        \   ? WebDevIconsGetFileTypeSymbol() !=# ''
+        \     ? WebDevIconsGetFileTypeSymbol()
+        \     : &filetype
+        \   : 'no ft') 
+        \ : ''
+        \ ) . padding
+endfunction
+
+function! LightlineFileinfo()
+
+  let current_width = winwidth(0)
+
+  let fname_mod =
+        \ current_width >= g:lightline.minwidth.large + 10
+        \ ? '%:p'
+        \ :   current_width >= g:lightline.minwidth.medium
+        \     ? '%:p:~'
+        \     :    current_width >= g:lightline.minwidth.small
+        \          ? '%:d'
+        \          :    current_width >= g:lightline.minwidth.small 
+        \               ? '%:t'
+        \               : '%:t:r'
+
+  let fname = expand(fname_mod) 
+  return fname =~# '^NERD' ? '' :
+        \ &ft ==# 'coc-explorer' ? '' :
+        \ &ft ==# 'netrw' ? '' :
+        \ &ft ==# 'man' ? '' :
+        \ '' .
+        \ (LightlineReadonly() !=# '' ? LightlineReadonly() .' ' : '') .
+        \ (fname !=# '' ? fname : '[No Name]') .
+        \ (LightlineModified() !=# '' ? ' ' . LightlineModified() : '') .
+        \ ''
+endfunction
+
+function! LightlineMode()
+  let ft_mode_names = {
+        \ 'coc-explorer': 'EXPLORER',
+        \ 'fugitive': 'FUGITIVE',
+        \ 'help': 'HELP',
+        \ 'netrw': 'NETRW',
+        \ }
+
+  let mode_descriptor = get(ft_mode_names, &filetype, lightline#mode())
+
+  return winwidth(0) >= g:lightline.minwidth.large 
+        \ ? mode_descriptor 
+        \ : mode_descriptor[0]
+endfunction
+
+" Examples:
+" []   ∞
+function! LightlineModified()
+  return &ft ==# 'help' 
+        \ ? '' 
+        \ : &modified 
+        \   ? ' '
+        \   : &modifiable 
+        \     ? '' 
+        \     : ' '
+endfunction
+
+" Examples:
+"       爛 
+function! LightlineLineinfo()
+  return winwidth(0) >= g:lightline.minwidth.medium 
+        \ ? printf("   %3d:%-3d", line('.'), col('.') )
+        \ : ''
+endfunction
+
+function! LightlinePercent()
+  let l:percentage = (100 * line('.') / line('$'))
+  let l:perc_label = '󰆌  '. l:percentage . '％' . (l:percentage < 100 ? ' ' : '')
+
+  return winwidth(0) >= g:lightline.minwidth.small 
+        \ ? l:perc_label
+        \ : ''
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help' && &readonly ? '' : ''
+endfunction
+
+function! LightlineFugitive()
+  try
+    if expand('%:t') !~? 'NERD' 
+          \ && &ft !~? 'coc-explorer\|netrw\|fugitive' 
+          \ && exists('*FugitiveHead') 
+          \ && winwidth(0) >= g:lightline.minwidth.large
+
+      let mark = ' '
+      let branch = FugitiveHead()
+
+      return branch !=# '' ? ' ' . mark.branch . ' ' : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! s:lightline_colorschemes(...) abort
+  return join(map(
+        \ globpath(&rtp,"autoload/lightline/colorscheme/*.vim",1,1),
+        \ "fnamemodify(v:val,':t:r')"),
+        \ "\n")
+endfunction
+
+function! s:set_lightline_colorscheme(schemename) abort
+  let s:new_lightline_colorscheme = substitute(a:schemename, "-", "_", "g")
+  let g:lightline.colorscheme = s:new_lightline_colorscheme
+
+  call lightline#init()
+  call lightline#colorscheme()
+  call lightline#update()
+endfunction
+
+command! -nargs=1 -complete=custom,s:lightline_colorschemes LightlineColorscheme
+      \ call s:set_lightline_colorscheme(<q-args>)
+
+function! s:colors_set(schemename) abort
+  execute('silent! colorscheme '  . a:schemename)
+endfunction
+
+command! -nargs=1 -complete=color ColorsSet :call s:colors_set(<q-args>)
+
+" == lightline bufferline ==
+let g:lightline#bufferline#show_number  = 2
+let g:lightline#bufferline#shorten_path = 1
+let g:lightline#bufferline#enable_devicons=1
+let g:lightline#bufferline#enable_nerdfont=1
+let g:lightline#bufferline#unicode_symbols=1
+let g:lightline#bufferline#filename_modifier=':d'
+let g:lightline#bufferline#number_map = {
+      \ 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴',
+      \ 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹'}
+
+" == which-key ==
+nnoremap <silent> <leader> <Cmd>WhichKey '<Space>'<CR>
+
+" == webdevicons ==
+let g:webdevicons_enable = 1
+let g:WebDevIconsUnicodeGlyphDoubleWidth = 1
+
+" == colorschemes ==
+let g:gui_colorscheme = 'one'
+let g:tui_colorscheme = 'one'
+
+let env_term=$TERM
+if  env_term=='xterm-kitty'
+  let g:tui_colorscheme = 'one'
+endif
+
+let env_bundle_id=$__CFBundleIdentifier
+if  env_bundle_id=='co.zeit.hyper'
+  let g:tui_colorscheme = 'one'
+endif
+
+let g:edge_style = 'neon'
+let g:edge_cursor = 'auto'
+let g:edge_sign_column_background = 'none'
+let g:edge_transparent_background = 0
+let g:edge_diagnostic_text_highlight = 1
+let g:edge_diagnostic_line_highlight = 1
+let g:edge_better_performance = 1
+
+let g:everforest_background = 'hard'
+let g:everforest_cursor = 'auto'
+let g:everforest_transparent_background = 0
+let g:everforest_sign_column_background = 'none'
+let g:everforest_diagnostic_text_highlight = 1
+let g:everforest_diagnostic_line_highlight = 1
+let g:everforest_better_performance = 1
+
+let g:gruvbox_material_background = 'hard'
+let g:gruvbox_material_transparent_background = 0
+let g:gruvbox_material_better_performance = 1
+
+let g:sonokai_style = 'maia'
+let g:sonokai_cursor = 'auto'
+let g:sonokai_sign_column_background = 'none'
+let g:sonokai_menu_selection_background = 'red'
+let g:sonokai_transparent_background = 0
+let g:sonokai_diagnostic_text_highlight = 1
+let g:sonokai_diagnostic_line_highlight = 1
+let g:sonokai_material_better_performance = 1
+
+let g:onedark_hide_endofbuffer=1
+
+if colorterm=="truecolor" || colorterm=="24bit"
+  let colorterm=$COLORTERM
+  let g:edge_enable_italic = 1
+
+  let g:everforest_enable_italic = 1
+
+  let g:gruvbox_material_enable_bold = 1
+  let g:gruvbox_material_enable_italic = 1
+  let g:gruvbox_material_palette = 'material'
+
+  let g:sonokai_enable_italic = 1
+
+  let g:onedark_terminal_italics=1
+  let g:one_allow_italics = 1
+else
+  let g:edge_disable_italic_comment = 1
+
+  let g:everforest_disable_italic_comment = 1
+
+  let g:gruvbox_material_disable_italic_comment = 1
+  let g:gruvbox_material_palette = 'original'
+
+  let g:sonokai_disable_italic_comment = 1
+  let g:sonokai_transparent_background = 0
+
+  let g:onedark_terminal_italics=0
+  let g:one_allow_italics = 0
+endif
+
+if !has("gui_running")
+  call s:colors_set(g:tui_colorscheme)
+endif
+
+" == gui settings ==
+if has("gui_running")
+  set gfn=FiraCode\ Nerd\ Font\ 14
+  set guioptions-=T
+  set guioptions+=a
+  set cmdheight=2
+  set showtabline=0
+  set tb=
+
+  call s:colors_set(g:gui_colorscheme)
+
+  if has("mac")
+    set gfn=FiraCode\ Nerd\ Font\ Mono:h14.00
+    set macligatures
+  endif
+endif
+
+
+" == Additional highlights
+if exists("*one#highlight")
+  call one#highlight( 'Normal', 'abb2bf', '1F2329', 'none')
+  call one#highlight( 'CursorLine', '', '3E4452', 'none')
+  call one#highlight( 'DiffAdd', '', '1F2329', 'none')
+  call one#highlight( 'DiffChange', '', '1F2329', 'none')
+  call one#highlight( 'DiffDelete', '', '1F2329', 'none')
+  call one#highlight( 'OverLength', '8b3434', '1F2329', 'italic')
+  call one#highlight( 'SignColumn', '', '1F2329', 'none')
+  call one#highlight( 'StatusLineNC', '', '1F2329', 'none')
+  call one#highlight( 'VertSplit', '1F2329', '1F2329', 'none')
+endif
+
+" == Overlength Coloring
+" =============================================================================================
+"
+function! s:match_overlength() abort
+  if &textwidth > 0
+    call execute('match OverLength /\%'. eval(&textwidth + 2) .'v.*/')
+  endif
+endfunction
+
+augroup _match_overlength
+autocmd!
+autocmd BufWinEnter * call <SID>match_overlength()
+augroup END
+command! -nargs=0 MatchOverLength :call s:match_overlength()
+

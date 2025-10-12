@@ -1,0 +1,88 @@
+command_timeout = 10000
+[env_var]
+variable = "STARSHIP_SHELL"
+default = "unknown"
+style = "blue bold"
+format = "with [${env_value}]($style) "
+
+[docker_context]
+disabled = false
+only_with_files = true
+symbol = " "
+
+[rlang]
+disabled = true
+detect_files = []
+
+[shlvl]
+disabled = false
+style = "white bold"
+format = "[$shlvl level(s) down]($style) => "
+threshold = 2
+symbol = " "
+
+[aws]
+symbol = "  "
+
+[conda]
+symbol = " "
+
+[dart]
+symbol = " "
+
+[directory]
+read_only = " "
+
+[elixir]
+symbol = " "
+
+[elm]
+symbol = " "
+
+[git_branch]
+symbol = " "
+
+[golang]
+symbol = " "
+
+[hg_branch]
+symbol = " "
+
+[java]
+symbol = " "
+
+[julia]
+symbol = " "
+
+[memory_usage]
+symbol = " "
+
+[nim]
+symbol = " "
+
+[nix_shell]
+symbol = " "
+
+[package]
+symbol = " "
+
+[perl]
+symbol = " "
+
+[php]
+symbol = " "
+
+[python]
+symbol = " "
+
+[ruby]
+symbol = " "
+
+[rust]
+symbol = " "
+
+[scala]
+symbol = " "
+
+[swift]
+symbol = "ﯣ "

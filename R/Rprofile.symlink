@@ -1,0 +1,12 @@
+local({
+       r <- getOption("repos")
+       r["CRAN"] <- "https://cloud.r-project.org"
+       options(repos = r)
+})
+
+if (interactive() && requireNamespace("prettycode", quietly = TRUE)) {
+  prettycode::prettycode()
+}
+if (interactive() && requireNamespace("prompt", quietly = TRUE)) {
+  prompt::set_prompt(prompt_fancy)
+}

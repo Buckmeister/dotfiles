@@ -1,0 +1,66 @@
+# vim:ft=tmux
+set -ga terminal-overrides ",xterm*:Tc"
+set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
+
+set -g default-terminal "xterm-256color"
+
+set -sg escape-time 0
+set -g mouse on
+
+set -g mode-keys vi
+set -g status-keys vi
+
+set -g status 2
+
+set -g status-format[0] ''
+set -g status-format[1] "#[align=left range=left #{status-left-style}]#[push-default]#{T;=/#{status-left-length}:status-left}#[pop-default]#[norange default]#[list=on align=#{status-justify}]#[list=left-marker]<#[list=right-marker]>#[list=on]#{W:#[range=window|#{window_index} #{window-status-style}#{?#{&&:#{window_last_flag},#{!=:#{window-status-last-style},default}}, #{window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{window-status-bell-style},default}}, #{window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{window-status-activity-style},default}}, #{window-status-activity-style},}}]#[push-default]#{T:window-status-format}#[pop-default]#[norange default]#{?window_end_flag,,#{window-status-separator}},#[range=window|#{window_index} list=focus #{?#{!=:#{window-status-current-style},default},#{window-status-current-style},#{window-status-style}}#{?#{&&:#{window_last_flag},#{!=:#{window-status-last-style},default}}, #{window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{window-status-bell-style},default}}, #{window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{window-status-activity-style},default}}, #{window-status-activity-style},}}]#[push-default]#{T:window-status-current-format}#[pop-default]#[norange list=on default]#{?window_end_flag,,#{window-status-separator}}}#[nolist align=right range=right #{status-right-style}]#[push-default]#{T;=/#{status-right-length}:status-right}#[pop-default]#[norange default]"
+set -g status-style fg=white,dim,bg=black,dim
+
+set -g window-status-format '#I:#(shorten_path #{pane_current_path})#F'
+
+set -g window-status-current-format '#I:#(shorten_path #{pane_current_path})#F'
+set -g window-status-current-style fg=yellow,bold
+
+
+set -g  status-right-length 140
+set -g  status-right "#[fg=blue,dim] #(tmux-mem-cpu-load -g 0 -a 0 -m 2)#[default] | "
+set -ag status-right "#(battery --tmux)#[default] | "
+set -ag status-right "#[fg=yellow,dim]  %a %Y-%m-%d#[default] | "
+set -ag status-right "#[fg=yellow,dim]  %H:%M:%S#[default]"
+
+# Alternatively, use powerline
+# set -g status-right '#(powerline tmux right)'
+
+# 'Uglify' nested Sessions
+%if #{TMUX}
+set -g status-bg red
+%endif
+
+# status bar updates every 15s by default**, change to 1s here
+# (this step is optional - a lower latency might have negative battery/cpu usage impacts)
+set -g status-interval 15
+
+set -g bell-action none
+set -g remain-on-exit on
+
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+bind-key ä source-file ~/.tmux.conf \; display-message "~/.tmux.conf reloaded"
+bind-key ö split-window -h "$EDITOR ~/.tmux.conf"
+
+bind d run-shell ~/.config/tmux/sh/smart-kill-pane.sh
+bind F set -w window-size
+bind y set synchronize-panes\; display 'synchronize-panes #{?synchronize-panes,on,off}'
+
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-selection
+
+new  -d -sλ
+neww -d
+
+new  -d -sƛ
+neww -d
+neww -d
+neww -d

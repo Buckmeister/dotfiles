@@ -1,0 +1,93 @@
+# vim: set ft=bash syntax=bash:
+
+# Used for OS specific things like brew support
+OS_TYPE=$(uname)
+
+# Global ENV vars
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+export EDITOR=nvim
+export VISUAL="$EDITOR"
+
+export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+
+export LS_COLORS="di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:su=37;41:sg=30;43:tw=30;42:ow=34;42:st=37;44:ex=01;32"
+export LSCOLORS="ExGxFxDxCxDxDxhbhdacEc"
+
+export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+if [ "$OS_TYPE" = "Darwin" ]; then
+# switch between jdk versions (e.g.: 1.8, 11 or 14)
+  jdk() {
+          version=$1
+          export JAVA_HOME=$(/usr/libexec/java_home -v"$version");
+          java -version
+  }
+  export JAVA_HOME="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"
+else
+  export JAVA_HOME="/usr/lib/jvm/java-1.11.0-openjdk-amd64"
+fi
+
+# Set up common aliases
+source ~/.aliases
+
+# Bash configuration
+set -o vi
+
+# Include dotnet completion
+_dotnet_bash_complete() {
+  local word=${COMP_WORDS[COMP_CWORD]}
+
+  local completions
+  completions="$(dotnet complete --position "${COMP_POINT}" "${COMP_LINE}" 2>/dev/null)"
+  if [ "$?" != "0" ]; then
+    completions=""
+  fi
+  COMPREPLY=($(compgen -W "$completions" -- "$word"))
+}
+complete -f -F _dotnet_bash_complete dotnet
+
+# Include ionic completion
+_ionic_bash_complete() {
+  local word=${COMP_WORDS[COMP_CWORD]}
+
+  local completions
+  completions="$(ionic completion -- "$word")"
+  if [ "$?" != "0" ]; then
+    completions=""
+  fi
+  COMPREPLY=($(compgen -W "$completions" -- "$word"))
+}
+complete -f -F _ionic_bash_complete ionic
+
+# switch between jdk versions (e.g.: 1.8, 11 or 14)
+jdk() {
+  version=$1
+  export JAVA_HOME=$(/usr/libexec/java_home -v"$version")
+  java -version
+}
+
+# Set terminal title
+[[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+prmptcmd() {
+  [[ -t 1 ]] || return
+  case $TERM in
+    *xterm*)
+      echo -en "\033]0; ${STARSHIP_SHELL} $(pwd | sed "s#$(echo $HOME)#~#") \007"
+      ;;
+  esac
+}
+precmd_functions+=(prmptcmd)
+
+# Enable bash completion
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+# Completion for kitty
+source <(kitty + complete setup bash)
+# Spaceship configuration
+source <(starship init bash --print-full-init)
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

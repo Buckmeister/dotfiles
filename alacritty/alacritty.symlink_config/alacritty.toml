@@ -1,0 +1,184 @@
+[colors.bright]
+black = "0x5c6370"
+blue = "0x61afef"
+cyan = "0x56b6c2"
+green = "0x98c379"
+magenta = "0xc678dd"
+red = "0xe06c75"
+white = "0xffffff"
+yellow = "0xd19a66"
+
+[colors.normal]
+black = "0x1f2329"
+blue = "0x61afef"
+cyan = "0x56b6c2"
+green = "0x98c379"
+magenta = "0xc678dd"
+red = "0xe06c75"
+white = "0xabb2bf"
+yellow = "0xd19a66"
+
+[colors.primary]
+background = "0x1f2329"
+foreground = "0xabb2bf"
+
+[cursor.style]
+blinking = "Off"
+
+[cursor.vi_mode_style]
+blinking = "Off"
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 14.0
+
+[font.bold]
+family = "VictorMono Nerd Font"
+style = "Bold"
+
+[font.bold_italic]
+family = "VictorMono Nerd Font"
+style = "Bold Italic"
+
+[font.italic]
+family = "VictorMono Nerd Font"
+style = "Italic"
+
+[font.normal]
+family = "VictorMono Nerd Font"
+style = "Regular"
+
+[[keyboard.bindings]]
+key = "Comma"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["-e", "/bin/zsh", "-l", "-c", "nvim ~/.config/alacritty/alacritty.yml"]
+program = "/usr/local/bin/alacritty"
+
+[[keyboard.bindings]]
+chars = "\u0015"
+key = "Back"
+mods = "Super"
+
+[[keyboard.bindings]]
+chars = "\u001Bb"
+key = "Left"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u001Bf"
+key = "Right"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = " "
+key = "Space"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u0000"
+key = "Space"
+mods = "Control"
+
+[[keyboard.bindings]]
+chars = "\u0001p"
+key = "Left"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+chars = "\u0001n"
+key = "Right"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+key = "Key1"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 0"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key2"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 1"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key3"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 2"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key4"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 3"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key5"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 4"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key6"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 5"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key7"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 6"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key8"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 7"]
+program = "/usr/local/bin/tmux"
+
+[[keyboard.bindings]]
+key = "Key9"
+mods = "Command"
+
+[keyboard.bindings.command]
+args = ["select-window", "-t 8"]
+program = "/usr/local/bin/tmux"
+
+[terminal.shell]
+args = ["-l", "-c", "tmux attach -t ƛ"]
+program = "/bin/zsh"
+
+[window]
+decorations = "none"
+startup_mode = "Windowed"
+
+[window.dimensions]
+columns = 133
+lines = 40
+
+[window.padding]
+x = 10
+y = 10
+
+[terminal]

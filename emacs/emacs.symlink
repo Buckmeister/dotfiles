@@ -1,0 +1,783 @@
+;; vim: ft=lisp
+
+;; -*- lexical-binding: t; -*-
+
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+
+(setq fast-but-imprecise-scrolling t)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
+(setq scroll-step 1)
+(setq scroll-margin 5)
+
+;; Mac specific settings
+(when (string= system-type "darwin")
+
+    ;; Emacs for Mac does have issues with window focus and
+    ;; virtual desktop support if "menu-bar-mode" is deactivated.
+    (menu-bar-mode 1)
+
+    (setq use-dialog-box nil)
+
+    (defun set-exec-path-from-shell-PATH ()
+
+      (interactive)
+      (let ((path-from-shell (replace-regexp-in-string
+                              "[ \t\n]*$" "" (shell-command-to-string
+                                              "$SHELL --login -c 'echo $PATH'"))))
+        (setenv "PATH" path-from-shell)
+        (setq exec-path (split-string path-from-shell path-separator))))
+
+    (set-exec-path-from-shell-PATH)
+
+    (global-set-key (kbd "s-x") 'kill-region)
+    (global-set-key (kbd "s-c") 'kill-ring-save)
+    (global-set-key (kbd "s-v") 'yank)
+
+    (global-set-key (kbd "s-z") 'undo)
+
+    (global-set-key (kbd "s-s") 'save-buffer)
+    (global-set-key (kbd "s-w") 'delete-window)
+    (global-set-key (kbd "s-q") 'save-buffers-kill-terminal)
+
+    (setq mac-option-modifier 'meta)
+    (setq mac-right-option-modifier 'none)
+    (setq mac-command-modifier 'super)
+
+    ;; Enable Ligatures (currently only supported in Emacs for Mac).
+    (if (fboundp 'mac-auto-operator-composition-mode)
+        (mac-auto-operator-composition-mode 1)))
+
+(server-start)
+
+(set-default-coding-systems 'utf-8)
+(set-fringe-mode 10)
+
+(setq default-frame-alist '((undecorated . t)))
+(add-to-list 'default-frame-alist '(internal-border-width . 7))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;; (add-to-list 'default-frame-alist '(alpha 96 96))
+;; (set-frame-parameter (selected-frame) 'alpha '(96 96))
+
+(setq initial-buffer-choice t)
+
+(setq delete-by-moving-to-trash t)
+
+(setq backup-directory-alist `(("." . "~/.tmp/emacsbackup")))
+(setq backup-by-copying t)
+
+(setq history-length 25)
+(savehist-mode 1)
+
+(add-to-list 'auto-mode-alist '("\\zshrc.symlink\\'" . sh-mode))
+(add-to-list 'auto-mode-alist '("\\emacs.symlink\\'" . emacs-lisp-mode))
+
+(add-hook 'emacs-lisp-mode-hook (lambda() (setq mode-name "λ")))
+(add-hook 'emacs-lisp-mode-hook 'prettify-symbols-mode)
+
+(global-set-key (kbd "<escape>")  'keyboard-escape-quit)
+
+(set-face-attribute
+ 'default nil
+ :height 160
+ :family "FiraCode Nerd Font")
+
+(set-face-attribute
+ 'variable-pitch nil
+ :height 160
+ :family "MesloLGSDZ Nerd Font")
+
+(set-face-attribute
+ 'fixed-pitch nil
+ :height 160
+ :family "JetBrainsMono Nerd Font")
+
+(setq display-line-numbers-type 'relative)
+
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
+
+(dolist (mode '(org-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(show-paren-mode 1)
+
+(setq-default tab-width 2)
+(setq-default indent-tabs-mode nil)
+
+(require 'cl-lib)
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(package-initialize)
+
+(defvar my-packages
+  '(use-package)
+  "List of packages to ensure are installed at launch.")
+
+(defun my-packages-installed-p ()
+  (cl-loop for p in my-packages
+           when (not (package-installed-p p)) do (cl-return nil)
+           finally (cl-return t)))
+
+(unless (my-packages-installed-p)
+  (package-refresh-contents)
+  (dolist (p my-packages)
+    (when (not (package-installed-p p))
+      (package-install p))))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package all-the-icons)
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package auto-package-update
+  :custom
+  (auto-package-update-interval 7)
+  (auto-package-update-prompt-before-update t)
+  (auto-package-update-hide-results t)
+  :config
+  (auto-package-update-maybe)
+  (auto-package-update-at-time "09:00"))
+
+(use-package centaur-tabs
+  :after doom-modeline evil
+  :init
+  (centaur-tabs-mode t)
+  (centaur-tabs-enable-buffer-reordering)
+  (centaur-tabs-headline-match)
+  :config
+  (centaur-tabs-change-fonts "VictorMono Nerd Font" 160)
+  (setq centaur-tabs-style "rounded"
+        centaur-tabs-height 32
+        centaur-tabs-show-navigation-buttons nil
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-modified-marker " "
+        centaur-tabs-set-icons t
+        centaur-tabs-plain-icons t
+        centaur-tabs-gray-out-icons 'buffer
+        centaur-tabs-set-bar 'over
+        centaur-tabs-adjust-buffer-order t
+        uniquify-separator "/"
+        uniquify-buffer-name-style 'forward)
+
+  (defun centaur-tabs-buffer-groups ()
+    "`centaur-tabs-buffer-groups' control buffers' group rules.
+
+  Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+  All buffer name start with * will group to \"Emacs\".
+  Other buffer group by `centaur-tabs-get-group-name' with project name."
+    (list
+     (cond
+      ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
+      ;; "Remote")
+      ((or (string-equal "*" (substring (buffer-name) 0 1))
+           (memq major-mode '(magit-process-mode
+                              magit-status-mode
+                              magit-diff-mode
+                              magit-log-mode
+                              magit-file-mode
+                              magit-blob-mode
+                              magit-blame-mode
+                              )))
+       "Emacs")
+      ((derived-mode-p 'prog-mode)
+       "Editing")
+      ((derived-mode-p 'dired-mode)
+       "Dired")
+      ((memq major-mode '(helpful-mode
+                          help-mode))
+       "Help")
+      ((memq major-mode '(org-mode
+                          org-agenda-clockreport-mode
+                          org-src-mode
+                          org-agenda-mode
+                          org-beamer-mode
+                          org-indent-mode
+                          org-bullets-mode
+                          org-cdlatex-mode
+                          org-agenda-log-mode
+                          diary-mode))
+       "OrgMode")
+      (t
+       (centaur-tabs-get-group-name (current-buffer))))))
+  :hook
+  (dashboard-mode . centaur-tabs-local-mode)
+  (term-mode . centaur-tabs-local-mode)
+  (calendar-mode . centaur-tabs-local-mode)
+  (org-agenda-mode . centaur-tabs-local-mode)
+  (helpful-mode . centaur-tabs-local-mode)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward)
+  ("C-c t s" . centaur-tabs-counsel-switch-group)
+  ("C-c t p" . centaur-tabs-group-by-projectile-project)
+  ("C-c t g" . centaur-tabs-group-buffer-groups)
+  (:map evil-normal-state-map
+        ("g t" . centaur-tabs-forward)
+        ("g T" . centaur-tabs-backward)
+        ("<right>" . centaur-tabs-forward)
+        ("<left>" . centaur-tabs-backward)))
+
+(use-package company
+  :diminish
+  :bind (
+         :map company-active-map
+         ("C-j" . company-select-next)
+         ("C-k" . company-select-previous)
+         :map company-search-map
+         ("C-j" . company-select-next)
+         ("C-k" . company-select-previous)
+         ("C-ä" . company-toggle-filtering))
+  :hook
+  (emacs-lisp-mode . company-mode)
+  :config
+  (global-company-mode 1))
+
+(use-package company-box
+  :diminish
+  :hook
+  (company-mode . company-box-mode))
+
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)))
+
+(use-package counsel-projectile
+  :config
+  (counsel-projectile-mode))
+
+(use-package dap-mode
+  :defer t
+  :after lsp-mode
+  :config
+  (dap-auto-configure-mode))
+
+(use-package dash
+  :config
+  (global-dash-fontify-mode))
+
+(use-package default-text-scale
+  :config
+  (default-text-scale-mode))
+
+(use-package diff-hl
+  :init
+  (diff-hl-margin-mode t)
+  :hook (
+         (magit-pre-refresh  . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh))
+  :config
+  (global-diff-hl-mode 1))
+
+(use-package diminish
+  :init
+  (diminish 'eldoc-mode)
+  (diminish 'unimpaired-mode))
+
+(use-package dired
+  :ensure nil
+  :after evil-collection
+  :commands (dired dired-jump)
+  :bind (("C-x C-j" . dired-jump))
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-up-directory
+    "l" 'dired-find-file))
+
+(use-package dired-single
+  :commands (dired dired-jump))
+
+(use-package dired-open
+  :commands (dired dired-jump)
+  :config
+  (setq dired-open-extensions '(("png" . "feh")
+                                ("mkv" . "mpv"))))
+
+(use-package dired-hide-dotfiles
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
+
+(use-package doom-modeline
+  :after doom-themes
+  ;; run once in order to install all necessary fonts
+  ;; (all-the-icons-install-fonts)
+  ;; :custom-face
+  ;; (mode-line ((t (:height 0.85))))
+  ;; (mode-line-inactive ((t (:height 0.85))))
+  :init
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-height 15)
+  (setq doom-modeline-icon t)
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-minor-modes t)
+  (setq doom-modeline-lsp t)
+  (setq doom-modeline-buffer-file-name-style 'truncate-except-project)
+  ;; (doom-modeline-init)
+  :config
+  (doom-modeline-mode 1))
+
+(use-package doom-themes
+  :after evil
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-vibrant t)
+
+  (doom-themes-neotree-config)
+  (setq doom-themes-treemacs-theme "doom-colors"
+        doom-themes-treemacs-enable-variable-pitch t
+        doom-themes-treemacs-variable-pitch-face 'variable-pitch 
+        )
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config))
+
+(use-package embark
+  :after evil-leader
+  :bind
+  (("C-ö" . 'embark-act)
+   ("C-h B" . 'embark-bindings))
+  :init
+  (setq prefix-help-command #'embark-prefix-help-comand)
+  :config
+  (evil-leader/set-key "ea" 'embark-act)
+  (evil-leader/set-key "ed" 'embark-dwim))
+
+(use-package evil
+  :init
+  (global-set-key (kbd "C-M-u") 'universal-argument)
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-undo-system 'undo-tree)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq-default evil-shift-width tab-width)
+  :config
+  (evil-mode 1))
+
+(use-package evil-collection
+  :after evil
+  :init
+  (setq evil-collection-setup-minibuffer 1)
+  ;; (setq evil-collection-want-company-extended-keybindings t)
+  :config
+  (evil-collection-init))
+
+(use-package evil-commentary
+  :diminish
+  :config
+  (evil-commentary-mode 1))
+
+(use-package evil-leader
+  :init
+  (global-evil-leader-mode 1)
+  :config 
+  (evil-leader/set-leader "<SPC>")
+  (evil-leader/set-key "ee" 'eval-last-sexp)
+  (evil-leader/set-key "er" 'neotree-toggle)
+  (evil-leader/set-key "fb" 'counsel-switch-buffer)
+  (evil-leader/set-key "ft" 'treemacs)
+  (evil-leader/set-key "ff" 'projectile-find-file)
+  (evil-leader/set-key "gs" 'magit-status)
+  (evil-leader/set-key "hc" 'helpful-command)
+  (evil-leader/set-key "hf" 'counsel-describe-function)
+  (evil-leader/set-key "hk" 'helpful-key)
+  (evil-leader/set-key "hv" 'counsel-describe-variable)
+  (evil-leader/set-key "hw" 'which-key-show-top-level)
+  (evil-leader/set-key "j" 'previous-buffer)
+  (evil-leader/set-key "k" 'next-buffer)
+  (evil-leader/set-key "s" 'text-scale-adjust)
+  (evil-leader/set-key "u"  'basic-save-buffer)
+  (evil-leader/set-key "x"  'evil-delete-buffer)
+  )
+
+(use-package evil-matchit
+  :config
+  (global-evil-matchit-mode 1))
+
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-visualstar
+  :config
+  (global-evil-visualstar-mode))
+
+(use-package haskell-mode)
+
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-desscribe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-command]  . helpful-command)
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-key]      . helpful-key)
+  ([remap describe-variable] . counsel-describe-variable))
+
+(use-package highlight-indentation
+  :hook
+  (yaml-mode . highlight-indentation-mode)
+  (python-mode . highlight-indentation-mode)
+  :config
+  (set-face-background 'highlight-indentation-face "#444444")
+  (set-face-background 'highlight-indentation-current-column-face "#555555"))
+
+(use-package ivy
+  :diminish
+  :bind (("C-#" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
+  (evil-define-key '(normal insert visual) ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line)
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :config
+  (ivy-rich-mode 1))
+
+(use-package lsp-haskell
+  :after
+  lsp-mode
+  :hook
+  (haskell-mode . lsp)
+  (haskell-literate-mode . lsp)
+  )
+
+(use-package lsp-java
+  :hook
+  (java-mode . lsp))
+
+(use-package lsp-mode
+  :init
+  (setq lsp-enable-snippet t)
+  (defalias 'perl-mode 'cperl-mode)
+  :defer t
+  :commands (lsp lsp-deferred)
+  :hook
+  (cperl-mode   . lsp)
+  (csharp-mode  . lsp)
+  (rust-mode    . lsp)
+  (yaml-mode    . lsp)
+  :config
+  ;; (lsp-mode 1)
+  )
+
+
+(use-package lsp-pyright
+  :config
+  (setq lsp-pyright-disable-language-service nil
+        lsp-pyright-disable-organize-imports nil
+        lsp-pyright-auto-import-completions t
+        lsp-pyright-use-library-code-for-types t)
+  :hook ((python-mode . (lambda () 
+                          (require 'lsp-pyright) (lsp)))))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-doc-delay 2))
+
+(use-package magit
+  :bind (("C-c g" . magit-file-dispatch)))
+
+(use-package monitor)
+
+(use-package neotree
+  :after doom-themes)
+
+;; NOTE: If you want to move everything out of the ~/.emacs.d folder
+;; reliably, set `user-emacs-directory` before loading no-littering!
+;; (setq user-emacs-directory "~/.cache/emacs")
+
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+;; (setq auto-save-file-name-transforms
+;;       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
+;; (use-package no-littering)
+
+
+(defun bck/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.5)
+                  (org-level-2 . 1.4)
+                  (org-level-3 . 1.3)
+                  (org-level-4 . 1.2)
+                  (org-level-5 . 1.4)
+                  (org-level-6 . 1.4)
+                  (org-level-7 . 1.4)
+                  (org-level-8 . 1.4)))
+    (set-face-attribute (car face) nil :font "NotoSans Nerd Font" :weight 'semibold :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+(defun bck/org-mode-setup ()
+  (org-indent-mode 1)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1))
+
+(use-package org
+  :hook (org-mode . bck/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾"
+        org-hide-emphasis-markers t
+        org-src-fontify-natively t
+        org-fontify-quote-and-verse-blocks t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2
+        org-capture-bookmark nil
+        truncate-string-ellipsis " …")
+
+  (bck/org-font-setup)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup))
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(use-package paredit
+  :diminish
+  :hook (
+  (emacs-lisp-mode       . enable-paredit-mode)
+  (eval-expression-minibuffer-setup . paredit-mode)
+  (ielm-mode             . enable-paredit-mode)
+  (lisp-mode             . enable-paredit-mode)
+  (lisp-interaction-mode . enable-paredit-mode)
+  (scheme-mode           . enable-paredit-mode)))
+
+(use-package projectile
+  :diminish
+  :init
+  (when (file-directory-p "~/Development")
+    (setq projectile-project-search-path '("~/Development")))
+  (setq projectile-switch-project-action 'projectile-dired)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :config
+  (projectile-mode))
+
+(use-package python
+  :config
+  (setq python-indent-guess-indent-offset-verbose nil)
+  (cond
+  ((executable-find "ipython")
+   (progn
+     (setq python-shell-buffer-name "IPython")
+     (setq python-shell-interpreter "ipython")
+     (setq python-shell-interpreter-args "-i --simple-prompt")))
+  ((executable-find "ipython3")
+   (progn
+     (setq python-shell-buffer-name "IPython")
+     (setq python-shell-interpreter "ipython")
+     (setq python-shell-interpreter-args "-i --simple-prompt")))
+  ((executable-find "python3")
+   (setq python-shell-interpreter "python3"))
+  ((executable-find "python2")
+   (setq python-shell-interpreter "python2"))
+  (t
+  (setq python-shell-interpreter "python"))))
+
+(use-package rainbow-delimiters
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
+
+(use-package rainbow-mode
+  :config
+  (rainbow-mode 1))
+
+(use-package rust-mode)
+
+(use-package swiper)
+
+(use-package treemacs
+  :after doom-themes
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   t
+          treemacs-file-event-delay                5000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-indent-guide-style              'line
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-forward-on-expand          t
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    (treemacs-resize-icons 18)
+
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (treemacs-indent-guide-mode t)
+    (treemacs-tag-follow-mode t)
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile))
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once))
+
+(use-package treemacs-magit
+  :after (treemacs magit))
+
+(use-package tree-sitter)
+(use-package tree-sitter-langs)
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+(use-package undo-tree
+  :diminish
+  :init
+  (global-undo-tree-mode 1))
+
+(defun bck/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . bck/org-mode-visual-fill))
+
+(use-package which-key
+  :diminish
+  :init
+  ;; (setq which-key-show-early-on-C-h t)
+  (setq which-key-idle-delay 1)
+  (setq which-key-idle-secondary-delay 0.05)
+  :config
+  (which-key-add-key-based-replacements
+  "<SPC> e" "Extras"
+  "<SPC> f" "Files"
+  "<SPC> g" "Git"
+  "<SPC> h" "Help"
+  )
+  (which-key-mode 1))
+
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file) (load custom-file))

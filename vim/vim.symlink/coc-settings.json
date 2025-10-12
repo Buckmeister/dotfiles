@@ -1,0 +1,38 @@
+{
+  "languageserver": {
+    "haskell": {
+      "command": "haskell-language-server-wrapper",
+      "args": ["--lsp"],
+      "rootPatterns": [
+        "*.cabal",
+        "stack.yaml",
+        "cabal.project",
+        "package.yaml"
+      ],
+      "filetypes": ["hs", "lhs", "haskell", "lhaskell"],
+      "initializationOptions": {
+        "languageServerHaskell": {
+          "hlintOn": true
+        }
+      }
+    },
+    "lua": {
+      "cwd": "/usr/local/bin/",
+      "command": "/usr/local/bin/lua-language-server",
+      "filetypes": ["lua"],
+      "rootPatterns": [".git/"]
+    }
+  },
+  "cSpell.enabled": false,
+  "suggest.enablePreview": true,
+  "suggest.labelMaxLength": 40,
+  "suggest.detailMaxLength": 40,
+  "explorer.width": 40,
+  "explorer.previewAction.onHover": false,
+  "explorer.icon.source": "vim-devicons",
+  "explorer.icon.enableNerdfont": true,
+  "explorer.filename.colored.enable": true,
+  "git.enableGutters": true,
+  "yank.highlight.enable": true,
+  "java.jdt.ls.vmargs": "-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication -javaagent:/usr/local/share/lombok/lombok.jar -Xbootclasspath/a:/usr/local/share/lombok/lombok.jar"
+}
