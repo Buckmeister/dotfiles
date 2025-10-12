@@ -50,7 +50,7 @@ map('n', '<leader>ba', '<cmd>%bdelete<CR>', { desc = 'Delete all buffers' })
 map('n', '<leader>/', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlight' })
 map('n', '<leader>r', '<cmd>source %<CR>', { desc = 'Reload current file' })
 
--- Thomas's beloved shortcuts from the old config (migrated from nvim-nightly)
+-- Custom shortcuts (migrated from previous config)
 map('n', '<leader>a', '<cmd>Alpha<CR>', { desc = 'Open Alpha dashboard' })
 map('n', '<leader>x', '<cmd>Bdelete<CR>', { desc = 'Close buffer' })
 map('n', '<leader>j', '<cmd>bprevious<CR>', { desc = 'Previous buffer' })

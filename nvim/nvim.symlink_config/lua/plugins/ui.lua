@@ -5,7 +5,7 @@
 
 return {
   -- ============================================================================
-  -- OneDark Colorscheme - Thomas's Signature Look
+  -- OneDark Colorscheme - Classic OneDark Theme
   -- ============================================================================
   {
     'navarasu/onedark.nvim',
@@ -76,7 +76,7 @@ return {
       local dashboard = require('alpha.themes.dashboard')
 
       -- ========================================================================
-      -- Thomas's Beautiful ASCII Art Header
+      -- Beautiful ASCII Art Header
       -- ========================================================================
       dashboard.section.header.opts.hl = 'DashboardHeader'
       dashboard.section.header.val = {
@@ -293,7 +293,7 @@ return {
   },
 
   -- ============================================================================
-  -- Bufferline - Thomas's Beautiful Tab Enhancement
+  -- Bufferline - Beautiful Tab Enhancement
   -- ============================================================================
   {
     'akinsho/bufferline.nvim',
@@ -314,11 +314,11 @@ return {
           diagnostics = 'nvim_lsp',
           diagnostics_update_in_insert = false,
 
-          -- Thomas's artistic offset for nvim-tree
+          -- artistic offset for nvim-tree
           offsets = {
             {
               filetype = 'NvimTree',
-              text = '𝐹𝑆', -- Thomas's beautiful FS indicator
+              text = '𝐹𝑆', -- beautiful FS indicator
               padding = 1,
               text_align = 'left',
               highlight = 'StatusLineNC',

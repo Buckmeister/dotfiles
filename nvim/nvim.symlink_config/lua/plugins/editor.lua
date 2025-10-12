@@ -5,7 +5,7 @@
 
 return {
   -- ============================================================================
-  -- Lualine - Thomas's Beloved Statusline (Artistic & Functional)
+  -- Lualine - Beautiful Statusline (Artistic & Functional)
   -- ============================================================================
   {
     'nvim-lualine/lualine.nvim',
@@ -224,7 +224,7 @@ return {
       }
 
       -- ========================================================================
-      -- Main Lualine Setup (Thomas's Perfect Configuration)
+      -- Main Lualine Setup (Enhanced Configuration)
       -- ========================================================================
       require('lualine').setup({
         options = {
@@ -275,7 +275,7 @@ return {
   },
 
   -- ============================================================================
-  -- Nvim-Tree - Thomas's File Explorer (Elegant & Functional)
+  -- Nvim-Tree - File Explorer (Elegant & Functional)
   -- ============================================================================
   {
     'nvim-tree/nvim-tree.lua',
@@ -486,7 +486,7 @@ return {
   },
 
   -- ============================================================================
-  -- Telescope - Thomas's Beloved Fuzzy Finder (Enhanced & Familiar)
+  -- Telescope - Fuzzy Finder (Enhanced & Familiar)
   -- ============================================================================
   {
     'nvim-telescope/telescope.nvim',
@@ -506,7 +506,7 @@ return {
     cmd = 'Telescope',
     keys = {
       -- ========================================================================
-      -- Thomas's Preferred Telescope Keymaps (Enhanced for Modern Workflow)
+      -- Custom Telescope Keymaps (Enhanced for Modern Workflow)
       -- ========================================================================
 
       -- Core file operations
@@ -557,7 +557,7 @@ return {
       telescope.setup({
         defaults = {
           -- ====================================================================
-          -- Thomas's Preferred UI (Familiar and Beautiful)
+          -- Custom UI (Familiar and Beautiful)
           -- ====================================================================
           prompt_prefix = ' ',
           selection_caret = ' ',
@@ -594,7 +594,7 @@ return {
           },
 
           -- ====================================================================
-          -- Thomas's Enhanced Keymaps (Preserving Original + Modern Additions)
+          -- Enhanced Keymaps (Preserving Original + Modern Additions)
           -- ====================================================================
           mappings = {
             i = {
@@ -706,7 +706,7 @@ return {
         },
 
         -- ======================================================================
-        -- Extensions Configuration (Thomas's Beloved Setup)
+        -- Extensions Configuration (Custom Setup)
         -- ======================================================================
         extensions = {
           -- File browser (preserved from original)
@@ -753,7 +753,7 @@ return {
   },
 
   -- ============================================================================
-  -- Auto Pairs - Thomas's Thoughtful Bracket Management
+  -- Auto Pairs - Smart Bracket Management
   -- ============================================================================
   {
     'windwp/nvim-autopairs',
@@ -766,9 +766,9 @@ return {
         check_ts = true,
         disable_filetype = { 'TelescopePrompt', 'alpha' },
 
-        -- Thomas's beloved fast wrap feature
+        -- custom fast wrap feature
         fast_wrap = {
-          map = '<C-j>', -- Thomas's chosen key for fast wrap
+          map = '<C-j>', -- configured key for fast wrap
           chars = { '{', '[', '(', '"', "'" },
           pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], '%s+', ''),
           offset = 0,
@@ -957,7 +957,7 @@ return {
   },
 
   -- ============================================================================
-  -- Better Buffer Deletion - Thomas's Fork of vim-bbye
+  -- Better Buffer Deletion - Fork of vim-bbye
   -- ============================================================================
   {
     'Buckmeister/vim-bbye',

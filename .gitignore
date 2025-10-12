@@ -1,11 +1,22 @@
+# Vim temporary files
 *.swp
 *.swo
-.netrwhist
+**/.netrwhist
+
+# System files
 .DS_Store
+
+# Editor-specific
 nvim/nvim.symlink_config/coc-settings.json
-ipython/ipython.symlink/profile_default/history.sqlite
 vim/vim.symlink/autoload/plug.vim*
-__pycache__
+
+# Runtime and cache files
+ipython/ipython.symlink/profile_default/history.sqlite
+**/__pycache__/
+**/*.pyc
+fish/fish.symlink_config/fish_variables
+
+# Application data
 karabiner/karabiner.symlink_config/assets
 karabiner/karabiner.symlink_config/automatic_backups
 archive/

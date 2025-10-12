@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Language Server Protocol (LSP) Configuration
 -- Modern language support with completion, diagnostics, and more
--- Respects Thomas's system-wide language server installations
+-- Respects system-wide language server installations
 -- ============================================================================
 
 return {
@@ -57,7 +57,7 @@ return {
       -- System-Wide Language Server Configurations
       -- ============================================================================
 
-      -- Java (JDT.LS) - Using Thomas's system installation
+      -- Java (JDT.LS) - Using system installation
       vim.lsp.config('jdtls', {
         capabilities = capabilities,
         cmd = {
@@ -136,7 +136,7 @@ return {
         },
       })
 
-      -- Rust (rust-analyzer) - Using Thomas's system installation
+      -- Rust (rust-analyzer) - Using system installation
       vim.lsp.config('rust_analyzer', {
         capabilities = capabilities,
         cmd = { '/usr/local/bin/rust-analyzer' },
@@ -163,7 +163,7 @@ return {
         },
       })
 
-      -- Lua (lua-language-server) - Using Thomas's system installation
+      -- Lua (lua-language-server) - Using system installation
       vim.lsp.config('lua_ls', {
         capabilities = capabilities,
         cmd = { '/usr/local/bin/lua-language-server' },
@@ -193,7 +193,7 @@ return {
         },
       })
 
-      -- Python - Using Thomas's system installations (both available)
+      -- Python - Using system installations (both available)
       -- Prioritize pylsp as it's more feature-complete
       if vim.fn.executable('/usr/local/bin/pylsp') == 1 then
         vim.lsp.config('pylsp', {
@@ -223,7 +223,7 @@ return {
         })
       end
 
-      -- Haskell (HLS) - Using Thomas's GHCup installation
+      -- Haskell (HLS) - Using GHCup installation
       local hls_wrapper = vim.fn.expand('~/.ghcup/bin/haskell-language-server-wrapper')
       if vim.fn.executable(hls_wrapper) == 1 then
         vim.lsp.config('hls', {
@@ -329,7 +329,7 @@ return {
         vim.lsp.enable('angularls')
       end
 
-      -- Ruby (Solargraph) - Using Thomas's system installation
+      -- Ruby (Solargraph) - Using system installation
       if vim.fn.executable('/usr/local/bin/solargraph') == 1 then
         vim.lsp.config('solargraph', {
           capabilities = capabilities,
@@ -663,7 +663,7 @@ return {
 
   -- ============================================================================
   -- LSP Server Management (Mason)
-  -- Respects Thomas's system-wide installations, only manages what's missing
+  -- Respects system-wide installations, only manages what's missing
   -- ============================================================================
   {
     'williamboman/mason.nvim',
@@ -921,7 +921,7 @@ return {
           -- Essential for Neovim itself
           'lua', 'vim', 'vimdoc', 'query',
 
-          -- Languages based on Thomas's system setup
+          -- Languages based on system setup
           'java',        -- JDT.LS
           'rust',        -- rust-analyzer
           'python',      -- pylsp/jedi
