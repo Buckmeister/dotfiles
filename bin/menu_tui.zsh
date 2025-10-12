@@ -756,40 +756,15 @@ function prompt_backup_location() {
 
 # Execute the backup repository operation
 function execute_backup_repo() {
-    # Show interactive backup location prompt
-    local backup_target=$(prompt_backup_location)
-
-    # Check if user cancelled
-    if [[ "$backup_target" == "CANCELLED" ]]; then
-        clear_screen
-        show_cursor
-        printf "${UI_INFO_COLOR}💾 Backup cancelled.${COLOR_RESET}\n\n"
-        printf "${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
-        read -k1
-        hide_cursor
-        return 0
-    fi
-
     # Clear screen before execution to avoid painting over menu
     clear_screen
     show_cursor
 
     printf "${COLOR_BOLD}${ITEM_BACKUP_COLOR}💾 Repository Backup${COLOR_RESET}\n\n"
+    printf "${UI_INFO_COLOR}📁 Using default location: ${COLOR_BOLD}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
 
-    # Build backup command with optional target directory
-    local backup_cmd
-    if [[ "$backup_target" == "DEFAULT" ]]; then
-        # Use default location (no -t flag)
-        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
-        printf "${UI_INFO_COLOR}📁 Using default location: ${COLOR_BOLD}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
-    else
-        # Use custom location
-        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh" -t "'"$backup_target"'"'
-        printf "${UI_INFO_COLOR}📁 Using custom location: ${COLOR_BOLD}$backup_target${COLOR_RESET}\n\n"
-    fi
-
-    # Execute the backup script
-    eval "$backup_cmd"
+    # Execute the backup script with default location (no -t flag)
+    "$DF_DIR/bin/backup_dotfiles_repo.zsh"
 
     printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
     read -k1
