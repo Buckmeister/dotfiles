@@ -690,6 +690,9 @@ function prompt_backup_location() {
     clear_screen
     show_cursor
 
+    # Small delay to let terminal catch up with screen clearing
+    sleep 0.1
+
     draw_header "Repository Backup" "Choose Backup Location"
 
     printf "${UI_INFO_COLOR}The backup will create a timestamped ZIP archive of your dotfiles repository.${COLOR_RESET}\n\n"
@@ -704,7 +707,7 @@ function prompt_backup_location() {
     printf "${UI_ACCENT_COLOR}Choose an option [1/2/c]: ${COLOR_RESET}"
 
     local choice
-    read -k1 choice
+    read -k1 -s choice  # Added -s flag for silent read
     printf "\n\n"
 
     case "$choice" in
