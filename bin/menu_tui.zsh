@@ -685,16 +685,99 @@ function execute_librarian_diagnostics() {
     hide_cursor
 }
 
+# Show fancy backup location dialog
+function prompt_backup_location() {
+    clear_screen
+    show_cursor
+
+    draw_header "Repository Backup" "Choose Backup Location"
+
+    printf "${UI_INFO_COLOR}The backup will create a timestamped ZIP archive of your dotfiles repository.${COLOR_RESET}\n\n"
+
+    printf "${UI_ACCENT_COLOR}═══ Backup Location Options ═══${COLOR_RESET}\n\n"
+    printf "  ${UI_SUCCESS_COLOR}[1]${COLOR_RESET} ${UI_INFO_COLOR}Default location${COLOR_RESET}\n"
+    printf "      ${ONEDARK_COMMENT}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
+    printf "  ${UI_SUCCESS_COLOR}[2]${COLOR_RESET} ${UI_INFO_COLOR}Custom location${COLOR_RESET}\n"
+    printf "      ${ONEDARK_COMMENT}Specify your own backup directory${COLOR_RESET}\n\n"
+    printf "  ${UI_ERROR_COLOR}[c]${COLOR_RESET} ${UI_INFO_COLOR}Cancel${COLOR_RESET}\n\n"
+
+    printf "${UI_ACCENT_COLOR}Choose an option [1/2/c]: ${COLOR_RESET}"
+
+    local choice
+    read -k1 choice
+    printf "\n\n"
+
+    case "$choice" in
+        1)
+            # Use default location
+            echo ""  # Return empty string for default
+            ;;
+        2)
+            # Prompt for custom location
+            printf "${UI_ACCENT_COLOR}Enter custom backup directory path:${COLOR_RESET}\n"
+            printf "${ONEDARK_COMMENT}(Tip: Use ~ for home directory, e.g., ~/Desktop)${COLOR_RESET}\n"
+            printf "${UI_SUCCESS_COLOR}➜ ${COLOR_RESET}"
+
+            local custom_path
+            read custom_path
+
+            # Validate path is not empty
+            if [[ -z "$custom_path" ]]; then
+                printf "\n${UI_ERROR_COLOR}❌ Error: Path cannot be empty. Using default location.${COLOR_RESET}\n"
+                sleep 2
+                echo ""
+            else
+                echo "$custom_path"
+            fi
+            ;;
+        c|C)
+            # User cancelled
+            echo "CANCELLED"
+            ;;
+        *)
+            # Invalid choice, use default
+            printf "\n${UI_WARNING_COLOR}⚠️  Invalid choice. Using default location.${COLOR_RESET}\n"
+            sleep 1
+            echo ""
+            ;;
+    esac
+
+    hide_cursor
+}
+
 # Execute the backup repository operation
 function execute_backup_repo() {
+    # Show interactive backup location prompt
+    local backup_target=$(prompt_backup_location)
+
+    # Check if user cancelled
+    if [[ "$backup_target" == "CANCELLED" ]]; then
+        clear_screen
+        show_cursor
+        printf "${UI_INFO_COLOR}💾 Backup cancelled.${COLOR_RESET}\n\n"
+        printf "${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+        read -k1
+        hide_cursor
+        return 0
+    fi
+
     # Clear screen before execution to avoid painting over menu
     clear_screen
     show_cursor
 
     printf "${COLOR_BOLD}${ITEM_BACKUP_COLOR}💾 Repository Backup${COLOR_RESET}\n\n"
 
-    # Execute the backup script (simple version for now - Phase 3 will add interactive prompt)
-    local backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
+    # Build backup command with optional target directory
+    local backup_cmd
+    if [[ -n "$backup_target" ]]; then
+        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh" -t "'"$backup_target"'"'
+        printf "${UI_INFO_COLOR}📁 Using custom location: ${COLOR_BOLD}$backup_target${COLOR_RESET}\n\n"
+    else
+        backup_cmd='"$DF_DIR/bin/backup_dotfiles_repo.zsh"'
+        printf "${UI_INFO_COLOR}📁 Using default location: ${COLOR_BOLD}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
+    fi
+
+    # Execute the backup script
     eval "$backup_cmd"
 
     printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
