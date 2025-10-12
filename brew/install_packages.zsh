@@ -63,6 +63,7 @@ brew install vv
 brew install wezterm
 brew install angular-cli
 brew install aria2
+brew install asciinema
 brew install bash-completion@2
 brew install black
 brew install ccls
@@ -135,7 +136,9 @@ brew install scipy
 brew install shellcheck
 brew install shellharden
 brew install showkey
+brew install silicon
 brew install solargraph
+brew install standard
 brew install starship
 brew install stylua
 brew install subversion

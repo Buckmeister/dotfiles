@@ -1,3 +1,4 @@
+asciinema
 barrier
 bat
 build-essential
@@ -55,6 +56,7 @@ ripgrep
 r-recommended
 ruby-neovim
 shotwell
+silicon
 stylish-haskell
 texi2html
 texinfo
