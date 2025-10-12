@@ -1,0 +1,2 @@
+:set prompt "\ESC[93m\STX λ \ESC[m\STX"
+:def hoogle \x -> return $ ":!hoogle \"" ++ x ++ "\""
