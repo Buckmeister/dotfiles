@@ -376,7 +376,7 @@ typeset -g previous_selected_count=0
 
 # Highly efficient menu update - only updates what changed
 function update_menu_display() {
-    local menu_start_row=8  # First menu item is at row 9 (8 + 0 + 1)
+    local menu_start_row=9  # First menu item is at row 10 (9 + 0 + 1)
 
     # Only update if current item actually changed
     if [[ $current_item -ne $previous_current_item ]]; then
@@ -400,7 +400,7 @@ function update_menu_display() {
 
 # Update just the selection counter (called separately to avoid unnecessary work)
 function update_selection_counter() {
-    local menu_start_row=8  # First menu item is at row 9 (8 + 0 + 1)
+    local menu_start_row=9  # First menu item is at row 10 (9 + 0 + 1)
 
     # Count current selections
     local selected_count=0
@@ -469,7 +469,7 @@ function handle_menu_navigation() {
                 *)
                     toggle_menu_item_selection $((current_item + 1))
                     # Redraw the current item to show selection change
-                    local menu_start_row=8  # First menu item is at row 9 (8 + 0 + 1)
+                    local menu_start_row=9  # First menu item is at row 10 (9 + 0 + 1)
                     local curr_row=$((menu_start_row + current_item + 1))
                     move_cursor $curr_row 1
                     printf "\033[2K"  # Clear entire line
