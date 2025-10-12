@@ -137,11 +137,23 @@ echo "   📎 Active symlinks in ~/.local/bin: $symlink_count"
 if [[ -d "$dotfiles_root/.git" ]]; then
     cd "$dotfiles_root"
     git_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    git_status=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-    if [[ $git_status -eq 0 ]]; then
+
+    # Count uncommitted changes (modified, staged, deleted files)
+    git_changes=$(git status --porcelain 2>/dev/null | grep -v '^??' | wc -l | tr -d ' ')
+
+    # Count untracked files
+    git_untracked=$(git status --porcelain 2>/dev/null | grep '^??' | wc -l | tr -d ' ')
+
+    if [[ $git_changes -eq 0 && $git_untracked -eq 0 ]]; then
         print_success "   Git repository: clean (branch: $git_branch)"
     else
-        print_warning "   Git repository: $git_status uncommitted changes (branch: $git_branch)"
+        # Build status message based on what we found
+        local status_parts=()
+        [[ $git_changes -gt 0 ]] && status_parts+=("$git_changes uncommitted change(s)")
+        [[ $git_untracked -gt 0 ]] && status_parts+=("$git_untracked untracked file(s)")
+
+        local status_msg="${(j:, :)status_parts}"
+        print_warning "   Git repository: $status_msg (branch: $git_branch)"
     fi
 fi
 
