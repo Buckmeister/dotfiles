@@ -109,7 +109,13 @@
       "Bash(else echo \"mkdir failed: $?\")",
       "Bash(fi)",
       "Bash(./tests/unit/test_package_managers.zsh:*)",
-      "Bash(./tests/integration/test_post_install_scripts.zsh:*)"
+      "Bash(./tests/integration/test_post_install_scripts.zsh:*)",
+      "Bash(/tmp/test_progress_bar.zsh:*)",
+      "Bash(for script in post-install/scripts/*.zsh)",
+      "Bash(for:*)",
+      "Bash(if ! grep -q \"greetings.zsh\" \"$file\")",
+      "Bash(then)",
+      "Bash(/tmp/test_progress_bar_antiflicker.zsh:*)"
     ],
     "deny": [],
     "ask": []
