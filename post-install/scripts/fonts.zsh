@@ -1,71 +1,146 @@
 #!/usr/bin/env zsh
 
 # ============================================================================
-# Fonts Setup Post-Install Script
-# Downloads and installs Nerd Fonts (primarily for Linux)
+# Nerd Fonts Installation
+# ============================================================================
+#
+# Downloads and installs Nerd Fonts (Linux only - macOS uses Homebrew).
+# Uses shared libraries for consistent downloading and OS-aware operations.
+#
+# Nerd Fonts: https://github.com/ryanoasis/nerd-fonts
 # ============================================================================
 
-echo "Setting up fonts..."
+emulate -LR zsh
 
-# Check OS context
-[[ -z "$DF_OS" ]] && {
-  echo "Warning: DF_OS not set, detecting OS..."
-  case "$(uname -s)" in
-    Darwin*)  DF_OS="macos" ;;
-    Linux*)   DF_OS="linux" ;;
-    *)        DF_OS="unknown" ;;
-  esac
-}
+# ============================================================================
+# Load Shared Libraries
+# ============================================================================
 
-case "$DF_OS" in
-  macos)
-    echo "Fonts should be installed via Homebrew on macOS (brew install font-*)"
-    echo "Skipping manual font installation"
-    ;;
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+LIB_DIR="$DOTFILES_ROOT/bin/lib"
+CONFIG_DIR="$DOTFILES_ROOT/config"
 
-  linux)
-    echo "Installing Nerd Fonts for Linux..."
+# Load shared libraries
+source "$LIB_DIR/colors.zsh"
+source "$LIB_DIR/ui.zsh"
+source "$LIB_DIR/utils.zsh"
+source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/installers.zsh"
+source "$LIB_DIR/os_operations.zsh"
 
-    # Create fonts directory
-    mkdir -p ~/.local/share/fonts
+# Load configuration
+source "$CONFIG_DIR/paths.env"
+source "$CONFIG_DIR/versions.env"
+[[ -f "$CONFIG_DIR/personal.env" ]] && source "$CONFIG_DIR/personal.env"
 
-    # Create temporary directory
-    temp_dir=$(mktemp -d)
-    cd "$temp_dir"
+# ============================================================================
+# Configuration
+# ============================================================================
 
-    # Download and install popular Nerd Fonts
-    fonts=(
-      "FiraCode.zip"
-      "Iosevka.zip"
-      "JetBrainsMono.zip"
-      "Hack.zip"
-      "Meslo.zip"
-    )
+# Nerd Fonts version (can be overridden in config)
+: ${NERD_FONTS_VERSION:="v3.1.1"}
 
-    for font in "${fonts[@]}"; do
-      echo "Downloading $font..."
-      wget "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/$font" 2>/dev/null || {
-        echo "Warning: Failed to download $font"
-        continue
-      }
+# Fonts to install
+NERD_FONTS=(
+    "FiraCode"
+    "Iosevka"
+    "JetBrainsMono"
+    "Hack"
+    "Meslo"
+)
 
-      echo "Installing $font..."
-      unzip -o "$font" -d ~/.local/share/fonts
-      rm "$font"
-    done
+# Base URL for downloads
+NERD_FONTS_BASE_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_FONTS_VERSION"
 
-    # Refresh font cache
-    echo "Refreshing font cache..."
-    fc-cache -f -v
+# ============================================================================
+# Main Installation
+# ============================================================================
 
-    # Clean up
-    cd - >/dev/null
-    rm -rf "$temp_dir"
-    ;;
+draw_header "Nerd Fonts Installation" "Installing patched fonts for terminals"
+echo
 
-  *)
-    echo "Unknown OS: $DF_OS. Skipping font installation."
-    ;;
+# Check OS and skip if macOS
+case "${DF_OS:-$(get_os)}" in
+    macos)
+        print_info "macOS detected - fonts should be installed via Homebrew"
+        print_info "Use: brew install font-fira-code-nerd-font font-jetbrains-mono-nerd-font etc."
+        print_info "Skipping manual font installation"
+        echo
+        print_success "$(get_random_friend_greeting)"
+        exit 0
+        ;;
+    linux)
+        print_success "Linux detected - proceeding with manual font installation"
+        ;;
+    *)
+        print_warning "Unknown OS: ${DF_OS:-unknown}"
+        print_info "Skipping font installation"
+        exit 0
+        ;;
 esac
 
-echo "Fonts setup completed successfully!"
+echo
+
+# Ensure fonts directory exists
+print_info "Ensuring fonts directory exists..."
+ensure_directory "$FONTS_DIR"
+print_success "Fonts directory: $FONTS_DIR"
+
+echo
+
+# Create temporary directory for downloads
+temp_dir=$(create_temp_dir "nerd-fonts")
+print_info "Using temporary directory: $temp_dir"
+
+echo
+
+# Download and install each font
+local installed_count=0
+local failed_count=0
+
+for font in "${NERD_FONTS[@]}"; do
+    draw_section_header "Installing $font Nerd Font"
+
+    local font_url="$NERD_FONTS_BASE_URL/${font}.zip"
+    local font_archive="$temp_dir/${font}.zip"
+
+    # Download font archive
+    if download_file "$font_url" "$font_archive" "$font"; then
+        # Extract to fonts directory
+        if extract_archive "$font_archive" "$FONTS_DIR" "$font"; then
+            ((installed_count++))
+        else
+            print_error "Failed to extract $font"
+            ((failed_count++))
+        fi
+    else
+        print_warning "Failed to download $font (may not exist in this version)"
+        ((failed_count++))
+    fi
+
+    echo
+done
+
+# Refresh font cache
+print_info "Refreshing font cache..."
+if fc-cache -f -v >/dev/null 2>&1; then
+    print_success "Font cache refreshed"
+else
+    print_warning "Failed to refresh font cache"
+fi
+
+# Clean up temporary directory
+print_info "Cleaning up temporary files..."
+rm -rf "$temp_dir"
+print_success "Cleanup complete"
+
+echo
+print_success "Font installation complete!"
+print_info "📊 Summary:"
+echo "   Installed: $installed_count fonts"
+echo "   Failed:    $failed_count fonts"
+echo "   Location:  $FONTS_DIR"
+
+echo
+print_success "$(get_random_friend_greeting)"
