@@ -29,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/greetings.zsh"
 
 # Load configuration
 source "$CONFIG_DIR/paths.env"
