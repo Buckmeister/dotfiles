@@ -115,7 +115,8 @@
       "Bash(for:*)",
       "Bash(if ! grep -q \"greetings.zsh\" \"$file\")",
       "Bash(then)",
-      "Bash(/tmp/test_progress_bar_antiflicker.zsh:*)"
+      "Bash(/tmp/test_progress_bar_antiflicker.zsh:*)",
+      "Bash('modifiable' is off\" errors.\n\nChanges:\n- Check vim.bo[bufnr].modifiable before formatting\n- Check vim.bo[bufnr].buftype to skip special buffers\n- Skip help, quickfix, terminal, scratch buffers, etc.\n\nThis prevents errors while preserving format-on-save for normal files.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
