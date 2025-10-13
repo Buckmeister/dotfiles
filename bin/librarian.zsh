@@ -297,18 +297,29 @@ lsp_servers=(
 )
 
 lsp_found=0
+lsp_missing=()
+
 for lsp_entry in "${lsp_servers[@]}"; do
     lsp_cmd="${lsp_entry%%:*}"
     lsp_lang="${lsp_entry##*:}"
     if command_exists "$lsp_cmd"; then
         print_success "   $lsp_lang LSP ($lsp_cmd): installed"
         lsp_found=$((lsp_found + 1))
+    else
+        lsp_missing+=("$lsp_lang LSP ($lsp_cmd)")
     fi
 done
 
+# Show missing servers if any
+if [[ ${#lsp_missing[@]} -gt 0 ]]; then
+    for missing in "${lsp_missing[@]}"; do
+        print_info "   $missing: not installed"
+    done
+fi
+
+# Summary
 if [[ $lsp_found -eq 0 ]]; then
-    print_info "   No language servers detected"
-    echo "      💡 Install with: ./post-install/scripts/language-servers.zsh"
+    echo "   💡 Install with: ./post-install/scripts/language-servers.zsh"
 else
     echo "   📊 Language servers found: $lsp_found/${#lsp_servers[@]}"
 fi
