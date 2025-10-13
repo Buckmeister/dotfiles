@@ -218,14 +218,46 @@ function draw_separator() {
 }
 
 # ============================================================================
-# Progress Bar System
+# Progress Bar System (Optimized for minimal repaints)
 # ============================================================================
 
 # Global progress tracking variables (can be overridden by scripts)
 typeset -g -i PROGRESS_TOTAL=100
 typeset -g -i PROGRESS_CURRENT=0
 
-# Draw a beautiful progress bar
+# Cache for last drawn state (avoid redundant redraws)
+typeset -g -i _PROGRESS_LAST_PERCENTAGE=-1
+typeset -g -i _PROGRESS_LAST_FILLED=-1
+typeset -g -i _PROGRESS_LAST_CURRENT=-1
+typeset -g -i _PROGRESS_LAST_TOTAL=-1
+
+# Pre-build character strings for performance (avoid tr subprocess overhead)
+typeset -g _PROGRESS_FILLED_CACHE=""
+typeset -g _PROGRESS_EMPTY_CACHE=""
+typeset -g -i _PROGRESS_CACHE_WIDTH=0
+
+# Build filled/empty character strings (called once per width)
+function _build_progress_chars() {
+    local width=$1
+    local filled_char="${2:-█}"
+    local empty_char="${3:-░}"
+
+    # Only rebuild if width changed
+    if [[ $width -ne $_PROGRESS_CACHE_WIDTH ]]; then
+        _PROGRESS_FILLED_CACHE=""
+        _PROGRESS_EMPTY_CACHE=""
+
+        # Build strings directly without subprocess
+        for ((i=0; i<width; i++)); do
+            _PROGRESS_FILLED_CACHE="${_PROGRESS_FILLED_CACHE}${filled_char}"
+            _PROGRESS_EMPTY_CACHE="${_PROGRESS_EMPTY_CACHE}${empty_char}"
+        done
+
+        _PROGRESS_CACHE_WIDTH=$width
+    fi
+}
+
+# Draw a beautiful progress bar (optimized version)
 function draw_progress_bar() {
     local current="${1:-$PROGRESS_CURRENT}"
     local total="${2:-$PROGRESS_TOTAL}"
@@ -246,35 +278,65 @@ function draw_progress_bar() {
     [[ $filled -gt $width ]] && { filled=$width; empty=0; }
     [[ $filled -lt 0 ]] && { filled=0; empty=$width; }
 
-    printf "${UI_PROGRESS_COLOR}["
-    printf "%*s" $filled | tr ' ' "$filled_char"
-    printf "%*s" $empty | tr ' ' "$empty_char"
-    printf "] %3d%% (%d/%d)${COLOR_RESET}" $percentage $current $total
+    # Build character cache if needed
+    _build_progress_chars $width "$filled_char" "$empty_char"
+
+    # Use substring operations instead of tr (much faster - no subprocess)
+    local filled_str="${_PROGRESS_FILLED_CACHE:0:$filled}"
+    local empty_str="${_PROGRESS_EMPTY_CACHE:0:$empty}"
+
+    # Single printf call for entire bar (reduces overhead)
+    printf "${UI_PROGRESS_COLOR}[%s%s] %3d%% (%d/%d)${COLOR_RESET}" \
+        "$filled_str" "$empty_str" $percentage $current $total
 }
 
-# Update progress bar with current values
+# Update progress bar with current values (optimized repaint)
 function update_progress() {
     local current="$1"
     local total="${2:-$PROGRESS_TOTAL}"
+    local width="${3:-50}"
 
     PROGRESS_CURRENT=$current
     PROGRESS_TOTAL=$total
 
-    printf "\r"
-    clear_line
-    printf "Progress: "
+    # Calculate what changed
+    local percentage=$((current * 100 / total))
+    local filled=$((current * width / total))
+
+    # Skip redraw if nothing visually changed
+    if [[ $percentage -eq $_PROGRESS_LAST_PERCENTAGE ]] && \
+       [[ $filled -eq $_PROGRESS_LAST_FILLED ]] && \
+       [[ $current -eq $_PROGRESS_LAST_CURRENT ]] && \
+       [[ $total -eq $_PROGRESS_LAST_TOTAL ]]; then
+        return 0
+    fi
+
+    # Update cache
+    _PROGRESS_LAST_PERCENTAGE=$percentage
+    _PROGRESS_LAST_FILLED=$filled
+    _PROGRESS_LAST_CURRENT=$current
+    _PROGRESS_LAST_TOTAL=$total
+
+    # Efficient redraw: carriage return + overwrite (no clear needed)
+    printf "\rProgress: "
     draw_progress_bar $current $total
 }
 
-# Increment progress by one step
+# Increment progress by one step (optimized)
 function increment_progress() {
     local increment="${1:-1}"
     PROGRESS_CURRENT=$((PROGRESS_CURRENT + increment))
 
-    printf "\r"
-    clear_line
-    printf "Progress: "
-    draw_progress_bar $PROGRESS_CURRENT $PROGRESS_TOTAL
+    # Use optimized update
+    update_progress $PROGRESS_CURRENT $PROGRESS_TOTAL
+}
+
+# Reset progress bar cache (call when starting new progress sequence)
+function reset_progress_cache() {
+    _PROGRESS_LAST_PERCENTAGE=-1
+    _PROGRESS_LAST_FILLED=-1
+    _PROGRESS_LAST_CURRENT=-1
+    _PROGRESS_LAST_TOTAL=-1
 }
 
 # ============================================================================
@@ -426,7 +488,7 @@ function setup_ui_cleanup() {
     typeset -fx print_success print_warning print_error print_info
     typeset -fx get_display_width get_safe_display_width
     typeset -fx draw_header draw_separator draw_progress_bar
-    typeset -fx update_progress increment_progress update_status_display show_status
+    typeset -fx update_progress increment_progress reset_progress_cache update_status_display show_status
     typeset -fx show_spinner ask_confirmation print_centered print_box
     typeset -fx cleanup_ui setup_ui_cleanup
 } >/dev/null 2>&1
