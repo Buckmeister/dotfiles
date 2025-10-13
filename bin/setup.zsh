@@ -279,9 +279,3 @@ else
         fi
     fi
 fi
-
-echo
-print_success "🎉 Dotfiles setup session completed!"
-echo
-print_success "$(get_random_friend_greeting)"
-

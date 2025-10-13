@@ -85,6 +85,7 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 [[ -z "$ITEM_LINK_COLOR" ]] && ITEM_LINK_COLOR="$UI_PROGRESS_COLOR"        # Use shared cyan
 [[ -z "$ITEM_CONTROL_COLOR" ]] && ITEM_CONTROL_COLOR="$UI_WARNING_COLOR"      # Use shared yellow
 [[ -z "$ITEM_ACTION_COLOR" ]] && ITEM_ACTION_COLOR="$UI_SUCCESS_COLOR"       # Use shared green
+[[ -z "$ITEM_UPDATE_COLOR" ]] && ITEM_UPDATE_COLOR="$ONEDARK_CYAN"            # Use OneDark cyan
 [[ -z "$ITEM_LIBRARIAN_COLOR" ]] && ITEM_LIBRARIAN_COLOR="$UI_ACCENT_COLOR"     # Use shared purple
 [[ -z "$ITEM_BACKUP_COLOR" ]] && ITEM_BACKUP_COLOR="$ONEDARK_BLUE"           # Use OneDark blue
 [[ -z "$ITEM_QUIT_COLOR" ]] && ITEM_QUIT_COLOR="$UI_ERROR_COLOR"           # Use shared red
@@ -105,6 +106,7 @@ readonly ITEM_TYPE_CONTROL="control"    # Control buttons (non-selectable)
 readonly MENU_LINK_DOTFILES="Link Dotfiles"
 readonly MENU_SELECT_ALL="Select All"
 readonly MENU_EXECUTE="Execute Selected"
+readonly MENU_UPDATE_ALL="Update All"
 readonly MENU_LIBRARIAN="Librarian"
 readonly MENU_BACKUP="Backup"
 readonly MENU_QUIT="Quit"
@@ -155,7 +157,7 @@ function wait_for_keypress() {
 # Returns: 0 if control item, 1 if actionable item
 function is_control_menu_item() {
     local title="$1"
-    [[ "$title" == "$MENU_SELECT_ALL" || "$title" == "$MENU_EXECUTE" || "$title" == "$MENU_LIBRARIAN" || "$title" == "$MENU_BACKUP" || "$title" == "$MENU_QUIT" ]]
+    [[ "$title" == "$MENU_SELECT_ALL" || "$title" == "$MENU_EXECUTE" || "$title" == "$MENU_UPDATE_ALL" || "$title" == "$MENU_LIBRARIAN" || "$title" == "$MENU_BACKUP" || "$title" == "$MENU_QUIT" ]]
 }
 
 # Validate menu item index
@@ -308,6 +310,10 @@ function draw_menu_item() {
             checkbox="⚡ "
             color="$ITEM_ACTION_COLOR"
             ;;
+        "$MENU_UPDATE_ALL")
+            checkbox="🔄 "
+            color="$ITEM_UPDATE_COLOR"
+            ;;
         "$MENU_LIBRARIAN")
             checkbox="📚 "
             color="$ITEM_LIBRARIAN_COLOR"
@@ -457,6 +463,9 @@ function handle_menu_navigation() {
                 "$MENU_EXECUTE")
                     return 2  # Signal to execute selected items
                     ;;
+                "$MENU_UPDATE_ALL")
+                    return 7  # Signal to run update_all
+                    ;;
                 "$MENU_LIBRARIAN")
                     return 3  # Signal to run librarian
                     ;;
@@ -487,6 +496,9 @@ function handle_menu_navigation() {
                 "$MENU_EXECUTE")
                     return 2  # Signal to execute selected items
                     ;;
+                "$MENU_UPDATE_ALL")
+                    return 7  # Signal to run update_all
+                    ;;
                 "$MENU_LIBRARIAN")
                     return 3  # Signal to run librarian
                     ;;
@@ -511,6 +523,10 @@ function handle_menu_navigation() {
         # q - quit
         q|Q)
             return 1  # Signal to quit
+            ;;
+        # u - update all (global shortcut)
+        u|U)
+            return 7  # Signal to run update_all
             ;;
         # l - launch librarian (global shortcut)
         l|L)
@@ -561,6 +577,7 @@ function show_menu_help() {
     printf "  ${UI_ACCENT_COLOR}q${COLOR_RESET}          Quit menu\n\n"
 
     printf "${UI_INFO_COLOR}═══ Global Shortcuts ═══${COLOR_RESET}\n"
+    printf "  ${UI_ACCENT_COLOR}u${COLOR_RESET}          Update all packages and toolchains\n"
     printf "  ${UI_ACCENT_COLOR}l${COLOR_RESET}          Launch Librarian (system health & status)\n"
     printf "  ${UI_ACCENT_COLOR}b${COLOR_RESET}          Backup repository\n"
     printf "  ${UI_ACCENT_COLOR}a${COLOR_RESET}          Toggle Select/Deselect All items\n"
@@ -571,6 +588,7 @@ function show_menu_help() {
     printf "  ${ITEM_LINK_COLOR}🔗 Link Dotfiles${COLOR_RESET}    Create symlinks for configuration files\n"
     printf "  ${ITEM_CONTROL_COLOR}📋 Select All${COLOR_RESET}       Select/deselect all post-install scripts\n"
     printf "  ${ITEM_ACTION_COLOR}⚡ Execute Selected${COLOR_RESET}  Run all selected operations\n"
+    printf "  ${ITEM_UPDATE_COLOR}🔄 Update All${COLOR_RESET}       Update packages, toolchains, and LSPs\n"
     printf "  ${ITEM_LIBRARIAN_COLOR}📚 Librarian${COLOR_RESET}        System health check and status report\n"
     printf "  ${ITEM_BACKUP_COLOR}💾 Backup${COLOR_RESET}           Create repository backup archive\n"
     printf "  ${ITEM_QUIT_COLOR}🚪 Quit${COLOR_RESET}              Exit the menu system\n\n"
@@ -663,6 +681,23 @@ function execute_selected_menu_items() {
         # Clear selections after successful execution
         clear_all_menu_selections
     fi
+
+    printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+    read -k1
+    hide_cursor
+}
+
+# Execute the update_all.zsh script
+function execute_update_all() {
+    # Clear screen before execution to avoid painting over menu
+    clear_screen
+    show_cursor
+
+    printf "${COLOR_BOLD}${ITEM_UPDATE_COLOR}🔄 Update All${COLOR_RESET}\n\n"
+    printf "${UI_INFO_COLOR}Updating system packages, toolchains, and language packages...${COLOR_RESET}\n\n"
+
+    # Execute the update_all script
+    "$DF_DIR/bin/update_all.zsh"
 
     printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
     read -k1
@@ -833,6 +868,13 @@ function run_interactive_menu() {
             5)  # Already updated - no further action needed
                 # Do nothing, the handler already updated what was needed
                 ;;
+            7)  # Run update_all
+                execute_update_all
+                # Redraw complete menu after execution
+                draw_complete_menu
+                # Reset tracking state after full redraw
+                previous_current_item=$current_item
+                ;;
             6)  # Execute current item
                 execute_single_menu_item $((current_item + 1))
                 # Redraw complete menu after execution
@@ -914,6 +956,9 @@ function initialize_menu() {
     # Add control items
     add_menu_item "$MENU_SELECT_ALL" "Select all available items" ""
     add_menu_item "$MENU_EXECUTE" "Run all selected operations" ""
+
+    # Add update all system components
+    add_menu_item "$MENU_UPDATE_ALL" "Update packages, toolchains, and language servers" ""
 
     # Add librarian status and diagnostics (below execute button)
     add_menu_item "$MENU_LIBRARIAN" "Run system health check and status report" \

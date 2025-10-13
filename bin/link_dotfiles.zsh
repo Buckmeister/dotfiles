@@ -388,10 +388,57 @@ function create_all_symlinks() {
 }
 
 # ============================================================================
+# Help Function
+# ============================================================================
+
+function show_help() {
+    cat << EOF
+${COLOR_BOLD}Dotfiles Symlink Manager${COLOR_RESET}
+
+${UI_ACCENT_COLOR}DESCRIPTION:${COLOR_RESET}
+    Creates symbolic links for dotfiles using a convention-based system.
+    Automatically backs up existing files before creating symlinks.
+
+${UI_ACCENT_COLOR}USAGE:${COLOR_RESET}
+    $0 [OPTIONS]
+
+${UI_ACCENT_COLOR}SYMLINK PATTERNS:${COLOR_RESET}
+    *.symlink            → ~/.{basename}
+    *.symlink_config     → ~/.config/{basename}
+    *.symlink_local_bin.* → ~/.local/bin/{basename}
+
+${UI_ACCENT_COLOR}EXAMPLES:${COLOR_RESET}
+    zsh/zshrc.symlink               → ~/.zshrc
+    nvim/nvim.symlink_config/       → ~/.config/nvim/
+    github/get_github_url.symlink_local_bin.zsh → ~/.local/bin/get_github_url
+
+${UI_ACCENT_COLOR}OPTIONS:${COLOR_RESET}
+    --help, -h          Show this help message
+
+${UI_ACCENT_COLOR}FEATURES:${COLOR_RESET}
+    • Beautiful OneDark color scheme
+    • Progress bars for visual feedback
+    • Automatic backup of existing files
+    • Comprehensive error handling
+    • Success/error statistics
+
+${UI_ACCENT_COLOR}BACKUP:${COLOR_RESET}
+    Existing files are backed up to: ~/.tmp/dotfilesBackup-{timestamp}/
+
+EOF
+}
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
 # If script is run directly (not sourced), execute the main function
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ "${(%):-%N}" == "$0" ]]; then
+    # Check for help flag
+    if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+        show_help
+        exit 0
+    fi
+
     create_all_symlinks
 fi
