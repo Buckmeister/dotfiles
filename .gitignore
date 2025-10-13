@@ -23,3 +23,4 @@ emacs/.emacs.symlink.~undo-tree~
 
 # Local-only files (personal/sensitive information)
 Meetings.md
+config/personal.env

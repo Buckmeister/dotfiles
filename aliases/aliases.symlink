@@ -1,11 +1,11 @@
 # vim:set ft=bash:
 command -v eza >/dev/null 2>&1 && alias ls='eza --icons --git'
 command -v batcat >/dev/null 2>&1 && alias bat='batcat'
-command -v bat >/dev/null 2>&1 && alias cat='bat'
+# command -v bat >/dev/null 2>&1 && alias cat='bat'
 command -v fdfind >/dev/null 2>&1 && alias fd='fdfind'
 command -v vim >/dev/null 2>&1 && alias vi='vim'
 # command -v nvn >/dev/null 2>&1 && alias vi='nvn'
-# command -v nvim >/dev/null 2>&1 && alias vi='NVIM_APPNAME="lualoves.nvim" nvim'
+# command -v nvim >/dev/null 2>&1 && alias lln='NVIM_APPNAME="lualoves.nvim" nvim'
 command -v nvim >/dev/null 2>&1 && alias vi='nvim'
 
 alias gitgraph='git log --decorate --graph'
