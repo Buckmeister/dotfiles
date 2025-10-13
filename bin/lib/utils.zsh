@@ -198,7 +198,8 @@ function create_directory_safe() {
 # Expand tilde in path
 function expand_path() {
     local path="$1"
-    echo "${path/#~/$HOME}"
+    # Use eval for proper tilde expansion
+    eval echo "$path"
 }
 
 # Check if file or directory exists
