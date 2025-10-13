@@ -179,6 +179,186 @@ for tool in "${tools[@]}"; do
 done
 
 # ============================================================================
+# Development Toolchains Status
+# ============================================================================
+
+echo
+echo "🔧 Development Toolchains:"
+
+# Rust
+if command_exists rustc; then
+    rust_version=$(rustc --version 2>/dev/null | cut -d' ' -f2)
+    print_success "   Rust: $rust_version"
+    if command_exists cargo; then
+        cargo_version=$(cargo --version 2>/dev/null | cut -d' ' -f2)
+        echo "      └─ cargo: $cargo_version"
+    fi
+    if command_exists rustup; then
+        echo "      └─ rustup: available"
+    fi
+else
+    print_info "   Rust: not installed"
+fi
+
+# Node.js
+if command_exists node; then
+    node_version=$(node --version 2>/dev/null)
+    print_success "   Node.js: $node_version"
+    if command_exists npm; then
+        npm_version=$(npm --version 2>/dev/null)
+        echo "      └─ npm: $npm_version"
+    fi
+    if command_exists nvm; then
+        echo "      └─ nvm: available"
+    fi
+else
+    print_info "   Node.js: not installed"
+fi
+
+# Python
+if command_exists python3; then
+    python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2)
+    print_success "   Python: $python_version"
+    if command_exists pip3; then
+        pip_version=$(pip3 --version 2>/dev/null | cut -d' ' -f2)
+        echo "      └─ pip: $pip_version"
+    fi
+    if command_exists pipx; then
+        pipx_version=$(pipx --version 2>/dev/null)
+        echo "      └─ pipx: $pipx_version"
+    fi
+else
+    print_info "   Python: not installed"
+fi
+
+# Ruby
+if command_exists ruby; then
+    ruby_version=$(ruby --version 2>/dev/null | cut -d' ' -f2)
+    print_success "   Ruby: $ruby_version"
+    if command_exists gem; then
+        gem_version=$(gem --version 2>/dev/null)
+        echo "      └─ gem: $gem_version"
+    fi
+else
+    print_info "   Ruby: not installed"
+fi
+
+# Go
+if command_exists go; then
+    go_version=$(go version 2>/dev/null | cut -d' ' -f3 | sed 's/go//')
+    print_success "   Go: $go_version"
+else
+    print_info "   Go: not installed"
+fi
+
+# Haskell
+if command_exists ghc; then
+    ghc_version=$(ghc --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    print_success "   Haskell (GHC): $ghc_version"
+    if command_exists ghcup; then
+        echo "      └─ ghcup: available"
+    fi
+    if command_exists stack; then
+        stack_version=$(stack --version 2>/dev/null | head -1 | cut -d' ' -f2)
+        echo "      └─ stack: $stack_version"
+    fi
+else
+    print_info "   Haskell: not installed"
+fi
+
+# Java
+if command_exists java; then
+    java_version=$(java -version 2>&1 | head -1 | cut -d'"' -f2)
+    print_success "   Java: $java_version"
+    if command_exists mvn; then
+        mvn_version=$(mvn --version 2>/dev/null | head -1 | cut -d' ' -f3)
+        echo "      └─ Maven: $mvn_version"
+    fi
+else
+    print_info "   Java: not installed"
+fi
+
+# ============================================================================
+# Language Servers Status
+# ============================================================================
+
+echo
+echo "🔌 Language Servers:"
+
+# Check for common language servers
+lsp_servers=(
+    "rust-analyzer:Rust"
+    "typescript-language-server:TypeScript"
+    "pyright:Python"
+    "lua-language-server:Lua"
+    "gopls:Go"
+    "haskell-language-server-wrapper:Haskell"
+    "solargraph:Ruby"
+)
+
+lsp_found=0
+for lsp_entry in "${lsp_servers[@]}"; do
+    lsp_cmd="${lsp_entry%%:*}"
+    lsp_lang="${lsp_entry##*:}"
+    if command_exists "$lsp_cmd"; then
+        print_success "   $lsp_lang LSP ($lsp_cmd): installed"
+        lsp_found=$((lsp_found + 1))
+    fi
+done
+
+if [[ $lsp_found -eq 0 ]]; then
+    print_info "   No language servers detected"
+    echo "      💡 Install with: ./post-install/scripts/language-servers.zsh"
+else
+    echo "   📊 Language servers found: $lsp_found/${#lsp_servers[@]}"
+fi
+
+# ============================================================================
+# Test Suite Status
+# ============================================================================
+
+echo
+echo "🧪 Test Suite:"
+
+test_runner="$dotfiles_root/tests/run_tests.zsh"
+if [[ -x "$test_runner" ]]; then
+    print_success "   Test runner available"
+
+    # Count test files
+    unit_test_count=$(find "$dotfiles_root/tests/unit" -name "test_*.zsh" -type f 2>/dev/null | wc -l | tr -d ' ')
+    integration_test_count=$(find "$dotfiles_root/tests/integration" -name "test_*.zsh" -type f 2>/dev/null | wc -l | tr -d ' ')
+    total_tests=$((unit_test_count + integration_test_count))
+
+    echo "      ├─ Unit tests: $unit_test_count"
+    echo "      ├─ Integration tests: $integration_test_count"
+    echo "      └─ Total test suites: $total_tests"
+
+    # Check if we should run tests
+    if [[ "$1" == "--with-tests" ]] || [[ "$1" == "--run-tests" ]]; then
+        echo
+        echo "   🔬 Running test suite..."
+        echo
+        "$test_runner"
+        local test_exit_code=$?
+        echo
+        if [[ $test_exit_code -eq 0 ]]; then
+            print_success "   Test suite completed successfully!"
+        else
+            print_error "   Some tests failed. See output above for details."
+        fi
+    else
+        echo "      💡 Run with --with-tests to execute the test suite"
+        echo "      💡 Or run directly: ./tests/run_tests.zsh"
+    fi
+elif [[ -f "$test_runner" ]]; then
+    print_warning "   Test runner exists but is not executable"
+    echo "      💡 Fix with: chmod +x $test_runner"
+else
+    print_info "   Test suite not found"
+    echo "      💡 Test infrastructure may not be installed yet"
+fi
+
+# ============================================================================
 # Post-Install Scripts Catalog
 # ============================================================================
 
@@ -344,18 +524,78 @@ fi
 } # End of generate_report function
 
 # ============================================================================
+# Help Function
+# ============================================================================
+
+function show_help() {
+    cat << EOF
+${COLOR_BOLD}📚 The Librarian - Dotfiles System Health & Status Reporter${COLOR_RESET}
+
+${UI_ACCENT_COLOR}DESCRIPTION:${COLOR_RESET}
+    Like a wise librarian who knows every book in the library, this script
+    knows every component of your dotfiles system and provides comprehensive
+    health reporting and diagnostics.
+
+${UI_ACCENT_COLOR}USAGE:${COLOR_RESET}
+    $0 [OPTIONS]
+
+${UI_ACCENT_COLOR}OPTIONS:${COLOR_RESET}
+    (no options)        Show comprehensive system health report
+    --status            Same as no options (explicit status check)
+    --with-tests        Run system health check with test suite execution
+    --run-tests         Alias for --with-tests
+    --all-pi            Run all post-install scripts silently
+    --menu              Launch interactive TUI menu
+    --skip-pi           Skip post-install scripts (used by setup)
+    --help, -h          Show this help message
+
+${UI_ACCENT_COLOR}HEALTH REPORT INCLUDES:${COLOR_RESET}
+    📋 Core System Status     - Dotfiles location, setup scripts, git status
+    🛠️  Essential Tools       - git, curl, jq, zsh detection
+    🔧 Development Toolchains - Rust, Node.js, Python, Ruby, Go, Haskell, Java
+    🔌 Language Servers       - LSP server detection and status
+    🧪 Test Suite             - Test availability and optional execution
+    📜 Post-Install Scripts   - Available scripts catalog
+    🐙 GitHub Downloaders     - Custom GitHub tool status
+    ⚙️  Configuration Health  - Config file existence checks
+    🔗 Symlink Inventory      - Complete symlink listing with broken link detection
+
+${UI_ACCENT_COLOR}EXAMPLES:${COLOR_RESET}
+    $0                  # Full system health report
+    $0 --with-tests     # Health report + run test suite
+    $0 --all-pi         # Run all post-install scripts
+    $0 --menu           # Launch interactive menu
+
+${UI_ACCENT_COLOR}INTEGRATION:${COLOR_RESET}
+    The Librarian is typically called by ./setup after symlinking completes,
+    but can also be run independently for system diagnostics and health checks.
+
+EOF
+}
+
+# ============================================================================
 # Main Execution Logic
 # ============================================================================
 
 # Check execution mode based on arguments
 case "${1:-}" in
+    "--help"|"-h")
+        # Show help message
+        show_help
+        exit 0
+        ;;
     "--status")
         # Explicit status check - show verbose report through pager
         generate_report | use_pager
         exit 0
         ;;
-    "--skip-pi"|"--help")
-        # Show friendly exit message for these flags
+    "--with-tests"|"--run-tests")
+        # Status check with test suite execution
+        generate_report "$1" | use_pager
+        exit 0
+        ;;
+    "--skip-pi")
+        # Show friendly exit message for this flag
         echo "📚 Post-install scripts skipped. The Librarian's work is complete. $(get_random_friend_greeting) 💙"
         echo
         exit 0
