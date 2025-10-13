@@ -188,9 +188,31 @@ The Librarian provides comprehensive status reporting including:
 - Detailed symlink inventory
 
 ### Create a Backup
+
+Creates a complete ZIP archive of your entire dotfiles repository for safekeeping.
+
 ```bash
+# Create backup with default settings
 ./backup
+
+# Specify custom target directory
+./backup -t ~/Desktop
+./backup --target-dir /path/to/backups
 ```
+
+**What gets backed up:**
+- Complete repository contents (all configuration files, scripts, and documentation)
+- Excludes: `.git/` directories, `.DS_Store` files, and `.tmp/` directories
+
+**Archive details:**
+- Format: ZIP archive with compression
+- Naming: `dotfiles_backup_YYYYMMDD-HHMMSS.zip` (timestamped for uniqueness)
+- Default location: `~/Downloads/dotfiles_repo_backups/`
+- Includes integrity verification after creation
+
+**Options:**
+- `-t, --target-dir` - Specify custom backup directory (default: `~/Downloads/dotfiles_repo_backups`)
+- `-h, --help` - Show detailed help and examples
 
 ### Run Tests
 
