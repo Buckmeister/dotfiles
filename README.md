@@ -66,7 +66,7 @@ Meticulously crafted configurations for:
 
 ### Post-Install Scripts
 Modular, OS-aware installation for:
-- Programming languages (Cargo, npm, pip, Ruby gems)
+- Package managers (Cargo, npm, pip, Ruby gems)
 - Language servers (Rust, Python, Java, C#, and more)
 - Development toolchains
 - Fonts and visual enhancements
