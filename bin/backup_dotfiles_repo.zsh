@@ -270,56 +270,32 @@ function draw_header() {
     printf "${COLOR_RESET}\n"
 }
 
-# Draw a progress bar (matching link_dotfiles.zsh)
-function draw_progress_bar() {
-    local current=$1
-    local total=$2
-    local width=50
+# Note: Using optimized draw_progress_bar() from ui.zsh
+# No local override needed - the shared library version is already optimized
 
-    # Safety check: prevent overflow beyond 100%
-    if [[ $current -gt $total ]]; then
-        current=$total
-    fi
-
-    local percentage=$((current * 100 / total))
-    local filled=$((current * width / total))
-    local empty=$((width - filled))
-
-    # Additional safety check for width
-    if [[ $filled -gt $width ]]; then
-        filled=$width
-        empty=0
-    fi
-
-    printf "${UI_PROGRESS_COLOR}["
-    printf "%*s" $filled | tr ' ' '█'
-    printf "%*s" $empty | tr ' ' '░'
-    printf "] %3d%% (%d/%d)${COLOR_RESET}" $percentage $current $total
-}
-
-# Display the current operation status
+# Display the current operation status (with anti-flicker optimization)
 function update_status_display() {
     local phase_name="$1"
     local operation_name="$2"
     local line_offset=7
 
-    # Clear the status area and redraw with proper line clearing
+    # Move to status area
     move_cursor_to_line $line_offset
 
-    # Clear each line by overwriting with spaces, then rewrite content
-    printf "%-80s\r${COLOR_BOLD}${UI_ACCENT_COLOR}Phase: %-20s${COLOR_RESET}\n" \
-        "" "$phase_name"
-    printf "%-80s\r${UI_INFO_COLOR}Current: %-40s${COLOR_RESET}\n\n" \
-        "" "$operation_name"
+    # Clear and redraw each line using \033[2K (anti-flicker technique)
+    printf "\033[2K${COLOR_BOLD}${UI_ACCENT_COLOR}Phase: %-20s${COLOR_RESET}\n" \
+        "$phase_name"
+    printf "\033[2K${UI_INFO_COLOR}Current: %-40s${COLOR_RESET}\n\n" \
+        "$operation_name"
 
-    # Draw progress bar with proper clearing
-    printf "%-80s\r" ""
+    # Draw progress bar with anti-flicker line clear
+    printf "\033[2K"
     print_colored_message "$UI_PROGRESS_COLOR" "Progress: "
     draw_progress_bar $completed_operations $total_operations
     printf "\n\n"
 
-    # Show statistics with proper clearing
-    printf "%-80s\r" ""
+    # Show statistics with anti-flicker line clear
+    printf "\033[2K"
     printf "${UI_SUCCESS_COLOR}✅ Success: %d${COLOR_RESET}  " $success_count
     printf "${UI_ERROR_COLOR}❌ Errors: %d${COLOR_RESET}\n" $error_count
 }
