@@ -677,11 +677,11 @@ function execute_librarian_diagnostics() {
 
     # Execute the librarian with --status to show full verbose report
     # The librarian will handle its own output (through pager if interactive)
+    # Note: Since librarian uses a pager that requires 'q' to exit,
+    # we don't need an additional "press any key" prompt
     local librarian_cmd='DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --status'
     eval "$librarian_cmd"
 
-    printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
-    read -k1
     hide_cursor
 }
 
