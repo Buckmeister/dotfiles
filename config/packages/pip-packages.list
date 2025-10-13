@@ -1,0 +1,52 @@
+# ============================================================================
+# pip (Python) Packages List
+# ============================================================================
+#
+# This file contains Python packages to be installed via pip.
+# Lines starting with # are comments and will be ignored.
+# Empty lines are also ignored.
+#
+# Managed by: post-install/scripts/pip-packages.zsh
+# ============================================================================
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+
+# IPython enhanced interactive shell
+ipython
+
+# Python code formatter
+black
+
+# Python import sorter
+isort
+
+# Python linter
+flake8
+
+# Type checker
+mypy
+
+# ============================================================================
+# Language Servers
+# ============================================================================
+
+# Note: Language servers are better installed via pipx (isolated environments)
+# See pipx-packages.list
+
+# ============================================================================
+# Data Science (Optional - comment out if not needed)
+# ============================================================================
+
+# Uncomment if you need data science tools:
+# numpy
+# pandas
+# matplotlib
+# jupyter
+
+# ============================================================================
+# Optional Packages (comment out if not needed)
+# ============================================================================
+
+# Add your custom pip packages here

@@ -1,0 +1,33 @@
+# ============================================================================
+# Ruby Gems List
+# ============================================================================
+#
+# This file contains Ruby gems to be installed via gem.
+# Lines starting with # are comments and will be ignored.
+# Empty lines are also ignored.
+#
+# Managed by: post-install/scripts/ruby-gems.zsh
+# ============================================================================
+
+# ============================================================================
+# Core Utilities
+# ============================================================================
+
+# vCard manipulation library
+vcardigan
+
+# Property list (plist) parsing and manipulation
+plist
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+
+# Note: Solargraph (Ruby LSP) is installed via system package manager
+# to ensure proper integration with system Ruby
+
+# ============================================================================
+# Optional Packages (comment out if not needed)
+# ============================================================================
+
+# Add your custom Ruby gems here

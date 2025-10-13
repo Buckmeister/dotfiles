@@ -1,0 +1,46 @@
+# ============================================================================
+# pipx (Python Isolated) Packages List
+# ============================================================================
+#
+# This file contains Python packages to be installed via pipx.
+# pipx installs packages in isolated environments, perfect for CLI tools.
+# Lines starting with # are comments and will be ignored.
+# Empty lines are also ignored.
+#
+# Managed by: post-install/scripts/pipx-packages.zsh (if exists)
+# ============================================================================
+
+# ============================================================================
+# Language Servers and Development Tools
+# ============================================================================
+
+# Python Language Server (alternative to pyright)
+# python-lsp-server
+
+# Python code formatter (standalone)
+# black
+
+# HTTP client (like curl but user-friendly)
+# httpie
+
+# Poetry - Python dependency management
+# poetry
+
+# Pipenv - Python development workflow
+# pipenv
+
+# ============================================================================
+# CLI Utilities
+# ============================================================================
+
+# YouTube downloader
+# youtube-dl
+
+# Command-line HTTP client
+# httpie
+
+# ============================================================================
+# Optional Packages (comment out if not needed)
+# ============================================================================
+
+# Add your custom pipx packages here

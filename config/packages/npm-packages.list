@@ -1,0 +1,63 @@
+# ============================================================================
+# npm Global Packages List
+# ============================================================================
+#
+# This file contains npm packages to be installed globally.
+# Lines starting with # are comments and will be ignored.
+# Empty lines are also ignored.
+#
+# Managed by: post-install/scripts/npm-global-packages.zsh
+# ============================================================================
+
+# ============================================================================
+# Language Servers
+# ============================================================================
+
+# Angular Language Server
+@angular/language-server
+
+# Bash Language Server
+bash-language-server
+
+# Dockerfile Language Server
+dockerfile-language-server-nodejs
+
+# Python Type Checking (Pyright)
+pyright
+
+# TypeScript Language Server
+typescript-language-server
+
+# Vim Language Server
+vim-language-server
+
+# Vue Language Server
+vls
+
+# HTML/CSS/JSON/ESLint Language Servers (extracted from VSCode)
+vscode-langservers-extracted
+
+# YAML Language Server
+yaml-language-server
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+
+# Anthropic Claude Code CLI
+@anthropic-ai/claude-code
+
+# Gulp task runner
+gulp
+
+# Neovim Node.js client
+neovim
+
+# Tree-sitter CLI for parsing
+tree-sitter-cli
+
+# ============================================================================
+# Optional Packages (comment out if not needed)
+# ============================================================================
+
+# Add your custom npm packages here

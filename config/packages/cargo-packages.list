@@ -1,0 +1,41 @@
+# ============================================================================
+# Cargo (Rust) Packages List
+# ============================================================================
+#
+# This file contains Rust packages to be installed via cargo.
+# Lines starting with # are comments and will be ignored.
+# Empty lines are also ignored.
+#
+# Managed by: post-install/scripts/cargo-packages.zsh
+# ============================================================================
+
+# ============================================================================
+# Terminal Utilities
+# ============================================================================
+
+# Terminal image viewer (supports images in the terminal)
+viu
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+
+# Uncomment these if you want additional Rust development tools:
+
+# Fast code searching
+# ripgrep
+
+# Fast file finding
+# fd-find
+
+# Better cat with syntax highlighting
+# bat
+
+# Modern ls replacement
+# exa
+
+# ============================================================================
+# Optional Packages (comment out if not needed)
+# ============================================================================
+
+# Add your custom cargo packages here
