@@ -218,7 +218,7 @@ function draw_separator() {
 }
 
 # ============================================================================
-# Progress Bar System (Optimized for minimal repaints)
+# Progress Bar System (Optimized for minimal repaints and zero flicker)
 # ============================================================================
 
 # Global progress tracking variables (can be overridden by scripts)
@@ -230,6 +230,7 @@ typeset -g -i _PROGRESS_LAST_PERCENTAGE=-1
 typeset -g -i _PROGRESS_LAST_FILLED=-1
 typeset -g -i _PROGRESS_LAST_CURRENT=-1
 typeset -g -i _PROGRESS_LAST_TOTAL=-1
+typeset -g _PROGRESS_LAST_RENDERED=""  # Cache complete rendered string
 
 # Pre-build character strings for performance (avoid tr subprocess overhead)
 typeset -g _PROGRESS_FILLED_CACHE=""
@@ -257,7 +258,7 @@ function _build_progress_chars() {
     fi
 }
 
-# Draw a beautiful progress bar (optimized version)
+# Draw a beautiful progress bar (optimized version, returns string for caching)
 function draw_progress_bar() {
     local current="${1:-$PROGRESS_CURRENT}"
     local total="${2:-$PROGRESS_TOTAL}"
@@ -290,7 +291,7 @@ function draw_progress_bar() {
         "$filled_str" "$empty_str" $percentage $current $total
 }
 
-# Update progress bar with current values (optimized repaint)
+# Update progress bar with current values (optimized repaint, zero flicker)
 function update_progress() {
     local current="$1"
     local total="${2:-$PROGRESS_TOTAL}"
@@ -311,15 +312,26 @@ function update_progress() {
         return 0
     fi
 
+    # Build the complete rendered string
+    local rendered_bar="$(draw_progress_bar $current $total $width)"
+
+    # Skip redraw if rendered output is identical (ultimate flicker prevention)
+    if [[ "$rendered_bar" == "$_PROGRESS_LAST_RENDERED" ]]; then
+        return 0
+    fi
+
     # Update cache
     _PROGRESS_LAST_PERCENTAGE=$percentage
     _PROGRESS_LAST_FILLED=$filled
     _PROGRESS_LAST_CURRENT=$current
     _PROGRESS_LAST_TOTAL=$total
+    _PROGRESS_LAST_RENDERED="$rendered_bar"
 
-    # Efficient redraw: carriage return + overwrite (no clear needed)
-    printf "\rProgress: "
-    draw_progress_bar $current $total
+    # Anti-flicker redraw technique (same as menu_tui.zsh):
+    # 1. Move to start of line
+    # 2. Clear entire line completely
+    # 3. Redraw on clean slate
+    printf "\r\033[2KProgress: %s" "$rendered_bar"
 }
 
 # Increment progress by one step (optimized)
@@ -337,6 +349,7 @@ function reset_progress_cache() {
     _PROGRESS_LAST_FILLED=-1
     _PROGRESS_LAST_CURRENT=-1
     _PROGRESS_LAST_TOTAL=-1
+    _PROGRESS_LAST_RENDERED=""
 }
 
 # ============================================================================
