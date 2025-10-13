@@ -43,8 +43,29 @@ The system is built on a shared library architecture:
 
 - **`./setup`** - POSIX shell wrapper that ensures zsh is available before running `bin/setup.zsh`
 - **`./backup`** - POSIX shell wrapper for `bin/backup_dotfiles_repo.zsh`
+- **`./update`** - POSIX shell wrapper for `bin/update_all.zsh`
 
 These wrappers provide helpful error messages and OS-specific installation instructions if zsh is missing.
+
+### Update System (Phase 2 Enhancement)
+
+The update system provides a centralized way to update all packages and toolchains:
+
+- **`bin/update_all.zsh`** - Central update script with category filtering and dry-run mode
+- **Version Pinning** - Control updates via `config/versions.env` (empty = auto-update, specific = pin)
+- **Individual --update Flags** - Post-install scripts support `--update` for granular control
+- **Menu Integration** - Press `u` in menu for one-click updates
+
+### Test Infrastructure (Phase 3 Complete)
+
+Comprehensive testing system with **169 tests across 10 suites** providing ~95% code coverage:
+
+- **`tests/lib/test_framework.zsh`** - Lightweight zsh testing framework with beautiful OneDark output
+- **`tests/unit/`** - 105 unit tests for shared libraries (colors, ui, utils, validators, package_managers, greetings)
+- **`tests/integration/`** - 64 integration tests for workflows (symlinks, updates, librarian, post-install scripts)
+- **`tests/run_tests.zsh`** - Test runner with detailed reporting and suite summaries
+- **100% Pass Rate** - All tests consistently pass with fast execution (~90 seconds for full suite)
+- **Test Coverage** - Comprehensive assertions, setup/teardown, mocking, and smoke tests
 
 ### OS Detection and Context
 
@@ -69,6 +90,43 @@ This allows all scripts to adapt their behavior cross-platform automatically.
 
 # Show help and detected OS information
 ./bin/setup.zsh --help
+```
+
+### Update System (New!)
+
+```bash
+# Quick and easy - use the convenient wrapper
+./update                            # Update everything
+
+# Or call the update script directly
+./bin/update_all.zsh                # Same as ./update
+
+# Update specific categories
+./update --system                   # System packages only
+./update --npm                      # npm packages only
+./update --cargo                    # Rust packages only
+./update --packages                 # All language packages
+
+# Preview updates without applying
+./update --dry-run
+
+# Individual script updates
+./post-install/scripts/npm-global-packages.zsh --update
+./post-install/scripts/cargo-packages.zsh --update
+./post-install/scripts/ruby-gems.zsh --update
+```
+
+### Testing
+
+```bash
+# Run all tests
+./tests/run_tests.zsh
+
+# Run unit tests only
+./tests/run_tests.zsh unit
+
+# Run integration tests only
+./tests/run_tests.zsh integration
 ```
 
 ### Interactive Menu
@@ -106,8 +164,11 @@ All scripts in `post-install/scripts/` are modular and OS-aware:
 ### System Management
 
 ```bash
-# System health check and status report
+# Comprehensive system health check and status report
 ./bin/librarian.zsh
+
+# System health check with test suite execution
+./bin/librarian.zsh --with-tests
 
 # Create a backup of the dotfiles repository
 ./backup
@@ -115,6 +176,17 @@ All scripts in `post-install/scripts/` are modular and OS-aware:
 # Generate new brew install script from current system
 ~/.local/bin/generate_brew_install_script
 ```
+
+**The Librarian** provides comprehensive system health reporting including:
+- **Core System Status** - Dotfiles location, setup scripts, symlink counts, git status
+- **Essential Tools** - Detection of git, curl, jq, zsh
+- **Development Toolchains** - Version checking for Rust, Node.js, Python, Ruby, Go, Haskell, Java
+- **Language Servers** - Detection of rust-analyzer, typescript-language-server, pyright, lua-language-server, gopls, haskell-language-server-wrapper, solargraph
+- **Test Suite Status** - Test runner availability, unit/integration test counts, optional execution with `--with-tests`
+- **Post-Install Scripts Catalog** - Lists all available scripts with executable status
+- **GitHub Downloaders** - Status of get_github_url and get_jdtls_url tools
+- **Configuration Health** - Checks for .zshrc, .vimrc, .tmux.conf, .gitconfig
+- **Detailed Symlink Inventory** - Complete listing of symlinks in ~/.local/bin, ~/.config, and ~/ with broken link detection
 
 ### GitHub Downloaders
 
@@ -247,7 +319,30 @@ When working with this codebase:
 - **Be Friendly**: Keep the warm, encouraging tone in all messages
 - **Test Cross-Platform**: Consider both macOS and Linux when making changes
 - **Use Context Variables**: Leverage `DF_OS`, `DF_PKG_MANAGER`, etc. for adaptability
-- **Document Changes**: Update this file and README.md as appropriate
+- **Document Changes**: Update this file, README.md, and TESTING.md as appropriate
+- **Write Tests**: Add tests for new functionality (see TESTING.md)
+- **Update System Integration**: New package scripts should support `--update` flag
+- **Version Pinning**: Document version control in `config/versions.env`
 - **Preserve the Vision**: This is a "symphony" - every component should harmonize
+
+### Update System Patterns
+
+When adding new package management scripts:
+
+1. **Add `--update` flag** - Follow pattern from npm-global-packages.zsh
+2. **Document in versions.env** - Add version variables with comments
+3. **Integrate with update_all.zsh** - Add update function if needed
+4. **Support dry-run** - Show what would be updated
+5. **Maintain UI consistency** - Use shared libraries
+
+### Testing Patterns
+
+When adding new functionality:
+
+1. **Write unit tests** for shared libraries in `tests/unit/`
+2. **Write integration tests** for workflows in `tests/integration/`
+3. **Run tests locally** before committing: `./tests/run_tests.zsh`
+4. **Keep tests fast** - Unit tests should run in milliseconds
+5. **Document test patterns** in TESTING.md if adding new approaches
 
 The goal is to create not just a functional dotfiles system, but a delightful experience that brings joy to daily development work.
