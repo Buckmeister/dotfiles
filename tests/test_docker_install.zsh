@@ -15,7 +15,8 @@
 # ============================================================================
 
 emulate -LR zsh
-setopt ERR_EXIT PIPE_FAIL
+# Note: Not using ERR_EXIT to allow proper error handling in test loops
+setopt PIPE_FAIL
 
 # ============================================================================
 # Configuration
@@ -248,10 +249,11 @@ run_tests() {
         for mode in "${TEST_MODES[@]}"; do
             ((total_tests++))
 
+            # Run test and capture result (don't let failures exit the loop)
             if test_installation "$distro" "$mode"; then
-                ((passed_tests++))
+                ((passed_tests++)) || true
             else
-                ((failed_tests++))
+                ((failed_tests++)) || true
                 failed_list+=("$distro ($mode)")
             fi
 
