@@ -158,41 +158,27 @@ test_installation() {
         echo \"INFO:Dotfiles location: ~/.config/dotfiles\"
     "
 
-    # Progress tracking
-    local current_phase=1
-    local total_phases=4
-    local test_passed=true
-
     print_info "Running test phases..."
     echo ""
 
-    # Run the test in a container and capture output
-    docker run --rm \
+    # Run the test in a container
+    print_info "Phase 1/4: Pulling container image..."
+
+    if docker run --rm \
         --name "$container_name" \
         -e DEBIAN_FRONTEND=noninteractive \
         "$distro" \
-        bash -c "$test_cmd" > "$output_file" 2>&1 &
-
-    local docker_pid=$!
-
-    # Monitor the output file in real-time
-    sleep 1  # Give docker a moment to start
-
-    # Show initial progress
-    print_info "Phase 1/4: Pulling container image..."
-
-    # Tail the output file and show progress
-    (
-        tail -f "$output_file" 2>/dev/null | while IFS= read -r line; do
+        bash -c "$test_cmd" 2>&1 | while IFS= read -r line; do
+            # Process output in real-time
             case "$line" in
                 PROGRESS:Installing*)
-                    current_phase=2
+                    print_info "Phase 2/4: Installing prerequisites..."
                     ;;
                 PROGRESS:Running*)
-                    current_phase=3
+                    print_info "Phase 3/4: Running web installer..."
                     ;;
                 PROGRESS:Verifying*)
-                    current_phase=4
+                    print_info "Phase 4/4: Verifying installation..."
                     ;;
                 SUCCESS:*)
                     local message="${line#SUCCESS:}"
@@ -201,41 +187,26 @@ test_installation() {
                 FAILED:*)
                     local message="${line#FAILED:}"
                     print_error "$message"
-                    test_passed=false
                     ;;
                 INFO:*)
                     local message="${line#INFO:}"
                     echo "   ${COLOR_COMMENT}$message${COLOR_RESET}"
                     ;;
                 PROGRESS:Complete)
-                    break
+                    # Test completed successfully
+                    ;;
+                *)
+                    # Optionally show other output (uncomment for debugging)
+                    # echo "$line"
                     ;;
             esac
-        done
-    ) &
-    local tail_pid=$!
-
-    # Wait for docker to complete
-    if wait $docker_pid; then
-        # Kill the tail process
-        kill $tail_pid 2>/dev/null || true
-        wait $tail_pid 2>/dev/null || true
-
+        done; then
         echo ""
         print_success "Test passed: $distro with $mode"
-        rm -f "$output_file"
         return 0
     else
-        # Kill the tail process
-        kill $tail_pid 2>/dev/null || true
-        wait $tail_pid 2>/dev/null || true
-
-        echo ""
         echo ""
         print_error "Test failed: $distro with $mode"
-        print_info "Last output:"
-        tail -20 "$output_file" 2>/dev/null || true
-        rm -f "$output_file"
         return 1
     fi
 }
@@ -245,7 +216,7 @@ test_installation() {
 # ============================================================================
 
 run_tests() {
-    draw_header "Docker Installation Testing" "Testing dotfiles on fresh containers"
+    draw_header "Docker Installation Testing" "Fresh container tests"
     echo ""
 
     # TL;DR Introduction
