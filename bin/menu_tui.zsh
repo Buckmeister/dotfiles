@@ -429,6 +429,46 @@ function update_selection_counter() {
     fi
 }
 
+# Flicker-free update for all actionable items after select/deselect all
+# This updates only the changed items in place, avoiding full screen clear
+function update_all_actionable_items_display() {
+    local menu_start_row=9  # First menu item is at row 10 (9 + 0 + 1)
+    local i
+
+    # Update all actionable items (not control items) in place
+    for ((i=1; i<=total_items; i++)); do
+        local title="${menu_items[$i]}"
+
+        # Skip control items except Select All button (which needs to change text)
+        if is_control_menu_item "$title"; then
+            # Only update the Select All button to show state change
+            if [[ "$title" == "$MENU_SELECT_ALL" ]]; then
+                local row=$((menu_start_row + i))
+                move_cursor $row 1
+                printf "\033[2K"  # Clear entire line
+
+                # Check if this is the current item for highlighting
+                local is_current=0
+                [[ $i -eq $((current_item + 1)) ]] && is_current=1
+                draw_menu_item $i $is_current
+            fi
+        else
+            # Update actionable items to show selection change
+            local row=$((menu_start_row + i))
+            move_cursor $row 1
+            printf "\033[2K"  # Clear entire line
+
+            # Check if this is the current item for highlighting
+            local is_current=0
+            [[ $i -eq $((current_item + 1)) ]] && is_current=1
+            draw_menu_item $i $is_current
+        fi
+    done
+
+    # Update the selection counter
+    update_selection_counter
+}
+
 # ============================================================================
 # User Input and Navigation Handling
 # ============================================================================
@@ -456,9 +496,9 @@ function handle_menu_navigation() {
             case "$current_title" in
                 "$MENU_SELECT_ALL")
                     toggle_all_actionable_items
-                    # Force a complete redraw since many items changed
-                    draw_complete_menu
-                    return 5  # Signal that full redraw already done
+                    # Flicker-free update of all items (anti-flicker technique)
+                    update_all_actionable_items_display
+                    return 5  # Signal that update already done
                     ;;
                 "$MENU_EXECUTE")
                     return 2  # Signal to execute selected items
@@ -510,9 +550,9 @@ function handle_menu_navigation() {
                     ;;
                 "$MENU_SELECT_ALL")
                     toggle_all_actionable_items
-                    # Force a complete redraw since many items changed
-                    draw_complete_menu
-                    return 5  # Signal that full redraw already done
+                    # Flicker-free update of all items (anti-flicker technique)
+                    update_all_actionable_items_display
+                    return 5  # Signal that update already done
                     ;;
                 *)
                     # For regular items, execute immediately
@@ -539,9 +579,9 @@ function handle_menu_navigation() {
         # a - toggle select/deselect all (global shortcut)
         a|A)
             toggle_all_actionable_items
-            # Force a complete redraw since many items changed
-            draw_complete_menu
-            return 5  # Signal that full redraw already done
+            # Flicker-free update of all items (anti-flicker technique)
+            update_all_actionable_items_display
+            return 5  # Signal that update already done
             ;;
         # x - execute selected items (global shortcut)
         x|X)
