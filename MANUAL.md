@@ -1343,23 +1343,79 @@ shorten_path ~/Development/projects/myapp
 
 **Location:** `~/.local/bin/generate_brew_install_script`
 
-Generates a shell script to reinstall all currently installed Homebrew packages.
+Generates a **Brewfile** from your current Homebrew installation using the official `brew bundle dump` command. A Brewfile is Homebrew's recommended way to backup and restore packages across systems.
+
+**Features:**
+- Captures all **taps** (third-party Homebrew repositories)
+- Captures all **formulae** (CLI tools)
+- Captures all **casks** (GUI applications)
+- Captures **Mac App Store apps** (if `mas` is installed)
+- Uses official `brew bundle` commands for idempotent operations
+- Beautiful OneDark-themed output with progress messages
+- Shows statistics (tap/formula/cask/mas counts)
 
 **Usage:**
 ```bash
+# Generate Brewfile in default location
 generate_brew_install_script
+
+# Generate in custom location
+generate_brew_install_script -o ~/Desktop/Brewfile
+
+# Force overwrite existing file
+generate_brew_install_script -f
 ```
 
-**Output:**
-Creates `~/.local/share/generated_brew_install.sh` with:
-- All installed formulae
-- All installed casks
-- Installation commands
+**Options:**
+- `-o, --output PATH` - Output file path (default: `~/.local/share/Brewfile`)
+- `-f, --force` - Overwrite existing Brewfile without prompting
+- `-h, --help` - Show help message with usage examples
 
-**Use case:**
-- System migration
-- Backup current package list
-- Share your Homebrew setup
+**Output:**
+Default location: `~/.local/share/Brewfile`
+
+Example Brewfile content:
+```ruby
+tap "adoptopenjdk/openjdk"
+tap "microsoft/git"
+brew "bat"
+brew "neovim"
+brew "ripgrep"
+cask "docker"
+cask "firefox"
+mas "Xcode", id: 497799835
+```
+
+**Using the Brewfile:**
+
+Install all packages from Brewfile:
+```bash
+brew bundle install --file=~/.local/share/Brewfile
+```
+
+Preview what would be installed (dry run):
+```bash
+brew bundle install --file=~/.local/share/Brewfile --dry-run
+```
+
+Cleanup packages not in Brewfile:
+```bash
+brew bundle cleanup --file=~/.local/share/Brewfile
+```
+
+**Use cases:**
+- System migration (backup on old Mac, restore on new Mac)
+- Share your exact Homebrew setup with others
+- Version control your Homebrew packages
+- Disaster recovery (reinstall everything after fresh macOS install)
+- Team standardization (everyone installs same tools)
+
+**Requirements:**
+- Homebrew installed
+- `brew bundle` command (bundled with modern Homebrew)
+- Optional: `mas` (Mac App Store CLI) for App Store app backup
+
+**Note:** This script replaces the old `generate_brew_install_script.zsh` which generated custom shell scripts. The Brewfile approach is more robust, officially supported, and automatically handles taps (which the old script couldn't capture).
 
 ---
 
