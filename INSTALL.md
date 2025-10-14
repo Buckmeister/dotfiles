@@ -4,10 +4,14 @@
 
 ### macOS / Linux / WSL
 
-For Unix-like systems, simply run:
-
+**Interactive Menu (Recommended):**
 ```bash
-curl -fsSL https://USERNAME.github.io/dfinstaller | sh
+curl -fsSL https://USERNAME.github.io/dfsetup | sh
+```
+
+**Automatic (Install Everything):**
+```bash
+curl -fsSL https://USERNAME.github.io/dfauto | sh
 ```
 
 ### Windows (PowerShell)
@@ -80,7 +84,8 @@ The bootstrap script:
 - Asks for confirmation before installing dependencies
 - Can be reviewed before execution:
   ```bash
-  curl -fsSL https://USERNAME.github.io/dfinstaller | less
+  curl -fsSL https://USERNAME.github.io/dfsetup | less
+  curl -fsSL https://USERNAME.github.io/dfauto | less
   ```
 
 ## 📦 Publishing Your Fork
@@ -88,7 +93,7 @@ The bootstrap script:
 To enable one-line installation for your fork:
 
 1. **Fork this repository** on GitHub
-2. **Update the repository URL** in `dfinstaller`:
+2. **Update the repository URL** in `dfsetup` and `dfauto`:
    ```bash
    DOTFILES_REPO="https://github.com/YOUR_USERNAME/dotfiles.git"
    ```
@@ -99,18 +104,24 @@ To enable one-line installation for your fork:
    - Save
 4. **Copy installation scripts** to docs folder:
    ```bash
-   cp dfinstaller docs/dfinstaller
+   cp dfsetup docs/dfsetup
+   cp dfauto docs/dfauto
    cp install.ps1 docs/install.ps1
    ```
 5. **Commit and push** the changes
-6. **Share your installation command**:
+6. **Share your installation commands**:
    ```bash
-   curl -fsSL https://YOUR_USERNAME.github.io/dfinstaller | sh
+   # Interactive
+   curl -fsSL https://YOUR_USERNAME.github.io/dfsetup | sh
+
+   # Automatic
+   curl -fsSL https://YOUR_USERNAME.github.io/dfauto | sh
    ```
 
 The scripts will be automatically available via GitHub Pages at:
 ```
-https://YOUR_USERNAME.github.io/dfinstaller
+https://YOUR_USERNAME.github.io/dfsetup
+https://YOUR_USERNAME.github.io/dfauto
 https://YOUR_USERNAME.github.io/install.ps1
 ```
 
@@ -147,16 +158,16 @@ After installation, customize your setup:
 curl -I https://USERNAME.github.io
 
 # Try with verbose output
-curl -fsSL -v https://USERNAME.github.io/dfinstaller | sh
+curl -fsSL -v https://USERNAME.github.io/dfsetup | sh
 ```
 
 ### Permission denied
 ```bash
-# Ensure the script is executable
-chmod +x ~/.config/dotfiles/dfinstaller
+# Ensure the scripts are executable
+chmod +x ~/.config/dotfiles/dfsetup ~/.config/dotfiles/dfauto
 
 # Run with explicit shell
-sh ~/.config/dotfiles/dfinstaller
+sh ~/.config/dotfiles/dfsetup
 ```
 
 ### Git clone fails
@@ -164,7 +175,7 @@ sh ~/.config/dotfiles/dfinstaller
 # Check SSH keys if using SSH URL
 ssh -T git@github.com
 
-# Or use HTTPS URL in dfinstaller
+# Or use HTTPS URL in dfsetup/dfauto
 DOTFILES_REPO="https://github.com/USERNAME/dotfiles.git"
 ```
 

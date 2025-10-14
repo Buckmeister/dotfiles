@@ -1,22 +1,20 @@
 #!/bin/sh
 
 # ============================================================================
-# Dotfiles Bootstrap Installer
+# Dotfiles Interactive Setup
 # ============================================================================
 #
-# One-line installation for a fresh machine:
-#
-#   Interactive (launches menu):
-#     curl -fsSL https://buckmeister.github.io/dfinstaller | sh
-#
-#   Automatic (installs everything):
-#     curl -fsSL https://buckmeister.github.io/dfinstaller | sh -s -- --auto
+# One-line installation for a fresh machine (interactive menu):
+#   curl -fsSL https://buckmeister.github.io/dfsetup | sh
 #
 # This script:
 # - Detects OS (macOS, Linux, WSL)
 # - Checks for required tools (git, zsh)
 # - Clones the dotfiles repository
-# - Runs setup (interactive menu or automatic with --auto flag)
+# - Launches interactive menu to select what to install
+#
+# For automatic installation, use dfauto instead:
+#   curl -fsSL https://buckmeister.github.io/dfauto | sh
 #
 # POSIX-compliant for maximum compatibility
 # ============================================================================
@@ -30,9 +28,6 @@ set -e  # Exit on error
 DOTFILES_REPO="https://github.com/Buckmeister/dotfiles.git"
 DOTFILES_DIR="$HOME/.config/dotfiles"
 SETUP_SCRIPT="$DOTFILES_DIR/bin/setup.zsh"
-
-# Installation mode (interactive by default, --auto for automatic)
-INSTALL_MODE="interactive"
 
 # ============================================================================
 # Colors (OneDark theme, POSIX-compatible)
@@ -259,41 +254,6 @@ install_zsh() {
 }
 
 # ============================================================================
-# Argument Parsing
-# ============================================================================
-
-# Parse command-line arguments
-for arg in "$@"; do
-    case "$arg" in
-        --auto)
-            INSTALL_MODE="auto"
-            shift
-            ;;
-        --help)
-            cat <<EOF
-Dotfiles Bootstrap Installer
-
-Usage: $0 [OPTIONS]
-
-Options:
-  --auto    Automatic installation with all modules (non-interactive)
-  --help    Show this help message
-
-Default: Interactive installation with menu system
-
-Examples:
-  # Interactive installation (launches menu)
-  curl -fsSL https://buckmeister.github.io/dfinstaller | sh
-
-  # Automatic installation (installs everything)
-  curl -fsSL https://buckmeister.github.io/dfinstaller | sh -s -- --auto
-EOF
-            exit 0
-            ;;
-    esac
-done
-
-# ============================================================================
 # Main Installation
 # ============================================================================
 
@@ -353,23 +313,14 @@ main() {
     cd "$DOTFILES_DIR"
 
     if [ -f "$SETUP_SCRIPT" ]; then
-        print_info "Launching setup script..."
+        print_info "Launching interactive menu..."
         echo ""
 
-        # Determine setup arguments based on installation mode
-        if [ "$INSTALL_MODE" = "auto" ]; then
-            print_info "Running automatic installation with all modules..."
-            SETUP_ARGS="--all-modules"
-        else
-            print_info "Launching interactive menu..."
-            SETUP_ARGS=""
-        fi
-
-        # Run setup
+        # Run setup in interactive mode (no arguments = menu)
         if check_command zsh; then
-            zsh "$SETUP_SCRIPT" $SETUP_ARGS
+            zsh "$SETUP_SCRIPT"
         else
-            sh "$SETUP_SCRIPT" $SETUP_ARGS
+            sh "$SETUP_SCRIPT"
         fi
     else
         print_error "Setup script not found: $SETUP_SCRIPT"

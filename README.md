@@ -24,9 +24,14 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 
 ### One-Line Installation (Recommended for Fresh Machines)
 
-**macOS / Linux / WSL:**
+**macOS / Linux / WSL (Interactive Menu):**
 ```bash
-curl -fsSL https://buckmeister.github.io/dfinstaller | sh
+curl -fsSL https://buckmeister.github.io/dfsetup | sh
+```
+
+**Or for automatic installation (everything):**
+```bash
+curl -fsSL https://buckmeister.github.io/dfauto | sh
 ```
 
 **Windows (PowerShell):**
