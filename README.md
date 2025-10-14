@@ -26,12 +26,12 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 
 **macOS / Linux / WSL:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh
+curl -fsSL https://buckmeister.github.io/dfinstaller | sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.ps1 | iex
+irm https://buckmeister.github.io/install.ps1 | iex
 ```
 
 That's it! This single command will:
@@ -40,7 +40,7 @@ That's it! This single command will:
 - ✅ Run the complete setup automatically
 - ✅ Leave you with a beautifully configured environment
 
-**For memorable URLs:** Visit `https://username.github.io/dotfiles` (after enabling GitHub Pages)
+**Memorable URL:** Visit [buckmeister.github.io/dotfiles](https://buckmeister.github.io/dotfiles/) for easy installation commands
 
 See [INSTALL.md](INSTALL.md) for detailed installation options and publishing your own fork.
 

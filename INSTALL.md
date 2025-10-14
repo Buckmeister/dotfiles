@@ -7,7 +7,7 @@
 For Unix-like systems, simply run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh | sh
+curl -fsSL https://USERNAME.github.io/dfinstaller | sh
 ```
 
 ### Windows (PowerShell)
@@ -15,7 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh |
 For Windows with PowerShell (Run as Administrator):
 
 ```powershell
-irm https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.ps1 | iex
+irm https://USERNAME.github.io/install.ps1 | iex
 ```
 
 **Note:** WSL (Windows Subsystem for Linux) is recommended for the best experience. The PowerShell installer can set up WSL for you.
@@ -80,7 +80,7 @@ The bootstrap script:
 - Asks for confirmation before installing dependencies
 - Can be reviewed before execution:
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh | less
+  curl -fsSL https://USERNAME.github.io/dfinstaller | less
   ```
 
 ## 📦 Publishing Your Fork
@@ -88,19 +88,30 @@ The bootstrap script:
 To enable one-line installation for your fork:
 
 1. **Fork this repository** on GitHub
-2. **Update the repository URL** in `install.sh`:
+2. **Update the repository URL** in `dfinstaller`:
    ```bash
    DOTFILES_REPO="https://github.com/YOUR_USERNAME/dotfiles.git"
    ```
-3. **Commit and push** the changes
-4. **Share your installation command**:
+3. **Enable GitHub Pages**:
+   - Go to Settings → Pages
+   - Source: Deploy from a branch
+   - Branch: main, folder: /docs
+   - Save
+4. **Copy installation scripts** to docs folder:
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/install.sh | sh
+   cp dfinstaller docs/dfinstaller
+   cp install.ps1 docs/install.ps1
+   ```
+5. **Commit and push** the changes
+6. **Share your installation command**:
+   ```bash
+   curl -fsSL https://YOUR_USERNAME.github.io/dfinstaller | sh
    ```
 
-The script will be automatically available via GitHub's raw content CDN at:
+The scripts will be automatically available via GitHub Pages at:
 ```
-https://raw.githubusercontent.com/YOUR_USERNAME/dotfiles/main/install.sh
+https://YOUR_USERNAME.github.io/dfinstaller
+https://YOUR_USERNAME.github.io/install.ps1
 ```
 
 No external hosting needed! 🎉
@@ -132,20 +143,20 @@ After installation, customize your setup:
 
 ### Script fails to download
 ```bash
-# Verify GitHub connectivity
-curl -I https://raw.githubusercontent.com
+# Verify GitHub Pages connectivity
+curl -I https://USERNAME.github.io
 
 # Try with verbose output
-curl -fsSL -v https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh | sh
+curl -fsSL -v https://USERNAME.github.io/dfinstaller | sh
 ```
 
 ### Permission denied
 ```bash
 # Ensure the script is executable
-chmod +x ~/.config/dotfiles/install.sh
+chmod +x ~/.config/dotfiles/dfinstaller
 
 # Run with explicit shell
-sh ~/.config/dotfiles/install.sh
+sh ~/.config/dotfiles/dfinstaller
 ```
 
 ### Git clone fails
@@ -153,7 +164,7 @@ sh ~/.config/dotfiles/install.sh
 # Check SSH keys if using SSH URL
 ssh -T git@github.com
 
-# Or use HTTPS URL in install.sh
+# Or use HTTPS URL in dfinstaller
 DOTFILES_REPO="https://github.com/USERNAME/dotfiles.git"
 ```
 

@@ -7,10 +7,10 @@
 # One-line installation for a fresh machine:
 #
 #   Interactive (launches menu):
-#     curl -fsSL https://buckmeister.github.io/install.sh | sh
+#     curl -fsSL https://buckmeister.github.io/dfinstaller | sh
 #
 #   Automatic (installs everything):
-#     curl -fsSL https://buckmeister.github.io/install.sh | sh -s -- --auto
+#     curl -fsSL https://buckmeister.github.io/dfinstaller | sh -s -- --auto
 #
 # This script:
 # - Detects OS (macOS, Linux, WSL)
@@ -283,10 +283,10 @@ Default: Interactive installation with menu system
 
 Examples:
   # Interactive installation (launches menu)
-  curl -fsSL https://buckmeister.github.io/install.sh | sh
+  curl -fsSL https://buckmeister.github.io/dfinstaller | sh
 
   # Automatic installation (installs everything)
-  curl -fsSL https://buckmeister.github.io/install.sh | sh -s -- --auto
+  curl -fsSL https://buckmeister.github.io/dfinstaller | sh -s -- --auto
 EOF
             exit 0
             ;;

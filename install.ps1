@@ -244,7 +244,7 @@ function Invoke-DotfilesInstallation {
         Write-Host ""
 
         # Run the bash installer in WSL
-        $installCmd = "curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh"
+        $installCmd = "curl -fsSL https://buckmeister.github.io/dfinstaller | sh"
 
         try {
             wsl bash -c $installCmd
