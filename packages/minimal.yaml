@@ -1,0 +1,339 @@
+version: "1.0"
+
+metadata:
+  name: "Minimal Development Environment"
+  description: "Curated essential packages from post-install scripts"
+  author: "Thomas"
+  generated_from: "config/packages/*.list files"
+  last_updated: "2025-10-14"
+  purpose: "Fresh system setup - minimal, production-ready development environment"
+
+settings:
+  skip_installed: true
+  auto_confirm: false
+
+# ============================================================================
+# Language Servers (npm)
+# ============================================================================
+
+packages:
+  - id: angular-language-server
+    name: "Angular Language Server"
+    description: "Language server for Angular"
+    category: language-server
+    priority: optional
+    install:
+      npm: "@angular/language-server"
+
+  - id: bash-language-server
+    name: "Bash Language Server"
+    description: "Language server for Bash"
+    category: language-server
+    priority: recommended
+    install:
+      npm: "bash-language-server"
+
+  - id: dockerfile-language-server
+    name: "Dockerfile Language Server"
+    description: "Language server for Dockerfile"
+    category: language-server
+    priority: recommended
+    install:
+      npm: "dockerfile-language-server-nodejs"
+
+  - id: pyright
+    name: "Pyright"
+    description: "Python type checker and language server"
+    category: language-server
+    priority: recommended
+    install:
+      npm: "pyright"
+
+  - id: typescript-language-server
+    name: "TypeScript Language Server"
+    description: "Language server for TypeScript and JavaScript"
+    category: language-server
+    priority: required
+    install:
+      npm: "typescript-language-server"
+
+  - id: vim-language-server
+    name: "Vim Language Server"
+    description: "Language server for Vim script"
+    category: language-server
+    priority: optional
+    install:
+      npm: "vim-language-server"
+
+  - id: vls
+    name: "Vue Language Server"
+    description: "Language server for Vue.js"
+    category: language-server
+    priority: optional
+    install:
+      npm: "vls"
+
+  - id: vscode-langservers-extracted
+    name: "VSCode Language Servers"
+    description: "HTML/CSS/JSON/ESLint language servers from VSCode"
+    category: language-server
+    priority: recommended
+    install:
+      npm: "vscode-langservers-extracted"
+
+  - id: yaml-language-server
+    name: "YAML Language Server"
+    description: "Language server for YAML"
+    category: language-server
+    priority: recommended
+    install:
+      npm: "yaml-language-server"
+
+# ============================================================================
+# Development Tools (npm)
+# ============================================================================
+
+  - id: claude-code
+    name: "Claude Code CLI"
+    description: "Anthropic's AI-powered code assistant"
+    category: ai-tools
+    priority: optional
+    install:
+      npm: "@anthropic-ai/claude-code"
+
+  - id: gulp
+    name: "Gulp"
+    description: "JavaScript task runner"
+    category: build-tools
+    priority: optional
+    install:
+      npm: "gulp"
+
+  - id: neovim-node-client
+    name: "Neovim Node.js Client"
+    description: "Node.js client for Neovim"
+    category: editor
+    priority: recommended
+    install:
+      npm: "neovim"
+
+  - id: tree-sitter-cli
+    name: "Tree-sitter CLI"
+    description: "Parser generator tool for syntax highlighting"
+    category: development
+    priority: recommended
+    install:
+      npm: "tree-sitter-cli"
+
+# ============================================================================
+# Rust Tools (cargo)
+# ============================================================================
+
+  - id: bat
+    name: "bat"
+    description: "A cat clone with syntax highlighting"
+    category: cli-tools
+    priority: recommended
+    install:
+      cargo: "bat"
+      brew: "bat"
+      apt: "bat"
+
+  - id: ripgrep
+    name: "ripgrep"
+    description: "Fast recursive grep alternative"
+    category: search
+    priority: required
+    install:
+      cargo: "ripgrep"
+      brew: "ripgrep"
+      apt: "ripgrep"
+
+  - id: fd-find
+    name: "fd"
+    description: "Simple, fast alternative to find"
+    category: search
+    priority: recommended
+    install:
+      cargo: "fd-find"
+      brew: "fd"
+      apt: "fd-find"
+
+  - id: exa
+    name: "exa"
+    description: "Modern replacement for ls"
+    category: cli-tools
+    priority: optional
+    install:
+      cargo: "exa"
+      brew: "exa"
+      apt: "exa"
+
+  - id: tokei
+    name: "tokei"
+    description: "Fast code statistics tool"
+    category: development
+    priority: optional
+    install:
+      cargo: "tokei"
+      brew: "tokei"
+
+  - id: hyperfine
+    name: "hyperfine"
+    description: "Command-line benchmarking tool"
+    category: development
+    priority: optional
+    install:
+      cargo: "hyperfine"
+      brew: "hyperfine"
+
+# ============================================================================
+# Python Tools (pipx)
+# ============================================================================
+
+  - id: pipx-black
+    name: "Black"
+    description: "Python code formatter"
+    category: formatter
+    priority: recommended
+    install:
+      pipx: "black"
+
+  - id: pipx-flake8
+    name: "Flake8"
+    description: "Python linter"
+    category: linter
+    priority: recommended
+    install:
+      pipx: "flake8"
+
+  - id: pipx-isort
+    name: "isort"
+    description: "Python import sorter"
+    category: formatter
+    priority: optional
+    install:
+      pipx: "isort"
+
+  - id: pipx-mypy
+    name: "mypy"
+    description: "Static type checker for Python"
+    category: linter
+    priority: recommended
+    install:
+      pipx: "mypy"
+
+  - id: pipx-poetry
+    name: "Poetry"
+    description: "Python dependency management"
+    category: package-manager
+    priority: optional
+    install:
+      pipx: "poetry"
+
+  - id: pipx-pylint
+    name: "Pylint"
+    description: "Python code analyzer"
+    category: linter
+    priority: optional
+    install:
+      pipx: "pylint"
+
+# ============================================================================
+# Python Libraries (pip)
+# ============================================================================
+
+  - id: ipython
+    name: "IPython"
+    description: "Enhanced interactive Python shell"
+    category: development
+    priority: recommended
+    install:
+      pip: "ipython"
+
+  - id: jupyter
+    name: "Jupyter"
+    description: "Interactive notebook environment"
+    category: development
+    priority: optional
+    install:
+      pip: "jupyter"
+
+  - id: numpy
+    name: "NumPy"
+    description: "Numerical computing library"
+    category: library
+    priority: optional
+    install:
+      pip: "numpy"
+
+  - id: pandas
+    name: "Pandas"
+    description: "Data analysis library"
+    category: library
+    priority: optional
+    install:
+      pip: "pandas"
+
+  - id: requests
+    name: "Requests"
+    description: "HTTP library for Python"
+    category: library
+    priority: recommended
+    install:
+      pip: "requests"
+
+# ============================================================================
+# Ruby Gems
+# ============================================================================
+
+  - id: solargraph
+    name: "Solargraph"
+    description: "Ruby language server"
+    category: language-server
+    priority: recommended
+    install:
+      gem: "solargraph"
+
+  - id: rubocop
+    name: "RuboCop"
+    description: "Ruby linter and formatter"
+    category: linter
+    priority: optional
+    install:
+      gem: "rubocop"
+
+  - id: bundler
+    name: "Bundler"
+    description: "Ruby dependency manager"
+    category: package-manager
+    priority: required
+    install:
+      gem: "bundler"
+
+  - id: pry
+    name: "Pry"
+    description: "Interactive Ruby shell"
+    category: development
+    priority: optional
+    install:
+      gem: "pry"
+
+# ============================================================================
+# Notes
+# ============================================================================
+#
+# This manifest represents the MINIMAL, curated set of packages from the
+# post-install scripts. For a COMPLETE system snapshot, use:
+#   generate_package_manifest -o full-system.yaml
+#
+# Usage:
+#   # Install minimal environment on fresh system
+#   install_from_manifest -i packages/minimal.yaml
+#
+#   # Install only required packages
+#   install_from_manifest -i packages/minimal.yaml --required-only
+#
+#   # Install only language servers
+#   install_from_manifest -i packages/minimal.yaml --category language-server
+#

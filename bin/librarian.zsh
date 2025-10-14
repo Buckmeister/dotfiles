@@ -449,6 +449,121 @@ else
 fi
 
 # ============================================================================
+# Package Management Status
+# ============================================================================
+
+echo
+echo "📦 Package Management System:"
+
+# Check for package management scripts in ~/.local/bin
+pkg_scripts=(
+    "generate_package_manifest"
+    "install_from_manifest"
+    "sync_packages"
+)
+
+pkg_found=0
+pkg_executable=0
+
+for script in "${pkg_scripts[@]}"; do
+    script_path="$HOME/.local/bin/$script"
+    if [[ -L "$script_path" ]] && [[ -e "$script_path" ]]; then
+        if [[ -x "$script_path" ]]; then
+            print_success "   $script: ready"
+            pkg_found=$((pkg_found + 1))
+            pkg_executable=$((pkg_executable + 1))
+        else
+            print_warning "   $script: found but not executable"
+            pkg_found=$((pkg_found + 1))
+        fi
+    elif [[ -L "$script_path" ]]; then
+        print_error "   $script: broken symlink"
+    else
+        print_info "   $script: not installed"
+    fi
+done
+
+# If all scripts are ready, check for package manifest
+if [[ $pkg_executable -eq 3 ]]; then
+    echo
+    print_info "   📊 Package Manifest Status:"
+
+    # Look for package manifest in common locations
+    manifest_locations=(
+        "$dotfiles_root/packages/manifest.yaml"
+        "$HOME/.config/packages.yaml"
+        "$HOME/package-manifest.yaml"
+    )
+
+    manifest_found=false
+    for manifest_path in "${manifest_locations[@]}"; do
+        if [[ -f "$manifest_path" ]]; then
+            manifest_found=true
+
+            # Get file size and modification time
+            if command_exists stat; then
+                if [[ "$DF_OS" == "macos" ]]; then
+                    file_size=$(stat -f%z "$manifest_path" 2>/dev/null)
+                    file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$manifest_path" 2>/dev/null)
+                else
+                    file_size=$(stat -c%s "$manifest_path" 2>/dev/null)
+                    file_date=$(stat -c "%y" "$manifest_path" 2>/dev/null | cut -d'.' -f1)
+                fi
+                file_size_kb=$((file_size / 1024))
+                echo "      • Manifest: $(basename "$manifest_path") (${file_size_kb}KB)"
+                echo "      • Last updated: $file_date"
+            else
+                echo "      • Manifest: $(basename "$manifest_path")"
+            fi
+
+            # Parse YAML to count packages by type
+            # This is a simple grep-based approach for basic stats
+            total_packages=$(grep -c '^\s*-\s*id:' "$manifest_path" 2>/dev/null || echo "0")
+            brew_packages=$(grep -c '^\s*brew:' "$manifest_path" 2>/dev/null || echo "0")
+            apt_packages=$(grep -c '^\s*apt:' "$manifest_path" 2>/dev/null || echo "0")
+            cargo_packages=$(grep -c '^\s*cargo:' "$manifest_path" 2>/dev/null || echo "0")
+            npm_packages=$(grep -c '^\s*npm:' "$manifest_path" 2>/dev/null || echo "0")
+
+            echo "      • Total packages: $total_packages"
+            if [[ $brew_packages -gt 0 ]]; then
+                echo "        └─ Homebrew: $brew_packages"
+            fi
+            if [[ $apt_packages -gt 0 ]]; then
+                echo "        └─ APT: $apt_packages"
+            fi
+            if [[ $cargo_packages -gt 0 ]]; then
+                echo "        └─ Cargo: $cargo_packages"
+            fi
+            if [[ $npm_packages -gt 0 ]]; then
+                echo "        └─ NPM: $npm_packages"
+            fi
+
+            break
+        fi
+    done
+
+    if ! $manifest_found; then
+        echo "      • No manifest found"
+        echo "      💡 Generate one with: generate_package_manifest"
+    fi
+
+    echo
+    print_info "   💡 Package Management Commands:"
+    echo "      • Generate manifest:   generate_package_manifest"
+    echo "      • Install packages:    install_from_manifest manifest.yaml"
+    echo "      • Sync system state:   sync_packages"
+    echo "      • See MANUAL.md for detailed documentation"
+elif [[ $pkg_found -eq 0 ]]; then
+    echo
+    print_info "   💡 Package management system not installed"
+    echo "      Run ./bin/link_dotfiles.zsh to create symlinks"
+elif [[ $pkg_found -gt 0 ]] && [[ $pkg_executable -lt 3 ]]; then
+    echo
+    print_warning "   Some package management scripts need attention"
+    echo "      Run ./bin/link_dotfiles.zsh to fix symlinks"
+fi
+
+# ============================================================================
 # Configuration Health
 # ============================================================================
 
@@ -593,6 +708,7 @@ ${UI_ACCENT_COLOR}HEALTH REPORT INCLUDES:${COLOR_RESET}
     🧪 Test Suite             - Test availability and optional execution
     📜 Post-Install Scripts   - Available scripts catalog
     🐙 GitHub Downloaders     - Custom GitHub tool status
+    📦 Package Management     - Universal package system status and manifest info
     ⚙️  Configuration Health  - Config file existence checks
     🔗 Symlink Inventory      - Complete symlink listing with broken link detection
 

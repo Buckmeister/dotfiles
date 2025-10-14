@@ -1493,6 +1493,334 @@ Java Development Tools Language Server launcher.
 
 ---
 
+### Package Management
+
+The dotfiles include a **universal package management system** that enables defining packages once and installing them across any platform (macOS, Linux, Windows).
+
+#### Overview
+
+Instead of maintaining separate package lists for each platform (Brewfile for macOS, apt-packages.txt for Linux, etc.), the universal system uses a **single YAML manifest** that works everywhere.
+
+**Key Benefits:**
+- **Write Once, Run Anywhere** - Define packages once, install on any OS
+- **Intelligent Mapping** - Automatic translation to platform-specific package names
+- **Flexible Priorities** - Filter by required, recommended, or optional packages
+- **Rich Metadata** - Descriptions, categories, dependencies built into manifest
+- **Multi-Package Manager** - Supports brew, apt, cargo, npm, pipx, gem, and more
+
+**Documentation:**
+- **[packages/README.md](packages/README.md)** - Complete overview and workflow guide
+- **[packages/SCHEMA.md](packages/SCHEMA.md)** - Full YAML schema reference
+- **[packages/base.yaml](packages/base.yaml)** - Curated manifest with 50+ packages
+
+---
+
+#### generate_package_manifest
+
+**Location:** `~/.local/bin/generate_package_manifest`
+
+Scans your system and generates a universal YAML manifest from currently installed packages.
+
+**Usage:**
+```bash
+# Generate manifest in default location
+generate_package_manifest
+
+# Generate in custom location
+generate_package_manifest -o ~/my-packages.yaml
+
+# Merge with existing manifest (preserve metadata)
+generate_package_manifest --merge
+
+# Interactive mode (prompt for package details)
+generate_package_manifest --interactive
+```
+
+**Options:**
+- `-o, --output PATH` - Output file (default: `~/.local/share/dotfiles/packages.yaml`)
+- `-f, --force` - Overwrite existing manifest without prompting
+- `-m, --merge` - Merge with existing manifest (smart update)
+- `-i, --interactive` - Prompt for package metadata
+- `-c, --category CAT` - Only export specific category
+- `-h, --help` - Show help message
+
+**Package Managers Scanned:**
+- **Homebrew** - Formulae and casks (macOS/Linux)
+- **APT** - Manually installed packages (Ubuntu/Debian)
+- **Cargo** - Rust packages
+- **NPM** - Node.js global packages
+- **Pipx** - Python applications
+- **Gem** - Ruby gems
+
+**Example Output:**
+```yaml
+version: "1.0"
+
+metadata:
+  name: "Thomas's Development Environment"
+  description: "Auto-generated package manifest"
+  author: "Thomas"
+  last_updated: "2025-10-14"
+
+packages:
+  - id: ripgrep
+    install:
+      brew: ripgrep
+      apt: ripgrep
+
+  - id: neovim
+    install:
+      brew: neovim
+      apt: neovim
+      choco: neovim
+```
+
+**Use Cases:**
+- Export your current setup before system migration
+- Share your package list with team members
+- Version control your development environment
+- Create a backup for disaster recovery
+
+---
+
+#### install_from_manifest
+
+**Location:** `~/.local/bin/install_from_manifest`
+
+Installs packages from a universal YAML manifest on any platform.
+
+**Usage:**
+```bash
+# Install all required + recommended packages
+install_from_manifest
+
+# Install only required packages
+install_from_manifest --required-only
+
+# Install specific categories
+install_from_manifest --category editor,git,search
+
+# Dry run (preview what would be installed)
+install_from_manifest --dry-run
+
+# Use custom manifest
+install_from_manifest -i ~/my-packages.yaml
+```
+
+**Options:**
+- `-i, --input PATH` - Input manifest file (default: looks in standard locations)
+- `--dry-run` - Preview what would be installed without actually installing
+- `--category CATEGORIES` - Comma-separated list of categories to install
+- `--required-only` - Install only packages marked as 'required'
+- `--skip-optional` - Skip packages marked as 'optional'
+- `-h, --help` - Show help message
+
+**Features:**
+- **Smart Detection** - Automatically skips already-installed packages
+- **Platform Awareness** - Uses appropriate package manager (brew/apt/cargo)
+- **Priority Filtering** - Install only what you need (required/recommended/optional)
+- **Category Filtering** - Install specific tool categories (editor, shell, git, etc.)
+- **Dry Run Mode** - Preview installation without making changes
+- **Beautiful UI** - OneDark-themed output with progress indicators
+
+**Example Workflow:**
+
+On a fresh macOS system:
+```bash
+# Clone dotfiles
+git clone --recurse-submodules https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
+cd ~/.config/dotfiles
+
+# Link dotfiles (creates symlinks)
+./setup --skip-pi
+
+# Install all essential packages
+install_from_manifest --category editor,shell,git
+```
+
+On a fresh Ubuntu system:
+```bash
+# Same manifest, different platform - automatically uses apt
+install_from_manifest --required-only
+```
+
+---
+
+#### sync_packages
+
+**Location:** `~/.local/bin/sync_packages`
+
+Keeps your package manifest synchronized with your system's actual state.
+
+**Usage:**
+```bash
+# Update manifest from current system
+sync_packages
+
+# Update and commit to git
+sync_packages --push
+
+# Update with custom commit message
+sync_packages --push --message "Add new development tools"
+```
+
+**Options:**
+- `--update` - Regenerate manifest from current system (default)
+- `--push` - Commit and push changes to git
+- `--message MSG` - Custom commit message
+- `-h, --help` - Show help message
+
+**What It Does:**
+1. Scans all package managers on your system
+2. Regenerates the package manifest
+3. Shows a diff of what changed (added/removed packages)
+4. Optionally commits and pushes to git
+
+**Features:**
+- **Automatic Backup** - Creates timestamped backup before overwriting
+- **Change Detection** - Shows what packages were added or removed
+- **Git Integration** - Automatically commits with formatted messages
+- **Safe Operation** - Preview changes before committing
+
+**Example Workflow:**
+
+After installing new tools:
+```bash
+# Install a new package
+brew install htop
+
+# Sync manifest to include it
+sync_packages
+
+# Review the changes
+# If satisfied, push to git
+sync_packages --push
+```
+
+**Use Cases:**
+- Keep manifest synchronized after installing new packages
+- Track package changes over time via git history
+- Share updates with team (push manifest to shared repository)
+- Maintain consistency across multiple machines
+
+---
+
+#### Package Manifest Structure
+
+**Location:** `~/.local/share/dotfiles/packages.yaml` (user manifest)
+**Template:** `~/.config/dotfiles/packages/base.yaml` (curated base)
+
+Example manifest with common features:
+
+```yaml
+version: "1.0"
+
+metadata:
+  name: "My Development Environment"
+  description: "Cross-platform packages for development"
+  author: "Thomas"
+
+settings:
+  auto_confirm: false
+  parallel_install: true
+  skip_installed: true
+
+packages:
+  # Core editor - works everywhere
+  - id: neovim
+    name: "Neovim"
+    description: "Hyperextensible Vim-based editor"
+    category: editor
+    priority: required
+    platforms: [macos, linux, windows]
+    install:
+      brew: neovim
+      apt: neovim
+      choco: neovim
+      winget: Neovim.Neovim
+    alternatives:
+      - method: cargo
+        package: neovim
+    dependencies: [git, curl]
+
+  # Modern CLI tool with alternative installation
+  - id: ripgrep
+    name: "Ripgrep"
+    description: "Ultra-fast text search"
+    category: search
+    priority: recommended
+    install:
+      brew: ripgrep
+      apt: ripgrep
+      choco: ripgrep
+      winget: BurntSushi.ripgrep.MSVC
+    alternatives:
+      - method: cargo
+        package: ripgrep
+
+  # macOS-specific GUI application
+  - id: docker
+    name: "Docker Desktop"
+    description: "Container platform"
+    category: container
+    priority: optional
+    platforms: [macos, windows]
+    install:
+      brew_cask: docker
+      choco: docker-desktop
+      winget: Docker.DockerDesktop
+    post_install:
+      macos: "open /Applications/Docker.app"
+```
+
+**Key Fields:**
+- `id` - Unique identifier (required)
+- `name` - Display name
+- `description` - What the package does
+- `category` - Logical grouping (editor, shell, search, git, etc.)
+- `priority` - Installation priority (required/recommended/optional)
+- `platforms` - Supported platforms (macos, linux, windows, ubuntu, etc.)
+- `install` - Package manager mappings (brew, apt, cargo, npm, etc.)
+- `alternatives` - Alternative installation methods
+- `dependencies` - Other packages needed first
+- `post_install` - Commands to run after installation
+
+**Supported Package Managers:**
+- `brew` - Homebrew (macOS/Linux)
+- `brew_cask` - Homebrew Casks (GUI apps on macOS)
+- `apt` - APT (Debian/Ubuntu)
+- `yum` / `dnf` - YUM/DNF (CentOS/Fedora)
+- `pacman` - Pacman (Arch Linux)
+- `choco` - Chocolatey (Windows)
+- `winget` - Windows Package Manager
+- `cargo` - Rust packages
+- `npm` - Node.js global packages
+- `pip` / `pipx` - Python packages/apps
+- `gem` - Ruby gems
+- `go` - Go packages
+
+**Categories:**
+- `editor` - Text editors (Neovim, VS Code)
+- `shell` - Shells and utilities (zsh, bash)
+- `search` - Search tools (ripgrep, fd, fzf)
+- `git` - Version control (git, gh, delta)
+- `language` - Programming languages (Node, Python, Rust)
+- `network` - Network utilities (curl, wget, httpie)
+- `terminal` - Terminal emulators (Kitty, Alacritty)
+- `development` - Dev tools (LSP servers, formatters)
+- `utilities` - System utilities (htop, jq, tree)
+- `container` - Docker, Kubernetes
+- `font` - Nerd Fonts
+
+**Priorities:**
+- `required` - Essential packages (always installed)
+- `recommended` - Commonly used packages (installed by default)
+- `optional` - Specialized packages (user must opt-in)
+
+For complete schema documentation, see [packages/SCHEMA.md](packages/SCHEMA.md).
+
+---
+
 ## System Integration
 
 ### Karabiner (macOS Keyboard Remapping)
