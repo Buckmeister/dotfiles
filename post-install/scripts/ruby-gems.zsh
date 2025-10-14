@@ -7,8 +7,9 @@
 # Installs Ruby gems from a centralized package list.
 # Uses shared libraries for package management, validation, and UI.
 #
-# DEPENDENCY: Requires Ruby and gem to be installed.
-#             Install via system package manager (brew install ruby, apt install ruby-full)
+# Dependencies:
+#   - ruby (Ruby interpreter) → system package (brew install ruby)
+#   - gem (Ruby package manager) → installed with Ruby
 #
 # Package list: config/packages/ruby-gems.list
 #
@@ -32,6 +33,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/greetings.zsh"
 
@@ -73,6 +75,13 @@ for arg in "$@"; do
 done
 
 # ============================================================================
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "ruby" "Ruby interpreter" ""
+declare_dependency_command "gem" "Ruby package manager" ""
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
@@ -83,16 +92,18 @@ else
 fi
 echo
 
-# Validate prerequisites
-if ! validate_command gem "gem (Ruby package manager)"; then
-    print_error "gem not found - please install Ruby first"
-    exit 1
-fi
+# ============================================================================
+# Dependency Validation
+# ============================================================================
 
-# Also check for Ruby itself
-if ! validate_command ruby "Ruby"; then
-    print_error "Ruby not found"
-    exit 1
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
+
+# Show Ruby version
+if command_exists ruby; then
+    local ruby_version=$(ruby --version | cut -d' ' -f2)
+    print_success "Ruby available (version: $ruby_version)"
 fi
 
 echo
@@ -102,30 +113,31 @@ if $UPDATE_MODE; then
     # Update Mode: Update all installed gems
     # ========================================================================
 
-    print_info "Updating all Ruby gems..."
-    echo
+    draw_section_header "Updating Installed Gems"
 
     gem update 2>&1 | grep -E "(Updating|Successfully)" | while IFS= read -r line; do
         echo "  $line"
     done
 
     if [[ $? -eq 0 ]]; then
-        print_success "Gems updated"
+        echo
+        print_success "Gems updated successfully"
     else
+        echo
         print_warning "Some gems may have failed to update"
     fi
 
-    echo
-    print_info "Cleaning up old versions..."
+    draw_section_header "Cleaning Up Old Versions"
+
     gem cleanup >/dev/null 2>&1
     print_success "Cleanup complete"
 
-    echo
-    print_success "Ruby gems update complete!"
 else
     # ========================================================================
     # Install Mode: Install gems from list
     # ========================================================================
+
+    draw_section_header "Installing Gems from List"
 
     # Check if package list exists
     if [[ ! -f "$PACKAGE_LIST" ]]; then
@@ -134,24 +146,32 @@ else
     fi
 
     # Install gems from list
-    # Note: gem_install_from_list will handle individual gem installations
     gem_install_from_list "$PACKAGE_LIST"
 
     echo
     print_success "Ruby gems installation complete!"
 fi
+
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
+draw_section_header "Installation Summary"
 
-# Print note about Solargraph
-print_info "📝 Note: Solargraph (Ruby LSP with linting/formatting) is installed via system package manager"
-
-echo
-
-# Optional: Print installed gems
+# Show installed gems
 if command_exists gem; then
     print_info "📦 Installed Ruby gems:"
-    gem list --local 2>/dev/null | head -20
+    echo
+    gem list --local 2>/dev/null | head -20 | while read -r line; do
+        # Extract gem name
+        local gem_name=$(echo "$line" | cut -d' ' -f1)
+        [[ -n "$gem_name" ]] && echo "   • $gem_name"
+    done
 fi
+
+echo
+print_info "📝 Note: Solargraph (Ruby LSP with linting/formatting) is installed via system package manager"
 
 echo
 print_success "$(get_random_friend_greeting)"

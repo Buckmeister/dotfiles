@@ -9,8 +9,9 @@
 #
 # Uses shared libraries for consistent UI and validation.
 #
-# DEPENDENCY: Requires Python 3 and pipx to be installed.
-#             Install via system package manager (brew install pipx, apt install pipx)
+# Dependencies:
+#   - python3 (Python interpreter) → system package (brew install python3)
+#   - pipx (Python app installer) → system package (brew install pipx)
 #
 # Components:
 # - pipx CLI tools (powerline-status)
@@ -34,6 +35,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -57,11 +59,6 @@ NVIM_PYTHON_LINK="$INSTALL_BIN_DIR/nvim-python3"
 function install_powerline() {
     draw_section_header "Powerline Status"
 
-    if ! command_exists pipx; then
-        print_error "pipx not found - please install pipx first"
-        return 1
-    fi
-
     print_info "Upgrading/installing powerline-status..."
     if pipx upgrade powerline-status 2>/dev/null || pipx install powerline-status 2>/dev/null; then
         print_success "Powerline status installed/upgraded"
@@ -76,11 +73,6 @@ function install_powerline() {
 
 function install_httpie_with_jwt() {
     draw_section_header "HTTPie with JWT Plugin"
-
-    if ! command_exists pipx; then
-        print_error "pipx not found - please install pipx first"
-        return 1
-    fi
 
     # Check if HTTPie is already installed
     if pipx list 2>/dev/null | grep -q "httpie"; then
@@ -120,11 +112,6 @@ function install_httpie_with_jwt() {
 
 function setup_neovim_python() {
     draw_section_header "Neovim Python Support"
-
-    if ! command_exists python3; then
-        print_error "python3 not found - please install Python first"
-        return 1
-    fi
 
     # Create dedicated virtual environment for Neovim
     if [[ ! -d "$NVIM_VENV" ]]; then
@@ -192,26 +179,38 @@ function check_old_user_packages() {
 }
 
 # ============================================================================
-# Main Installation
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "python3" "Python 3 interpreter" ""
+declare_dependency_command "pipx" "Python app installer" ""
+
+# ============================================================================
+# Main Execution
 # ============================================================================
 
 draw_header "Python Package Management" "pipx, HTTPie, and Neovim support"
 echo
 
-# Validate prerequisites
-if ! validate_command python3 "python3"; then
-    print_error "python3 not found - please install Python first"
-    exit 1
-fi
+# ============================================================================
+# Dependency Validation
+# ============================================================================
 
-if ! validate_command pipx "pipx"; then
-    print_error "pipx not found - please install pipx first"
-    print_info "macOS: brew install pipx"
-    print_info "Linux: apt install pipx / dnf install python3-pipx"
-    exit 1
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
+
+# Show Python version
+if command_exists python3; then
+    local python_version=$(python3 --version | cut -d' ' -f2)
+    print_success "Python available (version: $python_version)"
 fi
 
 echo
+
+# ============================================================================
+# Installation Steps
+# ============================================================================
 
 # Install Powerline
 install_powerline
@@ -227,14 +226,20 @@ echo
 
 # Check for old user packages
 check_old_user_packages
-echo
 
-print_success "Python package management setup complete!"
-print_info "📦 Summary:"
-echo "   ✅ CLI tools: pipx (isolated environments)"
-echo "   ✅ HTTPie: with JWT authentication"
-echo "   ✅ Neovim: dedicated virtual environment at $NVIM_VENV"
-echo "   🚫 No more --break-system-packages needed!"
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo
+draw_section_header "Installation Summary"
+
+print_info "📦 Python environment configured:"
+echo "   • CLI tools: pipx (isolated environments)"
+echo "   • HTTPie: with JWT authentication"
+echo "   • Neovim: dedicated virtual environment"
+echo "   • Location: $NVIM_VENV"
+echo "   • No more --break-system-packages needed!"
 
 echo
 print_success "$(get_random_friend_greeting)"

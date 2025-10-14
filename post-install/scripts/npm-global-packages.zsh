@@ -7,8 +7,8 @@
 # Installs npm global packages from a centralized package list.
 # Uses shared libraries for package management, validation, and UI.
 #
-# DEPENDENCY: Requires Node.js and npm to be installed.
-#             Install via system package manager (brew install node, apt install nodejs npm)
+# Dependencies:
+#   - npm (Node.js package manager) → system package (brew install node)
 #
 # Package list: config/packages/npm-packages.list
 # ============================================================================
@@ -29,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/greetings.zsh"
 
@@ -70,6 +71,12 @@ for arg in "$@"; do
 done
 
 # ============================================================================
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "npm" "Node.js package manager" ""
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
@@ -80,46 +87,73 @@ else
 fi
 echo
 
-# Validate prerequisites
-if ! validate_command npm "npm (Node.js package manager)"; then
-    print_error "npm not found - please install Node.js first"
-    exit 1
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
+
+# Show npm version
+if command_exists npm; then
+    local npm_version=$(npm --version 2>/dev/null)
+    print_success "npm available (version: $npm_version)"
 fi
 
 echo
 
-# Check if package list exists (only needed for installation mode)
-if ! $UPDATE_MODE && [[ ! -f "$PACKAGE_LIST" ]]; then
-    print_error "Package list not found: $PACKAGE_LIST"
-    exit 1
-fi
-
 if $UPDATE_MODE; then
-    # Update mode: update all installed packages
-    print_info "Updating all npm global packages..."
-    echo
+    # ========================================================================
+    # Update Mode: Update all installed npm packages
+    # ========================================================================
+
+    draw_section_header "Updating Installed Packages"
 
     if npm update -g 2>&1 | grep -E "(added|removed|updated|changed)" | while IFS= read -r line; do echo "  $line"; done; then
-        print_success "npm packages updated"
+        echo
+        print_success "npm packages updated successfully"
     else
+        echo
         print_warning "Some packages may have failed to update"
     fi
 
-    echo
-    print_success "npm global packages update complete!"
 else
-    # Install mode: install from package list
+    # ========================================================================
+    # Install Mode: Install packages from list
+    # ========================================================================
+
+    draw_section_header "Installing Packages from List"
+
+    # Check if package list exists
+    if [[ ! -f "$PACKAGE_LIST" ]]; then
+        print_error "Package list not found: $PACKAGE_LIST"
+        exit 1
+    fi
+
+    # Install packages from list
     npm_install_from_list "$PACKAGE_LIST"
 
     echo
     print_success "npm global packages installation complete!"
 fi
-echo
 
-# Optional: Print installed packages summary
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo
+draw_section_header "Installation Summary"
+
+# Show installed npm packages
 if command_exists npm; then
     print_info "📦 Installed npm global packages:"
-    npm list -g --depth=0 2>/dev/null | grep -v "^├──" | grep -v "^└──" | head -20
+    echo
+    npm list -g --depth=0 2>/dev/null | tail -n +2 | head -20 | while read -r line; do
+        # Extract package name from tree format
+        local package=$(echo "$line" | sed -E 's/^[├└─│ ]+//' | cut -d'@' -f1)
+        [[ -n "$package" ]] && echo "   • $package"
+    done
 fi
 
 echo
