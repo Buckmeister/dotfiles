@@ -138,14 +138,14 @@ test_installation() {
 
     print_section "Testing: $distro with $mode"
 
+    # Determine the installer URL
+    local installer_url="https://buckmeister.github.io/${mode}"
+
     print_info "Container: $container_name"
     print_info "Installer: $installer_url"
     echo ""
 
     printf "${COLOR_YELLOW}⏳ Running installation (this may take 1-2 minutes)...${COLOR_RESET}\n"
-
-    # Determine the installer URL
-    local installer_url="https://buckmeister.github.io/${mode}"
 
     # Build the test command
     local test_cmd="
