@@ -59,7 +59,7 @@ for arg in "$@"; do
             shift
             SINGLE_DISTRO="$1"
             ;;
-        --help)
+        -h|--help)
             cat <<EOF
 Docker Installation Testing Script
 
@@ -69,7 +69,7 @@ Usage:
 Options:
   --quick           Skip dfsetup tests (faster, only test dfauto)
   --distro IMAGE    Test only specified distro (e.g., ubuntu:24.04)
-  --help            Show this help message
+  -h, --help        Show this help message
 
 Examples:
   $0                              # Full test suite
