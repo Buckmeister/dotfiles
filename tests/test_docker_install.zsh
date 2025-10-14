@@ -106,7 +106,7 @@ test_installation() {
     # Temporary file for capturing output
     local output_file=$(mktemp)
 
-    draw_section_header "Testing: $distro with $mode"
+    draw_header "Docker Test: $distro" "Running $mode installer"
     echo ""
 
     print_info "Container: $container_name"
@@ -159,10 +159,8 @@ test_installation() {
         echo \"INFO:Dotfiles location: ~/.config/dotfiles\"
     "
 
-    print_info "Running test phases..."
-    echo ""
+    draw_section_header "Running Test Phases"
 
-    # Run the test in a container
     print_info "Phase 1/4: Pulling container image..."
 
     if docker run --rm \
@@ -217,10 +215,11 @@ test_installation() {
 # ============================================================================
 
 run_tests() {
-    draw_header "Docker Installation Testing" "Fresh container tests"
+    draw_header "Docker Installation Testing" "Testing on fresh containers"
     echo ""
 
-    # TL;DR Introduction
+    draw_section_header "Test Overview"
+
     print_info "What This Test Does:"
     echo "   • Spins up fresh Docker container(s)"
     echo "   • Downloads and runs the web installer"
@@ -232,7 +231,9 @@ run_tests() {
     echo "   ${COLOR_BOLD}${UI_INFO_COLOR}💡 Tip:${COLOR_RESET} Watch the progress updates below"
     echo ""
 
-    print_info "Test configuration:"
+    draw_section_header "Test Configuration"
+
+    print_info "Test parameters:"
     echo "   Distributions: ${#DISTROS[@]}"
     echo "   Modes: ${TEST_MODES[@]}"
     echo "   Total tests: $((${#DISTROS[@]} * ${#TEST_MODES[@]}))"
@@ -263,11 +264,11 @@ run_tests() {
 
     # Print summary
     draw_section_header "Test Results Summary"
-    echo ""
 
-    echo "   ${COLOR_BOLD}Total tests:${COLOR_RESET}  $total_tests"
-    echo "   ${COLOR_SUCCESS}${COLOR_BOLD}Passed:${COLOR_RESET}       $passed_tests"
-    echo "   ${COLOR_ERROR}${COLOR_BOLD}Failed:${COLOR_RESET}       $failed_tests"
+    print_info "📊 Test Statistics:"
+    echo "   Total tests:  $total_tests"
+    echo "   ${COLOR_SUCCESS}Passed:       $passed_tests${COLOR_RESET}"
+    echo "   ${COLOR_ERROR}Failed:       $failed_tests${COLOR_RESET}"
     echo ""
 
     if [[ $failed_tests -gt 0 ]]; then
