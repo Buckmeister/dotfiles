@@ -7,6 +7,9 @@
 # Configures global Git settings for consistent behavior across repositories.
 # Uses shared libraries for consistent UI and validation.
 #
+# Dependencies:
+#   - git → system package
+#
 # Settings configured:
 # - User name and email (from personal.env)
 # - Default branch name
@@ -31,6 +34,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/greetings.zsh"
 
 # Load configuration
@@ -47,19 +51,39 @@ source "$CONFIG_DIR/versions.env"
 : ${GIT_USER_EMAIL:="t.burk@bckx.de"}
 
 # ============================================================================
-# Main Configuration
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "git" "Git version control" ""
+
+# ============================================================================
+# Main Execution
 # ============================================================================
 
 draw_header "Git General Settings" "Configuring global Git settings"
 echo
 
-# Validate git is available
-if ! validate_command git "git"; then
-    print_error "git not found - please install Git first"
-    exit 1
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
+
+# Show git version
+if command_exists git; then
+    local git_version=$(git --version | awk '{print $3}')
+    print_success "git available (version: $git_version)"
 fi
 
 echo
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+draw_section_header "Configuring Git Settings"
 
 # Configure user identity
 print_info "Configuring user identity..."
@@ -89,8 +113,21 @@ print_info "Configuring global gitignore..."
 git config --global core.excludesfile "${HOME}/.gitignore"
 print_success "Global gitignore: ~/.gitignore"
 
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
-print_success "Git general settings configured successfully!"
+draw_section_header "Configuration Summary"
+
+print_info "📦 Configured settings:"
+echo
+echo "   • User identity: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+echo "   • Default branch: main"
+echo "   • Log format: pretty with colors"
+echo "   • Global gitignore: ~/.gitignore"
+
+echo
 print_info "💡 Tip: Override user settings in config/personal.env with GIT_USER_NAME and GIT_USER_EMAIL"
 
 echo

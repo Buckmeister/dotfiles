@@ -9,6 +9,9 @@
 # - Rust (rustup)
 # - Starship prompt (Linux only)
 #
+# Dependencies: NONE
+#   This is a base toolchain provider script that other scripts depend on.
+#
 # Uses shared libraries for consistent downloading and OS-aware operations.
 # ============================================================================
 
@@ -28,6 +31,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/installers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -165,7 +169,7 @@ function install_starship() {
 }
 
 # ============================================================================
-# Main Installation
+# Main Execution
 # ============================================================================
 
 draw_header "Development Toolchains" "Installing language toolchains"
@@ -184,14 +188,25 @@ echo
 
 # Install Starship prompt (Linux only)
 install_starship
-echo
 
-print_success "Development toolchains installation complete!"
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo
+draw_section_header "Installation Summary"
+
 print_info "📦 Installed toolchains:"
-command_exists stack && echo "   ✅ Haskell Stack"
-command_exists ghcup && echo "   ✅ GHCup"
-command_exists rustc && echo "   ✅ Rust"
-command_exists starship && echo "   ✅ Starship"
+echo
+command_exists stack && echo "   • Haskell Stack"
+command_exists ghcup && echo "   • GHCup"
+command_exists rustc && echo "   • Rust"
+command_exists starship && echo "   • Starship"
+
+echo
+print_info "💡 Note: These toolchains provide dependencies for:"
+echo "   - cargo-packages.zsh (requires: cargo, rustc)"
+echo "   - ghcup-packages.zsh (requires: ghcup)"
 
 echo
 print_success "$(get_random_friend_greeting)"

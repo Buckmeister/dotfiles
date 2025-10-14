@@ -7,8 +7,8 @@
 # Installs Lua packages via LuaRocks package manager.
 # Uses shared libraries for consistent UI and validation.
 #
-# DEPENDENCY: Requires Lua and LuaRocks to be installed.
-#             Install via system package manager (brew install luarocks, apt install luarocks)
+# Dependencies:
+#   - luarocks (Lua package manager) → system package
 #
 # Note: Currently no packages configured for installation.
 #       Edit this script or create config/packages/luarocks-packages.list to add packages.
@@ -30,6 +30,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/greetings.zsh"
 
 # Load configuration
@@ -38,24 +39,39 @@ source "$CONFIG_DIR/versions.env"
 [[ -f "$CONFIG_DIR/personal.env" ]] && source "$CONFIG_DIR/personal.env"
 
 # ============================================================================
-# Main Installation
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "luarocks" "Lua package manager" ""
+
+# ============================================================================
+# Main Execution
 # ============================================================================
 
 draw_header "LuaRocks Packages" "Installing Lua packages"
 echo
 
-# Validate luarocks is available
-if ! validate_command luarocks "luarocks (Lua package manager)"; then
-    print_error "luarocks not found - please install LuaRocks first"
-    print_info "macOS: brew install luarocks"
-    print_info "Linux: apt install luarocks / dnf install luarocks"
-    exit 1
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
+
+# Show luarocks version
+if command_exists luarocks; then
+    local luarocks_version=$(luarocks --version 2>/dev/null | head -1 | awk '{print $2}')
+    print_success "luarocks available (version: $luarocks_version)"
 fi
 
 echo
 
-# Install packages
-print_info "Installing LuaRocks packages..."
+# ============================================================================
+# Package Installation
+# ============================================================================
+
+draw_section_header "Installing LuaRocks Packages"
 
 # Lua Formatter (currently commented out)
 # print_info "Installing luaformatter..."
@@ -67,8 +83,20 @@ print_info "Installing LuaRocks packages..."
 print_info "No LuaRocks packages configured for installation"
 print_info "Edit this script or config/packages/luarocks-packages.list to add packages"
 
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
-print_success "LuaRocks packages installation complete!"
+draw_section_header "Installation Summary"
+
+print_info "📦 LuaRocks status:"
+echo
+echo "   • No packages currently configured"
+echo "   • Edit this script to add packages"
+
+echo
+print_info "💡 Note: Add package installations above or create config/packages/luarocks-packages.list"
 
 echo
 print_success "$(get_random_friend_greeting)"

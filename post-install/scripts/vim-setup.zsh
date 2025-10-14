@@ -7,6 +7,9 @@
 # Sets up vim-plug plugin manager and installs configured plugins.
 # Uses shared libraries for consistent downloading and validation.
 #
+# Dependencies:
+#   - vim or nvim (optional) → system package
+#
 # vim-plug: https://github.com/junegunn/vim-plug
 # ============================================================================
 
@@ -26,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/installers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -45,11 +49,17 @@ VIM_PLUG_FILE="$VIM_PLUG_DIR/plug.vim"
 VIM_PLUG_CONFIG_DIR="$HOME/.config/vim-plug"
 
 # ============================================================================
-# Main Setup
+# Main Execution
 # ============================================================================
 
 draw_header "Vim Environment Setup" "vim-plug and plugin installation"
 echo
+
+# ============================================================================
+# Checking Dependencies
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
 
 # Check if vim or nvim is available
 if ! command_exists vim && ! command_exists nvim; then
@@ -66,6 +76,12 @@ if command_exists nvim; then
 fi
 
 echo
+
+# ============================================================================
+# Installation
+# ============================================================================
+
+draw_section_header "Installing vim-plug"
 
 # Create vim-plug config directory
 print_info "Creating vim-plug config directory..."
@@ -89,6 +105,8 @@ fi
 
 echo
 
+draw_section_header "Installing Vim Plugins"
+
 # Install vim plugins
 if command_exists vim; then
     print_info "Installing vim plugins..."
@@ -101,9 +119,22 @@ else
     print_info "Vim not found - skipping plugin installation"
 fi
 
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
-print_success "Vim environment setup complete!"
-print_info "Location: $VIM_PLUG_FILE"
+draw_section_header "Installation Summary"
+
+print_info "📦 Installed components:"
+echo
+echo "   • vim-plug (plugin manager)"
+if command_exists vim; then
+    echo "   • Vim plugins (via PlugInstall)"
+fi
+
+echo
+print_info "📍 Location: $VIM_PLUG_FILE"
 
 echo
 print_success "$(get_random_friend_greeting)"

@@ -7,8 +7,8 @@
 # Installs Haskell Language Server (HLS) and updates GHCup.
 # Uses shared libraries for consistent UI and validation.
 #
-# DEPENDENCY: Requires GHCup to be installed.
-#             Run toolchains.zsh first if GHCup is not installed.
+# Dependencies:
+#   - ghcup (Haskell toolchain manager) → toolchains.zsh
 #
 # GHCup is the Haskell toolchain installer.
 # ============================================================================
@@ -29,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/greetings.zsh"
 
 # Load configuration
@@ -37,20 +38,33 @@ source "$CONFIG_DIR/versions.env"
 [[ -f "$CONFIG_DIR/personal.env" ]] && source "$CONFIG_DIR/personal.env"
 
 # ============================================================================
-# Main Installation
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "ghcup" "Haskell toolchain manager" "toolchains.zsh"
+
+# ============================================================================
+# Main Execution
 # ============================================================================
 
 draw_header "GHCup Packages" "Haskell toolchain components"
 echo
 
-# Validate ghcup is available
-if ! validate_command ghcup "ghcup (Haskell toolchain installer)"; then
-    print_error "ghcup not found - please run toolchains.zsh first"
-    print_info "Or install manually: https://www.haskell.org/ghcup/"
-    exit 1
-fi
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
 
 echo
+
+# ============================================================================
+# Package Installation
+# ============================================================================
+
+draw_section_header "Installing Haskell Components"
 
 # Install Haskell Language Server
 print_info "Installing Haskell Language Server (HLS)..."
@@ -77,11 +91,22 @@ if [[ -f "$HOME/.local/bin/ghcup" ]]; then
     print_info "Removing legacy ghcup symlink..."
     rm "$HOME/.local/bin/ghcup"
     print_success "Legacy symlink removed"
-    echo
 fi
 
-print_success "GHCup packages installation complete!"
-print_info "💡 Haskell Language Server is now available for your editor"
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo
+draw_section_header "Installation Summary"
+
+print_info "📦 Installed components:"
+echo
+echo "   • Haskell Language Server (HLS)"
+echo "   • GHCup (updated to latest)"
+
+echo
+print_info "💡 Note: Haskell Language Server is now available for your editor"
 
 echo
 print_success "$(get_random_friend_greeting)"

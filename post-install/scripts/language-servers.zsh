@@ -7,6 +7,9 @@
 # Downloads and installs various language servers (JDT.LS, OmniSharp, etc.)
 # Uses shared libraries for consistent downloading, extraction, and installation.
 #
+# Dependencies: NONE
+#   Downloads language server binaries directly from official sources.
+#
 # Installed language servers:
 # - JDT.LS (Java Language Server)
 # - OmniSharp (C# Language Server)
@@ -29,6 +32,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/installers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -271,13 +275,24 @@ install_rust_analyzer
 # Cleanup temporary downloads
 cleanup_temp_downloads
 
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
-print_success "All language servers installed successfully!"
+draw_section_header "Installation Summary"
+
+print_info "📦 Installed language servers:"
+echo
+echo "   • JDT.LS (Java)"
+echo "   • OmniSharp (C#)"
+[[ "${DF_OS:-$(get_os)}" == "linux" ]] && echo "   • rust-analyzer (Rust)"
+
 echo
 print_info "📍 Installation locations:"
-echo "   JDT.LS:        $JDTLS_DIR"
-echo "   OmniSharp:     $OMNISHARP_DIR"
-[[ "${DF_OS:-$(get_os)}" == "linux" ]] && echo "   rust-analyzer: $INSTALL_BIN_DIR/rust-analyzer"
+echo "   • JDT.LS:        $JDTLS_DIR"
+echo "   • OmniSharp:     $OMNISHARP_DIR"
+[[ "${DF_OS:-$(get_os)}" == "linux" ]] && echo "   • rust-analyzer: $INSTALL_BIN_DIR/rust-analyzer"
 
 echo
 print_success "$(get_random_friend_greeting)"

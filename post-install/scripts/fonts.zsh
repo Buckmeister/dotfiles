@@ -7,6 +7,9 @@
 # Downloads and installs Nerd Fonts (Linux only - macOS uses Homebrew).
 # Uses shared libraries for consistent downloading and OS-aware operations.
 #
+# Dependencies:
+#   - fc-cache (fontconfig) → system package (Linux only)
+#
 # Nerd Fonts: https://github.com/ryanoasis/nerd-fonts
 # ============================================================================
 
@@ -26,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/installers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -55,6 +59,12 @@ NERD_FONTS=(
 NERD_FONTS_BASE_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_FONTS_VERSION"
 
 # ============================================================================
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "fc-cache" "Font cache utility (fontconfig)" ""
+
+# ============================================================================
 # Main Installation
 # ============================================================================
 
@@ -80,6 +90,16 @@ case "${DF_OS:-$(get_os)}" in
         exit 0
         ;;
 esac
+
+echo
+
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
 
 echo
 
@@ -136,12 +156,24 @@ print_info "Cleaning up temporary files..."
 rm -rf "$temp_dir"
 print_success "Cleanup complete"
 
+# ============================================================================
+# Summary
+# ============================================================================
+
 echo
-print_success "Font installation complete!"
-print_info "📊 Summary:"
-echo "   Installed: $installed_count fonts"
-echo "   Failed:    $failed_count fonts"
-echo "   Location:  $FONTS_DIR"
+draw_section_header "Installation Summary"
+
+print_info "📦 Nerd Fonts installed:"
+echo
+for font in "${NERD_FONTS[@]}"; do
+    echo "   • $font"
+done
+
+echo
+print_info "📊 Installation results:"
+echo "   • Successful: $installed_count fonts"
+echo "   • Failed:     $failed_count fonts"
+echo "   • Location:   $FONTS_DIR"
 
 echo
 print_success "$(get_random_friend_greeting)"

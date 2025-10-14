@@ -7,6 +7,9 @@
 # Downloads Project Lombok for Java development.
 # Uses shared libraries for consistent downloading and OS-aware operations.
 #
+# Dependencies: NONE
+#   Downloads Lombok JAR file directly from official website.
+#
 # Website: https://projectlombok.org/
 # ============================================================================
 
@@ -26,6 +29,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/installers.zsh"
 source "$LIB_DIR/os_operations.zsh"
 source "$LIB_DIR/greetings.zsh"
@@ -94,40 +98,56 @@ function download_lombok() {
 }
 
 # ============================================================================
-# Main Installation
+# Main Execution
 # ============================================================================
 
 draw_header "Project Lombok" "Java annotation processing"
 echo
 
+# ============================================================================
+# Installation
+# ============================================================================
+
+draw_section_header "Installing Project Lombok"
+
 # Check if already installed
 if [[ -f "$LOMBOK_JAR" ]]; then
     print_success "Project Lombok already installed"
     print_info "Location: $LOMBOK_JAR"
+else
+    # Create Lombok directory
+    print_info "Creating Lombok directory..."
+    if create_lombok_dir; then
+        print_success "Directory created: $LOMBOK_DIR"
+    else
+        print_error "Failed to create Lombok directory"
+        exit 1
+    fi
+
     echo
-    print_success "$(get_random_friend_greeting)"
-    exit 0
+
+    # Download Lombok
+    if download_lombok; then
+        print_success "Project Lombok installed successfully!"
+    else
+        print_error "Failed to install Project Lombok"
+        exit 1
+    fi
 fi
 
-# Create Lombok directory
-print_info "Creating Lombok directory..."
-if create_lombok_dir; then
-    print_success "Directory created: $LOMBOK_DIR"
-else
-    print_error "Failed to create Lombok directory"
-    exit 1
-fi
+# ============================================================================
+# Summary
+# ============================================================================
 
 echo
+draw_section_header "Installation Summary"
 
-# Download Lombok
-if download_lombok; then
-    print_success "Project Lombok installed successfully!"
-    print_info "Location: $LOMBOK_JAR"
-else
-    print_error "Failed to install Project Lombok"
-    exit 1
-fi
+print_info "📦 Installed components:"
+echo
+echo "   • Project Lombok (Java annotation processing)"
+
+echo
+print_info "📍 Location: $LOMBOK_JAR"
 
 echo
 print_success "$(get_random_friend_greeting)"
