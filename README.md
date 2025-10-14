@@ -98,6 +98,8 @@ Meticulously crafted configurations for:
 - **Tools**: tmux, git, ranger, and more
 - **macOS**: Karabiner keyboard remapping
 
+**See [MANUAL.md](MANUAL.md) for complete configuration reference, keybindings, and usage guides.**
+
 ### Post-Install Scripts
 Modular, OS-aware installation for:
 - Package managers (Cargo, npm, pip, Ruby gems)
@@ -304,6 +306,8 @@ git commit -m "Update Neovim submodule reference"
 ~/.local/bin/get_jdtls_url --version latest
 ```
 
+**See [MANUAL.md](MANUAL.md#utility-scripts) for complete documentation of all utility scripts.**
+
 ---
 
 ## 🌟 Language Support
@@ -345,10 +349,13 @@ Enhanced with contributions from **Claude Code** (that's me! 👋), bringing:
 
 ## 📚 Documentation
 
-For detailed information about the architecture, component structure, and development workflow, see:
-- **[CLAUDE.md](CLAUDE.md)** - Repository architecture and technical documentation
-- **[TESTING.md](TESTING.md)** - Testing infrastructure and guidelines
-- **[TeamBio.md](TeamBio.md)** - Team information and project context
+Complete documentation suite for all aspects of the dotfiles system:
+
+- **[MANUAL.md](MANUAL.md)** - **Configuration guide:** Comprehensive reference for all configurations, keybindings, and utility scripts
+- **[INSTALL.md](INSTALL.md)** - **Installation guide:** Detailed setup instructions, troubleshooting, and publishing your fork
+- **[CLAUDE.md](CLAUDE.md)** - **Architecture guide:** Repository structure, technical documentation, and development workflow
+- **[TESTING.md](TESTING.md)** - **Testing guide:** Testing infrastructure, guidelines, and test suite documentation
+- **[TeamBio.md](TeamBio.md)** - **Team information:** Project context and contributors
 
 ---
 

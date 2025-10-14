@@ -69,6 +69,8 @@ The installation script automatically sets up:
 - **Terminal Tools**: Modern replacements (bat, ripgrep, fd, etc.)
 - **Fonts**: Nerd Fonts for beautiful terminal icons
 
+**For detailed information about each configuration, keybindings, and features, see [MANUAL.md](./MANUAL.md).**
+
 ## 📋 Prerequisites
 
 The bootstrap script will automatically install these if missing:
@@ -572,9 +574,14 @@ git pull
 
 ## 📚 Further Reading
 
-- [Main README](./README.md) - Complete documentation
-- [CLAUDE.md](./CLAUDE.md) - Repository architecture and design
-- [Configuration Guide](./config/README.md) - Detailed configuration options
+Complete documentation suite:
+
+- **[MANUAL.md](./MANUAL.md)** - **Configuration guide:** Comprehensive reference for all configurations, keybindings, and utility scripts
+- **[README.md](./README.md)** - **Quick start:** Project overview and primary commands
+- **[CLAUDE.md](./CLAUDE.md)** - **Architecture guide:** Repository structure and development workflow
+- **[TESTING.md](./TESTING.md)** - **Testing guide:** Test suite documentation
+
+**New to the configurations?** Start with **[MANUAL.md](./MANUAL.md)** to learn about shell keybindings, tmux shortcuts, editor configurations, and utility scripts.
 
 ## 🎵 Philosophy
 

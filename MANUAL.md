@@ -2,6 +2,8 @@
 
 > A comprehensive guide to the applications, configurations, and utility scripts in this dotfiles repository
 
+**For installation and setup instructions, see [README.md](README.md) and [INSTALL.md](INSTALL.md).**
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -60,22 +62,23 @@ After running the setup, you'll have access to:
 ### Zsh (Primary Shell)
 
 **Location:** `~/.zshrc` (symlinked from `zsh/zshrc.symlink`)
+**Project:** [Zsh](https://www.zsh.org/) | **Shell:** Modern, powerful shell with advanced features
 
 Zsh is configured as the primary shell with extensive customizations.
 
 #### Features
 
 **Plugin Management:**
-- Uses [zplug](https://github.com/zplug/zplug) for plugin management
+- Uses **[zplug](https://github.com/zplug/zplug)** for plugin management
 - Auto-installs missing plugins on first run
 
 **Installed Plugins:**
-- `zsh-history-substring-search` - Search history with substring matching
-- `zsh-autosuggestions` - Fish-like autosuggestions
-- `zsh-completions` - Additional completion definitions
-- `zsh-nvm` - Node Version Manager integration
-- `zsh-syntax-highlighting` - Fish-like syntax highlighting
-- `zsh-fzy` - Fuzzy finder integration
+- **[zsh-history-substring-search](https://github.com/zsh-users/zsh-history-substring-search)** - Search history with substring matching
+- **[zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)** - Fish-like autosuggestions (suggestions based on history)
+- **[zsh-completions](https://github.com/zsh-users/zsh-completions)** - Additional completion definitions
+- **[zsh-nvm](https://github.com/lukechilds/zsh-nvm)** - Node Version Manager integration
+- **[zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)** - Fish-like syntax highlighting
+- **[zsh-fzy](https://github.com/aperezdc/zsh-fzy)** - Fuzzy finder integration with **[fzy](https://github.com/jhawthorn/fzy)**
 
 **Vi-Mode Enhancements:**
 - Vi keybindings enabled by default
@@ -130,12 +133,14 @@ neofetch  # Displays system info with Kitty backend and custom styling
 
 #### Shell Integration
 
-**The Fuck:**
-- Corrects previous command mistakes
+**[The Fuck](https://github.com/nvbn/thefuck):**
+- Corrects previous command mistakes with AI-like suggestions
 - Invoked automatically via `fuck` alias
+- Example: `git psuh` → `fuck` → suggests `git push`
 
 **Starship Prompt:**
 - Fast, customizable prompt (see [Starship section](#starship-prompt))
+- **[Starship](https://starship.rs/)** - The minimal, blazing-fast, and infinitely customizable prompt
 
 **Completion Systems:**
 - Docker CLI completions
@@ -168,6 +173,12 @@ fd      # → fdfind (on Ubuntu/Debian)
 vi      # → nvim (Neovim)
 ```
 
+**Tools:**
+- **[eza](https://github.com/eza-community/eza)** - Modern replacement for `ls` with git integration and icons
+- **[bat](https://github.com/sharkdp/bat)** - Cat clone with syntax highlighting and git integration
+- **[fd](https://github.com/sharkdp/fd)** - Simple, fast alternative to `find`
+- **[ripgrep](https://github.com/BurntSushi/ripgrep)** - Ultra-fast text search tool
+
 #### Git Shortcuts
 
 ```bash
@@ -199,6 +210,7 @@ ponythink   # → ponythink -bunicode
 ### Starship Prompt
 
 **Location:** `~/.config/starship/starship.toml` (symlinked from `starship/starship.symlink_config/`)
+**Project:** [Starship](https://starship.rs/) | **Prompt:** The minimal, blazing-fast, and infinitely customizable prompt for any shell
 
 A fast, cross-shell prompt with language detection and git integration.
 
@@ -241,6 +253,7 @@ symbol = " "          # Git branch symbol
 ### Tmux
 
 **Location:** `~/.tmux.conf` (symlinked from `tmux/tmux.conf.symlink`)
+**Project:** [tmux](https://github.com/tmux/tmux) | **Terminal Multiplexer:** Powerful terminal multiplexer for managing multiple terminal sessions
 
 Tmux is configured with vi-mode, custom status bar, and smart keybindings.
 
@@ -314,9 +327,9 @@ Ctrl+a (instead of default Ctrl+b)
 
 #### Dependencies
 
-- `tmux-mem-cpu-load` - System resource monitoring
+- **[tmux-mem-cpu-load](https://github.com/thewtex/tmux-mem-cpu-load)** - System resource monitoring for tmux status bar
 - `battery` - Battery status script (see [Utility Scripts](#utility-scripts))
-- `shorten_path` - Path abbreviation script
+- `shorten_path` - Path abbreviation script (see [Utility Scripts](#utility-scripts))
 
 ---
 
@@ -325,6 +338,8 @@ Ctrl+a (instead of default Ctrl+b)
 ### Neovim
 
 **Location:** `~/.config/nvim/` (symlinked from `nvim/nvim.symlink_config/`)
+**Project:** [Neovim](https://neovim.io/) | **Editor:** Hyperextensible Vim-based text editor
+**Submodule:** [lualoves.nvim](https://github.com/Buckmeister/lualoves.nvim) - Custom Lua configuration
 
 Neovim is the primary editor, configured as a **git submodule** with its own comprehensive documentation.
 
@@ -335,13 +350,13 @@ Neovim has its own detailed manual. Please refer to:
 **[Neovim Configuration Manual](nvim/nvim.symlink_config/README.md)**
 
 Key highlights:
-- Modern Lua configuration
-- Lazy.nvim plugin manager
-- OneDark "darker" theme
-- Full LSP support (Python, Rust, Go, TypeScript, etc.)
-- Telescope fuzzy finding
-- Treesitter syntax highlighting
-- Custom "LUA LOVES NVIM" welcome screen
+- Modern Lua configuration with modular architecture
+- **[lazy.nvim](https://github.com/folke/lazy.nvim)** plugin manager - Fast, feature-rich plugin management
+- **[OneDark](https://github.com/navarasu/onedark.nvim)** "darker" theme - Beautiful dark colorscheme
+- Full LSP support (Python, Rust, Go, TypeScript, Java, and more)
+- **[Telescope](https://github.com/nvim-telescope/telescope.nvim)** - Fuzzy finder for files, text, and more
+- **[Treesitter](https://github.com/nvim-treesitter/nvim-treesitter)** - Advanced syntax highlighting and code understanding
+- **[Alpha](https://github.com/goolord/alpha-nvim)** - Custom "LUA LOVES NVIM" welcome screen
 
 **Quick reference:**
 - Leader key: `Space`
@@ -356,6 +371,7 @@ For complete keybindings and features, see the [Neovim README](nvim/nvim.symlink
 ### Vim
 
 **Location:** `~/.vimrc` (symlinked from `vim/vimrc.symlink`)
+**Project:** [Vim](https://www.vim.org/) | **Editor:** The ubiquitous text editor
 
 Classic Vim is configured but will redirect you to use Neovim instead:
 
@@ -371,14 +387,14 @@ endif
 If you absolutely must use classic Vim, the configuration includes:
 
 **Features:**
-- OneDark color scheme
-- CoC (Conquer of Completion) with 30+ language servers
-- Vim-Plug plugin manager
-- Lightline statusline with bufferline
-- FZF integration
-- Floating terminal (vim-floaterm)
-- Auto-formatting (Neoformat)
-- Git integration (vim-fugitive)
+- **[OneDark](https://github.com/joshdick/onedark.vim)** color scheme
+- **[CoC](https://github.com/neoclide/coc.nvim)** (Conquer of Completion) with 30+ language servers
+- **[Vim-Plug](https://github.com/junegunn/vim-plug)** plugin manager
+- **[Lightline](https://github.com/itchyny/lightline.vim)** statusline with **[bufferline](https://github.com/mengelbrecht/lightline-bufferline)**
+- **[FZF](https://github.com/junegunn/fzf.vim)** integration for fuzzy finding
+- **[vim-floaterm](https://github.com/voldikss/vim-floaterm)** - Floating terminal window
+- **[Neoformat](https://github.com/sbdchd/neoformat)** - Auto-formatting on save
+- **[vim-fugitive](https://github.com/tpope/vim-fugitive)** - Git integration
 
 **Keybindings:**
 - Leader: `Space`
@@ -405,6 +421,7 @@ Basic Emacs configuration for macOS compatibility.
 ### Kitty (Primary)
 
 **Location:** `~/.config/kitty/kitty.conf` (symlinked from `kitty/kitty.symlink_config/`)
+**Project:** [Kitty](https://sw.kovidgoyal.net/kitty/) | **Terminal:** The fast, feature-rich, GPU based terminal emulator
 
 Modern, GPU-accelerated terminal with extensive customization.
 
@@ -469,6 +486,7 @@ Multiple Nerd Fonts available (comment/uncomment in config):
 ### Alacritty (Alternative)
 
 **Location:** `~/.config/alacritty/alacritty.toml` (symlinked from `alacritty/alacritty.symlink_config/`)
+**Project:** [Alacritty](https://alacritty.org/) | **Terminal:** A cross-platform, OpenGL terminal emulator
 
 Lightweight, cross-platform terminal emulator.
 
@@ -516,22 +534,25 @@ program = "/bin/zsh"
 ### Git
 
 **Location:** `~/.gitconfig` and related files
+**Project:** [Git](https://git-scm.com/) | **Version Control:** Distributed version control system
 
-Git is configured with delta for beautiful diffs (see `post-install/scripts/git-delta-config.zsh`).
+Git is configured with **[delta](https://github.com/dandavison/delta)** for beautiful diffs (see `post-install/scripts/git-delta-config.zsh`).
 
 **Key Features:**
-- Delta pager for syntax-highlighted diffs
+- **[Delta](https://github.com/dandavison/delta)** pager for syntax-highlighted diffs with side-by-side view
 - Gruvbox Material color theme
 - Line numbers enabled
 - Diff-so-fancy compatibility mode
+- Enhanced git status and git log output
 
 ---
 
 ### IPython
 
 **Location:** `~/.ipython/` (symlinked from `ipython/ipython.symlink/`)
+**Project:** [IPython](https://ipython.org/) | **Python REPL:** Powerful interactive shell for Python
 
-Enhanced Python REPL with custom configuration.
+Enhanced Python REPL with custom configuration, syntax highlighting, and magic commands.
 
 ---
 
@@ -560,8 +581,9 @@ All utility scripts are installed to `~/.local/bin/` and are available in your P
 #### get_github_url
 
 **Location:** `~/.local/bin/get_github_url`
+**Type:** Zsh script for GitHub API interaction
 
-A powerful script for downloading GitHub release and tag URLs.
+A powerful script for downloading GitHub release and tag URLs. Uses the **[GitHub REST API](https://docs.github.com/en/rest)** to fetch download URLs for releases and tags.
 
 **Usage:**
 ```bash
@@ -829,6 +851,7 @@ Java Development Tools Language Server launcher.
 ### Karabiner (macOS Keyboard Remapping)
 
 **Location:** `~/.config/karabiner/` (symlinked from `karabiner/karabiner.symlink_config/`)
+**Project:** [Karabiner-Elements](https://karabiner-elements.pqrs.org/) | **macOS Tool:** Powerful keyboard customizer
 
 Advanced keyboard customization for macOS.
 
@@ -874,22 +897,22 @@ The entire dotfiles configuration uses the **OneDark** color scheme for consiste
 
 ### Fonts
 
-**Nerd Fonts** are used throughout for icon support:
+**[Nerd Fonts](https://www.nerdfonts.com/)** are used throughout for icon support:
 
 **Primary Fonts:**
-- **JetBrainsMono Nerd Font** - Primary monospace (Kitty)
-- **VictorMono Nerd Font** - Alternative with cursive italics (Alacritty)
-- **FiraCode Nerd Font** - Alternative with ligatures
-- **MesloLGS Nerd Font** - Alternative for Powerline compatibility
+- **[JetBrainsMono Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/JetBrainsMono)** - Primary monospace (Kitty)
+- **[VictorMono Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/VictorMono)** - Alternative with cursive italics (Alacritty)
+- **[FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode)** - Alternative with ligatures
+- **[MesloLGS Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Meslo)** - Alternative for Powerline compatibility
 
 **Installation:**
 Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 
 **Features:**
-- Programming ligatures
-- Icon glyphs (file types, git, etc.)
-- Powerline symbols
-- Devicons
+- Programming ligatures for better code readability
+- Icon glyphs (file types, git, etc.) from **[devicons](https://github.com/ryanoasis/nerd-fonts#glyph-sets)**
+- Powerline symbols for statuslines
+- Font Awesome, Material Design Icons, and more
 
 ---
 
