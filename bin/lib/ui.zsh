@@ -219,6 +219,15 @@ function draw_separator() {
     printf "${COLOR_RESET}\n"
 }
 
+# Draw a section header (simpler than full box header)
+# Used for subsections within scripts
+function draw_section_header() {
+    local title="$1"
+    local color="${2:-$UI_ACCENT_COLOR}"
+
+    printf "\n${color}${COLOR_BOLD}═══ %s ═══${COLOR_RESET}\n" "$title"
+}
+
 # ============================================================================
 # Progress Bar System (Optimized for minimal repaints and zero flicker)
 # ============================================================================
@@ -502,7 +511,7 @@ function setup_ui_cleanup() {
     typeset -fx print_colored_message print_status_message
     typeset -fx print_success print_warning print_error print_info
     typeset -fx get_display_width get_safe_display_width
-    typeset -fx draw_header draw_separator draw_progress_bar
+    typeset -fx draw_header draw_separator draw_section_header draw_progress_bar
     typeset -fx update_progress increment_progress reset_progress_cache update_status_display show_status
     typeset -fx show_spinner ask_confirmation print_centered print_box
     typeset -fx cleanup_ui setup_ui_cleanup
