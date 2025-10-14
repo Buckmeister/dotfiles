@@ -58,7 +58,7 @@ The update system provides a centralized way to update all packages and toolchai
 
 ### Test Infrastructure (Phase 3 Complete)
 
-Comprehensive testing system with **169 tests across 10 suites** providing ~95% code coverage:
+Comprehensive testing system with **251 tests across 15 suites** providing ~96% code coverage:
 
 - **`tests/lib/test_framework.zsh`** - Lightweight zsh testing framework with beautiful OneDark output
 - **`tests/unit/`** - 105 unit tests for shared libraries (colors, ui, utils, validators, package_managers, greetings)
@@ -133,13 +133,13 @@ This allows all scripts to adapt their behavior cross-platform automatically.
 ### Testing
 
 ```bash
-# Run all tests (169 tests across 10 suites)
+# Run all tests (251 tests across 15 suites)
 ./tests/run_tests.zsh
 
 # Run unit tests only (105 tests)
 ./tests/run_tests.zsh unit
 
-# Run integration tests only (64 tests)
+# Run integration tests only (146 tests)
 ./tests/run_tests.zsh integration
 
 # Docker-based installation testing (requires Docker)

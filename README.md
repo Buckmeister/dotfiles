@@ -15,7 +15,7 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 - 📚 **The Librarian** - A friendly system health checker that knows every component of your dotfiles
 - 🔗 **Symlink Architecture** - Clean, organized file structure with automatic linking
 - 🎯 **Modular Post-Install** - Individual scripts for languages, tools, and configurations
-- 🧪 **Comprehensive Testing** - 169 tests across 10 suites with ~95% code coverage
+- 🧪 **Comprehensive Testing** - 251 tests across 15 suites with ~96% code coverage
 - 💙 **Crafted with Care** - Every detail considered, every message friendly
 
 ---
@@ -250,24 +250,24 @@ Creates a complete ZIP archive of your entire dotfiles repository for safekeepin
 
 ### Run Tests
 
-The repository includes **169 comprehensive tests** across **10 test suites** with ~95% code coverage:
+The repository includes **251 comprehensive tests** across **15 test suites** with ~96% code coverage:
 
 ```bash
-# Run all tests (169 tests across 10 suites)
+# Run all tests (251 tests across 15 suites)
 ./tests/run_tests.zsh
 
 # Run only unit tests (105 tests)
 ./tests/run_tests.zsh unit
 
-# Run only integration tests (64 tests)
+# Run only integration tests (146 tests)
 ./tests/run_tests.zsh integration
 ```
 
 **Test Coverage:**
 - ✅ Unit Tests: 105 tests covering all shared libraries
-- ✅ Integration Tests: 64 tests covering workflows and scripts
+- ✅ Integration Tests: 146 tests covering workflows, utilities, and error handling
 - ✅ 100% Pass Rate: All tests consistently pass
-- ✅ ~95% Code Coverage: Comprehensive coverage of critical paths
+- ✅ ~96% Code Coverage: Comprehensive coverage of critical paths
 
 See [TESTING.md](TESTING.md) for detailed testing documentation.
 

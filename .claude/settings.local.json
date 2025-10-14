@@ -7,7 +7,11 @@
       "Bash(docker:*)",
       "Bash(./tests/test_docker_install.zsh:*)",
       "Bash(tee:*)",
-      "WebFetch(domain:buckmeister.github.io)"
+      "WebFetch(domain:buckmeister.github.io)",
+      "Bash(./tests/integration/test_help_flags.zsh)",
+      "Bash(./tests/integration/test_wrappers.zsh:*)",
+      "Bash(./tests/integration/test_github_downloaders.zsh:*)",
+      "Bash(./tests/integration/test_error_handling.zsh:*)"
     ],
     "deny": [],
     "ask": []
