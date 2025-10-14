@@ -63,9 +63,23 @@ Comprehensive testing system with **169 tests across 10 suites** providing ~95% 
 - **`tests/lib/test_framework.zsh`** - Lightweight zsh testing framework with beautiful OneDark output
 - **`tests/unit/`** - 105 unit tests for shared libraries (colors, ui, utils, validators, package_managers, greetings)
 - **`tests/integration/`** - 64 integration tests for workflows (symlinks, updates, librarian, post-install scripts)
+- **`tests/test_docker_install.zsh`** - Docker-based installation testing on fresh Linux containers (Ubuntu, Debian)
 - **`tests/run_tests.zsh`** - Test runner with detailed reporting and suite summaries
 - **100% Pass Rate** - All tests consistently pass with fast execution (~90 seconds for full suite)
 - **Test Coverage** - Comprehensive assertions, setup/teardown, mocking, and smoke tests
+
+### One-Line Installation Scripts
+
+The repository provides two installation modes accessible via GitHub Pages:
+
+- **`dfsetup`** - Interactive installation with menu-driven post-install script selection
+- **`dfauto`** - Automatic installation with all modules (non-interactive, installs everything)
+
+Both scripts are available in Unix (sh) and Windows (PowerShell) versions, accessible at:
+- `https://buckmeister.github.io/dotfiles/dfsetup` (Unix interactive)
+- `https://buckmeister.github.io/dotfiles/dfauto` (Unix automatic)
+- `https://buckmeister.github.io/dotfiles/dfsetup.ps1` (Windows interactive)
+- `https://buckmeister.github.io/dotfiles/dfauto.ps1` (Windows automatic)
 
 ### OS Detection and Context
 
@@ -119,14 +133,19 @@ This allows all scripts to adapt their behavior cross-platform automatically.
 ### Testing
 
 ```bash
-# Run all tests
+# Run all tests (169 tests across 10 suites)
 ./tests/run_tests.zsh
 
-# Run unit tests only
+# Run unit tests only (105 tests)
 ./tests/run_tests.zsh unit
 
-# Run integration tests only
+# Run integration tests only (64 tests)
 ./tests/run_tests.zsh integration
+
+# Docker-based installation testing (requires Docker)
+./tests/test_docker_install.zsh                      # Full test suite
+./tests/test_docker_install.zsh --quick              # Quick test (dfauto only)
+./tests/test_docker_install.zsh --distro ubuntu:24.04 # Test specific distro
 ```
 
 ### Interactive Menu

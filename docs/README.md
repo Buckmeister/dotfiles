@@ -4,7 +4,7 @@ This directory contains a beautiful landing page for your dotfiles installation.
 
 ## 🌐 Enabling GitHub Pages
 
-To make your installation accessible at `https://USERNAME.github.io/dotfiles`:
+To make your installation accessible at `https://buckmeister.github.io/dotfiles`:
 
 ### Option 1: Via GitHub Web Interface (Easiest)
 
@@ -16,7 +16,7 @@ To make your installation accessible at `https://USERNAME.github.io/dotfiles`:
    - Folder: `/docs`
 5. Click **Save**
 6. Wait ~1 minute for deployment
-7. Your site will be live at: `https://USERNAME.github.io/dotfiles`
+7. Your site will be live at: `https://buckmeister.github.io/dotfiles`
 
 ### Option 2: Via GitHub CLI
 
@@ -44,12 +44,12 @@ Once GitHub Pages is enabled, you can share:
 
 **Instead of:**
 ```
-https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh
+https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh
 ```
 
 **Use:**
 ```
-https://USERNAME.github.io/dotfiles
+https://buckmeister.github.io/dotfiles
 ```
 
 Much more memorable! Users can copy the installation command directly from the landing page.
@@ -65,7 +65,7 @@ Want to use your own domain like `dotfiles.yourdomain.com`?
 
 2. Add a CNAME record in your DNS settings:
    ```
-   CNAME: dotfiles -> USERNAME.github.io
+   CNAME: dotfiles -> buckmeister.github.io
    ```
 
 3. Wait for DNS propagation (~5-60 minutes)

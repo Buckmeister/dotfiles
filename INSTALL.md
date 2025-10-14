@@ -6,12 +6,12 @@
 
 **Interactive Menu (Recommended):**
 ```bash
-curl -fsSL https://USERNAME.github.io/dfsetup | sh
+curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh
 ```
 
 **Automatic (Install Everything):**
 ```bash
-curl -fsSL https://USERNAME.github.io/dfauto | sh
+curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
 ```
 
 ### Windows (PowerShell)
@@ -20,17 +20,15 @@ For Windows with PowerShell (Run as Administrator):
 
 **Interactive Menu (Recommended):**
 ```powershell
-irm https://USERNAME.github.io/dfsetup.ps1 | iex
+irm https://buckmeister.github.io/dotfiles/dfsetup.ps1 | iex
 ```
 
 **Automatic (Install Everything):**
 ```powershell
-irm https://USERNAME.github.io/dfauto.ps1 | iex
+irm https://buckmeister.github.io/dotfiles/dfauto.ps1 | iex
 ```
 
 **Note:** WSL (Windows Subsystem for Linux) is recommended for the best experience. The PowerShell installer can set up WSL for you.
-
-**Replace `USERNAME` with your GitHub username!**
 
 That's it! The script will:
 - ✅ Detect your operating system (macOS, Linux, WSL)
@@ -65,7 +63,7 @@ If you prefer to install manually:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/USERNAME/dotfiles.git ~/.config/dotfiles
+git clone https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
 
 # 2. Run the setup script
 cd ~/.config/dotfiles
@@ -90,8 +88,8 @@ The bootstrap script:
 - Asks for confirmation before installing dependencies
 - Can be reviewed before execution:
   ```bash
-  curl -fsSL https://USERNAME.github.io/dfsetup | less
-  curl -fsSL https://USERNAME.github.io/dfauto | less
+  curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | less
+  curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | less
   ```
 
 ## 📦 Publishing Your Fork
@@ -101,7 +99,7 @@ To enable one-line installation for your fork:
 1. **Fork this repository** on GitHub
 2. **Update the repository URL** in `dfsetup` and `dfauto`:
    ```bash
-   DOTFILES_REPO="https://github.com/YOUR_USERNAME/dotfiles.git"
+   DOTFILES_REPO="https://github.com/Buckmeister/dotfiles.git"
    ```
 3. **Enable GitHub Pages**:
    - Go to Settings → Pages
@@ -119,18 +117,18 @@ To enable one-line installation for your fork:
 6. **Share your installation commands**:
    ```bash
    # Interactive
-   curl -fsSL https://YOUR_USERNAME.github.io/dfsetup | sh
+   curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh
 
    # Automatic
-   curl -fsSL https://YOUR_USERNAME.github.io/dfauto | sh
+   curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
    ```
 
 The scripts will be automatically available via GitHub Pages at:
 ```
-https://YOUR_USERNAME.github.io/dfsetup       (Unix interactive)
-https://YOUR_USERNAME.github.io/dfauto        (Unix automatic)
-https://YOUR_USERNAME.github.io/dfsetup.ps1   (Windows interactive)
-https://YOUR_USERNAME.github.io/dfauto.ps1    (Windows automatic)
+https://buckmeister.github.io/dotfiles/dfsetup       (Unix interactive)
+https://buckmeister.github.io/dotfiles/dfauto        (Unix automatic)
+https://buckmeister.github.io/dotfiles/dfsetup.ps1   (Windows interactive)
+https://buckmeister.github.io/dotfiles/dfauto.ps1    (Windows automatic)
 ```
 
 No external hosting needed! 🎉
@@ -163,10 +161,10 @@ After installation, customize your setup:
 ### Script fails to download
 ```bash
 # Verify GitHub Pages connectivity
-curl -I https://USERNAME.github.io
+curl -I https://buckmeister.github.io
 
 # Try with verbose output
-curl -fsSL -v https://USERNAME.github.io/dfsetup | sh
+curl -fsSL -v https://buckmeister.github.io/dotfiles/dfsetup | sh
 ```
 
 ### Permission denied
@@ -184,7 +182,7 @@ sh ~/.config/dotfiles/dfsetup
 ssh -T git@github.com
 
 # Or use HTTPS URL in dfsetup/dfauto
-DOTFILES_REPO="https://github.com/USERNAME/dotfiles.git"
+DOTFILES_REPO="https://github.com/Buckmeister/dotfiles.git"
 ```
 
 ## 💡 Tips
@@ -212,4 +210,4 @@ The bootstrap script provides a polished, one-command installation experience wh
 
 **Enjoy your beautifully configured development environment!** ✨
 
-*If you encounter any issues, please [open an issue](https://github.com/USERNAME/dotfiles/issues) on GitHub.*
+*If you encounter any issues, please [open an issue](https://github.com/Buckmeister/dotfiles/issues) on GitHub.*

@@ -53,6 +53,13 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 - `test_librarian.zsh` (21 tests) - System health reporting
 - `test_post_install_scripts.zsh` (22 tests) - Post-install smoke tests
 
+**Docker-Based Installation Tests:**
+- `test_docker_install.zsh` - Tests complete installation on fresh Linux containers
+  - Tests multiple distributions (Ubuntu 24.04, 22.04, Debian 12, 11)
+  - Tests both dfsetup (interactive) and dfauto (automatic) installation modes
+  - Validates installation in isolated environments
+  - Ensures cross-distribution compatibility
+
 ### Why Testing Matters
 
 Testing ensures that:
@@ -84,10 +91,42 @@ cd ~/.config/dotfiles
 ./tests/run_tests.zsh integration
 ```
 
+### Docker-Based Installation Testing
+
+Test the complete installation process on fresh Linux containers:
+
+```bash
+# Full test suite (all distros, both modes)
+./tests/test_docker_install.zsh
+
+# Quick test (dfauto only, faster)
+./tests/test_docker_install.zsh --quick
+
+# Test specific distribution
+./tests/test_docker_install.zsh --distro ubuntu:24.04
+
+# Combined options
+./tests/test_docker_install.zsh --quick --distro debian:12
+```
+
+**Prerequisites**: Docker must be installed and running
+
+**What it tests**:
+- Fresh installation on clean containers
+- Dependency installation (git, zsh, curl)
+- Repository cloning with submodules
+- Both dfsetup (interactive) and dfauto (automatic) modes
+- Installation verification (dotfiles directory, git repo, scripts)
+
+**Supported distributions**:
+- Ubuntu 24.04, 22.04
+- Debian 12, 11
+
 ### Getting Help
 
 ```bash
 ./tests/run_tests.zsh --help
+./tests/test_docker_install.zsh --help
 ```
 
 ---
@@ -268,6 +307,7 @@ tests/
 │   ├── test_update_system.zsh      # Update system (7 tests)
 │   ├── test_librarian.zsh          # Librarian health checks (21 tests)
 │   └── test_post_install_scripts.zsh # Post-install smoke tests (22 tests)
+├── test_docker_install.zsh         # Docker-based installation tests
 └── run_tests.zsh                   # Main test runner
 ```
 
