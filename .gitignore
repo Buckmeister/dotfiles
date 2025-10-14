@@ -24,3 +24,7 @@ emacs/.emacs.symlink.~undo-tree~
 # Local-only files (personal/sensitive information)
 Meetings.md
 config/personal.env
+
+# Claude Code local settings
+.claude/cache/
+.claude/settings.local.json
