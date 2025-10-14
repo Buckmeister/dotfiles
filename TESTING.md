@@ -21,10 +21,10 @@ This document describes the testing infrastructure for the dotfiles repository, 
 
 ## Overview
 
-The dotfiles repository includes a **comprehensive testing infrastructure** with **169 tests** across **10 test suites**, providing ~95% code coverage of critical paths. The test suite includes:
+The dotfiles repository includes a **comprehensive testing infrastructure** with **193 tests** across **12 test suites**, providing ~95% code coverage of critical paths. The test suite includes:
 
 - **Unit Tests** (6 suites, 105 tests): Test individual shared libraries and functions in isolation
-- **Integration Tests** (4 suites, 64 tests): Test complete workflows and script interactions
+- **Integration Tests** (6 suites, 88 tests): Test complete workflows and script interactions
 - **Test Framework**: Lightweight zsh-based testing framework with beautiful output
 - **Test Runner**: Automated test execution with detailed reporting
 - **100% Pass Rate**: All tests consistently pass, ensuring reliability
@@ -34,8 +34,8 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 | Category | Tests | Coverage |
 |----------|-------|----------|
 | **Unit Tests** | 105 | ~95% |
-| **Integration Tests** | 64 | ~90% |
-| **Total** | **169** | **~95%** |
+| **Integration Tests** | 88 | ~92% |
+| **Total** | **193** | **~95%** |
 
 ### Test Suites
 
@@ -52,6 +52,8 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 - `test_update_system.zsh` (7 tests) - Update system
 - `test_librarian.zsh` (21 tests) - System health reporting
 - `test_post_install_scripts.zsh` (22 tests) - Post-install smoke tests
+- `test_help_flags.zsh` (10 tests) - Help flag support across all core scripts
+- `test_wrappers.zsh` (14 tests) - Wrapper script argument forwarding and validation
 
 **Docker-Based Installation Tests:**
 - `test_docker_install.zsh` - Tests complete installation on fresh Linux containers
@@ -302,11 +304,13 @@ tests/
 │   ├── test_utils.zsh              # Utility functions (9 tests)
 │   ├── test_validators.zsh         # Validators (32 tests)
 │   └── test_package_managers.zsh   # Package managers (30 tests)
-├── integration/                    # Integration tests (64 tests)
+├── integration/                    # Integration tests (88 tests)
 │   ├── test_symlinks.zsh           # Symlink creation (5 tests)
 │   ├── test_update_system.zsh      # Update system (7 tests)
 │   ├── test_librarian.zsh          # Librarian health checks (21 tests)
-│   └── test_post_install_scripts.zsh # Post-install smoke tests (22 tests)
+│   ├── test_post_install_scripts.zsh # Post-install smoke tests (22 tests)
+│   ├── test_help_flags.zsh         # Help flag support (10 tests)
+│   └── test_wrappers.zsh           # Wrapper script validation (14 tests)
 ├── test_docker_install.zsh         # Docker-based installation tests
 └── run_tests.zsh                   # Main test runner
 ```
