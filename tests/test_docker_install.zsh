@@ -113,6 +113,8 @@ test_installation() {
     print_info "Installer URL: $installer_url"
     print_info "Test mode: ${mode}"
     echo ""
+    echo "   ${COLOR_BOLD}${UI_ACCENT_COLOR}💡 Follow live:${COLOR_RESET} docker logs -f $container_name"
+    echo ""
 
     # Build the test command
     local test_cmd="
