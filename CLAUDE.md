@@ -365,3 +365,136 @@ When adding new functionality:
 5. **Document test patterns** in TESTING.md if adding new approaches
 
 The goal is to create not just a functional dotfiles system, but a delightful experience that brings joy to daily development work.
+
+### Manual Maintenance (MANUAL.md)
+
+The repository includes **MANUAL.md** - a comprehensive user guide documenting all configurations, keybindings, and utility scripts. This is separate from the management system documentation (README.md, INSTALL.md, CLAUDE.md) and focuses on **what the configurations provide** rather than **how to install them**.
+
+#### When to Update MANUAL.md
+
+Update the manual when:
+1. **Adding new configuration files** (new .symlink or .symlink_config directories)
+2. **Adding new utility scripts** (.symlink_local_bin.* files)
+3. **Changing keybindings** in tmux, zsh, vim, or terminal emulators
+4. **Modifying behavior** of existing configurations
+5. **Adding new features** to utility scripts
+6. **Changing color schemes** or themes
+7. **Updating the Neovim submodule** significantly
+
+#### MANUAL.md Structure
+
+The manual is organized by **user-facing functionality**:
+
+**Main Sections:**
+- **Shell Configurations** - zsh, bash, aliases, starship prompt
+  - Keybindings and shortcuts
+  - Plugin configurations
+  - Custom functions
+- **Terminal Multiplexer** - tmux configuration
+  - All keybindings documented
+  - Status bar format
+  - Special features
+- **Editor Configurations** - Neovim, Vim, Emacs
+  - Links to Neovim submodule README
+  - Configuration highlights
+  - Keybinding reference
+- **Terminal Emulators** - Kitty, Alacritty
+  - Theme settings
+  - Keybindings
+  - Integration details
+- **Development Tools** - Git, IPython, language configs
+- **Utility Scripts** - All ~/.local/bin scripts
+  - Usage examples
+  - Options and flags
+  - Integration notes
+- **System Integration** - Karabiner, etc.
+- **Appendix** - Color schemes, fonts, file locations
+
+#### How to Update the Manual
+
+When making changes to configurations:
+
+1. **Read the affected config file** to understand the changes
+2. **Update the relevant section** in MANUAL.md:
+   - For keybindings: Update the key mapping tables
+   - For features: Update the features list
+   - For scripts: Update usage examples and options
+3. **Keep examples current** - Show real, working examples
+4. **Update the TOC** if adding new sections
+5. **Test the examples** - Ensure documented commands actually work
+6. **Cross-reference** - Link between related sections
+7. **Preserve the tone** - Keep it user-friendly and helpful
+
+#### Neovim Documentation
+
+The Neovim configuration (git submodule at `nvim/nvim.symlink_config/`) maintains its own comprehensive README.md. The main MANUAL.md links to this rather than duplicating it. This keeps documentation close to the code and allows the Neovim config to evolve independently.
+
+**When updating Neovim:**
+- Update the submodule's README.md directly
+- Update the main MANUAL.md only if:
+  - The integration with dotfiles changes
+  - The symlink location changes
+  - The installation method changes
+
+#### Manual vs. README vs. INSTALL
+
+**README.md** - Quick start, project overview, installation commands
+**INSTALL.md** - Detailed installation, troubleshooting, publishing forks
+**MANUAL.md** - Configuration reference, keybindings, usage guide
+**CLAUDE.md** - Development guidance, architecture, AI assistant notes
+
+Think of it as:
+- README = "How do I get started?"
+- INSTALL = "How does the installation work?"
+- MANUAL = "How do I use what I installed?"
+- CLAUDE = "How does the system work internally?"
+
+#### Quick Reference for Manual Updates
+
+```bash
+# After adding a new configuration file:
+# 1. Read the config to understand features
+Read path/to/new/config.symlink
+
+# 2. Update MANUAL.md with new section
+Edit MANUAL.md
+
+# 3. Add to appropriate section:
+#    - Features list
+#    - Keybindings (if applicable)
+#    - Usage examples
+#    - Integration notes
+
+# After adding a utility script:
+# 1. Read the script to understand usage
+Read path/to/script.symlink_local_bin.zsh
+
+# 2. Update "Utility Scripts" section in MANUAL.md
+#    - Script name and purpose
+#    - Usage syntax
+#    - Options and flags
+#    - Examples (at least 2-3)
+#    - Dependencies (if any)
+
+# After modifying keybindings:
+# 1. Find the relevant section (Shell/Tmux/Editor/Terminal)
+# 2. Update the keybinding table
+# 3. Note any changed behavior
+```
+
+#### Finding What Needs Documentation
+
+Use these commands to discover configurations:
+
+```bash
+# Find all symlink files
+find . -name "*.symlink" -o -name "*.symlink_config"
+
+# Find all utility scripts
+find . -name "*.symlink_local_bin.*"
+
+# Check what's actually linked
+ls -la ~/.config/
+ls -la ~/.local/bin/
+ls -la ~ | grep "^\."
+```
