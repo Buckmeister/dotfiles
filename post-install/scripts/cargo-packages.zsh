@@ -7,8 +7,9 @@
 # Installs Rust packages from a centralized list using cargo.
 # Uses shared libraries for package management, validation, and UI.
 #
-# DEPENDENCY: Requires Rust toolchain (cargo/rustup) to be installed.
-#             Run toolchains.zsh first if Rust is not installed.
+# Dependencies:
+#   - cargo (Rust package manager) → provided by toolchains.zsh
+#   - rustc (Rust compiler) → provided by toolchains.zsh
 #
 # Package list: config/packages/cargo-packages.list
 # ============================================================================
@@ -29,6 +30,7 @@ source "$LIB_DIR/colors.zsh"
 source "$LIB_DIR/ui.zsh"
 source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
+source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/greetings.zsh"
 
@@ -70,6 +72,13 @@ for arg in "$@"; do
 done
 
 # ============================================================================
+# Dependency Declaration
+# ============================================================================
+
+declare_dependency_command "cargo" "Rust package manager" "toolchains.zsh"
+declare_dependency_command "rustc" "Rust compiler" "toolchains.zsh"
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
@@ -80,13 +89,13 @@ else
 fi
 echo
 
-# Validate prerequisites
-if ! validate_command cargo "cargo (Rust package manager)"; then
-    print_error "Rust toolchain not found"
-    print_info "Please install Rust first by running: ./post-install/scripts/toolchains.zsh"
-    print_info "Or visit: https://rustup.rs/"
-    exit 1
-fi
+# ============================================================================
+# Dependency Validation
+# ============================================================================
+
+draw_section_header "Checking Dependencies"
+
+check_and_resolve_dependencies || exit 1
 
 # Show current Rust version
 if command_exists rustc; then
@@ -101,7 +110,7 @@ if $UPDATE_MODE; then
     # Update Mode: Update all installed cargo packages
     # ========================================================================
 
-    print_info "Checking for cargo-update tool..."
+    draw_section_header "Preparing Package Updater"
 
     if ! command_exists cargo-install-update-config; then
         print_info "Installing cargo-update for package management..."
@@ -116,26 +125,26 @@ if $UPDATE_MODE; then
         print_success "cargo-update already available"
     fi
 
-    echo
-    print_info "Updating all cargo packages..."
-    echo
+    draw_section_header "Updating Installed Packages"
 
     cargo install-update -a 2>&1 | while IFS= read -r line; do
         [[ -n "$line" ]] && echo "  $line"
     done
 
     if [[ $? -eq 0 ]]; then
-        print_success "Cargo packages updated"
+        echo
+        print_success "Cargo packages updated successfully"
     else
+        echo
         print_warning "Some packages may have failed to update"
     fi
 
-    echo
-    print_success "Cargo packages update complete!"
 else
     # ========================================================================
     # Install Mode: Install packages from list
     # ========================================================================
+
+    draw_section_header "Installing Packages from List"
 
     # Check if package list exists
     if [[ ! -f "$PACKAGE_LIST" ]]; then
@@ -149,12 +158,21 @@ else
     echo
     print_success "Cargo packages installation complete!"
 fi
-echo
 
-# Optional: Print installed cargo packages
+# ============================================================================
+# Summary
+# ============================================================================
+
+echo
+draw_section_header "Installation Summary"
+
+# Show installed cargo packages
 if command_exists cargo; then
     print_info "📦 Installed cargo binaries:"
-    ls -1 "$HOME/.cargo/bin" 2>/dev/null | head -20
+    echo
+    ls -1 "$HOME/.cargo/bin" 2>/dev/null | head -20 | while read -r binary; do
+        echo "   • $binary"
+    done
 fi
 
 echo
