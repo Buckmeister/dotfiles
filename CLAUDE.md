@@ -76,10 +76,10 @@ The repository provides two installation modes accessible via GitHub Pages:
 - **`dfauto`** - Automatic installation with all modules (non-interactive, installs everything)
 
 Both scripts are available in Unix (sh) and Windows (PowerShell) versions, accessible at:
-- `https://buckmeister.github.io/dotfiles/dfsetup` (Unix interactive)
-- `https://buckmeister.github.io/dotfiles/dfauto` (Unix automatic)
-- `https://buckmeister.github.io/dotfiles/dfsetup.ps1` (Windows interactive)
-- `https://buckmeister.github.io/dotfiles/dfauto.ps1` (Windows automatic)
+- `https://buckmeister.github.io/dfsetup` (Unix interactive)
+- `https://buckmeister.github.io/dfauto` (Unix automatic)
+- `https://buckmeister.github.io/dfsetup.ps1` (Windows interactive)
+- `https://buckmeister.github.io/dfauto.ps1` (Windows automatic)
 
 ### OS Detection and Context
 
