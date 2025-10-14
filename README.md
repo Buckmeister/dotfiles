@@ -24,8 +24,14 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 
 ### One-Line Installation (Recommended for Fresh Machines)
 
+**macOS / Linux / WSL:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.ps1 | iex
 ```
 
 That's it! This single command will:
@@ -33,6 +39,8 @@ That's it! This single command will:
 - ✅ Clone the repository with submodules
 - ✅ Run the complete setup automatically
 - ✅ Leave you with a beautifully configured environment
+
+**For memorable URLs:** Visit `https://username.github.io/dotfiles` (after enabling GitHub Pages)
 
 See [INSTALL.md](INSTALL.md) for detailed installation options and publishing your own fork.
 

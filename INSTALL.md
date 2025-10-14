@@ -2,11 +2,23 @@
 
 ## 🚀 One-Line Installation
 
-For a fresh machine, simply run:
+### macOS / Linux / WSL
+
+For Unix-like systems, simply run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.sh | sh
 ```
+
+### Windows (PowerShell)
+
+For Windows with PowerShell (Run as Administrator):
+
+```powershell
+irm https://raw.githubusercontent.com/USERNAME/dotfiles/main/install.ps1 | iex
+```
+
+**Note:** WSL (Windows Subsystem for Linux) is recommended for the best experience. The PowerShell installer can set up WSL for you.
 
 **Replace `USERNAME` with your GitHub username!**
 
@@ -57,8 +69,8 @@ cd ~/.config/dotfiles
 
 - ✅ **macOS** (Intel and Apple Silicon)
 - ✅ **Linux** (Ubuntu, Debian, Fedora, Arch)
-- ✅ **WSL** (Windows Subsystem for Linux)
-- 🔜 **Windows** (via PowerShell - coming soon!)
+- ✅ **WSL** (Windows Subsystem for Linux) - Recommended for Windows users
+- ✅ **Windows** (via PowerShell with Chocolatey)
 
 ## 🔒 Security
 
