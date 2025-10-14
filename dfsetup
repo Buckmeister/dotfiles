@@ -5,7 +5,7 @@
 # ============================================================================
 #
 # One-line installation for a fresh machine (interactive menu):
-#   curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh
+#   curl -fsSL https://buckmeister.github.io/dfsetup | sh
 #
 # This script:
 # - Detects OS (macOS, Linux, WSL)
@@ -14,7 +14,7 @@
 # - Launches interactive menu to select what to install
 #
 # For automatic installation, use dfauto instead:
-#   curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
+#   curl -fsSL https://buckmeister.github.io/dfauto | sh
 #
 # POSIX-compliant for maximum compatibility
 # ============================================================================

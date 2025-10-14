@@ -25,12 +25,12 @@
 
 **Interactive Menu (Recommended):**
 ```bash
-curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh
+curl -fsSL https://buckmeister.github.io/dfsetup | sh
 ```
 
 **Automatic (Install Everything):**
 ```bash
-curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
+curl -fsSL https://buckmeister.github.io/dfauto | sh
 ```
 
 ### Windows (PowerShell)
@@ -39,12 +39,12 @@ For Windows with PowerShell (Run as Administrator):
 
 **Interactive Menu (Recommended):**
 ```powershell
-irm https://buckmeister.github.io/dotfiles/dfsetup.ps1 | iex
+irm https://buckmeister.github.io/dfsetup.ps1 | iex
 ```
 
 **Automatic (Install Everything):**
 ```powershell
-irm https://buckmeister.github.io/dotfiles/dfauto.ps1 | iex
+irm https://buckmeister.github.io/dfauto.ps1 | iex
 ```
 
 **Note:** WSL (Windows Subsystem for Linux) is recommended for the best experience. The PowerShell installer can set up WSL for you.
@@ -121,27 +121,29 @@ The bootstrap script:
 - Asks for confirmation before installing dependencies
 - Can be reviewed before execution:
   ```bash
-  curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | less
-  curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | less
+  curl -fsSL https://buckmeister.github.io/dfsetup | less
+  curl -fsSL https://buckmeister.github.io/dfauto | less
   ```
 
 ## 📦 Publishing Your Fork
 
-Want to enable one-line installation for your fork? This repository includes everything you need to publish your customized dotfiles with GitHub Pages hosting.
+Want to enable one-line installation for your fork with clean URLs? You'll need two repositories: one for your dotfiles and one for GitHub Pages hosting.
 
 ### How It Works
 
-The repository includes bootstrap scripts in two locations:
-- **Root directory** (`dfsetup`, `dfauto`, `dfsetup.ps1`, `dfauto.ps1`) - Source files for editing and local testing
-- **docs/ directory** - Copies served via GitHub Pages for web installation
+This setup uses **User Pages** for root-level URLs (`https://YOUR-USERNAME.github.io/dfsetup`):
 
-When someone runs `curl -fsSL https://YOUR-USERNAME.github.io/dotfiles/dfsetup | sh`, they're downloading the script from your `docs/` folder via GitHub Pages.
+**Two-Repository Architecture:**
+1. **`YOUR-USERNAME/dotfiles`** - Your main dotfiles repository
+2. **`YOUR-USERNAME/YOUR-USERNAME.github.io`** - User Pages site (hosts installer scripts)
+
+When someone runs `curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh`, they're downloading from your User Pages repository, which then clones your dotfiles repository.
 
 ### Setup Steps
 
-**1. Fork this repository** on GitHub to your account
+**1. Fork the dotfiles repository** on GitHub to your account
 
-**2. Update the repository URL** in all four bootstrap scripts:
+**2. Update the repository URL** in all four bootstrap scripts in your fork:
 
 Edit the `DOTFILES_REPO` variable in each file:
 - `dfsetup` (line 28)
@@ -159,89 +161,145 @@ To your fork:
 DOTFILES_REPO="https://github.com/YOUR-USERNAME/dotfiles.git"
 ```
 
-**3. Sync the scripts** to docs/ folder:
+Commit and push these changes to your dotfiles repository.
+
+**3. Create the User Pages repository** on GitHub:
 
 ```bash
-# Copy updated scripts to docs/ for GitHub Pages hosting
-cp dfsetup dfauto dfsetup.ps1 dfauto.ps1 docs/
+# Create a new repository named YOUR-USERNAME.github.io on GitHub
+# Then clone it locally
+git clone https://github.com/YOUR-USERNAME/YOUR-USERNAME.github.io.git
+cd YOUR-USERNAME.github.io
 
-# Verify the files are identical
-diff dfsetup docs/dfsetup
-diff dfauto docs/dfauto
-diff dfsetup.ps1 docs/dfsetup.ps1
-diff dfauto.ps1 docs/dfauto.ps1
+# Initialize with README
+cat > README.md << 'EOF'
+# My Dotfiles Installation
+
+Bootstrap installation scripts for my personal dotfiles.
+
+## Installation
+
+**macOS / Linux / WSL:**
+```bash
+curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh
 ```
 
-**4. Enable GitHub Pages**:
-- Go to your repository's Settings → Pages
-- Under "Source", select: **Deploy from a branch**
-- Under "Branch", select: **main** and folder: **/docs**
-- Click **Save**
+**Windows (PowerShell):**
+```powershell
+irm https://YOUR-USERNAME.github.io/dfsetup.ps1 | iex
+```
+EOF
 
-**5. Commit and push** all changes:
-
-```bash
-git add dfsetup dfauto dfsetup.ps1 dfauto.ps1 docs/
-git commit -m "Configure bootstrap scripts for personal fork"
+git add README.md
+git commit -m "Initial commit"
 git push origin main
 ```
 
-**6. Wait for deployment** (usually 1-2 minutes):
-- GitHub Actions will build and deploy your site
-- Check the Actions tab to monitor progress
-- Your scripts will be available at: `https://YOUR-USERNAME.github.io/dotfiles/`
+**4. Copy installer scripts** from your dotfiles repository:
 
-**7. Test your installation** URLs:
+```bash
+# From your dotfiles repository directory
+cd /path/to/YOUR-USERNAME/dotfiles
+
+# Copy all four installer scripts to User Pages repo
+cp dfsetup dfauto dfsetup.ps1 dfauto.ps1 ../YOUR-USERNAME.github.io/
+
+# Optional: Copy index.html landing page
+cp docs/index.html ../YOUR-USERNAME.github.io/
+```
+
+**5. Commit and push** to User Pages repository:
+
+```bash
+cd ../YOUR-USERNAME.github.io
+git add dfsetup dfauto dfsetup.ps1 dfauto.ps1 index.html
+git commit -m "Add dotfiles installation scripts"
+git push origin main
+```
+
+**6. Enable GitHub Pages** (if not auto-enabled):
+- Go to repository Settings → Pages
+- Source should automatically be set to: **Deploy from a branch → main → / (root)**
+- If not, select it and click **Save**
+
+**7. Wait for deployment** (usually 1-2 minutes):
+- GitHub will automatically deploy your site
+- Check the Actions tab to monitor progress
+- Your scripts will be available at: `https://YOUR-USERNAME.github.io/dfsetup`
+
+**8. Test your installation** URLs:
 
 ```bash
 # Test interactive installer (recommended)
-curl -fsSL https://YOUR-USERNAME.github.io/dotfiles/dfsetup | sh
+curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh
 
 # Test automatic installer
-curl -fsSL https://YOUR-USERNAME.github.io/dotfiles/dfauto | sh
+curl -fsSL https://YOUR-USERNAME.github.io/dfauto | sh
 ```
 
 ### Your Installation URLs
 
-After setup, share these commands with others (or use them yourself on new machines):
+After setup, share these clean commands with others (or use them yourself on new machines):
 
 **Unix/Linux/macOS/WSL:**
 ```bash
 # Interactive menu (recommended)
-curl -fsSL https://YOUR-USERNAME.github.io/dotfiles/dfsetup | sh
+curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh
 
 # Automatic installation
-curl -fsSL https://YOUR-USERNAME.github.io/dotfiles/dfauto | sh
+curl -fsSL https://YOUR-USERNAME.github.io/dfauto | sh
 ```
 
 **Windows PowerShell:**
 ```powershell
 # Interactive menu (recommended)
-irm https://YOUR-USERNAME.github.io/dotfiles/dfsetup.ps1 | iex
+irm https://YOUR-USERNAME.github.io/dfsetup.ps1 | iex
 
 # Automatic installation
-irm https://YOUR-USERNAME.github.io/dotfiles/dfauto.ps1 | iex
+irm https://YOUR-USERNAME.github.io/dfauto.ps1 | iex
 ```
 
-### Maintenance Tips
+### Maintenance
 
-**Keep scripts synchronized:**
-When you modify the bootstrap scripts, always copy them to `docs/`:
+**Keep scripts synchronized** between repositories:
+
+When you modify bootstrap scripts in your dotfiles repo, sync them to your User Pages repo:
+
 ```bash
-# After editing dfsetup, dfauto, or PowerShell scripts
-cp dfsetup dfauto dfsetup.ps1 dfauto.ps1 docs/
-git add dfsetup dfauto dfsetup.ps1 dfauto.ps1 docs/
+# After editing bootstrap scripts in dotfiles repository
+cd ~/.config/dotfiles
+git add dfsetup dfauto dfsetup.ps1 dfauto.ps1
 git commit -m "Update bootstrap scripts"
+git push
+
+# Copy to User Pages repository
+cp dfsetup dfauto dfsetup.ps1 dfauto.ps1 ~/YOUR-USERNAME.github.io/
+
+# Commit and push to User Pages repo
+cd ~/YOUR-USERNAME.github.io
+git add dfsetup dfauto dfsetup.ps1 dfauto.ps1
+git commit -m "Sync installer scripts from dotfiles repo"
 git push
 ```
 
-**Optional: Create a sync helper:**
+**Optional: Create a sync helper script:**
+
 ```bash
-# Add to ~/.config/dotfiles/bin/sync_bootstrap_scripts.zsh
+# Add to ~/.config/dotfiles/bin/sync_installers.zsh
 #!/usr/bin/env zsh
-SCRIPT_DIR="$(dirname "$(realpath "$0")")/.."
-cp "$SCRIPT_DIR"/{dfsetup,dfauto,dfsetup.ps1,dfauto.ps1} "$SCRIPT_DIR/docs/"
-echo "✅ Bootstrap scripts synced to docs/ folder"
+DOTFILES_DIR="$(dirname "$(realpath "$0")")/.."
+USER_PAGES_DIR="$HOME/YOUR-USERNAME.github.io"
+
+if [[ ! -d "$USER_PAGES_DIR" ]]; then
+    echo "❌ User Pages repository not found at: $USER_PAGES_DIR"
+    exit 1
+fi
+
+# Copy installer scripts
+cp "$DOTFILES_DIR"/{dfsetup,dfauto,dfsetup.ps1,dfauto.ps1} "$USER_PAGES_DIR/"
+
+echo "✅ Installer scripts synced to User Pages repository"
+echo "💡 Don't forget to commit and push: cd $USER_PAGES_DIR && git add . && git commit && git push"
 ```
 
 No external hosting needed - everything runs on GitHub Pages! 🎉
@@ -331,10 +389,10 @@ source ~/.zshrc
 curl -I https://buckmeister.github.io
 
 # Try with verbose output to see detailed error
-curl -fsSL -v https://buckmeister.github.io/dotfiles/dfsetup | sh
+curl -fsSL -v https://buckmeister.github.io/dfsetup | sh
 
 # Alternative: Download and inspect the script first
-curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup > /tmp/dfsetup
+curl -fsSL https://buckmeister.github.io/dfsetup > /tmp/dfsetup
 less /tmp/dfsetup  # Review the script
 sh /tmp/dfsetup    # Run it
 ```
@@ -462,7 +520,7 @@ If you encounter issues not covered here:
 **Idempotent by design:** Safe to run the installation multiple times - it won't break existing setups:
 ```bash
 # Update your dotfiles to latest version
-curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
+curl -fsSL https://buckmeister.github.io/dfauto | sh
 ```
 
 **Automatic backups:** All existing configurations are automatically backed up before linking:
@@ -480,7 +538,7 @@ cd ~/.config/dotfiles && ./setup
 ### Recommended Workflow
 
 **New machine setup:**
-1. Run one-line installer: `curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh`
+1. Run one-line installer: `curl -fsSL https://buckmeister.github.io/dfsetup | sh`
 2. Select desired components from interactive menu
 3. Restart terminal: `exec zsh` or open new terminal window
 4. Verify installation: `cd ~/.config/dotfiles && ./bin/librarian.zsh`
