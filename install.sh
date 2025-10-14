@@ -5,7 +5,7 @@
 # ============================================================================
 #
 # One-line installation for a fresh machine:
-#   curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh
 #
 # This script:
 # - Detects OS (macOS, Linux, WSL)
@@ -22,7 +22,7 @@ set -e  # Exit on error
 # Configuration
 # ============================================================================
 
-DOTFILES_REPO="https://github.com/thomascrha/dotfiles.git"  # TODO: Update with actual repo URL
+DOTFILES_REPO="https://github.com/Buckmeister/dotfiles.git"
 DOTFILES_DIR="$HOME/.config/dotfiles"
 SETUP_SCRIPT="$DOTFILES_DIR/bin/setup.zsh"
 

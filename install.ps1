@@ -3,7 +3,7 @@
 # ============================================================================
 #
 # One-line installation for a fresh Windows machine:
-#   irm https://raw.githubusercontent.com/USER/REPO/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.ps1 | iex
 #
 # This script:
 # - Detects Windows environment (PowerShell, WSL availability)
@@ -24,7 +24,7 @@ $ErrorActionPreference = "Stop"
 # Configuration
 # ============================================================================
 
-$DotfilesRepo = "https://github.com/thomascrha/dotfiles.git"  # TODO: Update with actual repo URL
+$DotfilesRepo = "https://github.com/Buckmeister/dotfiles.git"
 $DotfilesDir = "$HOME\.config\dotfiles"
 $SetupScript = "$DotfilesDir\bin\setup.zsh"
 
@@ -244,7 +244,7 @@ function Invoke-DotfilesInstallation {
         Write-Host ""
 
         # Run the bash installer in WSL
-        $installCmd = "curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/install.sh | sh"
+        $installCmd = "curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh"
 
         try {
             wsl bash -c $installCmd
@@ -379,7 +379,7 @@ catch {
     Write-Host ""
     Write-Error "Installation failed: $_"
     Write-Host ""
-    Write-Info "For help, please visit: https://github.com/USER/dotfiles/issues"
+    Write-Info "For help, please visit: https://github.com/Buckmeister/dotfiles/issues"
     exit 1
 }
 
