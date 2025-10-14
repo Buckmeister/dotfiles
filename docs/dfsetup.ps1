@@ -1,16 +1,19 @@
 # ============================================================================
-# Dotfiles Bootstrap Installer for Windows
+# Dotfiles Interactive Setup for Windows
 # ============================================================================
 #
-# One-line installation for a fresh Windows machine:
-#   irm https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.ps1 | iex
+# One-line installation for a fresh Windows machine (interactive menu):
+#   irm https://buckmeister.github.io/dfsetup.ps1 | iex
 #
 # This script:
 # - Detects Windows environment (PowerShell, WSL availability)
 # - Checks for required tools (git, pwsh)
 # - Offers to install missing dependencies via Chocolatey
 # - Clones the dotfiles repository
-# - Runs the setup script
+# - Launches interactive menu to select what to install
+#
+# For automatic installation, use dfauto.ps1 instead:
+#   irm https://buckmeister.github.io/dfauto.ps1 | iex
 #
 # PowerShell 5.1+ compatible
 # ============================================================================
@@ -243,8 +246,8 @@ function Invoke-DotfilesInstallation {
         Write-Info "Launching WSL to run the Linux installation script..."
         Write-Host ""
 
-        # Run the bash installer in WSL
-        $installCmd = "curl -fsSL https://buckmeister.github.io/dfinstaller | sh"
+        # Run the bash installer in WSL (interactive mode)
+        $installCmd = "curl -fsSL https://buckmeister.github.io/dfsetup | sh"
 
         try {
             wsl bash -c $installCmd

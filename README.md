@@ -34,9 +34,14 @@ curl -fsSL https://buckmeister.github.io/dfsetup | sh
 curl -fsSL https://buckmeister.github.io/dfauto | sh
 ```
 
-**Windows (PowerShell):**
+**Windows PowerShell (Interactive Menu):**
 ```powershell
-irm https://buckmeister.github.io/install.ps1 | iex
+irm https://buckmeister.github.io/dfsetup.ps1 | iex
+```
+
+**Or for automatic installation (everything):**
+```powershell
+irm https://buckmeister.github.io/dfauto.ps1 | iex
 ```
 
 That's it! This single command will:

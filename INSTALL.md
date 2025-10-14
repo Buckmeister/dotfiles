@@ -18,8 +18,14 @@ curl -fsSL https://USERNAME.github.io/dfauto | sh
 
 For Windows with PowerShell (Run as Administrator):
 
+**Interactive Menu (Recommended):**
 ```powershell
-irm https://USERNAME.github.io/install.ps1 | iex
+irm https://USERNAME.github.io/dfsetup.ps1 | iex
+```
+
+**Automatic (Install Everything):**
+```powershell
+irm https://USERNAME.github.io/dfauto.ps1 | iex
 ```
 
 **Note:** WSL (Windows Subsystem for Linux) is recommended for the best experience. The PowerShell installer can set up WSL for you.
@@ -106,7 +112,8 @@ To enable one-line installation for your fork:
    ```bash
    cp dfsetup docs/dfsetup
    cp dfauto docs/dfauto
-   cp install.ps1 docs/install.ps1
+   cp dfsetup.ps1 docs/dfsetup.ps1
+   cp dfauto.ps1 docs/dfauto.ps1
    ```
 5. **Commit and push** the changes
 6. **Share your installation commands**:
@@ -120,9 +127,10 @@ To enable one-line installation for your fork:
 
 The scripts will be automatically available via GitHub Pages at:
 ```
-https://YOUR_USERNAME.github.io/dfsetup
-https://YOUR_USERNAME.github.io/dfauto
-https://YOUR_USERNAME.github.io/install.ps1
+https://YOUR_USERNAME.github.io/dfsetup       (Unix interactive)
+https://YOUR_USERNAME.github.io/dfauto        (Unix automatic)
+https://YOUR_USERNAME.github.io/dfsetup.ps1   (Windows interactive)
+https://YOUR_USERNAME.github.io/dfauto.ps1    (Windows automatic)
 ```
 
 No external hosting needed! 🎉

@@ -267,12 +267,27 @@
             </div>
 
             <div id="windows-content" class="platform-content">
-                <p style="margin-bottom: 1rem;">For Windows PowerShell (Run as Administrator):</p>
-                <div class="code-block">
-                    <button class="copy-button" onclick="copyCode('windows-code')">Copy</button>
-                    <pre id="windows-code">irm https://buckmeister.github.io/install.ps1 | iex</pre>
+                <p style="margin-bottom: 1.5rem;">For Windows PowerShell (Run as Administrator):</p>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--cyan); font-size: 1.1rem; margin-bottom: 0.5rem;">🎯 Interactive (Recommended)</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.75rem;">Launches an interactive menu to select what to install</p>
+                    <div class="code-block">
+                        <button class="copy-button" onclick="copyCode('windows-interactive')">Copy</button>
+                        <pre id="windows-interactive">irm https://buckmeister.github.io/dfsetup.ps1 | iex</pre>
+                    </div>
                 </div>
-                <p style="margin-top: 1rem; color: var(--yellow); font-size: 0.9rem;">
+
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="color: var(--purple); font-size: 1.1rem; margin-bottom: 0.5rem;">⚡ Automatic</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.75rem;">Installs everything automatically (non-interactive)</p>
+                    <div class="code-block">
+                        <button class="copy-button" onclick="copyCode('windows-auto')">Copy</button>
+                        <pre id="windows-auto">irm https://buckmeister.github.io/dfauto.ps1 | iex</pre>
+                    </div>
+                </div>
+
+                <p style="color: var(--yellow); font-size: 0.9rem;">
                     ⚠️ WSL (Windows Subsystem for Linux) is recommended for the best experience
                 </p>
             </div>
