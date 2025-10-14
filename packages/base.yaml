@@ -1,0 +1,603 @@
+# Universal Package Manifest - Base Configuration
+#
+# This manifest defines the foundational packages for a modern development
+# environment, carefully curated for cross-platform compatibility.
+
+version: "1.0"
+
+metadata:
+  name: "Thomas's Development Environment"
+  description: "Cross-platform packages for modern software development"
+  author: "Thomas"
+  last_updated: "2025-10-14"
+  repository: "https://github.com/Buckmeister/dotfiles"
+
+settings:
+  auto_confirm: false
+  parallel_install: true
+  skip_installed: true
+  prefer_native: true
+
+# ============================================================================
+# Package Repositories
+# ============================================================================
+
+repositories:
+  taps:
+    - name: "homebrew/cask-fonts"
+      platforms: [macos]
+
+  ppas:
+    - name: "ppa:neovim-ppa/unstable"
+      platforms: [ubuntu, debian]
+
+# ============================================================================
+# Core Development Tools (Required)
+# ============================================================================
+
+packages:
+  - id: git
+    name: "Git"
+    description: "Distributed version control system"
+    category: git
+    priority: required
+    platforms: [macos, linux, windows]
+    install:
+      brew: git
+      apt: git
+      yum: git
+      choco: git
+      winget: Git.Git
+
+  - id: curl
+    name: "cURL"
+    description: "Command-line tool for transferring data with URLs"
+    category: network
+    priority: required
+    platforms: [macos, linux, windows]
+    install:
+      brew: curl
+      apt: curl
+      yum: curl
+      choco: curl
+      winget: cURL.cURL
+
+  - id: wget
+    name: "wget"
+    description: "Internet file retriever"
+    category: network
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: wget
+      apt: wget
+      yum: wget
+      choco: wget
+      winget: JernejSimoncic.Wget
+
+  # ============================================================
+  # Text Editors (Required)
+  # ============================================================
+
+  - id: neovim
+    name: "Neovim"
+    description: "Hyperextensible Vim-based text editor"
+    category: editor
+    priority: required
+    platforms: [macos, linux, windows]
+    install:
+      brew: neovim
+      apt: neovim
+      yum: neovim
+      pacman: neovim
+      choco: neovim
+      winget: Neovim.Neovim
+    alternatives:
+      - method: cargo
+        package: neovim
+      - method: source
+        platforms: [linux]
+        command: |
+          git clone https://github.com/neovim/neovim.git /tmp/neovim
+          cd /tmp/neovim && make CMAKE_BUILD_TYPE=Release
+          sudo make install
+    dependencies: [git, curl]
+
+  # ============================================================
+  # Shell & Terminal Enhancements (Recommended)
+  # ============================================================
+
+  - id: zsh
+    name: "Zsh"
+    description: "Powerful shell with advanced features"
+    category: shell
+    priority: required
+    platforms: [macos, linux]
+    install:
+      brew: zsh
+      apt: zsh
+      yum: zsh
+      pacman: zsh
+
+  - id: tmux
+    name: "tmux"
+    description: "Terminal multiplexer"
+    category: terminal
+    priority: recommended
+    platforms: [macos, linux]
+    install:
+      brew: tmux
+      apt: tmux
+      yum: tmux
+      pacman: tmux
+      choco: tmux  # via Cygwin
+
+  - id: starship
+    name: "Starship"
+    description: "Cross-shell prompt"
+    category: shell
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: starship
+      apt: null  # Use cargo instead
+      choco: starship
+      winget: Starship.Starship
+      cargo: starship
+
+  # ============================================================
+  # Modern CLI Replacements (Recommended)
+  # ============================================================
+
+  - id: bat
+    name: "bat"
+    description: "Cat clone with syntax highlighting"
+    category: utilities
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: bat
+      apt: bat
+      yum: bat
+      pacman: bat
+      choco: bat
+      winget: sharkdp.bat
+    alternatives:
+      - method: cargo
+        package: bat
+
+  - id: eza
+    name: "eza"
+    description: "Modern replacement for ls"
+    category: utilities
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: eza
+      apt: null  # Use cargo instead
+      pacman: eza
+      choco: eza
+      winget: eza-community.eza
+    alternatives:
+      - method: cargo
+        package: eza
+
+  - id: ripgrep
+    name: "Ripgrep"
+    description: "Ultra-fast text search tool"
+    category: search
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: ripgrep
+      apt: ripgrep
+      yum: ripgrep
+      pacman: ripgrep
+      choco: ripgrep
+      winget: BurntSushi.ripgrep.MSVC
+    alternatives:
+      - method: cargo
+        package: ripgrep
+
+  - id: fd
+    name: "fd"
+    description: "Simple, fast alternative to find"
+    category: search
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: fd
+      apt: fd-find  # Different name on Debian
+      yum: fd-find
+      pacman: fd
+      choco: fd
+      winget: sharkdp.fd
+    alternatives:
+      - method: cargo
+        package: fd-find
+
+  - id: fzf
+    name: "fzf"
+    description: "Fuzzy finder for the command line"
+    category: search
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: fzf
+      apt: fzf
+      yum: fzf
+      pacman: fzf
+      choco: fzf
+      winget: junegunn.fzf
+
+  - id: delta
+    name: "git-delta"
+    description: "Syntax-highlighting pager for git"
+    category: git
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: git-delta
+      apt: git-delta
+      pacman: git-delta
+      choco: delta
+      winget: dandavison.delta
+    alternatives:
+      - method: cargo
+        package: git-delta
+
+  # ============================================================
+  # Development Languages & Toolchains (Recommended)
+  # ============================================================
+
+  - id: nodejs
+    name: "Node.js"
+    description: "JavaScript runtime"
+    category: language
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: node
+      apt: nodejs
+      yum: nodejs
+      pacman: nodejs
+      choco: nodejs
+      winget: OpenJS.NodeJS
+
+  - id: python3
+    name: "Python 3"
+    description: "Python programming language"
+    category: language
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: python@3
+      apt: python3
+      yum: python3
+      pacman: python
+      choco: python
+      winget: Python.Python.3.12
+
+  - id: rust
+    name: "Rust"
+    description: "Rust programming language"
+    category: language
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: rust
+      apt: null  # Use rustup instead
+      pacman: rust
+      choco: rust
+      winget: Rustlang.Rust.MSVC
+    alternatives:
+      - method: source
+        command: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+
+  # ============================================================
+  # Language Servers & Development Tools (Recommended)
+  # ============================================================
+
+  - id: lua-language-server
+    name: "Lua Language Server"
+    description: "LSP server for Lua"
+    category: development
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: lua-language-server
+      apt: null
+      pacman: lua-language-server
+      choco: null
+    alternatives:
+      - method: source
+        platforms: [linux, windows]
+
+  - id: stylua
+    name: "StyLua"
+    description: "Lua code formatter"
+    category: development
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: stylua
+      pacman: stylua
+      cargo: stylua
+
+  - id: shellcheck
+    name: "ShellCheck"
+    description: "Shell script static analysis"
+    category: development
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: shellcheck
+      apt: shellcheck
+      yum: ShellCheck
+      pacman: shellcheck
+      choco: shellcheck
+      winget: koalaman.shellcheck
+
+  - id: shfmt
+    name: "shfmt"
+    description: "Shell script formatter"
+    category: development
+    priority: recommended
+    platforms: [macos, linux, windows]
+    install:
+      brew: shfmt
+      apt: null
+      pacman: shfmt
+      choco: null
+    alternatives:
+      - method: go
+        package: mvdan.cc/sh/v3/cmd/shfmt
+
+  # ============================================================
+  # Container & Virtualization (Optional)
+  # ============================================================
+
+  - id: docker
+    name: "Docker Desktop"
+    description: "Container platform"
+    category: container
+    priority: optional
+    platforms: [macos, windows]
+    install:
+      brew_cask: docker
+      choco: docker-desktop
+      winget: Docker.DockerDesktop
+    post_install:
+      macos: "open /Applications/Docker.app"
+
+  # ============================================================
+  # Terminal Emulators (Optional)
+  # ============================================================
+
+  - id: kitty
+    name: "Kitty"
+    description: "GPU-accelerated terminal emulator"
+    category: terminal
+    priority: optional
+    platforms: [macos, linux]
+    install:
+      brew_cask: kitty
+      apt: kitty
+      pacman: kitty
+
+  - id: alacritty
+    name: "Alacritty"
+    description: "Cross-platform GPU-accelerated terminal"
+    category: terminal
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: alacritty
+      apt: alacritty
+      pacman: alacritty
+      choco: alacritty
+      winget: Alacritty.Alacritty
+
+  # ============================================================
+  # Fonts (Optional)
+  # ============================================================
+
+  - id: font-jetbrains-mono-nerd-font
+    name: "JetBrains Mono Nerd Font"
+    description: "JetBrains Mono with Nerd Font patches"
+    category: font
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: font-jetbrains-mono-nerd-font
+      apt: null  # Manual install
+      choco: nerd-fonts-jetbrainsmono
+      winget: null
+
+  - id: font-fira-code-nerd-font
+    name: "Fira Code Nerd Font"
+    description: "Fira Code with Nerd Font patches"
+    category: font
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: font-fira-code-nerd-font
+      choco: nerd-fonts-firacode
+
+  - id: font-hack-nerd-font
+    name: "Hack Nerd Font"
+    description: "Hack with Nerd Font patches"
+    category: font
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: font-hack-nerd-font
+      choco: nerd-fonts-hack
+
+  # ============================================================
+  # GUI Applications (Optional)
+  # ============================================================
+
+  - id: firefox
+    name: "Firefox"
+    description: "Mozilla Firefox web browser"
+    category: browser
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: firefox
+      apt: firefox
+      yum: firefox
+      pacman: firefox
+      choco: firefox
+      winget: Mozilla.Firefox
+
+  - id: brave-browser
+    name: "Brave Browser"
+    description: "Privacy-focused web browser"
+    category: browser
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: brave-browser
+      apt: null  # Requires brave-browser PPA
+      choco: brave
+      winget: Brave.Brave
+
+  - id: visual-studio-code
+    name: "Visual Studio Code"
+    description: "Microsoft's code editor"
+    category: editor
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew_cask: visual-studio-code
+      apt: code
+      yum: code
+      pacman: code
+      choco: vscode
+      winget: Microsoft.VisualStudioCode
+
+  # ============================================================
+  # Utilities & Extras (Optional)
+  # ============================================================
+
+  - id: htop
+    name: "htop"
+    description: "Interactive process viewer"
+    category: utilities
+    priority: optional
+    platforms: [macos, linux]
+    install:
+      brew: htop
+      apt: htop
+      yum: htop
+      pacman: htop
+
+  - id: jq
+    name: "jq"
+    description: "Command-line JSON processor"
+    category: utilities
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew: jq
+      apt: jq
+      yum: jq
+      pacman: jq
+      choco: jq
+      winget: jqlang.jq
+
+  - id: tree
+    name: "tree"
+    description: "Display directory tree structure"
+    category: utilities
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew: tree
+      apt: tree
+      yum: tree
+      pacman: tree
+      choco: tree
+      winget: GnuWin32.Tree
+
+  - id: gh
+    name: "GitHub CLI"
+    description: "GitHub command-line tool"
+    category: git
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew: gh
+      apt: gh
+      yum: gh
+      pacman: github-cli
+      choco: gh
+      winget: GitHub.cli
+
+  - id: httpie
+    name: "HTTPie"
+    description: "Human-friendly HTTP client"
+    category: network
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew: httpie
+      apt: httpie
+      yum: httpie
+      pacman: httpie
+      choco: httpie
+      winget: httpie.cli
+    alternatives:
+      - method: pipx
+        package: httpie
+
+  - id: asciinema
+    name: "asciinema"
+    description: "Terminal session recorder"
+    category: utilities
+    priority: optional
+    platforms: [macos, linux]
+    install:
+      brew: asciinema
+      apt: asciinema
+      pacman: asciinema
+    alternatives:
+      - method: pipx
+        package: asciinema
+
+  - id: silicon
+    name: "Silicon"
+    description: "Create beautiful code images"
+    category: utilities
+    priority: optional
+    platforms: [macos, linux, windows]
+    install:
+      brew: silicon
+      pacman: silicon
+      cargo: silicon
+
+# ============================================================================
+# Notes
+# ============================================================================
+#
+# This base manifest contains ~50 packages carefully selected for:
+#   • Cross-platform compatibility
+#   • Modern development workflows
+#   • Reasonable defaults for most developers
+#
+# Priority levels:
+#   • required (10 packages): Essential tools for any dev environment
+#   • recommended (25 packages): Common tools most developers want
+#   • optional (15+ packages): Specialized tools for specific needs
+#
+# To customize:
+#   1. Copy this file to ~/.local/share/dotfiles/packages.yaml
+#   2. Edit priorities, add/remove packages as needed
+#   3. Run: install_from_manifest
+#
+# To generate from your current system:
+#   generate_package_manifest --merge
+#
+# ============================================================================
