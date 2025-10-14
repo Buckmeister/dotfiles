@@ -24,15 +24,14 @@ setopt ERR_EXIT PIPE_FAIL
 SCRIPT_DIR="${0:a:h}"
 DOTFILES_ROOT="${SCRIPT_DIR:h}"
 
-# Colors
-COLOR_RESET="\033[0m"
-COLOR_BOLD="\033[1m"
-COLOR_RED="\033[38;5;204m"
-COLOR_GREEN="\033[38;5;114m"
-COLOR_YELLOW="\033[38;5;180m"
-COLOR_BLUE="\033[38;5;39m"
-COLOR_PURPLE="\033[38;5;170m"
-COLOR_CYAN="\033[38;5;38m"
+# Source shared libraries
+source "${DOTFILES_ROOT}/bin/lib/colors.zsh" 2>/dev/null || {
+    echo "Error: Could not load shared libraries"
+    exit 1
+}
+source "${DOTFILES_ROOT}/bin/lib/ui.zsh"
+source "${DOTFILES_ROOT}/bin/lib/utils.zsh"
+source "${DOTFILES_ROOT}/bin/lib/greetings.zsh"
 
 # Test configurations
 DISTROS=(
@@ -93,40 +92,6 @@ if [[ -n "$SINGLE_DISTRO" ]]; then
 fi
 
 # ============================================================================
-# UI Functions
-# ============================================================================
-
-print_header() {
-    printf "\n${COLOR_PURPLE}${COLOR_BOLD}"
-    printf "╔════════════════════════════════════════════════════════════════════════════╗\n"
-    printf "║                                                                            ║\n"
-    printf "║                   DOCKER INSTALLATION TESTING                              ║\n"
-    printf "║                                                                            ║\n"
-    printf "╚════════════════════════════════════════════════════════════════════════════╝\n"
-    printf "${COLOR_RESET}\n"
-}
-
-print_section() {
-    printf "\n${COLOR_CYAN}${COLOR_BOLD}═══ %s ═══${COLOR_RESET}\n\n" "$1"
-}
-
-print_success() {
-    printf "${COLOR_GREEN}✅ %s${COLOR_RESET}\n" "$1"
-}
-
-print_error() {
-    printf "${COLOR_RED}❌ %s${COLOR_RESET}\n" "$1"
-}
-
-print_warning() {
-    printf "${COLOR_YELLOW}⚠️  %s${COLOR_RESET}\n" "$1"
-}
-
-print_info() {
-    printf "${COLOR_BLUE}ℹ️  %s${COLOR_RESET}\n" "$1"
-}
-
-# ============================================================================
 # Test Functions
 # ============================================================================
 
@@ -135,102 +100,153 @@ test_installation() {
     local distro="$1"
     local mode="$2"
     local container_name="dotfiles-test-${distro//[:.]/-}-${mode}"
-
-    print_section "Testing: $distro with $mode"
-
-    # Determine the installer URL
     local installer_url="https://buckmeister.github.io/${mode}"
 
-    print_info "Container: $container_name"
-    print_info "Installer: $installer_url"
+    # Temporary file for capturing output
+    local output_file=$(mktemp)
+
+    draw_section_header "Testing: $distro with $mode"
     echo ""
 
-    printf "${COLOR_YELLOW}⏳ Running installation (this may take 1-2 minutes)...${COLOR_RESET}\n"
+    print_info "Container: $container_name"
+    print_info "Installer URL: $installer_url"
+    print_info "Test mode: ${mode}"
+    echo ""
 
     # Build the test command
     local test_cmd="
         set -e
-        echo '=== Installing curl ==='
+        echo 'PROGRESS:Installing prerequisites'
         if command -v apt-get >/dev/null 2>&1; then
-            apt-get update -qq && apt-get install -y -qq curl git
+            apt-get update -qq 2>&1 && apt-get install -y -qq curl git 2>&1
         elif command -v dnf >/dev/null 2>&1; then
-            dnf install -y -q curl git
+            dnf install -y -q curl git 2>&1
         fi
 
-        echo '=== Running installer: $mode ==='
-        # For dfsetup, we need to simulate user input (just pressing Enter to accept defaults)
+        echo 'PROGRESS:Running web installer'
+        # For dfsetup, we need to simulate user input
         if [ '$mode' = 'dfsetup' ]; then
             # Provide automated responses: Y for git, Y for zsh, Y for clone, then quit menu
-            printf 'Y\nY\nY\nq\n' | curl -fsSL $installer_url | sh || true
+            printf 'Y\nY\nY\nq\n' | curl -fsSL $installer_url | sh 2>&1 || true
         else
             # dfauto runs non-interactively
-            curl -fsSL $installer_url | sh
+            curl -fsSL $installer_url | sh 2>&1
         fi
 
-        echo '=== Verifying installation ==='
+        echo 'PROGRESS:Verifying installation'
         if [ -d ~/.config/dotfiles ]; then
-            echo 'SUCCESS: Dotfiles directory created'
+            echo 'SUCCESS:Dotfiles directory created'
         else
-            echo 'FAILED: Dotfiles directory not found'
+            echo 'FAILED:Dotfiles directory not found'
             exit 1
         fi
 
         if [ -d ~/.config/dotfiles/.git ]; then
-            echo 'SUCCESS: Git repository initialized'
+            echo 'SUCCESS:Git repository initialized'
         else
-            echo 'FAILED: Not a git repository'
+            echo 'FAILED:Not a git repository'
             exit 1
         fi
 
-        echo '=== Installation Summary ==='
-        echo \"Distribution: \$(cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2)\"
-        echo \"Install mode: $mode\"
-        echo \"Dotfiles location: ~/.config/dotfiles\"
         if [ -f ~/.config/dotfiles/bin/setup.zsh ]; then
-            echo 'Setup script: Found'
+            echo 'SUCCESS:Setup script found'
         fi
+
+        echo 'PROGRESS:Complete'
+        echo \"INFO:Distribution: \$(cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"')\"
+        echo \"INFO:Install mode: $mode\"
+        echo \"INFO:Dotfiles location: ~/.config/dotfiles\"
     "
 
-    # Run the test in a container (with progress indicators)
-    print_info "Phase 1/4: Pulling container image..."
+    # Progress tracking
+    local current_phase=1
+    local total_phases=4
+    local test_passed=true
 
-    # Show container output with progress markers
-    if docker run --rm \
+    print_info "Running test phases..."
+    echo ""
+
+    # Run the test in a container and capture output
+    docker run --rm \
         --name "$container_name" \
         -e DEBIAN_FRONTEND=noninteractive \
         "$distro" \
-        bash -c "$test_cmd" 2>&1 | while IFS= read -r line; do
-            # Show important progress markers
+        bash -c "$test_cmd" > "$output_file" 2>&1 &
+
+    local docker_pid=$!
+
+    # Monitor the output file in real-time
+    sleep 1  # Give docker a moment to start
+
+    show_progress 1 4 "Pulling container image"
+
+    # Tail the output file and show progress
+    (
+        tail -f "$output_file" 2>/dev/null | while IFS= read -r line; do
             case "$line" in
-                *"Installing curl"*)
-                    printf "${COLOR_BLUE}ℹ️  Phase 2/4: Installing prerequisites...${COLOR_RESET}\n"
+                PROGRESS:Installing*)
+                    current_phase=2
                     ;;
-                *"Running installer"*)
-                    printf "${COLOR_BLUE}ℹ️  Phase 3/4: Running web installer...${COLOR_RESET}\n"
+                PROGRESS:Running*)
+                    current_phase=3
                     ;;
-                *"Verifying installation"*)
-                    printf "${COLOR_BLUE}ℹ️  Phase 4/4: Verifying installation...${COLOR_RESET}\n"
+                PROGRESS:Verifying*)
+                    current_phase=4
                     ;;
-                *"SUCCESS:"*)
-                    printf "${COLOR_GREEN}  ✓ ${line#*SUCCESS: }${COLOR_RESET}\n"
+                SUCCESS:*)
+                    local message="${line#SUCCESS:}"
+                    print_success "$message"
                     ;;
-                *"FAILED:"*)
-                    printf "${COLOR_RED}  ✗ ${line#*FAILED: }${COLOR_RESET}\n"
+                FAILED:*)
+                    local message="${line#FAILED:}"
+                    print_error "$message"
+                    test_passed=false
                     ;;
-                *"Installation Summary"*)
-                    printf "\n${COLOR_CYAN}${COLOR_BOLD}Installation Summary:${COLOR_RESET}\n"
+                INFO:*)
+                    local message="${line#INFO:}"
+                    echo "   ${COLOR_COMMENT}$message${COLOR_RESET}"
+                    ;;
+                PROGRESS:Complete)
+                    break
                     ;;
             esac
-            # Optionally print all lines for debugging (uncomment next line)
-            # echo "$line"
-        done; then
+        done
+    ) &
+    local tail_pid=$!
+
+    # Wait for docker to complete
+    if wait $docker_pid; then
+        # Kill the tail process
+        kill $tail_pid 2>/dev/null || true
+        wait $tail_pid 2>/dev/null || true
+
+        # Show final progress
+        for phase in {2..4}; do
+            local phase_name
+            case $phase in
+                2) phase_name="Installing prerequisites" ;;
+                3) phase_name="Running web installer" ;;
+                4) phase_name="Verifying installation" ;;
+            esac
+            show_progress $phase 4 "$phase_name"
+        done
 
         echo ""
+        echo ""
         print_success "Test passed: $distro with $mode"
+        rm -f "$output_file"
         return 0
     else
+        # Kill the tail process
+        kill $tail_pid 2>/dev/null || true
+        wait $tail_pid 2>/dev/null || true
+
+        echo ""
         echo ""
         print_error "Test failed: $distro with $mode"
+        print_info "Last output:"
+        tail -20 "$output_file" 2>/dev/null || true
+        rm -f "$output_file"
         return 1
     fi
 }
@@ -240,25 +256,28 @@ test_installation() {
 # ============================================================================
 
 run_tests() {
-    print_header
+    draw_section_header "Docker Installation Testing" "Testing dotfiles on fresh containers"
+    echo ""
 
     # TL;DR Introduction
-    printf "${COLOR_BOLD}${COLOR_CYAN}What This Test Does:${COLOR_RESET}\n"
-    echo "  • Spins up fresh Docker container(s)"
-    echo "  • Downloads and runs the web installer"
-    echo "  • Verifies the dotfiles installation worked"
-    echo "  • Cleans up containers when done"
-    echo ""
-    printf "${COLOR_BOLD}${COLOR_YELLOW}⏱️  Estimated time:${COLOR_RESET} ~2-3 minutes per distribution\n"
-    echo ""
-    printf "${COLOR_BOLD}${COLOR_BLUE}💡 Tip:${COLOR_RESET} Watch the progress messages below to see what's happening\n"
+    draw_box \
+        "What This Test Does:" \
+        "• Spins up fresh Docker container(s)" \
+        "• Downloads and runs the web installer" \
+        "• Verifies the dotfiles installation worked" \
+        "• Cleans up containers when done" \
+        "" \
+        "⏱️  Estimated time: ~2-3 minutes per distribution" \
+        "" \
+        "💡 Tip: Watch the progress bars to see what's happening"
+
     echo ""
 
     print_info "Test configuration:"
-    echo "  Distributions: ${#DISTROS[@]}"
-    echo "  Modes: ${TEST_MODES[@]}"
-    echo "  Total tests: $((${#DISTROS[@]} * ${#TEST_MODES[@]}))"
-    echo
+    echo "   Distributions: ${#DISTROS[@]}"
+    echo "   Modes: ${TEST_MODES[@]}"
+    echo "   Total tests: $((${#DISTROS[@]} * ${#TEST_MODES[@]}))"
+    echo ""
 
     local total_tests=0
     local passed_tests=0
@@ -278,28 +297,31 @@ run_tests() {
                 failed_list+=("$distro ($mode)")
             fi
 
-            echo
+            echo ""
         done
     done
 
     # Print summary
-    print_section "Test Results Summary"
+    draw_section_header "Test Results Summary"
+    echo ""
 
-    echo "${COLOR_BOLD}Total tests:${COLOR_RESET}  $total_tests"
-    echo "${COLOR_GREEN}${COLOR_BOLD}Passed:${COLOR_RESET}       $passed_tests"
-    echo "${COLOR_RED}${COLOR_BOLD}Failed:${COLOR_RESET}       $failed_tests"
-    echo
+    echo "   ${COLOR_BOLD}Total tests:${COLOR_RESET}  $total_tests"
+    echo "   ${COLOR_SUCCESS}${COLOR_BOLD}Passed:${COLOR_RESET}       $passed_tests"
+    echo "   ${COLOR_ERROR}${COLOR_BOLD}Failed:${COLOR_RESET}       $failed_tests"
+    echo ""
 
     if [[ $failed_tests -gt 0 ]]; then
         print_error "Failed tests:"
         for failed in "${failed_list[@]}"; do
-            echo "  - $failed"
+            echo "   - $failed"
         done
-        echo
+        echo ""
         return 1
     else
         print_success "All tests passed! 🎉"
-        echo
+        echo ""
+        print_success "$(get_random_friend_greeting)"
+        echo ""
         return 0
     fi
 }
@@ -330,6 +352,7 @@ if ! docker ps >/dev/null 2>&1; then
 fi
 
 print_success "Docker is running"
+echo ""
 
 # Run the test suite
 run_tests
