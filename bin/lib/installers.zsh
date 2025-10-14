@@ -458,7 +458,8 @@ function github_install_release_archive() {
 function cleanup_temp_downloads() {
     if [[ -d "$DOWNLOAD_TEMP_DIR" ]]; then
         print_info "Cleaning up temporary downloads..."
-        rm -rf "$DOWNLOAD_TEMP_DIR"/*
+        # Use (N) glob qualifier to avoid "no matches found" error
+        rm -rf "$DOWNLOAD_TEMP_DIR"/*(N)
         print_success "Cleaned up temporary files"
     fi
 }

@@ -56,16 +56,12 @@ OMNISHARP_DIR="/usr/local/share/omnisharp"
 
 # Install with sudo on Linux, without on macOS
 function os_aware_command() {
-    local cmd="$@"
     case "${DF_OS:-$(get_os)}" in
         linux)
-            sudo $cmd
-            ;;
-        macos)
-            $cmd
+            sudo "$@"
             ;;
         *)
-            $cmd
+            "$@"
             ;;
     esac
 }
