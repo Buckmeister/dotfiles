@@ -347,7 +347,7 @@ Neovim is the primary editor, configured as a **git submodule** with its own com
 
 Neovim has its own detailed manual. Please refer to:
 
-**[Neovim Configuration Manual](nvim/nvim.symlink_config/README.md)**
+**[Neovim Configuration Manual](https://github.com/Buckmeister/lualoves.nvim/blob/main/README.md)**
 
 Key highlights:
 - Modern Lua configuration with modular architecture
@@ -364,7 +364,7 @@ Key highlights:
 - Text search: `<Space>fg`
 - File explorer: `<Space>e`
 
-For complete keybindings and features, see the [Neovim README](nvim/nvim.symlink_config/README.md).
+For complete keybindings and features, see the [Neovim README](https://github.com/Buckmeister/lualoves.nvim/blob/main/README.md).
 
 ---
 
@@ -1559,7 +1559,7 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 - [CLAUDE.md](CLAUDE.md) - Developer guidance
 
 **For Neovim:**
-- [nvim/nvim.symlink_config/README.md](nvim/nvim.symlink_config/README.md) - Neovim manual
+- [lualoves.nvim README](https://github.com/Buckmeister/lualoves.nvim/blob/main/README.md) - Neovim manual
 
 **For System Health:**
 ```bash
