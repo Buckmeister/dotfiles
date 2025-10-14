@@ -192,9 +192,54 @@ All scripts in `post-install/scripts/` are modular and OS-aware:
 # Create a backup of the dotfiles repository
 ./backup
 
-# Generate new brew install script from current system
+# Generate new brew install script from current system (deprecated)
 ~/.local/bin/generate_brew_install_script
 ```
+
+### Universal Package Management System (NEW!)
+
+The dotfiles now include a **complete universal package management system** for cross-platform package installation and synchronization:
+
+```bash
+# Generate manifest from your current system
+generate_package_manifest
+# → Creates ~/.local/share/dotfiles/packages.yaml
+
+# Install packages on a new machine
+install_from_manifest
+# → Installs all packages from manifest
+
+# Keep manifest synchronized
+sync_packages --push
+# → Regenerates manifest and commits to git
+
+# Additional options
+generate_package_manifest -o ~/my-packages.yaml  # Custom location
+install_from_manifest --dry-run                   # Preview only
+install_from_manifest --required-only             # Essential packages only
+install_from_manifest --category editor           # Specific category
+sync_packages --push --message "Add new tools"    # Custom commit
+```
+
+**Features:**
+- **Cross-Platform**: Works on macOS (Homebrew), Ubuntu/Debian (APT), and more
+- **Universal Manifest**: One YAML file works everywhere
+- **Package Manager Support**: brew, apt, cargo, npm, pipx, gem (with more planned)
+- **Intelligent Installation**: Skips already installed, detects available package managers
+- **Git Integration**: Version control your entire package environment
+- **Beautiful UI**: OneDark-themed with progress indicators
+- **Flexible Filtering**: By category, priority, or platform
+
+**Documentation:**
+- `packages/README.md` - Overview and usage guide
+- `packages/SCHEMA.md` - Complete YAML specification
+- `packages/base.yaml` - Curated base manifest with 50+ packages
+
+**Use Cases:**
+- System migration (export from old machine, install on new)
+- Team standardization (share identical development environment)
+- Disaster recovery (one-command reinstall everything)
+- Multi-platform development (same packages on macOS and Linux)
 
 **The Librarian** provides comprehensive system health reporting including:
 - **Core System Status** - Dotfiles location, setup scripts, symlink counts, git status

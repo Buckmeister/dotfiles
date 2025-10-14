@@ -16,6 +16,7 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 - 🔗 **Symlink Architecture** - Clean, organized file structure with automatic linking
 - 🎯 **Modular Post-Install** - Individual scripts for languages, tools, and configurations
 - 🧪 **Comprehensive Testing** - 251 tests across 15 suites with ~96% code coverage
+- 📦 **Universal Package Management** - One YAML manifest installs packages across any platform (brew, apt, cargo, npm, and more)
 - 💙 **Crafted with Care** - Every detail considered, every message friendly
 
 ---
@@ -307,6 +308,56 @@ git commit -m "Update Neovim submodule reference"
 ```
 
 **See [MANUAL.md](MANUAL.md#utility-scripts) for complete documentation of all utility scripts.**
+
+### Universal Package Management
+
+The dotfiles include a **complete universal package management system** that lets you define packages once and install them anywhere.
+
+Instead of maintaining separate package lists for each platform (Brewfile, apt-packages.txt, etc.), maintain **one universal manifest** that works everywhere:
+
+```bash
+# Generate manifest from your current system
+generate_package_manifest
+
+# Install packages on a new system (any OS)
+install_from_manifest
+
+# Keep manifest synchronized with your system
+sync_packages
+```
+
+**Features:**
+- 📦 **Cross-Platform**: Works on macOS (Homebrew), Ubuntu/Debian (APT), and more
+- 🎯 **Priority Filtering**: Install only required, recommended, or optional packages
+- 🏷️ **Category Organization**: Filter by editor, shell, search, git, language, etc.
+- 🔄 **Flexible Installation**: Primary package manager + alternative methods (cargo, npm, pipx)
+- 📝 **Rich Metadata**: Descriptions, dependencies, platform restrictions, post-install commands
+- 🌍 **Platform Awareness**: Automatically skips incompatible packages
+
+**Quick Example:**
+
+```yaml
+# packages.yaml - One manifest, works everywhere
+packages:
+  - id: ripgrep
+    name: "Ripgrep"
+    description: "Ultra-fast text search"
+    category: search
+    priority: recommended
+    install:
+      brew: ripgrep
+      apt: ripgrep
+      choco: ripgrep
+      winget: BurntSushi.ripgrep.MSVC
+    alternatives:
+      - method: cargo
+        package: ripgrep
+```
+
+**Complete Documentation:**
+- **[packages/README.md](packages/README.md)** - Overview, workflow, and getting started
+- **[packages/SCHEMA.md](packages/SCHEMA.md)** - Complete YAML schema reference
+- **[packages/base.yaml](packages/base.yaml)** - Curated manifest with 50+ packages
 
 ---
 
