@@ -22,6 +22,22 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 
 ## 🚀 Quick Start
 
+### One-Line Installation (Recommended for Fresh Machines)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Buckmeister/dotfiles/main/install.sh | sh
+```
+
+That's it! This single command will:
+- ✅ Detect your OS and install required tools (git, zsh)
+- ✅ Clone the repository with submodules
+- ✅ Run the complete setup automatically
+- ✅ Leave you with a beautifully configured environment
+
+See [INSTALL.md](INSTALL.md) for detailed installation options and publishing your own fork.
+
+### Manual Installation
+
 ```bash
 # Clone the repository with submodules
 git clone --recurse-submodules https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
@@ -33,7 +49,7 @@ cd ~/.config/dotfiles
 
 **Note**: The `--recurse-submodules` flag ensures that the Neovim configuration (managed as a separate repository) is cloned automatically.
 
-That's it! The setup script will:
+The setup script will:
 1. Detect your operating system
 2. Create symlinks for all configurations
 3. Launch the interactive menu for post-install scripts

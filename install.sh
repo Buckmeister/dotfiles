@@ -1,0 +1,354 @@
+#!/bin/sh
+
+# ============================================================================
+# Dotfiles Bootstrap Installer
+# ============================================================================
+#
+# One-line installation for a fresh machine:
+#   curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/install.sh | sh
+#
+# This script:
+# - Detects OS (macOS, Linux, WSL)
+# - Checks for required tools (git, zsh)
+# - Clones the dotfiles repository
+# - Runs the setup script with all modules
+#
+# POSIX-compliant for maximum compatibility
+# ============================================================================
+
+set -e  # Exit on error
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+DOTFILES_REPO="https://github.com/thomascrha/dotfiles.git"  # TODO: Update with actual repo URL
+DOTFILES_DIR="$HOME/.config/dotfiles"
+SETUP_SCRIPT="$DOTFILES_DIR/bin/setup.zsh"
+
+# ============================================================================
+# Colors (OneDark theme, POSIX-compatible)
+# ============================================================================
+
+# Check if terminal supports colors
+if [ -t 1 ]; then
+    COLOR_RESET="\033[0m"
+    COLOR_BOLD="\033[1m"
+
+    # OneDark colors
+    COLOR_RED="\033[38;5;204m"
+    COLOR_GREEN="\033[38;5;114m"
+    COLOR_YELLOW="\033[38;5;180m"
+    COLOR_BLUE="\033[38;5;39m"
+    COLOR_PURPLE="\033[38;5;170m"
+    COLOR_CYAN="\033[38;5;38m"
+else
+    COLOR_RESET=""
+    COLOR_BOLD=""
+    COLOR_RED=""
+    COLOR_GREEN=""
+    COLOR_YELLOW=""
+    COLOR_BLUE=""
+    COLOR_PURPLE=""
+    COLOR_CYAN=""
+fi
+
+# ============================================================================
+# UI Functions
+# ============================================================================
+
+print_header() {
+    printf "\n"
+    printf "${COLOR_PURPLE}${COLOR_BOLD}"
+    printf "╔════════════════════════════════════════════════════════════════════════════╗\n"
+    printf "║                                                                            ║\n"
+    printf "║                         DOTFILES INSTALLATION                              ║\n"
+    printf "║                                                                            ║\n"
+    printf "║                    Setting up your development environment                 ║\n"
+    printf "║                                                                            ║\n"
+    printf "╚════════════════════════════════════════════════════════════════════════════╝\n"
+    printf "${COLOR_RESET}\n"
+}
+
+print_success() {
+    printf "${COLOR_GREEN}✅ %s${COLOR_RESET}\n" "$1"
+}
+
+print_info() {
+    printf "${COLOR_BLUE}ℹ️  %s${COLOR_RESET}\n" "$1"
+}
+
+print_warning() {
+    printf "${COLOR_YELLOW}⚠️  %s${COLOR_RESET}\n" "$1"
+}
+
+print_error() {
+    printf "${COLOR_RED}❌ %s${COLOR_RESET}\n" "$1"
+}
+
+print_step() {
+    printf "\n${COLOR_CYAN}${COLOR_BOLD}═══ %s ═══${COLOR_RESET}\n\n" "$1"
+}
+
+# ============================================================================
+# OS Detection
+# ============================================================================
+
+detect_os() {
+    case "$(uname -s)" in
+        Darwin*)
+            OS="macos"
+            PKG_MANAGER="brew"
+            ;;
+        Linux*)
+            if grep -qi microsoft /proc/version 2>/dev/null; then
+                OS="wsl"
+                PKG_MANAGER="apt"
+            else
+                OS="linux"
+                # Detect package manager
+                if command -v apt-get >/dev/null 2>&1; then
+                    PKG_MANAGER="apt"
+                elif command -v dnf >/dev/null 2>&1; then
+                    PKG_MANAGER="dnf"
+                elif command -v yum >/dev/null 2>&1; then
+                    PKG_MANAGER="yum"
+                elif command -v pacman >/dev/null 2>&1; then
+                    PKG_MANAGER="pacman"
+                else
+                    PKG_MANAGER="unknown"
+                fi
+            fi
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            OS="windows"
+            PKG_MANAGER="choco"
+            ;;
+        *)
+            OS="unknown"
+            PKG_MANAGER="unknown"
+            ;;
+    esac
+}
+
+# ============================================================================
+# Dependency Checks
+# ============================================================================
+
+check_command() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+install_git() {
+    print_info "Git is required but not installed"
+    printf "Would you like to install git? [Y/n] "
+    read -r response
+    response=${response:-Y}
+
+    case "$response" in
+        [yY][eE][sS]|[yY]|"")
+            case "$OS" in
+                macos)
+                    print_info "Installing Xcode Command Line Tools (includes git)..."
+                    xcode-select --install
+                    print_success "Git installation initiated"
+                    ;;
+                linux|wsl)
+                    case "$PKG_MANAGER" in
+                        apt)
+                            print_info "Installing git via apt..."
+                            sudo apt-get update && sudo apt-get install -y git
+                            ;;
+                        dnf)
+                            print_info "Installing git via dnf..."
+                            sudo dnf install -y git
+                            ;;
+                        yum)
+                            print_info "Installing git via yum..."
+                            sudo yum install -y git
+                            ;;
+                        pacman)
+                            print_info "Installing git via pacman..."
+                            sudo pacman -S --noconfirm git
+                            ;;
+                        *)
+                            print_error "Unknown package manager. Please install git manually."
+                            exit 1
+                            ;;
+                    esac
+                    print_success "Git installed successfully"
+                    ;;
+                *)
+                    print_error "Automatic git installation not supported on this OS"
+                    print_info "Please install git manually and re-run this script"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        *)
+            print_error "Git is required to continue"
+            print_info "Please install git manually and re-run this script"
+            exit 1
+            ;;
+    esac
+}
+
+install_zsh() {
+    print_info "Zsh is required but not installed"
+    printf "Would you like to install zsh? [Y/n] "
+    read -r response
+    response=${response:-Y}
+
+    case "$response" in
+        [yY][eE][sS]|[yY]|"")
+            case "$OS" in
+                macos)
+                    print_info "Installing zsh via Homebrew..."
+                    if ! check_command brew; then
+                        print_info "Installing Homebrew first..."
+                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    fi
+                    brew install zsh
+                    print_success "Zsh installed successfully"
+                    ;;
+                linux|wsl)
+                    case "$PKG_MANAGER" in
+                        apt)
+                            print_info "Installing zsh via apt..."
+                            sudo apt-get update && sudo apt-get install -y zsh
+                            ;;
+                        dnf)
+                            print_info "Installing zsh via dnf..."
+                            sudo dnf install -y zsh
+                            ;;
+                        yum)
+                            print_info "Installing zsh via yum..."
+                            sudo yum install -y zsh
+                            ;;
+                        pacman)
+                            print_info "Installing zsh via pacman..."
+                            sudo pacman -S --noconfirm zsh
+                            ;;
+                        *)
+                            print_error "Unknown package manager. Please install zsh manually."
+                            exit 1
+                            ;;
+                    esac
+                    print_success "Zsh installed successfully"
+                    ;;
+                *)
+                    print_error "Automatic zsh installation not supported on this OS"
+                    print_info "Please install zsh manually and re-run this script"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        *)
+            print_warning "Zsh is recommended but not required"
+            print_info "Setup will continue with sh/bash"
+            ;;
+    esac
+}
+
+# ============================================================================
+# Main Installation
+# ============================================================================
+
+main() {
+    print_header
+
+    # Detect OS
+    print_step "Detecting System"
+    detect_os
+    print_success "OS detected: $OS"
+    print_info "Package manager: $PKG_MANAGER"
+
+    # Check dependencies
+    print_step "Checking Dependencies"
+
+    if ! check_command git; then
+        install_git
+    else
+        print_success "Git is available"
+    fi
+
+    if ! check_command zsh; then
+        install_zsh
+    else
+        print_success "Zsh is available"
+    fi
+
+    # Clone repository
+    print_step "Cloning Dotfiles Repository"
+
+    if [ -d "$DOTFILES_DIR" ]; then
+        print_warning "Dotfiles directory already exists: $DOTFILES_DIR"
+        printf "Would you like to update it? [Y/n] "
+        read -r response
+        response=${response:-Y}
+
+        case "$response" in
+            [yY][eE][sS]|[yY]|"")
+                print_info "Updating existing repository..."
+                cd "$DOTFILES_DIR"
+                git pull
+                print_success "Repository updated"
+                ;;
+            *)
+                print_info "Using existing repository"
+                ;;
+        esac
+    else
+        print_info "Cloning repository to $DOTFILES_DIR..."
+        git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+        print_success "Repository cloned successfully"
+    fi
+
+    # Run setup
+    print_step "Running Setup"
+
+    cd "$DOTFILES_DIR"
+
+    if [ -f "$SETUP_SCRIPT" ]; then
+        print_info "Launching setup script..."
+        echo ""
+
+        # Run setup with all modules
+        if check_command zsh; then
+            zsh "$SETUP_SCRIPT" --all-modules
+        else
+            sh "$SETUP_SCRIPT" --all-modules
+        fi
+    else
+        print_error "Setup script not found: $SETUP_SCRIPT"
+        exit 1
+    fi
+
+    # Success!
+    print_step "Installation Complete"
+
+    printf "${COLOR_GREEN}${COLOR_BOLD}"
+    printf "\n"
+    printf "🎉 Congratulations! Your dotfiles are now installed!\n"
+    printf "\n"
+    printf "${COLOR_RESET}"
+
+    print_info "Dotfiles location: $DOTFILES_DIR"
+    print_info "Configuration: $DOTFILES_DIR/config/"
+    echo ""
+    print_info "💡 Next steps:"
+    echo "   1. Restart your terminal or run: source ~/.zshrc"
+    echo "   2. Review the configuration in $DOTFILES_DIR/config/"
+    echo "   3. Customize personal settings in $DOTFILES_DIR/config/personal.env"
+    echo ""
+
+    printf "${COLOR_PURPLE}${COLOR_BOLD}"
+    printf "✨ Enjoy your beautifully configured development environment! ✨\n"
+    printf "${COLOR_RESET}\n"
+}
+
+# Run main function
+main
+
+# Exit successfully
+exit 0
