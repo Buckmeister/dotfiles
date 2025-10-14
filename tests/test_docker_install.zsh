@@ -178,7 +178,8 @@ test_installation() {
     # Monitor the output file in real-time
     sleep 1  # Give docker a moment to start
 
-    show_progress 1 4 "Pulling container image"
+    # Show initial progress
+    print_info "Phase 1/4: Pulling container image..."
 
     # Tail the output file and show progress
     (
@@ -220,18 +221,6 @@ test_installation() {
         kill $tail_pid 2>/dev/null || true
         wait $tail_pid 2>/dev/null || true
 
-        # Show final progress
-        for phase in {2..4}; do
-            local phase_name
-            case $phase in
-                2) phase_name="Installing prerequisites" ;;
-                3) phase_name="Running web installer" ;;
-                4) phase_name="Verifying installation" ;;
-            esac
-            show_progress $phase 4 "$phase_name"
-        done
-
-        echo ""
         echo ""
         print_success "Test passed: $distro with $mode"
         rm -f "$output_file"
@@ -256,21 +245,19 @@ test_installation() {
 # ============================================================================
 
 run_tests() {
-    draw_section_header "Docker Installation Testing" "Testing dotfiles on fresh containers"
+    draw_header "Docker Installation Testing" "Testing dotfiles on fresh containers"
     echo ""
 
     # TL;DR Introduction
-    draw_box \
-        "What This Test Does:" \
-        "• Spins up fresh Docker container(s)" \
-        "• Downloads and runs the web installer" \
-        "• Verifies the dotfiles installation worked" \
-        "• Cleans up containers when done" \
-        "" \
-        "⏱️  Estimated time: ~2-3 minutes per distribution" \
-        "" \
-        "💡 Tip: Watch the progress bars to see what's happening"
-
+    print_info "What This Test Does:"
+    echo "   • Spins up fresh Docker container(s)"
+    echo "   • Downloads and runs the web installer"
+    echo "   • Verifies the dotfiles installation worked"
+    echo "   • Cleans up containers when done"
+    echo ""
+    echo "   ${COLOR_BOLD}${UI_WARNING_COLOR}⏱️  Estimated time:${COLOR_RESET} ~2-3 minutes per distribution"
+    echo ""
+    echo "   ${COLOR_BOLD}${UI_INFO_COLOR}💡 Tip:${COLOR_RESET} Watch the progress updates below"
     echo ""
 
     print_info "Test configuration:"
