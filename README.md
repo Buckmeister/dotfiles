@@ -26,22 +26,22 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 
 **macOS / Linux / WSL (Interactive Menu):**
 ```bash
-curl -fsSL https://buckmeister.github.io/dfsetup | sh
+curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh
 ```
 
 **Or for automatic installation (everything):**
 ```bash
-curl -fsSL https://buckmeister.github.io/dfauto | sh
+curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
 ```
 
 **Windows PowerShell (Interactive Menu):**
 ```powershell
-irm https://buckmeister.github.io/dfsetup.ps1 | iex
+irm https://buckmeister.github.io/dotfiles/dfsetup.ps1 | iex
 ```
 
 **Or for automatic installation (everything):**
 ```powershell
-irm https://buckmeister.github.io/dfauto.ps1 | iex
+irm https://buckmeister.github.io/dotfiles/dfauto.ps1 | iex
 ```
 
 That's it! This single command will:

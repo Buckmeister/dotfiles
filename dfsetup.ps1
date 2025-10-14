@@ -3,7 +3,7 @@
 # ============================================================================
 #
 # One-line installation for a fresh Windows machine (interactive menu):
-#   irm https://buckmeister.github.io/dfsetup.ps1 | iex
+#   irm https://buckmeister.github.io/dotfiles/dfsetup.ps1 | iex
 #
 # This script:
 # - Detects Windows environment (PowerShell, WSL availability)
@@ -13,7 +13,7 @@
 # - Launches interactive menu to select what to install
 #
 # For automatic installation, use dfauto.ps1 instead:
-#   irm https://buckmeister.github.io/dfauto.ps1 | iex
+#   irm https://buckmeister.github.io/dotfiles/dfauto.ps1 | iex
 #
 # PowerShell 5.1+ compatible
 # ============================================================================
@@ -247,7 +247,7 @@ function Invoke-DotfilesInstallation {
         Write-Host ""
 
         # Run the bash installer in WSL (interactive mode)
-        $installCmd = "curl -fsSL https://buckmeister.github.io/dfsetup | sh"
+        $installCmd = "curl -fsSL https://buckmeister.github.io/dotfiles/dfsetup | sh"
 
         try {
             wsl bash -c $installCmd
