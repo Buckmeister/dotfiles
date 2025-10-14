@@ -143,111 +143,86 @@ check_command() {
 }
 
 install_git() {
-    print_info "Git is required but not installed"
-    printf "Would you like to install git? [Y/n] "
-    read -r response
-    response=${response:-Y}
+    print_info "Git is required - installing automatically..."
 
-    case "$response" in
-        [yY][eE][sS]|[yY]|"")
-            case "$OS" in
-                macos)
-                    print_info "Installing Xcode Command Line Tools (includes git)..."
-                    xcode-select --install
-                    print_success "Git installation initiated"
+    case "$OS" in
+        macos)
+            print_info "Installing Xcode Command Line Tools (includes git)..."
+            xcode-select --install
+            print_success "Git installation initiated"
+            ;;
+        linux|wsl)
+            case "$PKG_MANAGER" in
+                apt)
+                    print_info "Installing git via apt..."
+                    apt-get update -qq && apt-get install -y git
                     ;;
-                linux|wsl)
-                    case "$PKG_MANAGER" in
-                        apt)
-                            print_info "Installing git via apt..."
-                            sudo apt-get update && sudo apt-get install -y git
-                            ;;
-                        dnf)
-                            print_info "Installing git via dnf..."
-                            sudo dnf install -y git
-                            ;;
-                        yum)
-                            print_info "Installing git via yum..."
-                            sudo yum install -y git
-                            ;;
-                        pacman)
-                            print_info "Installing git via pacman..."
-                            sudo pacman -S --noconfirm git
-                            ;;
-                        *)
-                            print_error "Unknown package manager. Please install git manually."
-                            exit 1
-                            ;;
-                    esac
-                    print_success "Git installed successfully"
+                dnf)
+                    print_info "Installing git via dnf..."
+                    dnf install -y git
+                    ;;
+                yum)
+                    print_info "Installing git via yum..."
+                    yum install -y git
+                    ;;
+                pacman)
+                    print_info "Installing git via pacman..."
+                    pacman -S --noconfirm git
                     ;;
                 *)
-                    print_error "Automatic git installation not supported on this OS"
-                    print_info "Please install git manually and re-run this script"
+                    print_error "Unknown package manager. Cannot install git automatically."
                     exit 1
                     ;;
             esac
+            print_success "Git installed successfully"
             ;;
         *)
-            print_error "Git is required to continue"
-            print_info "Please install git manually and re-run this script"
+            print_error "Automatic git installation not supported on this OS"
             exit 1
             ;;
     esac
 }
 
 install_zsh() {
-    print_info "Zsh is required but not installed"
-    printf "Would you like to install zsh? [Y/n] "
-    read -r response
-    response=${response:-Y}
+    print_info "Zsh is recommended - installing automatically..."
 
-    case "$response" in
-        [yY][eE][sS]|[yY]|"")
-            case "$OS" in
-                macos)
-                    print_info "Installing zsh via Homebrew..."
-                    if ! check_command brew; then
-                        print_info "Installing Homebrew first..."
-                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                    fi
-                    brew install zsh
-                    print_success "Zsh installed successfully"
+    case "$OS" in
+        macos)
+            print_info "Installing zsh via Homebrew..."
+            if ! check_command brew; then
+                print_info "Installing Homebrew first..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            fi
+            brew install zsh
+            print_success "Zsh installed successfully"
+            ;;
+        linux|wsl)
+            case "$PKG_MANAGER" in
+                apt)
+                    print_info "Installing zsh via apt..."
+                    apt-get update -qq && apt-get install -y zsh
                     ;;
-                linux|wsl)
-                    case "$PKG_MANAGER" in
-                        apt)
-                            print_info "Installing zsh via apt..."
-                            sudo apt-get update && sudo apt-get install -y zsh
-                            ;;
-                        dnf)
-                            print_info "Installing zsh via dnf..."
-                            sudo dnf install -y zsh
-                            ;;
-                        yum)
-                            print_info "Installing zsh via yum..."
-                            sudo yum install -y zsh
-                            ;;
-                        pacman)
-                            print_info "Installing zsh via pacman..."
-                            sudo pacman -S --noconfirm zsh
-                            ;;
-                        *)
-                            print_error "Unknown package manager. Please install zsh manually."
-                            exit 1
-                            ;;
-                    esac
-                    print_success "Zsh installed successfully"
+                dnf)
+                    print_info "Installing zsh via dnf..."
+                    dnf install -y zsh
+                    ;;
+                yum)
+                    print_info "Installing zsh via yum..."
+                    yum install -y zsh
+                    ;;
+                pacman)
+                    print_info "Installing zsh via pacman..."
+                    pacman -S --noconfirm zsh
                     ;;
                 *)
-                    print_error "Automatic zsh installation not supported on this OS"
-                    print_info "Please install zsh manually and re-run this script"
-                    exit 1
+                    print_warning "Unknown package manager. Continuing without zsh..."
+                    print_info "Setup will use sh/bash instead"
                     ;;
             esac
+            print_success "Zsh installed successfully"
             ;;
         *)
-            print_warning "Zsh is recommended but not required"
+            print_warning "Automatic zsh installation not supported on this OS"
             print_info "Setup will continue with sh/bash"
             ;;
     esac
@@ -286,24 +261,13 @@ main() {
 
     if [ -d "$DOTFILES_DIR" ]; then
         print_warning "Dotfiles directory already exists: $DOTFILES_DIR"
-        printf "Would you like to update it? [Y/n] "
-        read -r response
-        response=${response:-Y}
-
-        case "$response" in
-            [yY][eE][sS]|[yY]|"")
-                print_info "Updating existing repository..."
-                cd "$DOTFILES_DIR"
-                git pull
-                print_success "Repository updated"
-                ;;
-            *)
-                print_info "Using existing repository"
-                ;;
-        esac
+        print_info "Updating existing repository..."
+        cd "$DOTFILES_DIR"
+        git pull
+        print_success "Repository updated"
     else
         print_info "Cloning repository to $DOTFILES_DIR..."
-        git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
+        git clone --recurse-submodules "$DOTFILES_REPO" "$DOTFILES_DIR"
         print_success "Repository cloned successfully"
     fi
 
