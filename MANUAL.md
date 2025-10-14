@@ -373,7 +373,7 @@ For complete keybindings and features, see the [Neovim README](nvim/nvim.symlink
 **Location:** `~/.vimrc` (symlinked from `vim/vimrc.symlink`)
 **Project:** [Vim](https://www.vim.org/) | **Editor:** The ubiquitous text editor
 
-Classic Vim is configured but will redirect you to use Neovim instead:
+Classic Vim is configured but will **redirect you to use Neovim instead**:
 
 ```vim
 if has('nvim')
@@ -384,27 +384,401 @@ if has('nvim')
 endif
 ```
 
-If you absolutely must use classic Vim, the configuration includes:
+If you absolutely must use classic Vim, this is a **comprehensive, IDE-like configuration** with:
+
+#### Core Features
+
+**Plugin Management:**
+- **[vim-plug](https://github.com/junegunn/vim-plug)** - Minimalist plugin manager with auto-install on first run
+
+**LSP & Completion:**
+- **[coc.nvim](https://github.com/neoclide/coc.nvim)** - Full Language Server Protocol support with **30+ language servers** pre-configured
+- **Auto-installed CoC extensions:**
+  - **Web Development:** coc-angular, coc-html, coc-css, coc-emmet, coc-vetur (Vue), coc-tsserver (TypeScript)
+  - **Systems Programming:** coc-clangd (C/C++), coc-rust-analyzer (Rust), coc-omnisharp (C#)
+  - **Backend:** coc-java, coc-pyright (Python), coc-perl, coc-r-lsp (R)
+  - **DevOps:** coc-docker, coc-nginx, coc-sh (shell), coc-yaml
+  - **Data:** coc-json, coc-xml, coc-toml, coc-sqlfluff (SQL)
+  - **Documentation:** coc-texlab (LaTeX), coc-swagger
+  - **Tooling:** coc-prettier, coc-snippets, coc-spell-checker, coc-pairs, coc-git, coc-highlight
+  - **AI:** coc-tabnine (AI completion)
+  - **Utilities:** coc-vimlsp (VimScript LSP), coc-explorer (file explorer), coc-yank (yank history)
+
+**Visual Enhancements:**
+- **[onedark.vim](https://github.com/joshdick/onedark.vim)** - Primary color scheme (custom darker background: `#1F2329`)
+- **[vim-one](https://github.com/rakr/vim-one)** - Alternative One colorscheme
+- **[gruvbox-material](https://github.com/sainnhe/gruvbox-material)**, **[edge](https://github.com/sainnhe/edge)**, **[sonokai](https://github.com/sainnhe/sonokai)**, **[everforest](https://github.com/sainnhe/everforest)** - Additional premium themes
+- **[lightline.vim](https://github.com/itchyny/lightline.vim)** - Minimalist statusline (see [Lightline Configuration](#lightline-configuration-vim) below)
+- **[lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)** - Buffer tabs with superscript numbers (⁰¹²³⁴⁵⁶⁷⁸⁹)
+- **[vim-devicons](https://github.com/ryanoasis/vim-devicons)** - File type icons (requires Nerd Fonts)
+- **[rainbow](https://github.com/luochen1990/rainbow)** - Rainbow parentheses for nested brackets
+- **[rainbow_csv](https://github.com/mechatroner/rainbow_csv)** - CSV column highlighting
+- **[coloresque.vim](https://github.com/ObserverOfTime/coloresque.vim)** - Display colors inline (#ff0000 → colored background)
+
+**Navigation & Search:**
+- **[fzf](https://github.com/junegunn/fzf)** + **[fzf.vim](https://github.com/junegunn/fzf.vim)** - Fuzzy file/text finding
+- **[fzf-preview.vim](https://github.com/yuki-yano/fzf-preview.vim)** - Enhanced FZF with previews and CoC integration
+- **[vim-fzy](https://github.com/bfrg/vim-fzy)** - Alternative fuzzy finder with popup window
+- **[vim-which-key](https://github.com/liuchengxu/vim-which-key)** - Keybinding discovery popup
+- **[vim-cool](https://github.com/romainl/vim-cool)** - Smart search highlighting (auto-clear after move)
+
+**Editing Enhancements:**
+- **[vim-commentary](https://github.com/tpope/vim-commentary)** - Toggle comments with `gc`
+- **[vim-surround](https://github.com/tpope/vim-surround)** - Manipulate surrounding quotes/brackets
+- **[vim-repeat](https://github.com/tpope/vim-repeat)** - Make `.` work with plugins
+- **[neoformat](https://github.com/sbdchd/neoformat)** - Auto-format on save
+
+**Git Integration:**
+- **[vim-fugitive](https://github.com/tpope/vim-fugitive)** - Git commands, status, and blame
+
+**Project Management:**
+- **[netrw](https://www.vim.org/scripts/script.php?script_id=1075)** - Built-in file explorer (configured for tree view)
+- **coc-explorer** (via CoC) - Modern file tree sidebar
+
+**Terminals & Focus Modes:**
+- **[vim-floaterm](https://github.com/voldikss/vim-floaterm)** - Floating/popup terminal windows
+- **[goyo.vim](https://github.com/junegunn/goyo.vim)** - Distraction-free writing mode
+- **[limelight.vim](https://github.com/junegunn/limelight.vim)** - Dim unfocused paragraphs (integrates with Goyo)
+
+**Language-Specific:**
+- **[haskell-vim](https://github.com/neovimhaskell/haskell-vim)** - Enhanced Haskell syntax
+- **[java-syntax.vim](https://github.com/uiiaoo/java-syntax.vim)** - Better Java highlighting
+
+**System Integration:**
+- **[vim-eunuch](https://github.com/tpope/vim-eunuch)** - Unix commands (`:Delete`, `:Move`, `:Rename`, etc.)
+- **[terminus](https://github.com/wincent/terminus)** - Better terminal integration (cursor shapes, focus events)
+- **[battery.vim](https://github.com/lambdalisue/battery.vim)** - Battery status in statusline
+
+**Utilities:**
+- **[vim-bbye](https://github.com/Buckmeister/vim-bbye)** - Delete buffers without closing windows
+
+#### Editor Settings Highlights
+
+**Behavior:**
+- Line numbers: absolute + relative
+- Sign column always visible (for LSP diagnostics)
+- Text width: 81 characters (with visual overlength highlighting)
+- Auto-indent, smart-indent, smart-tab
+- Persistent undo (`~/.tmp/vimbackup/undo`)
+- Hidden buffers (switch without saving)
+- Case-insensitive search (smart: case-sensitive if capitals present)
+
+**UI:**
+- Cursorline enabled (only in active window)
+- Split below/right (natural reading order)
+- Scrolloff: 8 lines (keep cursor centered)
+- Mouse support enabled
+- TrueColor support (when `$COLORTERM` = truecolor/24bit)
+- Popup completion menu (height: 12, width: 60)
+
+**Whitespace:**
+- Tab = 2 spaces (expandtab)
+- Visible whitespace: tabs as `>·`, trailing spaces as `·`
+
+#### Keybindings
+
+**Leader Keys:**
+```vim
+Leader: Space
+Local Leader: ,
+```
+
+**Insert Mode:**
+```
+jk / kj             Exit insert mode (escape alternatives)
+```
+
+**Normal Mode Essentials:**
+```
+Ctrl+l              Clear search highlighting
+Space               Leader key (mapped, not functional on its own)
+```
+
+**Window Navigation:**
+```
+Arrow Keys          Navigate windows (Up/Down/Left/Right)
+Ctrl+H              Cycle to next window
+```
+
+**Window Resizing:**
+```
+Shift+Up            Decrease height (-2)
+Shift+Down          Increase height (+2)
+Shift+Left          Decrease width (-2)
+Shift+Right         Increase width (+2)
+```
+
+**Buffer Navigation:**
+```
+Space j             Previous buffer
+Space k             Next buffer
+Ctrl+Left           Previous buffer (alternative)
+Ctrl+Right          Next buffer (alternative)
+```
+
+**Line Movement (Alt+Up/Down):**
+```
+Alt+Up              Move line up (works in normal, insert, visual)
+Alt+Down            Move line down
+∆                   Move line up (macOS Option+J fallback)
+º                   Move line down (macOS Option+K fallback)
+```
+
+**Visual Mode:**
+```
+<                   Indent left (stay in visual mode)
+>                   Indent right (stay in visual mode)
+Alt+Up/Down         Move selection up/down
+```
+
+**Clipboard Operations:**
+```
+Space d             Delete to black hole register (don't yank)
+Space y             Yank to system clipboard
+Space Y             Yank entire file to clipboard
+Space p (visual)    Paste without yanking replaced text
+```
+
+**File Operations:**
+```
+Space r             Fuzzy file finder (FzyFind)
+Space ew            Edit file in current directory
+Space u             Update (save) file
+```
+
+**Buffer/Window Management:**
+```
+Space x             Close buffer (Bdelete - keeps window layout)
+Space o             Close all other windows (only)
+Space w             Cycle windows
+Space aq            Quit all
+```
+
+**Utilities:**
+```
+Space ba            ASCII art banner (pipe to figlet)
+Ctrl+a ä            Reload vimrc (bound to tmux prefix + ä)
+```
+
+**Quickfix Navigation:**
+```
+Shift+F1            Go to current quickfix item
+F2                  Next quickfix item
+Shift+F2            Previous quickfix item
+F3                  Next file in quickfix
+Shift+F3            Previous file in quickfix
+F4                  First quickfix item
+Shift+F4            Last quickfix item
+```
+
+**FZF-Preview Commands (`Space f` prefix):**
+```
+Space f f           Find files in directory
+Space f p           Find from project MRU + git
+Space f gs          Git status (interactive)
+Space f ga          Git actions (stage, unstage, etc.)
+Space f b           Switch buffers
+Space f B           All buffers (across all tabs)
+Space f o           Files from buffer + project MRU
+Space f Ctrl+o      Jump list navigation
+Space f g;          Change list navigation
+Space f /           Search lines in current buffer
+Space f *           Search word under cursor in buffer
+Space f gr          Project-wide grep (interactive)
+Space f t           Buffer tags (ctags)
+Space f q           Quickfix list
+Space f l           Location list
+```
+
+**Floating Terminal:**
+```
+Space tt            Toggle floating terminal
+```
+
+**Distraction-Free Mode:**
+```
+Space go            Toggle Goyo mode (auto-enables Limelight)
+```
+
+**Visual Star Search:**
+```
+* (visual)          Search for selected text forward
+# (visual)          Search for selected text backward
+```
+
+<a name="lightline-configuration-vim"></a>
+#### Lightline Configuration
+
+Thomas's Lightline configuration is a **masterpiece of responsive design** with adaptive components:
 
 **Features:**
-- **[OneDark](https://github.com/joshdick/onedark.vim)** color scheme
-- **[CoC](https://github.com/neoclide/coc.nvim)** (Conquer of Completion) with 30+ language servers
-- **[Vim-Plug](https://github.com/junegunn/vim-plug)** plugin manager
-- **[Lightline](https://github.com/itchyny/lightline.vim)** statusline with **[bufferline](https://github.com/mengelbrecht/lightline-bufferline)**
-- **[FZF](https://github.com/junegunn/fzf.vim)** integration for fuzzy finding
-- **[vim-floaterm](https://github.com/voldikss/vim-floaterm)** - Floating terminal window
-- **[Neoformat](https://github.com/sbdchd/neoformat)** - Auto-formatting on save
-- **[vim-fugitive](https://github.com/tpope/vim-fugitive)** - Git integration
+- **Responsive Width Breakpoints:**
+  - Small: 60 chars - Shows mode char, filename, percent
+  - Medium: 90 chars - Adds line info, filetype icon
+  - Large: 110 chars - Adds full mode name, git branch, encoding/format
+- **Custom Separators:**
+  - TrueColor terminals: Powerline arrows (``  ``)
+  - Basic terminals: Vertical bars (`⁞`)
+- **OneDark Color Scheme** - Matches editor theme
+- **Buffer Tabs** - Top bar with superscript numbers (⁰¹²³⁴⁵⁶⁷⁸⁹)
+- **Intelligent File Display:**
+  - Large windows: Full path (`/u/l/b/vim`)
+  - Medium windows: Relative path with ~ (`~/D/p/app`)
+  - Small windows: Directory only
+  - Tiny windows: Filename only
+- **Git Branch** - Shows  branch name (when in git repo, large width only)
+- **Battery Status** - Shows  with percentage and charging state
+- **Smart Icons:**
+  - Modified:  (yellow)
+  - Readonly:  (red)
+  - No filename: `[No Name]`
+- **Special Filetype Handling:**
+  - Hides statusline components for netrw, coc-explorer, fugitive, help
 
-**Keybindings:**
-- Leader: `Space`
-- Local leader: `,`
-- `jk` / `kj` - Exit insert mode
-- `Space+f` - FZF commands
-- `Space+tt` - Toggle floating terminal
-- Full CoC keybindings for LSP features
+**Statusline Layout:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ NORMAL  master  ~/D/p/app/src/main.rs [+]  85％  42:17  UTF-8 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**Note:** This configuration is comprehensive but maintained primarily as a fallback. Use Neovim for the best experience.
+**Tabline Layout:**
+```
+⁰[No Name]  ¹main.rs  ²config.toml  ³README.md
+```
+
+#### Colorscheme Options
+
+The vimrc includes **5 premium colorschemes** with extensive configuration:
+
+**Available Themes:**
+1. **[onedark](https://github.com/joshdick/onedark.vim)** (default) - Atom-inspired, warm, vibrant
+2. **[one](https://github.com/rakr/vim-one)** - Clean, minimal Atom One
+3. **[gruvbox-material](https://github.com/sainnhe/gruvbox-material)** - Earthy, warm, retro
+4. **[edge](https://github.com/sainnhe/edge)** - Neon style, vibrant, modern
+5. **[sonokai](https://github.com/sainnhe/sonokai)** - Maia variant, colorful
+6. **[everforest](https://github.com/sainnhe/everforest)** - Green, comfortable, forest-inspired
+
+**Change colorscheme:**
+```vim
+:ColorsSet gruvbox-material
+:ColorsSet edge
+:LightlineColorscheme gruvbox_material
+```
+
+**Theme Customization:**
+- All themes support TrueColor with italics
+- Hard contrast backgrounds
+- Transparent backgrounds disabled (solid colors)
+- Diagnostic text highlighting enabled
+- Better performance mode enabled
+
+#### Special Features
+
+**Visual Star Search:**
+Custom function allows searching for visually selected text with `*` or `#`:
+```vim
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>/<CR>
+```
+
+**Netrw (Built-in File Browser):**
+- No banner (clean interface)
+- Tree-style listing
+- Opens in 25% width vertical split
+- Preview window enabled
+
+**Auto-Format on Save:**
+Neoformat automatically formats files on write (with undo-join for atomic operations):
+```vim
+autocmd BufWritePre * try | undojoin | Neoformat | catch | silent Neoformat | endtry
+```
+
+**Goyo + Limelight Integration:**
+Entering Goyo distraction-free mode:
+- Hides tmux status bar (if in tmux)
+- Enables Limelight (dims unfocused paragraphs)
+- Exiting Goyo restores all settings
+
+**Window Auto-Resize:**
+Windows automatically rebalance when Vim window is resized:
+```vim
+autocmd VimResized * tabdo wincmd =
+```
+
+**Smart Cursorline:**
+Cursorline only shows in the active window (auto-disables in inactive):
+```vim
+autocmd WinLeave * set nocursorline
+autocmd WinEnter * set cursorline
+```
+
+**Overlength Highlighting:**
+Text beyond `textwidth + 2` is highlighted with `OverLength` group (custom red background):
+```vim
+match OverLength /\%83v.*/  " Highlights column 83+
+```
+
+#### GUI Settings (gVim/MacVim)
+
+For GUI Vim:
+- Font: FiraCode Nerd Font Mono, 14pt
+- macOS ligatures enabled
+- No toolbar, command height: 2
+- Custom colorscheme for GUI (`g:gui_colorscheme`)
+
+#### First-Time Setup
+
+**Automatic Setup:**
+- vim-plug auto-installs on first run if missing
+- All plugins install automatically via `:PlugInstall`
+- CoC extensions auto-install on first CoC startup
+
+**Manual Font Installation:**
+Required for icons to work:
+```bash
+# Run the fonts post-install script
+./post-install/scripts/fonts.zsh
+```
+
+**CoC Configuration:**
+CoC uses default settings with all extensions listed in `g:coc_global_extensions`.
+
+#### Configuration Files
+
+**Main Config:**
+- `~/.vimrc` - Main configuration (786 lines)
+
+**CoC Config:**
+- CoC uses its own JSON configuration (not included in this dotfiles)
+- Extensions auto-install based on `g:coc_global_extensions`
+
+**Backup Directories:**
+```bash
+~/.tmp/vimbackup/swap/    # Swap files
+~/.tmp/vimbackup/undo/    # Undo history (persistent across sessions)
+```
+
+#### Tips & Tricks
+
+**Discover Keybindings:**
+Press `Space` and wait - **which-key** will show available commands.
+
+**CoC Commands:**
+```vim
+:CocList extensions       " List installed CoC extensions
+:CocUpdate                " Update all CoC extensions
+:CocCommand               " Run CoC command (tab-complete available)
+```
+
+**Lightline Commands:**
+```vim
+:LightlineColorscheme onedark    " Change statusline theme
+```
+
+**FZF-Preview Commands:**
+All accessible via `Space f` prefix - see [Keybindings](#keybindings) for full list.
+
+**Note:** This configuration is comprehensive and feature-complete but **maintained primarily as a fallback**. For the best experience with modern Neovim features (Lua config, native LSP, Treesitter), use the **[lualoves.nvim](#neovim)** configuration instead.
 
 ---
 
