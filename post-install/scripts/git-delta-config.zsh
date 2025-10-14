@@ -45,6 +45,7 @@ source "$CONFIG_DIR/versions.env"
 # ============================================================================
 
 declare_dependency_command "git" "Git version control" ""
+declare_dependency_command "delta" "Git syntax-highlighting pager" "git-delta.zsh"
 
 # ============================================================================
 # Main Execution
@@ -61,25 +62,17 @@ draw_section_header "Checking Dependencies"
 
 check_and_resolve_dependencies || exit 1
 
-# Show git version
+# Show versions
 if command_exists git; then
     local git_version=$(git --version | awk '{print $3}')
     print_success "git available (version: $git_version)"
 fi
 
-echo
-
-# Check if delta is installed (optional)
-if ! command_exists delta; then
-    print_warning "delta not found - please install it first"
-    print_info "macOS: brew install git-delta"
-    print_info "Linux: See https://github.com/dandavison/delta#installation"
-    echo
-    print_info "Skipping delta configuration"
-    exit 0
+if command_exists delta; then
+    local delta_version=$(delta --version | head -1)
+    print_success "delta available: $delta_version"
 fi
 
-print_success "delta is installed"
 echo
 
 # ============================================================================
