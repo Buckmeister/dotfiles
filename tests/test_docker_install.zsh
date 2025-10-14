@@ -138,7 +138,11 @@ test_installation() {
 
     print_section "Testing: $distro with $mode"
 
-    print_info "Creating container: $container_name"
+    print_info "Container: $container_name"
+    print_info "Installer: $installer_url"
+    echo ""
+
+    printf "${COLOR_YELLOW}⏳ Running installation (this may take 1-2 minutes)...${COLOR_RESET}\n"
 
     # Determine the installer URL
     local installer_url="https://buckmeister.github.io/${mode}"
@@ -187,16 +191,45 @@ test_installation() {
         fi
     "
 
-    # Run the test in a container
+    # Run the test in a container (with progress indicators)
+    print_info "Phase 1/4: Pulling container image..."
+
+    # Show container output with progress markers
     if docker run --rm \
         --name "$container_name" \
         -e DEBIAN_FRONTEND=noninteractive \
         "$distro" \
-        bash -c "$test_cmd" 2>&1; then
+        bash -c "$test_cmd" 2>&1 | while IFS= read -r line; do
+            # Show important progress markers
+            case "$line" in
+                *"Installing curl"*)
+                    printf "${COLOR_BLUE}ℹ️  Phase 2/4: Installing prerequisites...${COLOR_RESET}\n"
+                    ;;
+                *"Running installer"*)
+                    printf "${COLOR_BLUE}ℹ️  Phase 3/4: Running web installer...${COLOR_RESET}\n"
+                    ;;
+                *"Verifying installation"*)
+                    printf "${COLOR_BLUE}ℹ️  Phase 4/4: Verifying installation...${COLOR_RESET}\n"
+                    ;;
+                *"SUCCESS:"*)
+                    printf "${COLOR_GREEN}  ✓ ${line#*SUCCESS: }${COLOR_RESET}\n"
+                    ;;
+                *"FAILED:"*)
+                    printf "${COLOR_RED}  ✗ ${line#*FAILED: }${COLOR_RESET}\n"
+                    ;;
+                *"Installation Summary"*)
+                    printf "\n${COLOR_CYAN}${COLOR_BOLD}Installation Summary:${COLOR_RESET}\n"
+                    ;;
+            esac
+            # Optionally print all lines for debugging (uncomment next line)
+            # echo "$line"
+        done; then
 
+        echo ""
         print_success "Test passed: $distro with $mode"
         return 0
     else
+        echo ""
         print_error "Test failed: $distro with $mode"
         return 1
     fi
@@ -208,6 +241,18 @@ test_installation() {
 
 run_tests() {
     print_header
+
+    # TL;DR Introduction
+    printf "${COLOR_BOLD}${COLOR_CYAN}What This Test Does:${COLOR_RESET}\n"
+    echo "  • Spins up fresh Docker container(s)"
+    echo "  • Downloads and runs the web installer"
+    echo "  • Verifies the dotfiles installation worked"
+    echo "  • Cleans up containers when done"
+    echo ""
+    printf "${COLOR_BOLD}${COLOR_YELLOW}⏱️  Estimated time:${COLOR_RESET} ~2-3 minutes per distribution\n"
+    echo ""
+    printf "${COLOR_BOLD}${COLOR_BLUE}💡 Tip:${COLOR_RESET} Watch the progress messages below to see what's happening\n"
+    echo ""
 
     print_info "Test configuration:"
     echo "  Distributions: ${#DISTROS[@]}"
