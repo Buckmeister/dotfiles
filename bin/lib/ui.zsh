@@ -189,14 +189,16 @@ function draw_header() {
 
     # Title line (using display width for proper emoji alignment)
     local title_display_width=$(get_safe_display_width "$title")
-    local title_padding=$(( (width - title_display_width - 2) / 2 ))
-    printf "║%*s%s%*s║\n" $title_padding "" "$title" $title_padding ""
+    local title_left_padding=$(( (width - title_display_width - 2) / 2 ))
+    local title_right_padding=$(( width - title_display_width - 2 - title_left_padding ))
+    printf "║%*s%s%*s║\n" $title_left_padding "" "$title" $title_right_padding ""
 
     # Subtitle line (if provided)
     if [[ -n "$subtitle" ]]; then
         local subtitle_display_width=$(get_safe_display_width "$subtitle")
-        local subtitle_padding=$(( (width - subtitle_display_width - 2) / 2 ))
-        printf "║%*s%s%*s║\n" $subtitle_padding "" "$subtitle" $subtitle_padding ""
+        local subtitle_left_padding=$(( (width - subtitle_display_width - 2) / 2 ))
+        local subtitle_right_padding=$(( width - subtitle_display_width - 2 - subtitle_left_padding ))
+        printf "║%*s%s%*s║\n" $subtitle_left_padding "" "$subtitle" $subtitle_right_padding ""
     fi
 
     # Bottom border
