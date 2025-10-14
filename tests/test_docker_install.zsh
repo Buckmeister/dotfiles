@@ -141,7 +141,7 @@ test_installation() {
     print_info "Creating container: $container_name"
 
     # Determine the installer URL
-    local installer_url="https://buckmeister.github.io/dotfiles/${mode}"
+    local installer_url="https://buckmeister.github.io/${mode}"
 
     # Build the test command
     local test_cmd="
