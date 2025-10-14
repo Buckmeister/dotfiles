@@ -21,10 +21,10 @@ This document describes the testing infrastructure for the dotfiles repository, 
 
 ## Overview
 
-The dotfiles repository includes a **comprehensive testing infrastructure** with **193 tests** across **12 test suites**, providing ~95% code coverage of critical paths. The test suite includes:
+The dotfiles repository includes a **comprehensive testing infrastructure** with **251 tests** across **15 test suites**, providing ~96% code coverage of critical paths. The test suite includes:
 
 - **Unit Tests** (6 suites, 105 tests): Test individual shared libraries and functions in isolation
-- **Integration Tests** (6 suites, 88 tests): Test complete workflows and script interactions
+- **Integration Tests** (9 suites, 146 tests): Test complete workflows and script interactions
 - **Test Framework**: Lightweight zsh-based testing framework with beautiful output
 - **Test Runner**: Automated test execution with detailed reporting
 - **100% Pass Rate**: All tests consistently pass, ensuring reliability
@@ -34,8 +34,8 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 | Category | Tests | Coverage |
 |----------|-------|----------|
 | **Unit Tests** | 105 | ~95% |
-| **Integration Tests** | 88 | ~92% |
-| **Total** | **193** | **~95%** |
+| **Integration Tests** | 146 | ~94% |
+| **Total** | **251** | **~96%** |
 
 ### Test Suites
 
@@ -54,6 +54,9 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 - `test_post_install_scripts.zsh` (22 tests) - Post-install smoke tests
 - `test_help_flags.zsh` (10 tests) - Help flag support across all core scripts
 - `test_wrappers.zsh` (14 tests) - Wrapper script argument forwarding and validation
+- `test_github_downloaders.zsh` (18 tests) - GitHub utility script validation
+- `test_error_handling.zsh` (16 tests) - Error paths and robustness
+- `test_setup_workflow.zsh` (24 tests) - Complete setup process validation
 
 **Docker-Based Installation Tests:**
 - `test_docker_install.zsh` - Tests complete installation on fresh Linux containers
@@ -304,13 +307,16 @@ tests/
 │   ├── test_utils.zsh              # Utility functions (9 tests)
 │   ├── test_validators.zsh         # Validators (32 tests)
 │   └── test_package_managers.zsh   # Package managers (30 tests)
-├── integration/                    # Integration tests (88 tests)
+├── integration/                    # Integration tests (146 tests)
 │   ├── test_symlinks.zsh           # Symlink creation (5 tests)
 │   ├── test_update_system.zsh      # Update system (7 tests)
 │   ├── test_librarian.zsh          # Librarian health checks (21 tests)
 │   ├── test_post_install_scripts.zsh # Post-install smoke tests (22 tests)
 │   ├── test_help_flags.zsh         # Help flag support (10 tests)
-│   └── test_wrappers.zsh           # Wrapper script validation (14 tests)
+│   ├── test_wrappers.zsh           # Wrapper script validation (14 tests)
+│   ├── test_github_downloaders.zsh # GitHub utilities (18 tests)
+│   ├── test_error_handling.zsh     # Error handling and robustness (16 tests)
+│   └── test_setup_workflow.zsh     # Setup workflow validation (24 tests)
 ├── test_docker_install.zsh         # Docker-based installation tests
 └── run_tests.zsh                   # Main test runner
 ```
