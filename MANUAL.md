@@ -411,8 +411,225 @@ If you absolutely must use classic Vim, the configuration includes:
 ### Emacs
 
 **Location:** `~/.emacs` (symlinked from `emacs/emacs.symlink`)
+**Project:** [GNU Emacs](https://www.gnu.org/software/emacs/) | **Editor:** An extensible, customizable, free/libre text editor
 
-Basic Emacs configuration for macOS compatibility.
+A comprehensive Emacs configuration featuring **[Evil mode](https://github.com/emacs-evil/evil)** (Vim emulation), modern IDE features, and beautiful aesthetics.
+
+#### Core Features
+
+**Evil Mode (Vim Emulation):**
+- **[Evil](https://github.com/emacs-evil/evil)** - Extensible Vi layer with **[evil-collection](https://github.com/emacs-evil/evil-collection)** for consistent bindings
+- **[evil-leader](https://github.com/cofi/evil-leader)** - `<Space>` as leader key (Vim-style)
+- **[evil-surround](https://github.com/emacs-evil/evil-surround)** - Surround text objects (like vim-surround)
+- **[evil-commentary](https://github.com/linktohack/evil-commentary)** - Comment/uncomment with `gc`
+- **[evil-matchit](https://github.com/redguardtoo/evil-matchit)** - Jump between matching tags with `%`
+- **[evil-visualstar](https://github.com/bling/evil-visualstar)** - Search for visual selection with `*`
+- **[undo-tree](https://www.emacswiki.org/emacs/UndoTree)** - Visual undo system integrated with Evil
+
+**Visual Enhancements:**
+- **[doom-themes](https://github.com/doomemacs/themes)** - Beautiful themes (using `doom-vibrant`)
+- **[doom-modeline](https://github.com/seaycaat/doom-modeline)** - Fancy modeline with icons and git info
+- **[centaur-tabs](https://github.com/ema2159/centaur-tabs)** - Modern tab bar with rounded style
+- **[all-the-icons](https://github.com/domtronn/all-the-icons.emacs)** - Beautiful icon set throughout
+- **[rainbow-delimiters](https://github.com/Fanael/rainbow-delimiters)** - Color-coded parentheses
+- **[rainbow-mode](https://elpa.gnu.org/packages/rainbow-mode.html)** - Display colors inline (#ff0000)
+- Borderless window with internal padding
+- Nerd Fonts: FiraCode (default), VictorMono (variable-pitch), JetBrainsMono (fixed-pitch)
+
+**LSP & Language Support:**
+- **[lsp-mode](https://github.com/emacs-lsp/lsp-mode)** - Full Language Server Protocol support
+- **[lsp-ui](https://github.com/emacs-lsp/lsp-ui)** - UI improvements for LSP (sideline, doc popups)
+- **[dap-mode](https://github.com/emacs-lsp/dap-mode)** - Debug Adapter Protocol support
+- **[lsp-treemacs](https://github.com/emacs-lsp/lsp-treemacs)** - Treemacs integration for LSP
+- **Languages supported:**
+  - **Python**: [lsp-pyright](https://github.com/emacs-lsp/lsp-pyright) with IPython integration
+  - **Java**: [lsp-java](https://github.com/emacs-lsp/lsp-java) with Eclipse JDT.LS
+  - **Haskell**: [lsp-haskell](https://github.com/emacs-lsp/lsp-haskell) with haskell-language-server
+  - **Rust**: [rust-mode](https://github.com/rust-lang/rust-mode) with rust-analyzer
+  - **TypeScript**: [typescript-mode](https://github.com/emacs-typescript/typescript.el) with typescript-language-server
+  - **C#**: Built-in csharp-mode with OmniSharp
+  - **Perl**: cperl-mode with Perl Navigator
+  - **YAML**: [yaml-mode](https://github.com/yoshiki/yaml-mode) with yaml-language-server
+
+**Completion & Search:**
+- **[company](https://github.com/company-mode/company-mode)** - Modular completion framework
+- **[company-box](https://github.com/sebastiencs/company-box)** - Company UI with icons
+- **[ivy](https://github.com/abo-abo/swiper)** - Generic completion frontend with fuzzy matching
+- **[counsel](https://github.com/abo-abo/swiper)** - Enhanced Ivy commands (M-x, describe-*, etc.)
+- **[swiper](https://github.com/abo-abo/swiper)** - Ivy-powered isearch replacement
+- **[ivy-rich](https://github.com/Yevgnen/ivy-rich)** - Enhanced candidate display
+- **[embark](https://github.com/oantolin/embark)** - Context menu actions
+
+**Project Management:**
+- **[projectile](https://github.com/bbatsov/projectile)** - Project management (find files, switch projects)
+- **[counsel-projectile](https://github.com/ericdanan/counsel-projectile)** - Projectile + Counsel integration
+- **[treemacs](https://github.com/Alexander-Miller/treemacs)** - File tree sidebar with git integration
+- **[treemacs-evil](https://github.com/Alexander-Miller/treemacs)** - Evil keybindings for Treemacs
+- **[treemacs-projectile](https://github.com/Alexander-Miller/treemacs)** - Projectile integration
+- **[treemacs-magit](https://github.com/Alexander-Miller/treemacs)** - Magit integration
+- **[neotree](https://github.com/jaypei/emacs-neotree)** - Alternative file tree
+
+**Git Integration:**
+- **[magit](https://github.com/magit/magit)** - Best-in-class Git interface
+- **[diff-hl](https://github.com/dgutov/diff-hl)** - Highlight uncommitted changes in margin
+- Integrated with Treemacs and doom-themes
+
+**Org Mode:**
+- Enhanced **[org-mode](https://orgmode.org/)** with beautiful formatting
+- **[org-bullets](https://github.com/sabof/org-bullets)** - Pretty bullet points (◉ ○ ●)
+- **[visual-fill-column](https://github.com/joostkremers/visual-fill-column)** - Centered text for writing
+- Custom font setup with variable-pitch for prose
+- Relative heading sizes for visual hierarchy
+- Syntax highlighting in code blocks
+
+**Development Tools:**
+- **[paredit](https://www.emacswiki.org/emacs/ParEdit)** - Structured editing for Lisp
+- **[tree-sitter](https://github.com/emacs-tree-sitter/elisp-tree-sitter)** - Better syntax highlighting
+- **[highlight-indentation](https://github.com/antonj/Highlight-Indentation-for-Emacs)** - Indent guides for Python/YAML
+- **[which-key](https://github.com/justbur/emacs-which-key)** - Keybinding discovery
+
+**File Management:**
+- **[dired](https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html)** - Built-in directory editor with Evil bindings
+- **[dired-single](https://github.com/crocket/dired-single)** - Reuse dired buffers
+- **[dired-hide-dotfiles](https://github.com/mattiasb/dired-hide-dotfiles)** - Toggle hidden files
+- **[all-the-icons-dired](https://github.com/jtbm37/all-the-icons-dired)** - Icons in dired
+- **[treemacs-icons-dired](https://github.com/Alexander-Miller/treemacs)** - Treemacs-style icons in dired
+
+**Help & Documentation:**
+- **[helpful](https://github.com/Wilfred/helpful)** - Better help buffers with examples
+- **[dash](https://github.com/magnars/dash.el)** - Modern list library with fontification
+- **[which-key](https://github.com/justbur/emacs-which-key)** - Shows available keybindings in popup
+
+**Utilities:**
+- **[auto-package-update](https://github.com/radian-software/auto-package-update)** - Automatic package updates (weekly at 9:00 AM)
+- **[default-text-scale](https://github.com/purcell/default-text-scale)** - Easy text scaling
+- **[monitor](https://github.com/GuiltyDolphin/monitor)** - System monitoring
+- Server mode enabled for `emacsclient`
+
+#### Keybindings
+
+**Leader Key (`<Space>`):**
+```
+<Space> ee    Eval last s-expression
+<Space> er    Toggle Neotree
+<Space> fb    Switch buffer (Counsel)
+<Space> ff    Find file in project (Projectile)
+<Space> ft    Open Treemacs
+<Space> gs    Magit status
+<Space> hc    Helpful command
+<Space> hf    Describe function (Counsel)
+<Space> hk    Helpful key
+<Space> hv    Describe variable (Counsel)
+<Space> hw    Which-key top-level
+<Space> j     Previous buffer
+<Space> k     Next buffer
+<Space> s     Text scale adjust
+<Space> u     Save buffer
+<Space> x     Delete buffer
+```
+
+**Centaur Tabs:**
+```
+C-<prior>     Previous tab (Page Up)
+C-<next>      Next tab (Page Down)
+gt            Next tab (Evil normal mode)
+gT            Previous tab (Evil normal mode)
+<right>       Next tab (Evil normal mode)
+<left>        Previous tab (Evil normal mode)
+```
+
+**macOS-Specific:**
+```
+Cmd+x         Cut
+Cmd+c         Copy
+Cmd+v         Paste
+Cmd+z         Undo
+Cmd+s         Save
+Cmd+w         Delete window
+Cmd+q         Quit Emacs
+```
+
+**Ivy/Counsel:**
+```
+C-j / C-k     Navigate completion candidates
+C-#           Swiper (search in buffer)
+M-x           Counsel M-x (enhanced command palette)
+```
+
+**Dired:**
+```
+h             Up directory (Evil)
+l             Open file/directory (Evil)
+H             Toggle hidden files
+C-x C-j       Jump to dired
+```
+
+**Org Mode:**
+```
+C-j / C-k     Next/previous visible heading
+M-j / M-k     Move heading up/down
+```
+
+**Treemacs:**
+```
+M-0           Select Treemacs window
+C-x t t       Toggle Treemacs
+C-x t C-t     Find current file in Treemacs
+```
+
+#### macOS Optimizations
+
+- **Menu bar enabled** - Fixes window focus and virtual desktop issues on macOS
+- **PATH from shell** - Automatically inherits PATH from login shell
+- **Modifier keys:**
+  - Left Option → Meta (for Emacs bindings)
+  - Right Option → Normal (for typing special characters)
+  - Command → Super (for macOS shortcuts)
+- **Ligatures enabled** - Requires Emacs for Mac
+- **Native fullscreen** - Maximized on launch
+
+#### Configuration Highlights
+
+**UI:**
+- No toolbar, tooltip, scrollbar, or menu bar (except macOS)
+- Borderless window with 7px internal padding
+- Smooth scrolling with 5-line margin
+- Relative line numbers in prog/text modes
+- Fringe width: 10px
+
+**Files:**
+- Backups stored in `~/.tmp/emacsbackup/`
+- Trash instead of delete
+- UTF-8 encoding by default
+- Auto-detects dotfile modes (`.zshrc.symlink` → `sh-mode`)
+
+**Editing:**
+- Tab width: 2 spaces
+- Spaces instead of tabs
+- Show matching parentheses
+- History: 25 entries
+- Package repository: MELPA
+
+#### First-Time Setup
+
+**Install fonts (one-time):**
+```elisp
+M-x all-the-icons-install-fonts
+```
+
+This downloads and installs all icon fonts needed for the UI.
+
+**Package Installation:**
+Packages are automatically installed on first launch via `use-package`.
+
+#### Development Projects
+
+**Projectile Configuration:**
+- Project search path: `~/Development/`
+- Switch project action: Open dired
+- Keybinding: `C-c p` (projectile command map)
+
+**Note:** This configuration is comprehensive and primarily designed for macOS. It provides a modern IDE-like experience with Vim keybindings, making it familiar for Vim users while leveraging Emacs' extensibility and package ecosystem.
 
 ---
 
