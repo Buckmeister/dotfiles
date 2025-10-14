@@ -59,6 +59,38 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 }
 
 # ============================================================================
+# OS Detection and Context Setup
+# ============================================================================
+
+# Detect OS and package manager if not already set by calling script (e.g., setup.zsh)
+if [[ -z "${DF_OS:-}" || -z "${DF_PKG_MANAGER:-}" ]]; then
+    # Use shared utility function for detection
+    if typeset -f detect_package_manager >/dev/null; then
+        detect_package_manager
+    else
+        # Fallback if shared function not available
+        export DF_OS=$(get_os)
+        case "$DF_OS" in
+            macos)
+                export DF_PKG_MANAGER="brew"
+                export DF_PKG_INSTALL_CMD="brew install"
+                ;;
+            linux)
+                export DF_PKG_MANAGER="apt"
+                export DF_PKG_INSTALL_CMD="sudo apt install"
+                ;;
+            *)
+                export DF_PKG_MANAGER="unknown"
+                export DF_PKG_INSTALL_CMD="echo 'Unknown package manager'"
+                ;;
+        esac
+    fi
+fi
+
+# Ensure dotfiles_root is set for use throughout the script
+dotfiles_root="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# ============================================================================
 # Pager Selection (bat with fallback to less/cat)
 # ============================================================================
 
@@ -95,17 +127,10 @@ function use_pager() {
 # Function to generate the full report (so we can pipe it through a pager)
 function generate_report() {
 
-# Detect if we're being called from setup (with DF_OS context)
-if [[ -n "$DF_OS" ]]; then
-    echo "📚 The Librarian awakens... (called from setup)"
-    echo "🖥️  Operating System: $DF_OS"
-    echo "📦 Package Manager: ${DF_PKG_MANAGER:-unknown}"
-else
-    echo "📚 The Librarian's Independent Status Report"
-    # Detect OS ourselves if not provided using shared utility
-    DF_OS=$(get_os)
-    echo "🖥️  Operating System: $DF_OS"
-fi
+# Show report header
+echo "📚 The Librarian's System Health Report"
+echo "🖥️  Operating System: $DF_OS"
+echo "📦 Package Manager: ${DF_PKG_MANAGER:-unknown}"
 
 echo
 echo "🔍 Examining the dotfiles library..."
@@ -638,18 +663,8 @@ case "${1:-}" in
             if [[ -x "$script" ]]; then
                 echo "🎵 Executing: $script_name"
 
-                # Export OS context for post-install scripts
-                if [[ -n "${DF_OS:-}" && -n "${DF_PKG_MANAGER:-}" && -n "${DF_PKG_INSTALL_CMD:-}" ]]; then
-                    DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$script"
-                else
-                    # Fallback: detect OS context if not provided using shared utility
-                    local detected_os=$(get_os)
-                    case "$detected_os" in
-                        "macos")   DF_OS="macos" DF_PKG_MANAGER="brew" DF_PKG_INSTALL_CMD="brew install" "$script" ;;
-                        "linux")   DF_OS="linux" DF_PKG_MANAGER="apt" DF_PKG_INSTALL_CMD="apt install -y" "$script" ;;
-                        *)          DF_OS="unknown" "$script" ;;
-                    esac
-                fi
+                # Export OS context for post-install scripts (already detected at script startup)
+                DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$script"
 
                 echo "   ✅ Completed: $script_name"
             else

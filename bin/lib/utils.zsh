@@ -223,6 +223,49 @@ function get_os() {
     esac
 }
 
+# Detect and configure package manager
+# Sets and exports: DF_OS, DF_PKG_MANAGER, DF_PKG_INSTALL_CMD
+# This provides a single source of truth for OS and package manager detection
+function detect_package_manager() {
+    # Detect operating system
+    export DF_OS=$(get_os)
+
+    # Set OS-specific package manager variables
+    case "$DF_OS" in
+        macos)
+            export DF_PKG_MANAGER="brew"
+            export DF_PKG_INSTALL_CMD="brew install"
+            ;;
+        linux)
+            # Detect Linux package manager based on what's available
+            if command_exists apt; then
+                export DF_PKG_MANAGER="apt"
+                export DF_PKG_INSTALL_CMD="sudo apt install"
+            elif command_exists dnf; then
+                export DF_PKG_MANAGER="dnf"
+                export DF_PKG_INSTALL_CMD="sudo dnf install"
+            elif command_exists pacman; then
+                export DF_PKG_MANAGER="pacman"
+                export DF_PKG_INSTALL_CMD="sudo pacman -S"
+            elif command_exists zypper; then
+                export DF_PKG_MANAGER="zypper"
+                export DF_PKG_INSTALL_CMD="sudo zypper install"
+            else
+                export DF_PKG_MANAGER="unknown"
+                export DF_PKG_INSTALL_CMD="echo 'No package manager found'"
+            fi
+            ;;
+        windows)
+            export DF_PKG_MANAGER="choco"
+            export DF_PKG_INSTALL_CMD="choco install"
+            ;;
+        *)
+            export DF_PKG_MANAGER="unknown"
+            export DF_PKG_INSTALL_CMD="echo 'Unknown package manager'"
+            ;;
+    esac
+}
+
 # Check if command exists
 function command_exists() {
     local command="$1"
@@ -438,7 +481,7 @@ function load_config() {
     typeset -fx exit_with_error log_error log_warning
     typeset -fx complete_operation init_operations get_progress_percentage update_operation_progress
     typeset -fx get_file_size is_writable create_directory_safe expand_path path_exists
-    typeset -fx get_os command_exists require_commands get_script_dir get_dotfiles_dir
+    typeset -fx get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir
     typeset -fx get_timestamp generate_timestamped_filename
     typeset -fx safe_exec exec_with_output
     typeset -fx test_archive_integrity get_archive_file_count

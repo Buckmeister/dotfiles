@@ -55,46 +55,8 @@ source "$CONFIG_DIR/versions.env"
 # OS Detection and Context Setup
 # ============================================================================
 
-# Detect operating system
-export DF_OS=$(get_os)
-
-# Handle additional OS detection for Windows systems
-case "$(uname -s)" in
-  CYGWIN*)  export DF_OS="windows" ;;
-  MINGW*)   export DF_OS="windows" ;;
-esac
-
-# Set OS-specific package manager variables
-case "$DF_OS" in
-  macos)
-    export DF_PKG_MANAGER="brew"
-    export DF_PKG_INSTALL_CMD="brew install"
-    ;;
-  linux)
-    # Detect Linux package manager
-    if command_exists apt; then
-      export DF_PKG_MANAGER="apt"
-      export DF_PKG_INSTALL_CMD="sudo apt install"
-    elif command_exists dnf; then
-      export DF_PKG_MANAGER="dnf"
-      export DF_PKG_INSTALL_CMD="sudo dnf install"
-    elif command_exists pacman; then
-      export DF_PKG_MANAGER="pacman"
-      export DF_PKG_INSTALL_CMD="sudo pacman -S"
-    else
-      export DF_PKG_MANAGER="unknown"
-      export DF_PKG_INSTALL_CMD="echo 'No package manager found'"
-    fi
-    ;;
-  windows)
-    export DF_PKG_MANAGER="choco"
-    export DF_PKG_INSTALL_CMD="choco install"
-    ;;
-  *)
-    export DF_PKG_MANAGER="unknown"
-    export DF_PKG_INSTALL_CMD="echo 'Unknown package manager'"
-    ;;
-esac
+# Detect OS and package manager using shared utility function
+detect_package_manager
 
 # ============================================================================
 # Configuration

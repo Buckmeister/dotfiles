@@ -65,33 +65,13 @@ export DF_LOGFILE="df_log.txt"
 # OS Detection and Context Switching
 # ============================================================================
 
-# Detect operating system using shared utility
-export DF_OS=$(get_os)
+# Detect OS and package manager using shared utility function
+detect_package_manager
 
-# Handle additional OS detection for Windows systems
-case "$(uname -s)" in
-  CYGWIN*)  export DF_OS="windows" ;;
-  MINGW*)   export DF_OS="windows" ;;
-esac
-
-# Set OS-specific variables
-case "$DF_OS" in
-  macos)
-    export DF_PKG_MANAGER="brew"
-    export DF_PKG_INSTALL_CMD="brew install"
-    ;;
-  linux)
-    export DF_PKG_MANAGER="apt"
-    export DF_PKG_INSTALL_CMD="sudo apt install"
-    ;;
-  windows)
-    export DF_PKG_MANAGER="choco"
-    export DF_PKG_INSTALL_CMD="choco install"
-    ;;
-  *)
-    print_warning "Unknown operating system. Some features may not work."
-    ;;
-esac
+# Warn if package manager detection failed
+if [[ "$DF_PKG_MANAGER" == "unknown" ]]; then
+    print_warning "Unknown operating system or package manager. Some features may not work."
+fi
 
 print_info "Detected OS: $DF_OS"
 print_info "Package Manager: $DF_PKG_MANAGER"
