@@ -41,6 +41,12 @@ source "${DOTFILES_ROOT}/bin/lib/ui.zsh"
 source "${DOTFILES_ROOT}/bin/lib/utils.zsh"
 source "${DOTFILES_ROOT}/bin/lib/greetings.zsh"
 
+# Source test helpers
+source "${SCRIPT_DIR}/lib/test_helpers.zsh" 2>/dev/null || {
+    echo "Error: Could not load test helpers"
+    exit 1
+}
+
 # XCP-NG Configuration
 XEN_SSH_KEY="${HOME}/.ssh/aria_xen_key"
 XEN_HOST="opt-bck01.bck.intern"
@@ -140,34 +146,16 @@ is_windows() {
     esac
 }
 
-# Execute command on XCP-NG host
+# Execute command on XCP-NG host (wrapper around remote_ssh helper)
 xen_ssh() {
-    ssh -i "$XEN_SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-        root@"$XEN_HOST" "$@" 2>&1
+    remote_ssh "$XEN_SSH_KEY" root "$XEN_HOST" "$@"
 }
 
-# Execute command on VM
+# Execute command on VM (wrapper around remote_ssh helper)
 vm_ssh() {
     local vm_ip="$1"
     shift
-    ssh -i "$XEN_SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-        -o BatchMode=yes aria@"$vm_ip" "$@" 2>&1
-}
-
-# Wait for VM to be SSH accessible
-wait_for_vm_ssh() {
-    local vm_ip="$1"
-    local max_attempts=60
-    local attempt=1
-
-    while [[ $attempt -le $max_attempts ]]; do
-        if vm_ssh "$vm_ip" "echo 'SSH Ready'" >/dev/null 2>&1; then
-            return 0
-        fi
-        sleep 2
-        ((attempt++))
-    done
-    return 1
+    remote_ssh "$XEN_SSH_KEY" aria "$vm_ip" "$@"
 }
 
 # Clean up a VM
@@ -208,7 +196,7 @@ test_installation() {
     draw_section_header "Test Phases"
 
     # Phase 1: Create VM with cloud-init
-    print_info "Phase 1/5: Creating VM with cloud-init configuration..."
+    print_test_phase 1 5 "Creating VM with cloud-init configuration"
 
     local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-vm-with-cloudinit-iso.sh $distro 2>&1")
 
@@ -228,7 +216,7 @@ test_installation() {
     echo ""
 
     # Phase 2: Wait for VM to be accessible
-    print_info "Phase 2/5: Waiting for VM to boot and cloud-init to complete..."
+    print_test_phase 2 5 "Waiting for VM to boot and cloud-init to complete"
 
     if [[ -z "$vm_ip" ]]; then
         print_error "VM did not receive an IP address"
@@ -236,8 +224,8 @@ test_installation() {
         return 1
     fi
 
-    # Wait for SSH to be ready
-    if ! wait_for_vm_ssh "$vm_ip"; then
+    # Wait for SSH to be ready using helper function
+    if ! wait_for_ssh "$XEN_SSH_KEY" aria "$vm_ip" 120 false; then
         print_error "VM did not become SSH accessible"
         cleanup_vm "$vm_uuid" "$vdi_uuid"
         return 1
@@ -247,7 +235,7 @@ test_installation() {
     echo ""
 
     # Phase 3: Install prerequisites
-    print_info "Phase 3/5: Installing prerequisites..."
+    print_test_phase 3 5 "Installing prerequisites"
 
     local prereq_output=$(vm_ssh "$vm_ip" "sudo apt update -qq && sudo apt install -y -qq zsh build-essential curl git 2>&1 | tail -5")
 
@@ -261,7 +249,7 @@ test_installation() {
     echo ""
 
     # Phase 4: Clone and run dotfiles setup
-    print_info "Phase 4/5: Running dotfiles installation..."
+    print_test_phase 4 5 "Running dotfiles installation"
 
     local install_cmd="
         set -e
@@ -293,28 +281,9 @@ test_installation() {
         echo 'PROGRESS:Complete'
     "
 
+    # Use parse_test_output helper for standard output parsing
     vm_ssh "$vm_ip" "$install_cmd" | while IFS= read -r line; do
-        case "$line" in
-            PROGRESS:*)
-                local message="${line#PROGRESS:}"
-                echo "   ${COLOR_COMMENT}→ $message${COLOR_RESET}"
-                ;;
-            SUCCESS:*)
-                local message="${line#SUCCESS:}"
-                print_success "$message"
-                ;;
-            FAILED:*)
-                local message="${line#FAILED:}"
-                print_error "$message"
-                ;;
-            PROGRESS:Complete)
-                # Installation completed
-                ;;
-            *)
-                # Show other output for debugging if needed
-                # echo "   $line"
-                ;;
-        esac
+        parse_test_output "$line"
     done
 
     if [[ $? -ne 0 ]]; then
@@ -327,7 +296,7 @@ test_installation() {
     echo ""
 
     # Phase 5: Verify installation
-    print_info "Phase 5/5: Verifying installation results..."
+    print_test_phase 5 5 "Verifying installation results"
 
     local verify_output=$(vm_ssh "$vm_ip" "
         echo 'INFO:Distribution:' \$(cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"')
@@ -337,13 +306,9 @@ test_installation() {
         echo 'INFO:Symlinks:' \$(ls -1 ~/.local/bin 2>/dev/null | wc -l) 'files'
     ")
 
+    # Use parse_test_output helper
     echo "$verify_output" | while IFS= read -r line; do
-        case "$line" in
-            INFO:*)
-                local message="${line#INFO:}"
-                echo "   ${COLOR_COMMENT}$message${COLOR_RESET}"
-                ;;
-        esac
+        parse_test_output "$line"
     done
 
     print_success "Installation verified"
@@ -381,8 +346,8 @@ test_windows_installation() {
     draw_section_header "Test Phases"
 
     # Phase 1: Create Windows VM with cloudbase-init
-    print_info "Phase 1/4: Creating Windows VM with cloudbase-init configuration..."
-    print_info "   ${COLOR_COMMENT}(This takes longer than Linux - Windows boot time ~5-10 minutes)${COLOR_RESET}"
+    print_test_phase 1 4 "Creating Windows VM with cloudbase-init configuration"
+    print_phase_context "This takes longer than Linux - Windows boot time ~5-10 minutes"
 
     local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-windows-vm-with-cloudinit-iso.sh $distro 2>&1")
 
@@ -402,8 +367,8 @@ test_windows_installation() {
     echo ""
 
     # Phase 2: Wait for VM to be accessible (Windows takes longer)
-    print_info "Phase 2/4: Waiting for Windows to boot and OpenSSH setup..."
-    print_info "   ${COLOR_COMMENT}(Cloudbase-init is installing OpenSSH Server, please be patient)${COLOR_RESET}"
+    print_test_phase 2 4 "Waiting for Windows to boot and OpenSSH setup"
+    print_phase_context "Cloudbase-init is installing OpenSSH Server, please be patient"
 
     if [[ -z "$vm_ip" ]]; then
         print_error "VM did not receive an IP address"
@@ -411,21 +376,8 @@ test_windows_installation() {
         return 1
     fi
 
-    # Wait for SSH to be ready (longer timeout for Windows)
-    local max_attempts=120  # 4 minutes (120 * 2 seconds)
-    local attempt=1
-    while [[ $attempt -le $max_attempts ]]; do
-        if vm_ssh "$vm_ip" "powershell.exe -Command 'Write-Output OK'" >/dev/null 2>&1; then
-            break
-        fi
-        sleep 2
-        ((attempt++))
-        if [[ $((attempt % 30)) -eq 0 ]]; then
-            echo "   ${COLOR_COMMENT}Still waiting... ($((attempt * 2)) seconds / $((attempt * 2 / 60)) minutes)${COLOR_RESET}"
-        fi
-    done
-
-    if [[ $attempt -gt $max_attempts ]]; then
+    # Wait for PowerShell/SSH to be ready (4 minutes timeout, show progress)
+    if ! wait_for_condition "vm_ssh '$vm_ip' 'powershell.exe -Command Write-Output OK' >/dev/null 2>&1" 240 2 "Still waiting for SSH access" true; then
         print_error "VM did not become SSH accessible"
         cleanup_vm "$vm_uuid" "$vdi_uuid"
         return 1
@@ -435,7 +387,7 @@ test_windows_installation() {
     echo ""
 
     # Phase 3: Verify Windows system and SSH access
-    print_info "Phase 3/4: Verifying Windows system and PowerShell access..."
+    print_test_phase 3 4 "Verifying Windows system and PowerShell access"
 
     local verify_cmd='
         echo "PROGRESS:Checking Windows version"
@@ -464,20 +416,9 @@ test_windows_installation() {
         echo "PROGRESS:Complete"
     '
 
+    # Use parse_test_output helper
     vm_ssh "$vm_ip" "powershell.exe -Command \"$verify_cmd\"" | while IFS= read -r line; do
-        case "$line" in
-            PROGRESS:*)
-                local message="${line#PROGRESS:}"
-                echo "   ${COLOR_COMMENT}→ $message${COLOR_RESET}"
-                ;;
-            INFO:*)
-                local message="${line#INFO:}"
-                echo "   ${COLOR_COMMENT}$message${COLOR_RESET}"
-                ;;
-            PROGRESS:Complete)
-                # Verification completed
-                ;;
-        esac
+        parse_test_output "$line"
     done
 
     if [[ $? -ne 0 ]]; then
@@ -490,7 +431,7 @@ test_windows_installation() {
     echo ""
 
     # Phase 4: Test dotfiles readiness (clone check)
-    print_info "Phase 4/4: Testing dotfiles repository access..."
+    print_test_phase 4 4 "Testing dotfiles repository access"
 
     local git_test=$(vm_ssh "$vm_ip" "powershell.exe -Command 'git ls-remote https://github.com/Buckmeister/dotfiles.git HEAD' 2>&1")
 
@@ -600,64 +541,32 @@ run_tests() {
     echo "   Total tests: ${#DISTROS[@]}"
     echo ""
 
-    local total_tests=0
-    local passed_tests=0
-    local failed_tests=0
-
-    # Track failed tests for summary
-    local -a failed_list
+    # Initialize test result tracking
+    init_test_tracking
 
     for distro in "${DISTROS[@]}"; do
-        ((total_tests++))
-
         # Run appropriate test based on OS type
-        local test_result=false
         if is_windows "$distro"; then
             # Windows VM test
             if test_windows_installation "$distro"; then
-                test_result=true
+                track_test_result "${(C)distro}" true
+            else
+                track_test_result "${(C)distro}" false
             fi
         else
             # Linux VM test
             if test_installation "$distro"; then
-                test_result=true
+                track_test_result "${(C)distro}" true
+            else
+                track_test_result "${(C)distro}" false
             fi
-        fi
-
-        # Track results
-        if [[ "$test_result" = true ]]; then
-            ((passed_tests++)) || true
-        else
-            ((failed_tests++)) || true
-            failed_list+=("${(C)distro}")
         fi
 
         echo ""
     done
 
-    # Print summary
-    draw_section_header "Test Results Summary"
-
-    print_info "📊 Test Statistics:"
-    echo "   Total tests:  $total_tests"
-    echo "   ${COLOR_SUCCESS}Passed:       $passed_tests${COLOR_RESET}"
-    echo "   ${COLOR_ERROR}Failed:       $failed_tests${COLOR_RESET}"
-    echo ""
-
-    if [[ $failed_tests -gt 0 ]]; then
-        print_error "Failed tests:"
-        for failed in "${failed_list[@]}"; do
-            echo "   - $failed"
-        done
-        echo ""
-        return 1
-    else
-        print_success "All tests passed! 🎉"
-        echo ""
-        print_success "$(get_random_friend_greeting)"
-        echo ""
-        return 0
-    fi
+    # Print summary using helper function
+    print_test_summary
 }
 
 # ============================================================================
@@ -688,8 +597,8 @@ cleanup() {
     done
 }
 
-# Register cleanup on exit
-trap cleanup EXIT INT TERM
+# Register cleanup on exit using helper function
+register_cleanup_handler cleanup
 
 # ============================================================================
 # Entry Point

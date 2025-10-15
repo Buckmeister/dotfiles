@@ -5,7 +5,7 @@
 # ============================================================================
 #
 # A lightweight testing framework for shell scripts, providing assertion
-# functions, test organization, and beautiful output.
+# functions, test organization, and beautiful output using shared libraries.
 #
 # Usage:
 #   source "tests/lib/test_framework.zsh"
@@ -23,6 +23,26 @@
 emulate -LR zsh
 
 # ============================================================================
+# Load Shared Libraries
+# ============================================================================
+
+# Determine paths
+TESTS_LIB_DIR="${0:a:h}"
+DOTFILES_ROOT="${TESTS_LIB_DIR:h:h}"
+
+# Load colors for consistent output
+source "${DOTFILES_ROOT}/bin/lib/colors.zsh" 2>/dev/null || {
+    # Fallback if colors.zsh not available
+    readonly COLOR_RESET='\033[0m'
+    readonly COLOR_BOLD='\033[1m'
+    readonly COLOR_SUCCESS='\033[32m'
+    readonly COLOR_ERROR='\033[31m'
+    readonly COLOR_WARNING='\033[33m'
+    readonly COLOR_INFO='\033[36m'
+    readonly COLOR_COMMENT='\033[90m'
+}
+
+# ============================================================================
 # Test Framework State
 # ============================================================================
 
@@ -33,18 +53,6 @@ typeset -g -i TESTS_PASSED=0
 typeset -g -i TESTS_FAILED=0
 typeset -g -i TESTS_SKIPPED=0
 typeset -g TEST_OUTPUT_VERBOSE=false
-
-# ============================================================================
-# Color Definitions (embedded for test isolation)
-# ============================================================================
-
-readonly TEST_COLOR_RESET='\033[0m'
-readonly TEST_COLOR_BOLD='\033[1m'
-readonly TEST_COLOR_GREEN='\033[32m'
-readonly TEST_COLOR_RED='\033[31m'
-readonly TEST_COLOR_YELLOW='\033[33m'
-readonly TEST_COLOR_CYAN='\033[36m'
-readonly TEST_COLOR_GRAY='\033[90m'
 
 # ============================================================================
 # Test Suite Management
@@ -78,9 +86,9 @@ function assert_equals() {
     if [[ "$expected" == "$actual" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Expected: ${TEST_COLOR_GREEN}$expected${TEST_COLOR_RESET}"
-        echo "  Actual:   ${TEST_COLOR_RED}$actual${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Expected: ${COLOR_SUCCESS}$expected${COLOR_RESET}"
+        echo "  Actual:   ${COLOR_ERROR}$actual${COLOR_RESET}"
         return 1
     fi
 }
@@ -93,8 +101,8 @@ function assert_not_equals() {
     if [[ "$expected" != "$actual" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Expected NOT to equal: ${TEST_COLOR_RED}$expected${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Expected NOT to equal: ${COLOR_ERROR}$expected${COLOR_RESET}"
         return 1
     fi
 }
@@ -106,9 +114,9 @@ function assert_true() {
     if [[ "$condition" == "true" ]] || [[ "$condition" -eq 1 ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Expected: ${TEST_COLOR_GREEN}true${TEST_COLOR_RESET}"
-        echo "  Actual:   ${TEST_COLOR_RED}$condition${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Expected: ${COLOR_SUCCESS}true${COLOR_RESET}"
+        echo "  Actual:   ${COLOR_ERROR}$condition${COLOR_RESET}"
         return 1
     fi
 }
@@ -120,9 +128,9 @@ function assert_false() {
     if [[ "$condition" == "false" ]] || [[ "$condition" -eq 0 ]] || [[ -z "$condition" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Expected: ${TEST_COLOR_GREEN}false${TEST_COLOR_RESET}"
-        echo "  Actual:   ${TEST_COLOR_RED}$condition${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Expected: ${COLOR_SUCCESS}false${COLOR_RESET}"
+        echo "  Actual:   ${COLOR_ERROR}$condition${COLOR_RESET}"
         return 1
     fi
 }
@@ -135,9 +143,9 @@ function assert_contains() {
     if [[ "$haystack" == *"$needle"* ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Haystack: ${TEST_COLOR_GRAY}$haystack${TEST_COLOR_RESET}"
-        echo "  Needle:   ${TEST_COLOR_RED}$needle${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Haystack: ${COLOR_COMMENT}$haystack${COLOR_RESET}"
+        echo "  Needle:   ${COLOR_ERROR}$needle${COLOR_RESET}"
         return 1
     fi
 }
@@ -150,9 +158,9 @@ function assert_not_contains() {
     if [[ "$haystack" != *"$needle"* ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Haystack: ${TEST_COLOR_GRAY}$haystack${TEST_COLOR_RESET}"
-        echo "  Should NOT contain: ${TEST_COLOR_RED}$needle${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Haystack: ${COLOR_COMMENT}$haystack${COLOR_RESET}"
+        echo "  Should NOT contain: ${COLOR_ERROR}$needle${COLOR_RESET}"
         return 1
     fi
 }
@@ -164,8 +172,8 @@ function assert_file_exists() {
     if [[ -f "$filepath" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  File: ${TEST_COLOR_RED}$filepath${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  File: ${COLOR_ERROR}$filepath${COLOR_RESET}"
         return 1
     fi
 }
@@ -177,8 +185,8 @@ function assert_file_not_exists() {
     if [[ ! -f "$filepath" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  File should NOT exist: ${TEST_COLOR_RED}$filepath${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  File should NOT exist: ${COLOR_ERROR}$filepath${COLOR_RESET}"
         return 1
     fi
 }
@@ -190,8 +198,8 @@ function assert_dir_exists() {
     if [[ -d "$dirpath" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Directory: ${TEST_COLOR_RED}$dirpath${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Directory: ${COLOR_ERROR}$dirpath${COLOR_RESET}"
         return 1
     fi
 }
@@ -203,8 +211,8 @@ function assert_command_exists() {
     if command -v "$command" >/dev/null 2>&1; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Command: ${TEST_COLOR_RED}$command${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Command: ${COLOR_ERROR}$command${COLOR_RESET}"
         return 1
     fi
 }
@@ -217,9 +225,9 @@ function assert_exit_code() {
     if [[ "$expected_code" -eq "$actual_code" ]]; then
         return 0
     else
-        echo "${TEST_COLOR_RED}✗${TEST_COLOR_RESET} $message"
-        echo "  Expected exit code: ${TEST_COLOR_GREEN}$expected_code${TEST_COLOR_RESET}"
-        echo "  Actual exit code:   ${TEST_COLOR_RED}$actual_code${TEST_COLOR_RESET}"
+        echo "${COLOR_ERROR}✗${COLOR_RESET} $message"
+        echo "  Expected exit code: ${COLOR_SUCCESS}$expected_code${COLOR_RESET}"
+        echo "  Actual exit code:   ${COLOR_ERROR}$actual_code${COLOR_RESET}"
         return 1
     fi
 }
@@ -233,7 +241,7 @@ function run_single_test() {
     local test_name="${test_info%%|*}"
     local test_body="${test_info#*|}"
 
-    printf "  ${TEST_COLOR_CYAN}▸${TEST_COLOR_RESET} %s ... " "$test_name"
+    printf "  ${COLOR_INFO}▸${COLOR_RESET} %s ... " "$test_name"
 
     # Run test in subshell to isolate failures
     local output
@@ -243,11 +251,11 @@ function run_single_test() {
     exit_code=$?
 
     if [[ $exit_code -eq 0 ]]; then
-        printf "${TEST_COLOR_GREEN}✓${TEST_COLOR_RESET}\n"
+        printf "${COLOR_SUCCESS}✓${COLOR_RESET}\n"
         ((TESTS_PASSED++))
         return 0
     else
-        printf "${TEST_COLOR_RED}✗${TEST_COLOR_RESET}\n"
+        printf "${COLOR_ERROR}✗${COLOR_RESET}\n"
         if [[ -n "$output" ]]; then
             echo "$output" | sed 's/^/    /'
         fi
@@ -258,8 +266,8 @@ function run_single_test() {
 
 function run_tests() {
     echo ""
-    printf "${TEST_COLOR_BOLD}${TEST_COLOR_CYAN}Running Test Suite: %s${TEST_COLOR_RESET}\n" "$TEST_SUITE_NAME"
-    printf "${TEST_COLOR_GRAY}══════════════════════════════════════════════════════════════════════════════${TEST_COLOR_RESET}\n"
+    printf "${COLOR_BOLD}${COLOR_INFO}Running Test Suite: %s${COLOR_RESET}\n" "$TEST_SUITE_NAME"
+    printf "${COLOR_COMMENT}══════════════════════════════════════════════════════════════════════════════${COLOR_RESET}\n"
     echo ""
 
     local total_tests=${#TEST_CASES[@]}
@@ -269,29 +277,29 @@ function run_tests() {
     done
 
     echo ""
-    printf "${TEST_COLOR_GRAY}──────────────────────────────────────────────────────────────────────────────${TEST_COLOR_RESET}\n"
+    printf "${COLOR_COMMENT}──────────────────────────────────────────────────────────────────────────────${COLOR_RESET}\n"
 
     # Summary
-    printf "${TEST_COLOR_BOLD}Test Summary:${TEST_COLOR_RESET}\n"
+    printf "${COLOR_BOLD}Test Summary:${COLOR_RESET}\n"
     printf "  Total:   %d\n" "$total_tests"
-    printf "  ${TEST_COLOR_GREEN}Passed:  %d${TEST_COLOR_RESET}\n" "$TESTS_PASSED"
+    printf "  ${COLOR_SUCCESS}Passed:  %d${COLOR_RESET}\n" "$TESTS_PASSED"
 
     if [[ $TESTS_FAILED -gt 0 ]]; then
-        printf "  ${TEST_COLOR_RED}Failed:  %d${TEST_COLOR_RESET}\n" "$TESTS_FAILED"
+        printf "  ${COLOR_ERROR}Failed:  %d${COLOR_RESET}\n" "$TESTS_FAILED"
     fi
 
     if [[ $TESTS_SKIPPED -gt 0 ]]; then
-        printf "  ${TEST_COLOR_YELLOW}Skipped: %d${TEST_COLOR_RESET}\n" "$TESTS_SKIPPED"
+        printf "  ${COLOR_WARNING}Skipped: %d${COLOR_RESET}\n" "$TESTS_SKIPPED"
     fi
 
     echo ""
 
     # Exit with appropriate code
     if [[ $TESTS_FAILED -gt 0 ]]; then
-        printf "${TEST_COLOR_RED}${TEST_COLOR_BOLD}✗ Tests FAILED${TEST_COLOR_RESET}\n"
+        printf "${COLOR_ERROR}${COLOR_BOLD}✗ Tests FAILED${COLOR_RESET}\n"
         return 1
     else
-        printf "${TEST_COLOR_GREEN}${TEST_COLOR_BOLD}✓ All tests PASSED${TEST_COLOR_RESET}\n"
+        printf "${COLOR_SUCCESS}${COLOR_BOLD}✓ All tests PASSED${COLOR_RESET}\n"
         return 0
     fi
 }
@@ -302,7 +310,7 @@ function run_tests() {
 
 function skip_test() {
     local reason="${1:-No reason provided}"
-    printf "${TEST_COLOR_YELLOW}⊘${TEST_COLOR_RESET} (skipped: $reason)\n"
+    printf "${COLOR_WARNING}⊘${COLOR_RESET} (skipped: $reason)\n"
     ((TESTS_SKIPPED++))
     return 0
 }

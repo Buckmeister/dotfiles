@@ -34,6 +34,12 @@ source "${DOTFILES_ROOT}/bin/lib/ui.zsh"
 source "${DOTFILES_ROOT}/bin/lib/utils.zsh"
 source "${DOTFILES_ROOT}/bin/lib/greetings.zsh"
 
+# Source test helpers
+source "${SCRIPT_DIR}/lib/test_helpers.zsh" 2>/dev/null || {
+    echo "Error: Could not load test helpers"
+    exit 1
+}
+
 # Test configurations
 DISTROS=(
     "ubuntu:24.04"
@@ -170,7 +176,7 @@ test_installation() {
         -e DEBIAN_FRONTEND=noninteractive \
         "$distro" \
         bash -c "$test_cmd" 2>&1 | while IFS= read -r line; do
-            # Process output in real-time
+            # Process output in real-time using helper function
             case "$line" in
                 PROGRESS:Installing*)
                     print_info "Phase 2/4: Installing prerequisites..."
@@ -181,24 +187,9 @@ test_installation() {
                 PROGRESS:Verifying*)
                     print_info "Phase 4/4: Verifying installation..."
                     ;;
-                SUCCESS:*)
-                    local message="${line#SUCCESS:}"
-                    print_success "$message"
-                    ;;
-                FAILED:*)
-                    local message="${line#FAILED:}"
-                    print_error "$message"
-                    ;;
-                INFO:*)
-                    local message="${line#INFO:}"
-                    echo "   ${COLOR_COMMENT}$message${COLOR_RESET}"
-                    ;;
-                PROGRESS:Complete)
-                    # Test completed successfully
-                    ;;
                 *)
-                    # Optionally show other output (uncomment for debugging)
-                    # echo "$line"
+                    # Use parse_test_output for standard markers
+                    parse_test_output "$line"
                     ;;
             esac
         done; then
@@ -241,52 +232,24 @@ run_tests() {
     echo "   Total tests: $((${#DISTROS[@]} * ${#TEST_MODES[@]}))"
     echo ""
 
-    local total_tests=0
-    local passed_tests=0
-    local failed_tests=0
-
-    # Track failed tests for summary
-    local -a failed_list
+    # Initialize test result tracking
+    init_test_tracking
 
     for distro in "${DISTROS[@]}"; do
         for mode in "${TEST_MODES[@]}"; do
-            ((total_tests++))
-
-            # Run test and capture result (don't let failures exit the loop)
+            # Run test and track result
             if test_installation "$distro" "$mode"; then
-                ((passed_tests++)) || true
+                track_test_result "$distro ($mode)" true
             else
-                ((failed_tests++)) || true
-                failed_list+=("$distro ($mode)")
+                track_test_result "$distro ($mode)" false
             fi
 
             echo ""
         done
     done
 
-    # Print summary
-    draw_section_header "Test Results Summary"
-
-    print_info "📊 Test Statistics:"
-    echo "   Total tests:  $total_tests"
-    echo "   ${COLOR_SUCCESS}Passed:       $passed_tests${COLOR_RESET}"
-    echo "   ${COLOR_ERROR}Failed:       $failed_tests${COLOR_RESET}"
-    echo ""
-
-    if [[ $failed_tests -gt 0 ]]; then
-        print_error "Failed tests:"
-        for failed in "${failed_list[@]}"; do
-            echo "   - $failed"
-        done
-        echo ""
-        return 1
-    else
-        print_success "All tests passed! 🎉"
-        echo ""
-        print_success "$(get_random_friend_greeting)"
-        echo ""
-        return 0
-    fi
+    # Print summary using helper function
+    print_test_summary
 }
 
 # ============================================================================
@@ -300,8 +263,8 @@ cleanup() {
     done
 }
 
-# Register cleanup on exit
-trap cleanup EXIT INT TERM
+# Register cleanup on exit using helper function
+register_cleanup_handler cleanup
 
 # ============================================================================
 # Entry Point

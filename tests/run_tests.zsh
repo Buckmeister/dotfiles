@@ -5,6 +5,7 @@
 # ============================================================================
 #
 # Runs all unit and integration tests for the dotfiles repository.
+# Uses shared libraries for consistent, beautiful output.
 #
 # Usage:
 #   ./tests/run_tests.zsh                # Run all tests
@@ -24,13 +25,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TESTS_DIR="$SCRIPT_DIR"
 
-# Colors for output
-readonly COLOR_RESET='\033[0m'
-readonly COLOR_BOLD='\033[1m'
-readonly COLOR_GREEN='\033[32m'
-readonly COLOR_RED='\033[31m'
-readonly COLOR_YELLOW='\033[33m'
-readonly COLOR_CYAN='\033[36m'
+# Load shared libraries
+source "${DOTFILES_ROOT}/bin/lib/colors.zsh" 2>/dev/null || {
+    echo "Error: Could not load shared libraries"
+    exit 1
+}
+source "${DOTFILES_ROOT}/bin/lib/ui.zsh"
+source "${DOTFILES_ROOT}/bin/lib/utils.zsh"
 
 # Test tracking
 typeset -g -i TOTAL_SUITES=0
@@ -45,25 +46,25 @@ function show_help() {
     cat << EOF
 ${COLOR_BOLD}Dotfiles Test Runner${COLOR_RESET}
 
-${COLOR_CYAN}USAGE:${COLOR_RESET}
+${UI_INFO_COLOR}USAGE:${COLOR_RESET}
     $0 [OPTIONS] [TEST_TYPE]
 
-${COLOR_CYAN}TEST TYPES:${COLOR_RESET}
+${UI_INFO_COLOR}TEST TYPES:${COLOR_RESET}
     unit            Run only unit tests
     integration     Run only integration tests
     (no argument)   Run all tests
 
-${COLOR_CYAN}OPTIONS:${COLOR_RESET}
+${UI_INFO_COLOR}OPTIONS:${COLOR_RESET}
     --help, -h      Show this help message
     --verbose, -v   Verbose output
 
-${COLOR_CYAN}EXAMPLES:${COLOR_RESET}
+${UI_INFO_COLOR}EXAMPLES:${COLOR_RESET}
     $0                    # Run all tests
     $0 unit              # Run unit tests only
     $0 integration       # Run integration tests only
     $0 --verbose unit    # Run unit tests with verbose output
 
-${COLOR_CYAN}TEST STRUCTURE:${COLOR_RESET}
+${UI_INFO_COLOR}TEST STRUCTURE:${COLOR_RESET}
     tests/
     ├── unit/            Unit tests for libraries
     ├── integration/     Integration tests for full workflows
@@ -81,9 +82,7 @@ function run_test_suite() {
     local test_file="$1"
     local test_name="$(basename "$test_file" .zsh)"
 
-    printf "${COLOR_CYAN}${COLOR_BOLD}╔════════════════════════════════════════════════════════════════════════════╗${COLOR_RESET}\n"
-    printf "${COLOR_CYAN}${COLOR_BOLD}║  Running: %-64s ║${COLOR_RESET}\n" "$test_name"
-    printf "${COLOR_CYAN}${COLOR_BOLD}╚════════════════════════════════════════════════════════════════════════════╝${COLOR_RESET}\n"
+    draw_section_header "Running: $test_name"
 
     ((TOTAL_SUITES++))
 
@@ -95,11 +94,13 @@ function run_test_suite() {
 
     if [[ $exit_code -eq 0 ]]; then
         ((PASSED_SUITES++))
-        printf "${COLOR_GREEN}${COLOR_BOLD}✓ Suite PASSED: %s${COLOR_RESET}\n\n" "$test_name"
+        print_success "Suite PASSED: $test_name"
+        echo ""
         return 0
     else
         ((FAILED_SUITES++))
-        printf "${COLOR_RED}${COLOR_BOLD}✗ Suite FAILED: %s${COLOR_RESET}\n\n" "$test_name"
+        print_error "Suite FAILED: $test_name"
+        echo ""
         return 1
     fi
 }
@@ -109,7 +110,7 @@ function run_tests_in_directory() {
     local test_type="$2"
 
     if [[ ! -d "$test_dir" ]]; then
-        printf "${COLOR_YELLOW}⚠ No $test_type tests found in: $test_dir${COLOR_RESET}\n"
+        print_warning "No $test_type tests found in: $test_dir"
         return 0
     fi
 
@@ -117,11 +118,12 @@ function run_tests_in_directory() {
     local test_files=(${(f)"$(find "$test_dir" -name "test_*.zsh" -type f | sort)"})
 
     if [[ ${#test_files[@]} -eq 0 ]]; then
-        printf "${COLOR_YELLOW}⚠ No test files found in: $test_dir${COLOR_RESET}\n"
+        print_warning "No test files found in: $test_dir"
         return 0
     fi
 
-    printf "${COLOR_BOLD}${COLOR_CYAN}Running %d %s test suite(s)...${COLOR_RESET}\n\n" "${#test_files[@]}" "$test_type"
+    print_info "Running ${#test_files[@]} $test_type test suite(s)..."
+    echo ""
 
     for test_file in "${test_files[@]}"; do
         run_test_suite "$test_file"
@@ -150,7 +152,7 @@ function main() {
                 test_type="$arg"
                 ;;
             *)
-                printf "${COLOR_RED}Unknown argument: $arg${COLOR_RESET}\n"
+                printf "${COLOR_ERROR}Unknown argument: $arg${COLOR_RESET}\n"
                 show_help
                 exit 1
                 ;;
@@ -158,11 +160,9 @@ function main() {
     done
 
     # Show header
-    printf "\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}═══════════════════════════════════════════════════════════════════════════════${COLOR_RESET}\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}                        DOTFILES TEST SUITE RUNNER                            ${COLOR_RESET}\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}═══════════════════════════════════════════════════════════════════════════════${COLOR_RESET}\n"
-    printf "\n"
+    echo ""
+    draw_header "Dotfiles Test Suite Runner" "Execute unit and integration tests"
+    echo ""
 
     # Run requested tests
     case "$test_type" in
@@ -180,29 +180,27 @@ function main() {
     esac
 
     # Show summary
-    printf "\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}═══════════════════════════════════════════════════════════════════════════════${COLOR_RESET}\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}                           TEST SUITE SUMMARY                                  ${COLOR_RESET}\n"
-    printf "${COLOR_BOLD}${COLOR_CYAN}═══════════════════════════════════════════════════════════════════════════════${COLOR_RESET}\n"
-    printf "\n"
+    echo ""
+    draw_section_header "Test Suite Summary"
 
-    printf "  ${COLOR_BOLD}Total Suites:${COLOR_RESET}   %d\n" "$TOTAL_SUITES"
-    printf "  ${COLOR_GREEN}${COLOR_BOLD}Passed:${COLOR_RESET}         %d\n" "$PASSED_SUITES"
+    print_info "📊 Test Results:"
+    echo "   Total Suites:  $TOTAL_SUITES"
+    echo "   ${COLOR_SUCCESS}Passed:        $PASSED_SUITES${COLOR_RESET}"
 
     if [[ $FAILED_SUITES -gt 0 ]]; then
-        printf "  ${COLOR_RED}${COLOR_BOLD}Failed:${COLOR_RESET}         %d\n" "$FAILED_SUITES"
+        echo "   ${COLOR_ERROR}Failed:        $FAILED_SUITES${COLOR_RESET}"
     fi
 
-    printf "\n"
+    echo ""
 
     # Final result
     if [[ $FAILED_SUITES -eq 0 ]]; then
-        printf "${COLOR_GREEN}${COLOR_BOLD}✓ ✓ ✓  ALL TEST SUITES PASSED  ✓ ✓ ✓${COLOR_RESET}\n"
-        printf "\n"
+        print_success "ALL TEST SUITES PASSED ✓ ✓ ✓"
+        echo ""
         return 0
     else
-        printf "${COLOR_RED}${COLOR_BOLD}✗ ✗ ✗  SOME TEST SUITES FAILED  ✗ ✗ ✗${COLOR_RESET}\n"
-        printf "\n"
+        print_error "SOME TEST SUITES FAILED ✗ ✗ ✗"
+        echo ""
         return 1
     fi
 }
