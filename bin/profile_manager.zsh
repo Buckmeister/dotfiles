@@ -26,7 +26,7 @@ emulate -LR zsh
 # ============================================================================
 
 # Initialize paths using shared utility
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="${0:a:h}"  # zsh-native: get absolute directory of this script
 source "$SCRIPT_DIR/lib/utils.zsh" 2>/dev/null || {
     echo "Error: Could not load utils.zsh" >&2
     exit 1
