@@ -1,0 +1,519 @@
+# ============================================================================
+# Dotfiles Testing Configuration
+# ============================================================================
+# This configuration file provides flexible control over test execution,
+# allowing you to run quick smoke tests, standard integration tests, or
+# comprehensive full-suite testing with ease.
+#
+# Usage examples:
+#   ./tests/run_suite.zsh --suite smoke          # Quick smoke tests
+#   ./tests/run_suite.zsh --suite standard       # Standard test suite
+#   ./tests/run_suite.zsh --suite comprehensive  # Full comprehensive tests
+#   ./tests/run_suite.zsh --component symlinks   # Test only symlinks
+#   ./tests/run_suite.zsh --tag docker           # All Docker-related tests
+
+# ============================================================================
+# Global Configuration
+# ============================================================================
+global:
+  # Default test suite to run if none specified
+  default_suite: standard
+
+  # Enable parallel test execution where possible
+  parallel_execution: true
+
+  # Maximum number of parallel tests
+  max_parallel: 4
+
+  # Default timeout for all tests (in seconds)
+  default_timeout: 300
+
+  # Test result output directory
+  results_dir: tests/results
+
+  # Enable detailed logging
+  verbose: false
+
+  # Enable test result caching (skip passed tests on reruns)
+  enable_caching: true
+
+  # Cleanup resources after tests (disable for debugging)
+  cleanup_after_tests: true
+
+# ============================================================================
+# Test Suites
+# ============================================================================
+# Suites group tests by execution speed and scope
+suites:
+  # Quick smoke tests - Run frequently during development
+  smoke:
+    description: "Fast smoke tests for rapid iteration (~2-5 minutes)"
+    timeout: 300
+    components:
+      - name: installation
+        tests:
+          - basic_setup
+          - directory_structure
+      - name: symlinks
+        tests:
+          - symlink_creation
+          - symlink_verification
+      - name: config
+        tests:
+          - os_detection
+          - package_manager_detection
+    docker:
+      enabled: true
+      distros:
+        - ubuntu:24.04
+      modes:
+        - dfauto
+    xen:
+      enabled: false  # Skip XEN in smoke tests (too slow)
+
+  # Standard integration tests - Run before commits
+  standard:
+    description: "Standard integration tests with multiple distros (~10-15 minutes)"
+    timeout: 600
+    components:
+      - name: installation
+        tests:
+          - basic_setup
+          - directory_structure
+          - prerequisites
+          - git_clone
+      - name: symlinks
+        tests:
+          - symlink_creation
+          - symlink_verification
+          - backup_creation
+      - name: config
+        tests:
+          - os_detection
+          - package_manager_detection
+          - shell_config_loading
+      - name: scripts
+        tests:
+          - post_install_execution
+          - librarian_health_check
+    docker:
+      enabled: true
+      distros:
+        - ubuntu:24.04
+        - ubuntu:22.04
+        - debian:12
+      modes:
+        - dfauto
+        - dfsetup
+    xen:
+      enabled: true
+      hosts: 1  # Use only primary host
+      os_templates:
+        - ubuntu-24.04
+
+  # Comprehensive tests - Run before releases
+  comprehensive:
+    description: "Full comprehensive test suite with all distros and scenarios (~30-45 minutes)"
+    timeout: 900
+    components:
+      - name: installation
+        tests:
+          - basic_setup
+          - directory_structure
+          - prerequisites
+          - git_clone
+          - edge_cases
+      - name: symlinks
+        tests:
+          - symlink_creation
+          - symlink_verification
+          - backup_creation
+          - existing_file_handling
+          - permission_handling
+      - name: config
+        tests:
+          - os_detection
+          - package_manager_detection
+          - shell_config_loading
+          - environment_variables
+          - path_detection
+      - name: scripts
+        tests:
+          - post_install_execution
+          - librarian_health_check
+          - menu_tui_functionality
+          - backup_system
+          - update_system
+      - name: integration
+        tests:
+          - full_installation_flow
+          - reinstallation
+          - upgrade_scenarios
+    docker:
+      enabled: true
+      distros:
+        - ubuntu:24.04
+        - ubuntu:22.04
+        - ubuntu:20.04
+        - debian:12
+        - debian:11
+        - fedora:39
+        - rockylinux:9
+      modes:
+        - dfauto
+        - dfsetup
+    xen:
+      enabled: true
+      hosts: all  # Use all available hosts with failover
+      os_templates:
+        - ubuntu-24.04
+        - ubuntu-22.04
+        - debian-12
+        - rocky-linux-9
+
+# ============================================================================
+# Docker Configuration
+# ============================================================================
+docker:
+  # Container name prefix
+  container_prefix: dotfiles-test
+
+  # Cleanup containers after tests
+  cleanup: true
+
+  # Reuse containers for faster testing (experimental)
+  reuse_containers: false
+
+  # Docker resource limits
+  resources:
+    memory: 2g
+    cpu: 2
+
+  # Available distributions for testing
+  distros:
+    ubuntu-24.04:
+      image: ubuntu:24.04
+      name: "Ubuntu 24.04 LTS"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, debian-based, ubuntu, lts]
+
+    ubuntu-22.04:
+      image: ubuntu:22.04
+      name: "Ubuntu 22.04 LTS"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, debian-based, ubuntu, lts]
+
+    ubuntu-20.04:
+      image: ubuntu:20.04
+      name: "Ubuntu 20.04 LTS"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, debian-based, ubuntu, lts]
+
+    debian-12:
+      image: debian:12
+      name: "Debian 12 (Bookworm)"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, debian-based, debian]
+
+    debian-11:
+      image: debian:11
+      name: "Debian 11 (Bullseye)"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, debian-based, debian]
+
+    fedora-39:
+      image: fedora:39
+      name: "Fedora 39"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, rpm-based, fedora]
+
+    rockylinux-9:
+      image: rockylinux:9
+      name: "Rocky Linux 9"
+      supported_modes: [dfauto, dfsetup]
+      tags: [linux, rpm-based, rhel]
+
+# ============================================================================
+# XCP-NG Configuration
+# ============================================================================
+xen:
+  # SSH key for cluster access
+  ssh_key: ~/.ssh/aria_xen_key
+
+  # Cluster hosts (used for failover and load balancing)
+  cluster:
+    hosts:
+      - name: opt-bck01.bck.intern
+        ip: 192.168.188.11
+        priority: 1  # Primary host (highest priority)
+        role: primary
+        tags: [opt, primary]
+
+      - name: opt-bck02.bck.intern
+        ip: 192.168.188.12
+        priority: 2
+        role: failover
+        tags: [opt, failover]
+
+      - name: opt-bck03.bck.intern
+        ip: 192.168.188.13
+        priority: 3
+        role: failover
+        tags: [opt, failover]
+
+      - name: lat-bck04.bck.intern
+        ip: 192.168.188.19
+        priority: 4
+        role: failover
+        tags: [lat, failover]
+
+    # Host selection strategy
+    selection_strategy: priority  # Options: priority, round-robin, random, least-loaded
+
+    # Enable automatic failover if host unavailable
+    enable_failover: true
+
+    # Host health check timeout (seconds)
+    health_check_timeout: 10
+
+  # Shared NFS storage for helper scripts
+  nfs:
+    # Storage Repository UUID
+    sr_uuid: 75fa3703-d020-e865-dd0e-3682b83c35f6
+
+    # Mount path on XCP-NG hosts
+    mount_path: /var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6
+
+    # Helper scripts directory on NFS
+    scripts_dir: /var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/dotfiles-test-helpers
+
+    # Enable automatic script deployment
+    auto_deploy_scripts: true
+
+  # VM Configuration
+  vm:
+    # VM name prefix
+    name_prefix: dotfiles-test
+
+    # VM resources
+    memory: 2048  # MB
+    vcpus: 2
+
+    # Cleanup VMs after tests
+    cleanup: true
+
+    # VM boot timeout (seconds)
+    boot_timeout: 180
+
+    # SSH connection timeout (seconds)
+    ssh_timeout: 120
+
+  # Available OS templates for testing
+  templates:
+    ubuntu-24.04:
+      name: "Ubuntu Noble Numbat 24.04"
+      template_name: ubuntu-24.04-cloud
+      cloud_init: true
+      tags: [linux, debian-based, ubuntu, lts]
+
+    ubuntu-22.04:
+      name: "Ubuntu Jammy Jellyfish 22.04"
+      template_name: ubuntu-22.04-cloud
+      cloud_init: true
+      tags: [linux, debian-based, ubuntu, lts]
+
+    debian-12:
+      name: "Debian 12 (Bookworm)"
+      template_name: debian-12-cloud
+      cloud_init: true
+      tags: [linux, debian-based, debian]
+
+    rocky-linux-9:
+      name: "Rocky Linux 9"
+      template_name: rocky-9-cloud
+      cloud_init: true
+      tags: [linux, rpm-based, rhel]
+
+    windows-server-2022:
+      name: "Windows Server 2022"
+      template_name: windows-server-2022
+      cloud_init: false  # Uses cloudbase-init
+      tags: [windows, server]
+
+# ============================================================================
+# Test Components
+# ============================================================================
+# Individual test components that can be run independently
+components:
+  installation:
+    description: "Core installation and setup tests"
+    tests:
+      basic_setup:
+        description: "Basic setup.zsh execution"
+        timeout: 60
+        tags: [quick, core]
+
+      directory_structure:
+        description: "Directory structure creation"
+        timeout: 30
+        tags: [quick, core]
+
+      prerequisites:
+        description: "Prerequisites installation"
+        timeout: 120
+        tags: [standard, dependencies]
+
+      git_clone:
+        description: "Git repository cloning"
+        timeout: 60
+        tags: [standard, git]
+
+      edge_cases:
+        description: "Edge case handling"
+        timeout: 90
+        tags: [comprehensive, edge-cases]
+
+  symlinks:
+    description: "Symlink creation and management tests"
+    tests:
+      symlink_creation:
+        description: "Symlink creation"
+        timeout: 60
+        tags: [quick, core]
+
+      symlink_verification:
+        description: "Symlink verification"
+        timeout: 30
+        tags: [quick, core]
+
+      backup_creation:
+        description: "Backup creation before symlinking"
+        timeout: 30
+        tags: [standard, backup]
+
+      existing_file_handling:
+        description: "Existing file handling"
+        timeout: 60
+        tags: [comprehensive, edge-cases]
+
+      permission_handling:
+        description: "Permission handling"
+        timeout: 60
+        tags: [comprehensive, security]
+
+  config:
+    description: "Configuration detection and loading tests"
+    tests:
+      os_detection:
+        description: "OS detection"
+        timeout: 10
+        tags: [quick, core]
+
+      package_manager_detection:
+        description: "Package manager detection"
+        timeout: 10
+        tags: [quick, core]
+
+      shell_config_loading:
+        description: "Shell configuration loading"
+        timeout: 30
+        tags: [standard, shell]
+
+      environment_variables:
+        description: "Environment variable setup"
+        timeout: 30
+        tags: [comprehensive, env]
+
+      path_detection:
+        description: "Path detection and initialization"
+        timeout: 30
+        tags: [comprehensive, paths]
+
+  scripts:
+    description: "Post-install and utility script tests"
+    tests:
+      post_install_execution:
+        description: "Post-install script execution"
+        timeout: 180
+        tags: [standard, scripts]
+
+      librarian_health_check:
+        description: "Librarian health check"
+        timeout: 60
+        tags: [standard, health]
+
+      menu_tui_functionality:
+        description: "Menu TUI functionality"
+        timeout: 60
+        tags: [comprehensive, ui]
+
+      backup_system:
+        description: "Backup system"
+        timeout: 60
+        tags: [comprehensive, backup]
+
+      update_system:
+        description: "Update system"
+        timeout: 120
+        tags: [comprehensive, maintenance]
+
+  integration:
+    description: "Full integration and workflow tests"
+    tests:
+      full_installation_flow:
+        description: "Full installation flow"
+        timeout: 300
+        tags: [comprehensive, integration]
+
+      reinstallation:
+        description: "Reinstallation scenario"
+        timeout: 300
+        tags: [comprehensive, reinstall]
+
+      upgrade_scenarios:
+        description: "Upgrade scenarios"
+        timeout: 300
+        tags: [comprehensive, upgrade]
+
+# ============================================================================
+# Reporting Configuration
+# ============================================================================
+reporting:
+  # Enable JSON export of test results
+  json_export: true
+
+  # JSON export path
+  json_path: tests/results/test_results.json
+
+  # Enable HTML report generation
+  html_report: true
+
+  # HTML report path
+  html_path: tests/results/test_report.html
+
+  # Track test performance metrics
+  track_metrics: true
+
+  # Compare with previous test runs
+  compare_with_previous: true
+
+  # Send notifications on test completion
+  notifications:
+    enabled: false
+    on_failure_only: true
+    webhook_url: ""
+
+  # CI/CD integration
+  ci_cd:
+    # Exit with non-zero code on test failure
+    fail_on_error: true
+
+    # Generate JUnit XML for CI systems
+    junit_xml: true
+    junit_path: tests/results/junit.xml
+
+    # GitHub Actions integration
+    github_actions: true
+
+    # GitLab CI integration
+    gitlab_ci: false
