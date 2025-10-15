@@ -410,10 +410,10 @@ function xen_cluster_status() {
         local ip=$(echo "$info" | cut -d: -f1)
         local priority=$(echo "$info" | cut -d: -f2)
         local role=$(echo "$info" | cut -d: -f3)
-        local status="${XEN_HOST_STATUS[$hostname]}"
+        local host_status="${XEN_HOST_STATUS[$hostname]}"
         local load="${XEN_HOST_LOAD[$hostname]}"
 
-        if [[ "$status" == "available" ]]; then
+        if [[ "$host_status" == "available" ]]; then
             echo "  ${UI_SUCCESS_COLOR}✓${COLOR_RESET} $hostname ($ip)"
             echo "    Role: $role | Priority: $priority | Load: $load VMs"
         else
