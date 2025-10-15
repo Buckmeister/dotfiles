@@ -434,10 +434,21 @@ post_install_dir="$dotfiles_root/post-install/scripts"
 
 if [[ -d "$post_install_dir" ]]; then
     # Find all post-install scripts
-    post_install_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
+    local all_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
 
-    if [[ ${#post_install_scripts[@]} -gt 0 ]]; then
-        for script in $post_install_scripts; do
+    # Filter out disabled/ignored scripts
+    local enabled_scripts=()
+    local disabled_count=0
+    for script in "${all_scripts[@]}"; do
+        if is_post_install_script_enabled "$script"; then
+            enabled_scripts+=("$script")
+        else
+            ((disabled_count++))
+        fi
+    done
+
+    if [[ ${#enabled_scripts[@]} -gt 0 ]]; then
+        for script in "${enabled_scripts[@]}"; do
             script_name="$(basename "$script" .zsh)"
 
             if [[ -x "$script" ]]; then
@@ -446,8 +457,16 @@ if [[ -d "$post_install_dir" ]]; then
                 echo "   📄 $script_name (not executable)"
             fi
         done
+
+        # Show disabled/ignored count if any
+        if [[ $disabled_count -gt 0 ]]; then
+            echo "   ${UI_INFO_COLOR}💤 $disabled_count script(s) disabled/ignored${COLOR_RESET}"
+        fi
     else
-        print_info "   No post-install scripts found"
+        print_info "   No enabled post-install scripts found"
+        if [[ $disabled_count -gt 0 ]]; then
+            echo "   ${UI_INFO_COLOR}($disabled_count script(s) are disabled/ignored)${COLOR_RESET}"
+        fi
     fi
 else
     print_warning "   Post-install scripts directory not found at: $post_install_dir"
@@ -873,14 +892,35 @@ case "${1:-}" in
             exit 1
         fi
 
-        post_install_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
+        # Find all post-install scripts
+        local all_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
 
-        if [[ ${#post_install_scripts[@]} -eq 0 ]]; then
-            print_warning "No post-install scripts found in $post_install_dir"
+        # Filter out disabled/ignored scripts
+        local enabled_scripts=()
+        local disabled_count=0
+        for script in "${all_scripts[@]}"; do
+            if is_post_install_script_enabled "$script"; then
+                enabled_scripts+=("$script")
+            else
+                ((disabled_count++))
+            fi
+        done
+
+        if [[ ${#enabled_scripts[@]} -eq 0 ]]; then
+            print_warning "No enabled post-install scripts found in $post_install_dir"
+            if [[ $disabled_count -gt 0 ]]; then
+                echo "   ${UI_INFO_COLOR}($disabled_count script(s) are disabled/ignored)${COLOR_RESET}"
+            fi
             exit 0
         fi
 
-        for script in $post_install_scripts; do
+        # Show info if some scripts are disabled
+        if [[ $disabled_count -gt 0 ]]; then
+            echo "   ${UI_INFO_COLOR}💤 Skipping $disabled_count disabled/ignored script(s)${COLOR_RESET}"
+            echo
+        fi
+
+        for script in "${enabled_scripts[@]}"; do
             script_name="$(basename "$script" .zsh)"
 
             if [[ -x "$script" ]]; then

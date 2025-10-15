@@ -111,6 +111,28 @@ Modular, OS-aware installation for:
 - Fonts and visual enhancements
 - System integrations
 
+**Disabling Scripts:**
+Control which post-install scripts are available using control files:
+
+```bash
+# Local-only disabling (not checked into git)
+touch post-install/scripts/fonts.zsh.ignored
+
+# Repository-level disabling (can be checked in/shared)
+touch post-install/scripts/bash-preexec.zsh.disabled
+```
+
+Disabled/ignored scripts:
+- Don't appear in the TUI menu
+- Are skipped by `./setup --all-modules`
+- Are excluded from `./bin/librarian.zsh --all-pi`
+- Show count in Librarian's status report: "💤 2 script(s) disabled/ignored"
+
+This enables:
+- Dynamic menu customization per-machine
+- Profile-specific script collections for Docker/VMs
+- Temporary disabling without deleting scripts
+
 ---
 
 ## 🎹 The Interactive Experience

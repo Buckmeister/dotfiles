@@ -183,9 +183,19 @@ function create_symlinks() {
 function run_post_install_scripts() {
   print_info "Running post-install scripts..."
 
-  local post_install_scripts=(${(0)"$(find "${DF_DIR}/post-install" -perm 755 -name "*.zsh" -print0)"})
+  # Find all executable post-install scripts
+  local all_scripts=(${(0)"$(find "${DF_DIR}/post-install" -perm 755 -name "*.zsh" -print0)"})
 
-  for pi_script in $post_install_scripts; do
+  # Filter out disabled/ignored scripts
+  local enabled_scripts=()
+  for script in "${all_scripts[@]}"; do
+    if is_post_install_script_enabled "$script"; then
+      enabled_scripts+=("$script")
+    fi
+  done
+
+  # Execute enabled scripts
+  for pi_script in "${enabled_scripts[@]}"; do
     print_info "Executing: '$pi_script'"
     if [[ -e "$pi_script" ]]; then
       # Export OS context for post-install scripts

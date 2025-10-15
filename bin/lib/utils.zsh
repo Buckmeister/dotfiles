@@ -507,6 +507,59 @@ function load_config() {
 }
 
 # ============================================================================
+# Post-Install Script Filtering
+# ============================================================================
+
+# Check if a post-install script is disabled or ignored
+# Args: script_path (string) - full path to the script to check
+# Returns: 0 if script should be included, 1 if script should be filtered out
+#
+# A script is filtered out if either:
+# - A corresponding .ignored file exists (local-only, in .gitignore)
+# - A corresponding .disabled file exists (can be checked in)
+#
+# Example:
+#   script_path="/path/to/post-install/scripts/npm-packages.zsh"
+#   Checks for:
+#     - /path/to/post-install/scripts/npm-packages.zsh.ignored
+#     - /path/to/post-install/scripts/npm-packages.zsh.disabled
+function is_post_install_script_enabled() {
+    local script_path="$1"
+
+    # Check for .ignored file (local-only)
+    if [[ -f "${script_path}.ignored" ]]; then
+        return 1  # Script is ignored
+    fi
+
+    # Check for .disabled file (can be checked in)
+    if [[ -f "${script_path}.disabled" ]]; then
+        return 1  # Script is disabled
+    fi
+
+    return 0  # Script is enabled
+}
+
+# Filter an array of post-install scripts, removing disabled/ignored ones
+# Args: script_paths... (array of strings) - paths to scripts
+# Outputs: Enabled script paths to stdout (one per line)
+#
+# Example:
+#   enabled_scripts=($(filter_post_install_scripts "${all_scripts[@]}"))
+function filter_post_install_scripts() {
+    local scripts=("$@")
+    local enabled_scripts=()
+
+    for script in "${scripts[@]}"; do
+        if is_post_install_script_enabled "$script"; then
+            enabled_scripts+=("$script")
+        fi
+    done
+
+    # Output enabled scripts (one per line)
+    printf "%s\n" "${enabled_scripts[@]}"
+}
+
+# ============================================================================
 # Export Functions
 # ============================================================================
 
@@ -522,4 +575,5 @@ function load_config() {
     typeset -f safe_exec exec_with_output
     typeset -f test_archive_integrity get_archive_file_count
     typeset -f join_array trim load_config
+    typeset -f is_post_install_script_enabled filter_post_install_scripts
 } >/dev/null 2>&1 || true

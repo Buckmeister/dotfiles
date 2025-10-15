@@ -28,3 +28,6 @@ config/personal.env
 # Claude Code local settings
 .claude/cache/
 .claude/settings.local.json
+
+# Post-install script control files
+*.ignored

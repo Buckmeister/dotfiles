@@ -953,12 +953,19 @@ function initialize_menu() {
 
     # Find and add post-install scripts from the post-install/scripts directory
     local post_install_dir="$DF_DIR/post-install/scripts"
-    local post_install_scripts=()
+    local all_scripts=()
 
     if [[ -d "$post_install_dir" ]]; then
-        post_install_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
+        # Find all post-install scripts
+        all_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
 
-        for script in $post_install_scripts; do
+        # Filter out disabled/ignored scripts and add enabled ones to menu
+        for script in "${all_scripts[@]}"; do
+            # Check if script is enabled (not disabled/ignored)
+            if ! is_post_install_script_enabled "$script"; then
+                continue  # Skip disabled/ignored scripts
+            fi
+
             if [[ -x "$script" ]]; then
                 local script_name="$(basename "$script" .zsh)"
                 local script_desc="Install and configure $script_name"
