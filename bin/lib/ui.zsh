@@ -511,15 +511,17 @@ function setup_ui_cleanup() {
 # Export Functions
 # ============================================================================
 
-# Export all UI functions for use in sourcing scripts (suppress output)
+# Make all UI functions available for use in sourcing scripts
+# Note: Using typeset -f (not -fx) for cross-platform compatibility
+# Ubuntu's zsh doesn't support -x flag with -f
 {
-    typeset -fx hide_cursor show_cursor clear_screen clear_line
-    typeset -fx move_cursor_to_line move_cursor_to save_cursor restore_cursor
-    typeset -fx print_colored_message print_status_message
-    typeset -fx print_success print_warning print_error print_info
-    typeset -fx get_display_width get_safe_display_width
-    typeset -fx draw_header draw_separator draw_section_header draw_progress_bar
-    typeset -fx update_progress increment_progress reset_progress_cache update_status_display show_status
-    typeset -fx show_spinner ask_confirmation print_centered print_box
-    typeset -fx cleanup_ui setup_ui_cleanup
-} >/dev/null 2>&1
+    typeset -f hide_cursor show_cursor clear_screen clear_line
+    typeset -f move_cursor_to_line move_cursor_to save_cursor restore_cursor
+    typeset -f print_colored_message print_status_message
+    typeset -f print_success print_warning print_error print_info
+    typeset -f get_display_width get_safe_display_width
+    typeset -f draw_header draw_separator draw_section_header draw_progress_bar
+    typeset -f update_progress increment_progress reset_progress_cache update_status_display show_status
+    typeset -f show_spinner ask_confirmation print_centered print_box
+    typeset -f cleanup_ui setup_ui_cleanup
+} >/dev/null 2>&1 || true

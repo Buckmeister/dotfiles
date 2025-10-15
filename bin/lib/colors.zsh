@@ -205,8 +205,9 @@ function show_color_info() {
     print_color "$UI_PROGRESS_COLOR" "📊 Progress indicator"
 }
 
-# Export functions for use in sourcing scripts
-# Export all color functions for use in sourcing scripts (suppress output)
+# Make functions available for use in sourcing scripts
+# Note: Using typeset -f (not -fx) for cross-platform compatibility
+# Ubuntu's zsh doesn't support -x flag with -f
 {
-    typeset -fx supports_true_color get_color colorize print_color show_color_info
-} >/dev/null 2>&1
+    typeset -f supports_true_color get_color colorize print_color show_color_info
+} >/dev/null 2>&1 || true

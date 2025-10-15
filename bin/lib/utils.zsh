@@ -510,14 +510,16 @@ function load_config() {
 # Export Functions
 # ============================================================================
 
-# Export all utility functions for use in sourcing scripts (suppress output)
+# Make all utility functions available for use in sourcing scripts
+# Note: Using typeset -f (not -fx) for cross-platform compatibility
+# Ubuntu's zsh doesn't support -x flag with -f
 {
-    typeset -fx exit_with_error log_error log_warning
-    typeset -fx complete_operation init_operations get_progress_percentage update_operation_progress
-    typeset -fx get_file_size is_writable create_directory_safe expand_path path_exists
-    typeset -fx get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir init_dotfiles_paths
-    typeset -fx get_timestamp generate_timestamped_filename
-    typeset -fx safe_exec exec_with_output
-    typeset -fx test_archive_integrity get_archive_file_count
-    typeset -fx join_array trim load_config
-} >/dev/null 2>&1
+    typeset -f exit_with_error log_error log_warning
+    typeset -f complete_operation init_operations get_progress_percentage update_operation_progress
+    typeset -f get_file_size is_writable create_directory_safe expand_path path_exists
+    typeset -f get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir init_dotfiles_paths
+    typeset -f get_timestamp generate_timestamped_filename
+    typeset -f safe_exec exec_with_output
+    typeset -f test_archive_integrity get_archive_file_count
+    typeset -f join_array trim load_config
+} >/dev/null 2>&1 || true
