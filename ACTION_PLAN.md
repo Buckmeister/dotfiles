@@ -770,13 +770,152 @@ jobs:
 **Related:** Will be documented in MEETINGS.md when prioritized
 
 - [ ] Task 4.1: Windows WSL support enhancements
-- [ ] Task 4.2: User profile system (minimal, standard, full, custom)
-- [ ] Task 4.3: Interactive configuration wizard
+- [ ] Task 4.2: User profile system (minimal, standard, full, custom) ✅ COMPLETE (See Phase 4.5)
+- [ ] Task 4.3: Interactive configuration wizard ✅ COMPLETE (See Phase 4.5)
 - [ ] Task 4.4: Automatic update checker and self-update mechanism
 
 **Estimated Time:** 36-48 hours total
 **Value:** Medium to High (depending on use case)
-**Notes:** Awaiting prioritization and assessment of specific needs
+**Notes:** Profile system and wizard completed as part of integrated package management Phase 4.5
+
+---
+
+### Phase 4.5: Profile & Package Management Integration ✅ COMPLETE
+**Goal:** Unified profile and package management system
+**Status:** ✅ Completed October 15, 2025
+**Related:** See MEETINGS.md "Profile & Package Management Integration Complete!" section
+
+- [x] Created 5 comprehensive package manifests (minimal, standard, full, work, personal)
+- [x] Enhanced profile_manager.zsh with YAML parser and auto-install
+- [x] Enhanced wizard.zsh with custom manifest generation
+- [x] Docker and XCP-NG E2E testing infrastructure
+- [x] Post-install script disabling feature (.ignored/.disabled)
+- [x] Cross-platform compatibility fixes (Ubuntu zsh)
+
+**Actual Time:** ~10 hours
+**Value:** High ✅ ACHIEVED
+**Impact:** Complete reproducible environment management, profile-to-manifest integration
+
+---
+
+### Phase 5: Advanced Testing Infrastructure 🚀 IN PROGRESS
+**Goal:** Flexible, modular, high-speed testing system for Docker and XCP-NG
+**Status:** 🚀 In Progress (October 15, 2025)
+**Related:** Will be documented in MEETINGS.md when complete
+
+#### Overview
+
+Transform the existing Docker and XCP-NG test scripts into a powerful, flexible testing framework that supports:
+- Individual component testing (fast iteration)
+- Comprehensive integration testing (full validation)
+- Multi-host XEN failover (resilience)
+- Modular test suites (granular control)
+- Shared NFS helper scripts (cluster-wide availability)
+
+#### XCP-NG Cluster Environment
+
+**Cluster Hosts:**
+- opt-bck01.bck.intern (192.168.188.11) - Primary test host
+- opt-bck02.bck.intern (192.168.188.12) - Failover host
+- opt-bck03.bck.intern (192.168.188.13) - Failover host
+- lat-bck04.bck.intern (192.168.188.19) - Failover host
+
+**Shared Storage:**
+- NFS SR: xenstore1 (UUID: 75fa3703-d020-e865-dd0e-3682b83c35f6)
+- Path: /var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/
+- Purpose: Cluster-wide helper script storage
+
+#### Task Breakdown
+
+**Task 5.1: Test Configuration System** ⏳ In Progress
+- [ ] Create tests/test_config.yaml for centralized configuration
+- [ ] Support test suites (smoke, integration, comprehensive)
+- [ ] Support test components (installation, symlinks, config, scripts)
+- [ ] Flexible distro/OS selection
+- [ ] Timeout and resource configuration
+
+**Task 5.2: Modular Test Framework**
+- [ ] Refactor Docker test script with modular architecture
+- [ ] Implement test suite system (quick, standard, comprehensive)
+- [ ] Add component-level testing (installation, git, symlinks, scripts)
+- [ ] Support test filtering (--suite, --component, --tag)
+- [ ] Add parallel test execution support
+
+**Task 5.3: Multi-Host XEN Failover**
+- [ ] Implement automatic host failover logic
+- [ ] Add host availability checking
+- [ ] Support round-robin host selection
+- [ ] Add --host-pool option for testing multiple hosts
+- [ ] Implement host health monitoring
+
+**Task 5.4: NFS Shared Helper Scripts**
+- [ ] Deploy helper scripts to NFS share (xenstore1)
+- [ ] Update XEN test script to use NFS path
+- [ ] Add helper script versioning/updates
+- [ ] Create deployment script for helper maintenance
+- [ ] Add automatic fallback to local scripts
+
+**Task 5.5: Enhanced Test Reporting**
+- [ ] Add JSON test result export
+- [ ] Create test result visualization
+- [ ] Add performance metrics tracking
+- [ ] Implement test history comparison
+- [ ] Add CI/CD integration hooks
+
+**Task 5.6: Docker Test Enhancements**
+- [ ] Add test caching for faster runs
+- [ ] Implement incremental testing
+- [ ] Add container reuse option (--no-cleanup)
+- [ ] Support custom Docker registries
+- [ ] Add resource usage monitoring
+
+**Estimated Time:** 12-16 hours total
+**Value:** Very High (massive productivity boost)
+**Priority:** High (requested feature)
+
+#### Benefits
+
+🚀 **Speed:**
+- Quick smoke tests: < 2 minutes
+- Component tests: 3-5 minutes
+- Full comprehensive: 10-15 minutes
+
+🎯 **Flexibility:**
+- Test individual components
+- Mix and match test suites
+- Custom test configurations
+- Tag-based filtering
+
+💪 **Resilience:**
+- Automatic XEN host failover
+- No single point of failure
+- Cluster-wide helper availability
+
+🔧 **Maintainability:**
+- Centralized configuration
+- Modular architecture
+- Clear test organization
+- Easy to extend
+
+#### Implementation Plan
+
+**Week 1: Foundation (Tasks 5.1, 5.2)**
+1. Design and implement test configuration system
+2. Refactor Docker tests with modular architecture
+3. Add test suite support (quick/standard/comprehensive)
+4. Implement component-level testing
+
+**Week 2: XEN Improvements (Tasks 5.3, 5.4)**
+1. Implement multi-host failover logic
+2. Deploy helper scripts to NFS share
+3. Update XEN test script for NFS usage
+4. Add host pool testing support
+
+**Week 3: Polish & Reporting (Tasks 5.5, 5.6)**
+1. Add enhanced reporting and metrics
+2. Implement test caching and reuse
+3. Add performance monitoring
+4. Create documentation and examples
 
 ---
 
