@@ -184,6 +184,65 @@ All scripts in `post-install/scripts/` are modular and OS-aware:
 ./bin/librarian.zsh --all-pi
 ```
 
+### Post-Install Script Control (.ignored and .disabled)
+
+Users can selectively disable post-install scripts without deleting them:
+
+```bash
+# Temporarily disable (local-only, git-ignored)
+touch post-install/scripts/fonts.zsh.ignored
+
+# Permanently disable (can be checked into git and shared)
+touch post-install/scripts/bash-preexec.zsh.disabled
+
+# Re-enable by removing marker file
+rm post-install/scripts/fonts.zsh.ignored
+```
+
+**How it works:**
+- `is_post_install_script_enabled()` in `bin/lib/utils.zsh` checks for these markers
+- Used by: `setup.zsh`, `menu_tui.zsh`, `librarian.zsh`
+- `.ignored` files are in `.gitignore` (local-only)
+- `.disabled` files can be committed (team/profile sharing)
+
+**Effect of disabled scripts:**
+- Don't appear in the TUI menu
+- Are skipped by `./setup --all-modules`
+- Are excluded from `./bin/librarian.zsh --all-pi`
+- Show count in Librarian's status: "💤 2 script(s) disabled/ignored"
+
+**Use cases:**
+- **Machine-specific configurations**: VM with no fonts needed
+- **Profile-based setups**: Minimal vs. full development environment
+- **Temporary testing**: Disable problematic scripts during debugging
+- **Team standardization**: Share `.disabled` files via git
+- **Containerized environments**: Skip GUI/desktop installations in Docker
+- **Resource constraints**: Disable heavy installations on low-resource machines
+
+**Example - Minimal Docker Profile:**
+```bash
+# Clone repository
+git clone https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
+cd ~/.config/dotfiles
+
+# Disable GUI/desktop-related scripts for containerized environments
+touch post-install/scripts/fonts.zsh.disabled
+touch post-install/scripts/karabiner.zsh.disabled
+
+# Commit to git so all containers use this profile
+git add post-install/scripts/*.disabled
+git commit -m "Add Docker profile - disable desktop scripts"
+
+# Now setup will skip GUI installations
+./setup
+```
+
+**Testing:**
+Comprehensive test coverage ensures this feature works correctly:
+- Unit tests: `tests/unit/test_utils.zsh` (7 test cases)
+- Integration tests: `tests/integration/test_post_install_filtering.zsh` (10 test cases)
+- Test helpers: `tests/lib/test_pi_helpers.zsh` (for writing new tests)
+
 ### System Management
 
 ```bash
