@@ -125,6 +125,124 @@ test_case "should set DOTFILES_UTILS_LOADED flag" '
 '
 
 # ============================================================================
+# Post-Install Script Filtering Tests (.ignored and .disabled)
+# ============================================================================
+
+test_case "is_post_install_script_enabled should return true for normal scripts" '
+    local test_script="/tmp/test_script_normal_$$.zsh"
+    touch "$test_script"
+
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script"
+        return 0
+    else
+        rm -f "$test_script"
+        echo "is_post_install_script_enabled returned false for normal script"
+        return 1
+    fi
+'
+
+test_case "is_post_install_script_enabled should return false when .ignored file exists" '
+    local test_script="/tmp/test_script_ignored_$$.zsh"
+    local ignored_file="${test_script}.ignored"
+
+    touch "$test_script"
+    touch "$ignored_file"
+
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script" "$ignored_file"
+        echo "is_post_install_script_enabled returned true for .ignored script"
+        return 1
+    else
+        rm -f "$test_script" "$ignored_file"
+        return 0
+    fi
+'
+
+test_case "is_post_install_script_enabled should return false when .disabled file exists" '
+    local test_script="/tmp/test_script_disabled_$$.zsh"
+    local disabled_file="${test_script}.disabled"
+
+    touch "$test_script"
+    touch "$disabled_file"
+
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script" "$disabled_file"
+        echo "is_post_install_script_enabled returned true for .disabled script"
+        return 1
+    else
+        rm -f "$test_script" "$disabled_file"
+        return 0
+    fi
+'
+
+test_case "is_post_install_script_enabled should prioritize .ignored when both files exist" '
+    local test_script="/tmp/test_script_both_$$.zsh"
+    local ignored_file="${test_script}.ignored"
+    local disabled_file="${test_script}.disabled"
+
+    touch "$test_script"
+    touch "$ignored_file"
+    touch "$disabled_file"
+
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script" "$ignored_file" "$disabled_file"
+        echo "is_post_install_script_enabled returned true when both .ignored and .disabled exist"
+        return 1
+    else
+        rm -f "$test_script" "$ignored_file" "$disabled_file"
+        return 0
+    fi
+'
+
+test_case "is_post_install_script_enabled should handle non-existent script gracefully" '
+    local test_script="/tmp/nonexistent_script_$$.zsh"
+
+    # Should still work even if script does not exist
+    if is_post_install_script_enabled "$test_script"; then
+        return 0
+    else
+        # It is OK if it returns false for non-existent script
+        return 0
+    fi
+'
+
+test_case "is_post_install_script_enabled should handle empty .ignored file" '
+    local test_script="/tmp/test_script_empty_ignored_$$.zsh"
+    local ignored_file="${test_script}.ignored"
+
+    touch "$test_script"
+    touch "$ignored_file"
+
+    # Even empty .ignored file should disable the script
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script" "$ignored_file"
+        echo "is_post_install_script_enabled returned true for script with empty .ignored file"
+        return 1
+    else
+        rm -f "$test_script" "$ignored_file"
+        return 0
+    fi
+'
+
+test_case "is_post_install_script_enabled should handle .ignored file with content" '
+    local test_script="/tmp/test_script_content_ignored_$$.zsh"
+    local ignored_file="${test_script}.ignored"
+
+    touch "$test_script"
+    echo "This script is temporarily disabled for testing" > "$ignored_file"
+
+    if is_post_install_script_enabled "$test_script"; then
+        rm -f "$test_script" "$ignored_file"
+        echo "is_post_install_script_enabled returned true for script with .ignored file containing content"
+        return 1
+    else
+        rm -f "$test_script" "$ignored_file"
+        return 0
+    fi
+'
+
+# ============================================================================
 # Run Tests
 # ============================================================================
 

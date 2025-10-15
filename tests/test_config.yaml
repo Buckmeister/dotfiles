@@ -62,6 +62,11 @@ suites:
         tests:
           - os_detection
           - package_manager_detection
+      - name: filtering
+        tests:
+          - ignored_files
+          - disabled_files
+          - normal_scripts
     docker:
       enabled: true
       distros:
@@ -96,6 +101,14 @@ suites:
         tests:
           - post_install_execution
           - librarian_health_check
+      - name: filtering
+        tests:
+          - ignored_files
+          - disabled_files
+          - normal_scripts
+          - multiple_markers
+          - find_integration
+          - count_accuracy
     docker:
       enabled: true
       distros:
@@ -144,6 +157,16 @@ suites:
           - menu_tui_functionality
           - backup_system
           - update_system
+      - name: filtering
+        tests:
+          - ignored_files
+          - disabled_files
+          - normal_scripts
+          - multiple_markers
+          - find_integration
+          - removal_behavior
+          - count_accuracy
+          - special_characters
       - name: integration
         tests:
           - full_installation_flow
@@ -456,6 +479,54 @@ components:
         description: "Update system"
         timeout: 120
         tags: [comprehensive, maintenance]
+
+      post_install_filtering:
+        description: "Post-install script filtering (.ignored/.disabled)"
+        timeout: 60
+        tags: [standard, filtering, scripts]
+
+  filtering:
+    description: "Post-install script filtering tests (.ignored and .disabled)"
+    tests:
+      ignored_files:
+        description: "Scripts with .ignored files should not execute"
+        timeout: 30
+        tags: [quick, filtering]
+
+      disabled_files:
+        description: "Scripts with .disabled files should not execute"
+        timeout: 30
+        tags: [quick, filtering]
+
+      normal_scripts:
+        description: "Scripts without filters should execute normally"
+        timeout: 30
+        tags: [quick, filtering]
+
+      multiple_markers:
+        description: "Scripts with both .ignored and .disabled markers"
+        timeout: 30
+        tags: [standard, filtering, edge-cases]
+
+      find_integration:
+        description: "Filtering works with find command (setup.zsh usage)"
+        timeout: 30
+        tags: [standard, filtering, integration]
+
+      removal_behavior:
+        description: "Removing .ignored file re-enables script"
+        timeout: 30
+        tags: [standard, filtering, edge-cases]
+
+      count_accuracy:
+        description: "Accurate count of enabled vs disabled scripts"
+        timeout: 30
+        tags: [standard, filtering]
+
+      special_characters:
+        description: "Scripts with spaces and special characters in names"
+        timeout: 30
+        tags: [comprehensive, filtering, edge-cases]
 
   integration:
     description: "Full integration and workflow tests"
