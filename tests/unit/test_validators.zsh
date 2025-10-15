@@ -7,11 +7,24 @@
 emulate -LR zsh
 
 # Load test framework
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../../bin/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 source "$SCRIPT_DIR/../lib/test_framework.zsh"
 
 # Load library under test
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$DOTFILES_ROOT/bin/lib/colors.zsh"
 source "$DOTFILES_ROOT/bin/lib/ui.zsh"
 source "$DOTFILES_ROOT/bin/lib/utils.zsh"

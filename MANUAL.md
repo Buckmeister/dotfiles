@@ -1935,6 +1935,477 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 
 ---
 
+## 🎯 Common Workflows
+
+Practical examples showing how to combine these tools for real-world development tasks.
+
+### Workflow 1: Starting a Tmux Development Session
+
+**Scenario:** Beginning your workday with a well-organized tmux environment.
+
+```bash
+# Start or attach to default tmux session
+ta                  # Alias for: tmux attach -t λ
+
+# Create your workspace layout:
+Ctrl+a |            # Split vertically (editor | terminal)
+Ctrl+a -            # Split bottom pane horizontally (terminal | logs)
+
+# Navigate between panes
+Ctrl+a Arrow keys   # Move focus
+
+# Pane 1: Editor
+nvim ~/.config/dotfiles/zsh/zshrc.symlink
+
+# Pane 2: Watch for changes
+cargo test --watch
+
+# Pane 3: System logs
+tail -f ~/app.log
+
+# Zoom into editor pane when needed
+Ctrl+a z            # Toggle zoom
+
+# Copy mode for scrollback
+Ctrl+a [            # Enter copy mode (vi keys)
+/search term        # Search
+v                   # Start visual selection
+y                   # Copy
+Ctrl+a ]            # Paste
+```
+
+**Result:** Organized, persistent workspace across terminal restarts.
+
+---
+
+### Workflow 2: Vim Power User Techniques
+
+**Scenario:** Editing code efficiently with Vim's advanced features.
+
+```bash
+# Open Neovim in project root
+cd ~/Development/my-project
+nvim .
+
+# Inside Neovim:
+Space e             # Toggle file explorer
+Space ff            # Fuzzy find files
+Space fg            # Grep through project files
+
+# Working with buffers:
+Space ff readme     # Find README file
+Space k             # Next buffer
+Space j             # Previous buffer
+Space x             # Close buffer (keeps window)
+
+# Quick navigation:
+gd                  # Go to definition (LSP)
+gr                  # Find references
+K                   # Show hover documentation
+
+# Editing tricks:
+ciw                 # Change inner word
+ci"                 # Change inside quotes
+>                   # Indent (visual mode)
+gc                  # Toggle comment (visual/motion)
+
+# Window management:
+Ctrl+w v            # Vertical split
+Ctrl+w s            # Horizontal split
+Ctrl+w h/j/k/l      # Navigate windows
+Ctrl+w =            # Equalize window sizes
+
+# Search and replace:
+:%s/old/new/gc      # Replace with confirmation
+:g/pattern/d        # Delete lines matching pattern
+
+# Save and quit:
+Space u             # Save (update)
+:wq                 # Save and quit
+:qa                 # Quit all
+```
+
+**Result:** Lightning-fast code navigation and editing.
+
+---
+
+### Workflow 3: Shell Power Features
+
+**Scenario:** Using zsh features for productivity.
+
+```bash
+# Vi-mode editing
+#  Insert mode: type normally
+#  Press jk/kj to enter normal mode
+#  Use vim motions: w, b, $, 0, etc.
+#  Press i/a to return to insert
+
+# Auto-suggestions (based on history)
+git sta[Tab]        # Completes to "git status" if in history
+[Ctrl+Space]        # Accept suggestion
+
+# History substring search
+git[Up]             # Shows previous git commands
+[k/j]               # Navigate in normal mode
+
+# Fuzzy navigation
+[Esc] gd            # Fuzzy directory change (in normal mode)
+[Esc] gf            # Fuzzy file picker
+[Esc] gh            # Fuzzy history search
+
+# Directory shortcuts
+cd ~/D[Tab]         # Expands to ~/Development (or similar)
+cd -                # Return to previous directory
+~/.config/dotfiles  # Just type path and hit enter (auto-cd)
+
+# Command substitution
+echo "Today is $(date +%Y-%m-%d)"
+
+# Aliases in action
+ls                  # → eza --icons --git
+cat README.md       # → bat README.md (syntax highlighted)
+gitgraph            # → git log --decorate --graph
+
+# History recall
+!!                  # Repeat last command
+!git                # Repeat last command starting with "git"
+!$                  # Last argument of previous command
+^old^new            # Replace old with new in previous command
+
+# Globbing
+ls **/*.zsh         # Recursive search for .zsh files
+ls **/test_*.zsh    # Find all test files
+```
+
+**Result:** Command-line mastery with minimal keystrokes.
+
+---
+
+### Workflow 4: Git Workflow with Delta
+
+**Scenario:** Reviewing changes and committing code.
+
+```bash
+# Check status (enhanced with colors)
+git status
+
+# Review changes with beautiful diffs
+git diff            # Uses delta - syntax highlighted, side-by-side
+git diff --staged   # Review staged changes
+
+# Stage interactively
+git add -p          # Patch mode - stage hunks interactively
+# y - stage this hunk
+# n - don't stage
+# s - split into smaller hunks
+# e - edit hunk manually
+
+# View history
+gitgraph            # Alias: git log --decorate --graph
+git log -p          # Show patches with delta
+git log --oneline   # Condensed view
+
+# Commit with detailed message
+git commit -m "Add feature X
+
+- Implement Y
+- Refactor Z
+- Fix issue #123"
+
+# Amend if needed
+git commit --amend  # Modify last commit
+
+# Interactive rebase (clean history)
+git rebase -i HEAD~3  # Last 3 commits
+
+# Stash for quick context switching
+git stash           # Save work in progress
+git stash list      # View stashes
+git stash pop       # Restore and remove stash
+```
+
+**Result:** Clean commit history with beautiful diffs.
+
+---
+
+### Workflow 5: Multi-Window Neovim + Tmux
+
+**Scenario:** Working on a feature across multiple files.
+
+```bash
+# In tmux, create layout:
+Ctrl+a |            # Split vertically
+nvim src/main.rs    # Left pane: implementation
+nvim tests/test.rs  # Right pane: tests
+
+# In Neovim (both panes):
+# Synchronize panes temporarily if needed:
+Ctrl+a y            # Toggle pane synchronization
+
+# Left pane workflow:
+Space ff            # Find file
+Space fg "func"     # Search for function
+
+# Right pane workflow:
+Space ff test       # Find test file
+:term               # Open terminal in split
+cargo test          # Run tests
+
+# Share yanks between vim instances via system clipboard:
+Space y             # Yank to system clipboard (left pane)
+Space p             # Paste from system clipboard (right pane)
+
+# Create new tmux window for terminal work:
+Ctrl+a c            # New window
+cargo build --release
+Ctrl+a 1            # Back to window 1 (editors)
+```
+
+**Result:** Seamless multi-file editing with live test feedback.
+
+---
+
+### Workflow 6: Terminal Multiplexer Mastery
+
+**Scenario:** Managing multiple projects in one tmux session.
+
+```bash
+# Create named windows for different projects
+Ctrl+a c            # New window
+Ctrl+a ,            # Rename window: "backend"
+
+Ctrl+a c            # Another window
+Ctrl+a ,            # Rename: "frontend"
+
+Ctrl+a c            # Another window
+Ctrl+a ,            # Rename: "docs"
+
+# Navigate between windows
+Ctrl+a n            # Next window
+Ctrl+a p            # Previous window
+Ctrl+a 0-9          # Jump to window number
+Ctrl+a l            # Last window
+
+# Window with multiple panes:
+Ctrl+a |            # Split vertically
+Ctrl+a -            # Split horizontally
+Ctrl+a Arrow        # Navigate panes
+
+# Resize panes
+Ctrl+a Alt+Arrow    # Resize in direction
+
+# Copy between panes/windows:
+Ctrl+a [            # Copy mode
+/search             # Find text
+v                   # Visual select
+y                   # Yank
+Ctrl+a ]            # Paste in any pane/window
+
+# Session management:
+Ctrl+a d            # Detach (session keeps running)
+tmux ls             # List sessions
+tmux attach -t ƛ    # Reattach
+
+# Save current layout:
+# Tmux resurrect plugin would save layouts automatically
+# Manual: rerun the split commands
+```
+
+**Result:** Professional multi-project workspace.
+
+---
+
+### Workflow 7: Search and Navigation
+
+**Scenario:** Finding files and text across a large codebase.
+
+**In Shell:**
+```bash
+# Find files
+fd "pattern"        # Fast find alternative
+fd -e rs            # Find .rs files
+fd -e js src/       # Find .js files in src/
+
+# Search file contents
+rg "TODO"           # Ripgrep - ultra-fast search
+rg -i "fixme"       # Case-insensitive
+rg "pattern" -t rust # Search only Rust files
+rg "pattern" --hidden # Include hidden files
+
+# Fuzzy find with fzf (if installed)
+fd | fzf            # Fuzzy select file
+history | fzf       # Fuzzy search history
+```
+
+**In Neovim:**
+```bash
+nvim .
+
+# Inside Neovim:
+Space ff            # Telescope: fuzzy find files
+Space fg            # Telescope: live grep
+Space fb            # Telescope: find in buffers
+Space fh            # Telescope: search help tags
+
+# Navigate to symbol:
+gd                  # Go to definition
+gr                  # Find references
+Space fs            # Find symbols in document
+
+# Quick fix list:
+:copen              # Open quickfix window
+:cnext              # Next item
+:cprev              # Previous item
+```
+
+**Result:** Find anything in seconds.
+
+---
+
+### Workflow 8: Terminal Customization On-The-Fly
+
+**Scenario:** Adjusting your environment mid-session.
+
+```bash
+# Change terminal colorscheme (Kitty):
+# Edit ~/.config/kitty/kitty.conf
+vim ~/.config/kitty/kitty.conf
+# Uncomment different theme
+Ctrl+Cmd+,          # Reload Kitty config (macOS)
+
+# Change shell prompt:
+vim ~/.config/starship/starship.toml
+# Edit prompt modules
+exec zsh            # Reload shell
+
+# Add new alias:
+echo 'alias gp="git push"' >> ~/.aliases
+source ~/.aliases
+
+# Quick shell function:
+function mkcd() { mkdir -p "$1" && cd "$1" }
+mkcd ~/new-project
+
+# Make it permanent:
+vim ~/.zshrc        # Add function there
+```
+
+**Result:** Tailored environment without restart.
+
+---
+
+### Workflow 9: Debugging and Troubleshooting
+
+**Scenario:** Something isn't working - time to debug.
+
+**Check tool availability:**
+```bash
+# Verify commands exist
+which nvim          # Check if in PATH
+command -v git      # Another way
+
+# Check versions
+nvim --version
+git --version
+zsh --version
+tmux -V
+
+# Check symlinks
+ls -la ~/.zshrc
+ls -la ~/.config/nvim
+
+# Verify PATH
+echo $PATH | tr ':' '\n'  # Show PATH entries
+```
+
+**Shell debugging:**
+```bash
+# Enable debug mode
+set -x              # Print commands as executed
+# Your commands here
+set +x              # Disable debug mode
+
+# Check what's loading:
+zsh -xv             # Very verbose zsh startup
+
+# Profile zsh startup:
+time zsh -i -c exit # Time shell initialization
+```
+
+**Vim debugging:**
+```vim
+:checkhealth        # Neovim health check
+:messages           # View messages
+:verbose set bg?    # See where option was set
+:scriptnames        # List loaded scripts
+```
+
+**Tmux debugging:**
+```bash
+# List current settings
+tmux show -g        # Show global options
+tmux list-keys      # Show keybindings
+
+# Check if tmux sees your terminal colors
+tmux info           # Terminal info
+```
+
+**Result:** Quick problem identification and resolution.
+
+---
+
+### Workflow 10: Scripting and Automation
+
+**Scenario:** Automating repetitive tasks with shell scripts.
+
+```bash
+# Create a script
+vim ~/.local/bin/deploy
+
+# Script content:
+#!/usr/bin/env zsh
+
+# Load dotfiles libraries for beautiful output
+source "$HOME/.config/dotfiles/bin/lib/colors.zsh"
+source "$HOME/.config/dotfiles/bin/lib/ui.zsh"
+
+draw_header "Deployment Script" "Deploying application"
+echo
+
+draw_section_header "Building Project"
+cargo build --release || {
+    print_error "Build failed"
+    exit 1
+}
+print_success "Build completed"
+echo
+
+draw_section_header "Running Tests"
+cargo test || {
+    print_error "Tests failed"
+    exit 1
+}
+print_success "All tests passed"
+echo
+
+draw_section_header "Deploying"
+scp target/release/app server:/opt/app/
+print_success "Deployment complete!"
+echo
+
+print_success "$(get_random_friend_greeting)"
+
+# Make executable:
+chmod +x ~/.local/bin/deploy
+
+# Use it:
+deploy
+```
+
+**Result:** Professional-looking automated workflows.
+
+---
+
 ## Getting Help
 
 **For Management System:**

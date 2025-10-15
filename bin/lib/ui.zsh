@@ -83,6 +83,9 @@ function restore_cursor() {
 # Message Display Functions
 # ============================================================================
 
+# Global silent mode flag (can be set by scripts using: UI_SILENT=true)
+typeset -g UI_SILENT="${UI_SILENT:-false}"
+
 # Display a colored message with automatic color reset
 function print_colored_message() {
     local color="$1"
@@ -98,24 +101,28 @@ function print_status_message() {
     print_colored_message "$color" "${emoji} ${message}\n"
 }
 
-# Print message with semantic color
+# Print message with semantic color (respects UI_SILENT mode)
 function print_success() {
     local message="$1"
+    [[ "$UI_SILENT" == "true" ]] && return 0
     print_status_message "$UI_SUCCESS_COLOR" "✅" "$message"
 }
 
 function print_warning() {
     local message="$1"
+    [[ "$UI_SILENT" == "true" ]] && return 0
     print_status_message "$UI_WARNING_COLOR" "⚠️" "$message"
 }
 
 function print_error() {
     local message="$1"
+    [[ "$UI_SILENT" == "true" ]] && return 0
     print_status_message "$UI_ERROR_COLOR" "❌" "$message"
 }
 
 function print_info() {
     local message="$1"
+    [[ "$UI_SILENT" == "true" ]] && return 0
     print_status_message "$UI_INFO_COLOR" "ℹ️" "$message"
 }
 

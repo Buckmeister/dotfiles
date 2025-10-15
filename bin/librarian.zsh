@@ -18,7 +18,21 @@ emulate -LR zsh
 # ============================================================================
 
 # Get script and library directory (using readlink for portability)
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../bin/lib/utils.zsh" 2>/dev/null || source "$SCRIPT_DIR/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 LIB_DIR="$SCRIPT_DIR/lib"
 
 # Load shared libraries with fallback protection
@@ -56,6 +70,20 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
     function get_random_friend_greeting() {
         echo "Happy coding, friend!"
     }
+}
+
+source "$LIB_DIR/arguments.zsh" 2>/dev/null || {
+    # Fallback: basic argument parsing if library not available
+    function parse_simple_flags() {
+        # Basic fallback - just check for help
+        for arg in "$@"; do
+            case "$arg" in
+                -h|--help) return 0 ;;
+            esac
+        done
+        return 1
+    }
+    function is_help_requested() { return 1; }
 }
 
 # ============================================================================
@@ -564,6 +592,79 @@ elif [[ $pkg_found -gt 0 ]] && [[ $pkg_executable -lt 3 ]]; then
 fi
 
 # ============================================================================
+# Configuration Management Status
+# ============================================================================
+
+echo
+echo "🎭 Configuration Management:"
+
+# Check for wizard completion
+personal_config="$HOME/.config/dotfiles/personal.env"
+if [[ -f "$personal_config" ]]; then
+    print_success "   personal.env: configured"
+
+    # Extract key settings if available
+    if grep -q "DOTFILES_WIZARD_COMPLETED" "$personal_config" 2>/dev/null; then
+        wizard_date=$(grep "DOTFILES_WIZARD_COMPLETED" "$personal_config" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+        echo "      └─ Wizard completed: $wizard_date"
+    fi
+
+    if grep -q "DOTFILES_PROFILE" "$personal_config" 2>/dev/null; then
+        configured_profile=$(grep "DOTFILES_PROFILE" "$personal_config" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+        echo "      └─ Configured profile: $configured_profile"
+    fi
+
+    if grep -q "DOTFILES_USER_NAME" "$personal_config" 2>/dev/null; then
+        user_name=$(grep "DOTFILES_USER_NAME" "$personal_config" | cut -d'=' -f2 | tr -d '"')
+        echo "      └─ User: $user_name"
+    fi
+else
+    print_info "   personal.env: not configured"
+    echo "      💡 Run ./bin/wizard.zsh to configure your dotfiles"
+fi
+
+# Check for active profile
+current_profile_file="$HOME/.config/dotfiles/current_profile"
+if [[ -f "$current_profile_file" ]]; then
+    current_profile=$(cat "$current_profile_file" 2>/dev/null)
+    print_success "   Active profile: $current_profile"
+else
+    print_info "   Active profile: none set"
+fi
+
+# Check wizard availability
+wizard_script="$dotfiles_root/bin/wizard.zsh"
+if [[ -x "$wizard_script" ]]; then
+    print_success "   wizard.zsh: available"
+else
+    print_warning "   wizard.zsh: not found or not executable"
+fi
+
+# Check profile manager availability
+profile_mgr="$dotfiles_root/bin/profile_manager.zsh"
+if [[ -x "$profile_mgr" ]]; then
+    print_success "   profile_manager.zsh: available"
+
+    # Count available profiles
+    profiles_dir="$dotfiles_root/profiles"
+    if [[ -d "$profiles_dir" ]]; then
+        profile_count=$(find "$profiles_dir" -name "*.yaml" -o -name "*.yml" 2>/dev/null | wc -l | tr -d ' ')
+        if [[ $profile_count -gt 0 ]]; then
+            echo "      └─ Available profiles: $profile_count"
+        fi
+    fi
+else
+    print_warning "   profile_manager.zsh: not found or not executable"
+fi
+
+echo
+print_info "   💡 Configuration Commands:"
+echo "      • First-time setup:    ./bin/wizard.zsh"
+echo "      • List profiles:       ./bin/profile_manager.zsh list"
+echo "      • Switch profile:      ./bin/profile_manager.zsh apply <profile>"
+echo "      • Show current:        ./bin/profile_manager.zsh current"
+
+# ============================================================================
 # Configuration Health
 # ============================================================================
 
@@ -709,6 +810,7 @@ ${UI_ACCENT_COLOR}HEALTH REPORT INCLUDES:${COLOR_RESET}
     📜 Post-Install Scripts   - Available scripts catalog
     🐙 GitHub Downloaders     - Custom GitHub tool status
     📦 Package Management     - Universal package system status and manifest info
+    🎭 Configuration Mgmt     - Wizard completion, active profile, available profiles
     ⚙️  Configuration Health  - Config file existence checks
     🔗 Symlink Inventory      - Complete symlink listing with broken link detection
 
@@ -729,13 +831,18 @@ EOF
 # Main Execution Logic
 # ============================================================================
 
-# Check execution mode based on arguments
+# Parse arguments using shared library
+parse_simple_flags "$@"
+
+# Check for help flag first
+if is_help_requested; then
+    show_help
+    exit 0
+fi
+
+# Check for specific command modes (these use positional arguments, not flags)
+# We need to check the remaining unparsed arguments
 case "${1:-}" in
-    "--help"|"-h")
-        # Show help message
-        show_help
-        exit 0
-        ;;
     "--status")
         # Explicit status check - show verbose report through pager
         generate_report | use_pager
@@ -806,10 +913,16 @@ case "${1:-}" in
         # Export environment for the TUI menu and launch it
         DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$SCRIPT_DIR/menu_tui.zsh"
         ;;
-    *)
+    "")
         # Default: show verbose status through pager (health check mode)
         # This is the normal behavior when running ./bin/librarian.zsh directly
         generate_report | use_pager
         exit 0
+        ;;
+    *)
+        # Unknown argument
+        print_error "Unknown option: $1"
+        print_info "Use --help for usage information"
+        exit 1
         ;;
 esac

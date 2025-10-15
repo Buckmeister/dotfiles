@@ -1,0 +1,137 @@
+# ============================================================================
+# Minimal Profile Package Manifest
+# ============================================================================
+#
+# Essential packages only for resource-constrained systems
+# Focuses on: core tools, basic editor, minimal dependencies
+#
+# Generated for dotfiles profile: minimal
+# Compatible with: macOS (brew), Ubuntu/Debian (apt), Windows (choco)
+# ============================================================================
+
+version: "1.0"
+
+metadata:
+  name: "Minimal Profile Packages"
+  description: "Essential tools for lightweight dotfiles setup"
+  profile: minimal
+  last_updated: "2025-10-15"
+  compatible_systems:
+    - macos
+    - ubuntu
+    - debian
+
+settings:
+  skip_installed: true
+  auto_confirm: false
+
+# ============================================================================
+# Essential Packages
+# ============================================================================
+
+packages:
+  # Version Control
+  - id: git
+    name: "Git"
+    description: "Distributed version control system"
+    category: vcs
+    priority: required
+    install:
+      brew: git
+      apt: git
+      choco: git
+
+  # Core Utilities
+  - id: curl
+    name: "cURL"
+    description: "Command line HTTP client"
+    category: network
+    priority: required
+    install:
+      brew: curl
+      apt: curl
+      choco: curl
+
+  - id: wget
+    name: "Wget"
+    description: "Network downloader"
+    category: network
+    priority: required
+    install:
+      brew: wget
+      apt: wget
+      choco: wget
+
+  # Text Editor
+  - id: neovim
+    name: "Neovim"
+    description: "Modern Vim-based editor"
+    category: editor
+    priority: required
+    install:
+      brew: neovim
+      apt: neovim
+      choco: neovim
+
+  # Shell Utilities
+  - id: zsh
+    name: "Z Shell"
+    description: "Modern shell with powerful features"
+    category: shell
+    priority: required
+    install:
+      brew: zsh
+      apt: zsh
+      choco: zsh
+
+  - id: tmux
+    name: "Tmux"
+    description: "Terminal multiplexer"
+    category: terminal
+    priority: recommended
+    install:
+      brew: tmux
+      apt: tmux
+      choco: tmux
+
+  # Essential CLI Tools
+  - id: tree
+    name: "Tree"
+    description: "Directory tree viewer"
+    category: utilities
+    priority: recommended
+    install:
+      brew: tree
+      apt: tree
+      choco: tree
+
+  - id: jq
+    name: "jq"
+    description: "JSON processor"
+    category: utilities
+    priority: recommended
+    install:
+      brew: jq
+      apt: jq
+      choco: jq
+
+  # Language Runtimes (minimal)
+  - id: python3
+    name: "Python 3"
+    description: "Python programming language"
+    category: language
+    priority: required
+    install:
+      brew: python3
+      apt: python3
+      choco: python3
+
+  - id: lua
+    name: "Lua"
+    description: "Lightweight scripting language (for Neovim)"
+    category: language
+    priority: recommended
+    install:
+      brew: lua
+      apt: lua5.4
+      choco: lua

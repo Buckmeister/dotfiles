@@ -1,0 +1,61 @@
+# ============================================================================
+# Personal Profile - Hobbyist and personal projects
+# ============================================================================
+#
+# This profile is designed for:
+# - Personal coding projects
+# - Learning new languages
+# - Experimentation and fun
+# - Side projects and hobbies
+#
+# What's included:
+# - Comfortable editor setup
+# - Support for modern languages (Rust, Go, Python, JavaScript)
+# - Focus on developer experience
+# - Tools for exploration and learning
+# ============================================================================
+
+name: personal
+description: "Configuration for personal projects and experimentation"
+emoji: "🎨"
+
+# Post-install scripts to run
+post_install_scripts:
+  - vim-setup.zsh
+  - bash-preexec.zsh
+  - language-servers.zsh
+  - toolchains.zsh
+  - fonts.zsh
+  - cargo-packages.zsh
+  - npm-global-packages.zsh
+  - pip-packages.zsh
+
+# Package installation level
+packages:
+  manifest: profiles/manifests/personal-packages.yaml
+  level: recommended
+
+# Default settings
+settings:
+  editor: nvim
+  shell: zsh
+  theme: onedark
+
+# Development languages (modern focus)
+dev_languages:
+  - rust
+  - python
+  - javascript
+  - typescript
+  - lua
+  - go
+  - haskell
+
+# Feature flags
+features:
+  fonts: true
+  toolchains: true
+  cargo_packages: true
+  npm_packages: true
+  pip_packages: true
+  ruby_gems: false

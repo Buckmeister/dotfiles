@@ -7,7 +7,21 @@
 emulate -LR zsh
 
 # Load test framework
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../../bin/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 source "$SCRIPT_DIR/../lib/test_framework.zsh"
 
 # ============================================================================
@@ -20,7 +34,6 @@ test_suite "Librarian Integration Tests"
 # Test Helpers
 # ============================================================================
 
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LIBRARIAN_SCRIPT="$DOTFILES_ROOT/bin/librarian.zsh"
 
 # ============================================================================
@@ -289,6 +302,115 @@ test_case "librarian should check for language servers" '
 '
 
 # ============================================================================
+# Configuration Management Tests (NEW)
+# ============================================================================
+
+test_case "librarian should include Configuration Management section" '
+    local output=$("$LIBRARIAN_SCRIPT" 2>&1)
+
+    # Should mention Configuration Management
+    if [[ "$output" == *"Configuration Management"* ]] || [[ "$output" == *"🎭"* ]]; then
+        return 0
+    else
+        echo "Output does not include Configuration Management section"
+        return 1
+    fi
+'
+
+test_case "librarian should check for wizard.zsh" '
+    local output=$("$LIBRARIAN_SCRIPT" 2>&1)
+
+    # Should mention wizard
+    if [[ "$output" == *"wizard"* ]] || [[ "$output" == *"Wizard"* ]]; then
+        return 0
+    else
+        echo "Output does not check for wizard"
+        return 1
+    fi
+'
+
+test_case "librarian should check for profile_manager.zsh" '
+    local output=$("$LIBRARIAN_SCRIPT" 2>&1)
+
+    # Should mention profile manager or profiles
+    if [[ "$output" == *"profile_manager"* ]] || [[ "$output" == *"profile"* ]]; then
+        return 0
+    else
+        echo "Output does not check for profile manager"
+        return 1
+    fi
+'
+
+test_case "librarian should check for personal.env configuration" '
+    local output=$("$LIBRARIAN_SCRIPT" 2>&1)
+
+    # Should mention personal.env
+    if [[ "$output" == *"personal.env"* ]]; then
+        return 0
+    else
+        echo "Output does not check for personal.env"
+        return 1
+    fi
+'
+
+test_case "librarian should show configuration commands" '
+    local output=$("$LIBRARIAN_SCRIPT" 2>&1)
+
+    # Should show helpful configuration commands
+    if [[ "$output" == *"./bin/wizard.zsh"* ]] || [[ "$output" == *"Configuration Commands"* ]]; then
+        return 0
+    else
+        echo "Output does not show configuration commands"
+        return 1
+    fi
+'
+
+# ============================================================================
+# Argument Parsing Tests (NEW)
+# ============================================================================
+
+test_case "librarian should use arguments.zsh library" '
+    # Check if librarian sources arguments.zsh
+    if grep -q "arguments.zsh" "$LIBRARIAN_SCRIPT"; then
+        return 0
+    else
+        echo "Librarian does not source arguments.zsh"
+        return 1
+    fi
+'
+
+test_case "librarian should handle -h flag" '
+    local help_output=$("$LIBRARIAN_SCRIPT" -h 2>&1)
+
+    if [[ "$help_output" == *"Librarian"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found for -h flag"
+        return 1
+    fi
+'
+
+test_case "librarian should use parse_simple_flags function" '
+    # Check if librarian calls parse_simple_flags
+    if grep -q "parse_simple_flags" "$LIBRARIAN_SCRIPT"; then
+        return 0
+    else
+        echo "Librarian does not use parse_simple_flags"
+        return 1
+    fi
+'
+
+test_case "librarian should use is_help_requested function" '
+    # Check if librarian calls is_help_requested
+    if grep -q "is_help_requested" "$LIBRARIAN_SCRIPT"; then
+        return 0
+    else
+        echo "Librarian does not use is_help_requested"
+        return 1
+    fi
+'
+
+# ============================================================================
 # Error Handling Tests
 # ============================================================================
 
@@ -296,8 +418,13 @@ test_case "librarian should handle invalid flag gracefully" '
     "$LIBRARIAN_SCRIPT" --invalid-flag-xyz >/dev/null 2>&1
     local exit_code=$?
 
-    # Should exit (with any code), not crash
-    return 0
+    # Should exit with non-zero code for invalid flag
+    if [[ $exit_code -ne 0 ]]; then
+        return 0
+    else
+        echo "Should have rejected invalid flag"
+        return 1
+    fi
 '
 
 test_case "librarian should be idempotent" '

@@ -38,6 +38,10 @@ The system is built on a shared library architecture:
 - **`ui.zsh`** - Progress bars, headers, and beautiful terminal output
 - **`utils.zsh`** - OS detection, common utilities, and helper functions
 - **`greetings.zsh`** - Friendly, encouraging messages for user interaction
+- **`arguments.zsh`** - Standardized argument parsing (flags, validation, help messages)
+- **`validators.zsh`** - Input validation and sanity checking
+- **`dependencies.zsh`** - Dependency detection and resolution
+- **`package_managers.zsh`** - Package manager abstractions and installation helpers
 
 ### Convenience Wrappers
 
@@ -363,9 +367,77 @@ Installation scripts automatically backup existing configurations to `~/.tmp/dot
    source "$SCRIPT_DIR/../bin/lib/colors.zsh"
    source "$SCRIPT_DIR/../bin/lib/ui.zsh"
    source "$SCRIPT_DIR/../bin/lib/utils.zsh"
+   source "$SCRIPT_DIR/../bin/lib/arguments.zsh"  # For standardized arg parsing
    ```
-4. Access OS context via `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
-5. Add to interactive menu automatically (detected by menu_tui.zsh)
+4. Use standardized argument parsing (see "Argument Parsing Patterns" below)
+5. Access OS context via `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
+6. Add to interactive menu automatically (detected by menu_tui.zsh)
+
+### Argument Parsing Patterns
+
+The repository uses a standardized argument parsing library (`bin/lib/arguments.zsh`) to eliminate code duplication and ensure consistent CLI behavior across all scripts.
+
+**Standard Pattern for Simple Scripts:**
+```zsh
+# Load arguments library
+source "$DF_LIB_DIR/arguments.zsh"
+
+# Parse arguments using shared library
+parse_simple_flags "$@"
+is_help_requested && show_help
+
+# Use parsed flags
+[[ "$ARG_UPDATE" == "true" ]] && UPDATE_MODE=true
+[[ "$ARG_DRY_RUN" == "true" ]] && DRY_RUN=true
+
+# Validate no unknown arguments remain
+validate_no_unknown_args "$@" || exit 1
+```
+
+**Available Standard Flags:**
+- `ARG_HELP` - Help flag (-h, --help)
+- `ARG_VERBOSE` - Verbose output (-v, --verbose)
+- `ARG_DRY_RUN` - Dry-run mode (-n, --dry-run)
+- `ARG_FORCE` - Force operation (-f, --force)
+- `ARG_SILENT` - Silent mode (-s, --silent)
+- `ARG_UPDATE` - Update mode (--update)
+- `ARG_RESUME` - Resume mode (--resume)
+- `ARG_RESET` - Reset mode (--reset)
+
+**Helper Functions:**
+- `is_help_requested()` - Check if help was requested
+- `is_verbose()` - Check if verbose mode enabled
+- `is_dry_run()` - Check if dry-run mode enabled
+- `validate_no_unknown_args "$@"` - Validate no invalid options
+- `standard_help_header "Script Name" "Description"` - Standard help formatting
+
+**For Scripts with Custom Flags:**
+```zsh
+# Parse common flags first
+parse_simple_flags "$@"
+is_help_requested && show_help
+
+# Then handle script-specific flags
+for arg in "$@"; do
+    case "$arg" in
+        --custom-flag) CUSTOM=true ;;
+        --dry-run|-n|--help|-h) ;; # Skip already handled flags
+        *) print_error "Unknown option: $arg"; exit 1 ;;
+    esac
+done
+```
+
+**Migrated Scripts:**
+- `post-install/scripts/cargo-packages.zsh` - Simple flags (--update, --help)
+- `bin/wizard.zsh` - Custom flags with library validation (--resume, --reset)
+- `bin/update_all.zsh` - Hybrid approach with category flags
+
+**Benefits:**
+- Reduces 200-600 lines of duplicated argument parsing code
+- Consistent error messages and validation across all scripts
+- Standardized help message formatting
+- Easy to add new scripts with proper CLI behavior
+- DRY principle applied to argument handling
 
 ### Adding New Configurations
 
@@ -389,6 +461,298 @@ When working with this codebase:
 - **Version Pinning**: Document version control in `config/versions.env`
 - **Preserve the Vision**: This is a "symphony" - every component should harmonize
 
+### Coding Standards and Style Guidelines
+
+These standards ensure consistency, readability, and maintainability across the entire codebase.
+
+#### Line Length and Formatting
+
+- **Target**: ~80 column width whenever readability allows
+- **Flexibility**: Exceed when it improves readability (e.g., long strings, URLs)
+- **Principle**: Prioritize clarity over strict adherence
+- **Examples**:
+  ```zsh
+  # Good: Fits in 80 cols, readable
+  draw_section_header "Setup Complete" "Your environment is ready"
+
+  # Also Good: Exceeds 80 cols but more readable than wrapped
+  local long_url="https://github.com/buckmeister/dotfiles/releases/download/v1.0.0/package.tar.gz"
+
+  # Avoid: Unnecessary wrapping that reduces readability
+  draw_section_header \
+      "Setup" \
+      "Complete"
+  ```
+
+#### Code Consistency
+
+**Look for inspiration in existing code:**
+- **Study `bin/` directory**: Review core scripts for patterns
+- **Check shared libraries** (`bin/lib/`): Use established functions
+- **Follow existing patterns**: Match the style of similar scripts
+- **Examples to reference**:
+  - `bin/setup.zsh` - Argument parsing, OS detection
+  - `bin/menu_tui.zsh` - UI patterns, user interaction
+  - `bin/librarian.zsh` - Status reporting, system health
+  - `bin/lib/ui.zsh` - Progress bars, headers, formatting
+  - `bin/lib/utils.zsh` - Helper functions, path detection
+
+#### DRY Principle (Don't Repeat Yourself)
+
+**Reduce code duplication aggressively:**
+- **Extract common patterns** into shared functions
+- **Use existing library functions** instead of reimplementing
+- **Check `bin/lib/` first** before writing new utilities
+- **Examples**:
+  ```zsh
+  # Bad: Reimplementing path detection
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  DOTFILES_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+  # Good: Use standardized function
+  init_dotfiles_paths  # Sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR
+
+  # Bad: Custom error message formatting
+  echo "ERROR: Something went wrong" >&2
+
+  # Good: Use shared function
+  print_error "Something went wrong"
+  ```
+
+#### Default Values and Parameter Handling
+
+**Use defaults to reduce boilerplate:**
+- **Parameter expansion** with defaults: `${VAR:-default}`
+- **Sensible defaults** in function parameters
+- **Optional parameters** with fallback values
+- **Examples**:
+  ```zsh
+  # Good: Default values reduce complexity
+  local output_file="${1:-~/.local/share/dotfiles/packages.yaml}"
+  local verbosity="${VERBOSE:-0}"
+  local dry_run="${DRY_RUN:-false}"
+
+  # Good: Function with defaults
+  function show_status() {
+      local message="$1"
+      local color="${2:-$UI_INFO_COLOR}"
+      local prefix="${3:-ℹ}"
+
+      echo "${color}${prefix} ${message}${COLOR_RESET}"
+  }
+  ```
+
+#### Library Sourcing with Defaults
+
+**Graceful fallback when sourcing libraries:**
+- **Always provide error handling** for failed sourcing
+- **Use `2>/dev/null` for optional libraries**
+- **Clear error messages** for required libraries
+- **Examples**:
+  ```zsh
+  # Required library with clear error
+  source "$DF_LIB_DIR/colors.zsh" 2>/dev/null || {
+      echo "Error: Could not load colors.zsh" >&2
+      exit 1
+  }
+
+  # Optional library with fallback
+  source "$DF_LIB_DIR/greetings.zsh" 2>/dev/null || {
+      # Define minimal fallback
+      function get_random_greeting() { echo "Hello"; }
+  }
+  ```
+
+#### Package Management Integration
+
+**Include universal package system when appropriate:**
+- **Reference the package manifest** (`packages/base.yaml`) for installations
+- **Use package categories** (editor, shell, dev-tools, etc.)
+- **Support `--dry-run`** for package operations
+- **Document package dependencies** in scripts
+- **Examples**:
+  ```zsh
+  # Good: Reference package manifest
+  print_info "Installing from manifest: ~/.local/share/dotfiles/packages.yaml"
+  install_from_manifest --category=editor --priority=recommended
+
+  # Good: Document package availability
+  if command_exists cargo; then
+      print_success "Rust toolchain available (see packages/base.yaml)"
+  fi
+  ```
+
+#### Pre-Commit Quality Checklist
+
+**Review before committing changes:**
+
+1. **Test Suites**
+   - [ ] Run `./tests/run_tests.zsh` - All tests pass?
+   - [ ] New functionality has tests?
+   - [ ] Edge cases covered?
+
+2. **Documentation**
+   - [ ] CLAUDE.md updated if architecture changed?
+   - [ ] README.md updated if user-facing changes?
+   - [ ] MEETINGS.md updated for major milestones?
+   - [ ] Inline comments for complex logic?
+
+3. **Code Quality**
+   - [ ] Follows ~80 column guideline where readable?
+   - [ ] Uses shared libraries (no duplication)?
+   - [ ] Default values where appropriate?
+   - [ ] Consistent with existing code style?
+   - [ ] Cross-platform compatible?
+
+4. **Error Handling**
+   - [ ] Graceful failures with helpful messages?
+   - [ ] Required dependencies checked?
+   - [ ] User-actionable error guidance?
+
+5. **Integration**
+   - [ ] Compatible with package management system?
+   - [ ] Uses OS context variables (`$DF_OS`, etc.)?
+   - [ ] Integrates with shared libraries?
+   - [ ] Works with existing workflows?
+
+#### Quick Style Reference
+
+```zsh
+#!/usr/bin/env zsh
+
+# Use standardized path detection
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+init_dotfiles_paths  # Sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR
+
+# Load shared libraries
+source "$DF_LIB_DIR/colors.zsh"
+source "$DF_LIB_DIR/ui.zsh"
+source "$DF_LIB_DIR/utils.zsh"
+
+# Function with defaults and proper formatting
+function install_package() {
+    local package_name="$1"
+    local package_manager="${2:-brew}"  # Default to brew
+    local silent="${3:-false}"
+
+    if [[ "$silent" != "true" ]]; then
+        print_info "Installing $package_name via $package_manager"
+    fi
+
+    # Use shared functions
+    if command_exists "$package_manager"; then
+        "$package_manager" install "$package_name"
+    else
+        print_error "$package_manager not available"
+        return 1
+    fi
+}
+
+# Main function with clear structure
+function main() {
+    # Parse arguments with defaults
+    local dry_run="${DRY_RUN:-false}"
+    local verbose="${VERBOSE:-false}"
+
+    # Use shared UI functions
+    draw_section_header "Package Installation" \
+                       "Installing development tools"
+
+    # Show progress
+    local total=10
+    local current=0
+
+    for package in "${packages[@]}"; do
+        ((current++))
+        draw_progress_bar "$current" "$total" "Installing packages"
+        install_package "$package"
+    done
+
+    print_success "Installation complete!"
+}
+
+# Run if executed directly
+if [[ "${(%):-%x}" == "${0}" ]]; then
+    main "$@"
+fi
+```
+
+#### Refactoring Workflow
+
+When refactoring existing code:
+
+1. **Read existing code** to understand current patterns
+2. **Identify duplication** and extract to functions
+3. **Check for library functions** that already exist
+4. **Apply consistent formatting** (~80 cols where readable)
+5. **Add default values** to reduce boilerplate
+6. **Test thoroughly** after refactoring
+7. **Update documentation** if behavior changed
+8. **Run test suite** to verify no regressions
+
+### Private Files and Local-Only Content
+
+**MEETINGS.md Location and Status:**
+- **Location**: `~/.config/dotfiles/MEETINGS.md` (inside the dotfiles repository)
+- **Git Status**: Listed in `.gitignore` - NEVER commit to version control
+- **Purpose**: Private meeting notes, project planning, and internal documentation
+- **Content**: Meeting history, roadmap planning, personal notes, and project context
+- **Important**: This file contains personal and private information and must remain local only
+
+Other local-only files in `.gitignore`:
+- `config/personal.env` - Personal environment variables
+- `.claude/settings.local.json` - Claude Code local settings
+- `archive/` - Archived legacy files
+- Various cache and temporary files
+
+**When working across multiple sessions:**
+- MEETINGS.md provides valuable context about project history and decisions
+- Reference it for understanding past work and future plans
+- Update it with significant milestones and decisions
+- Never suggest committing it or removing it from .gitignore
+
+### Archive Folder for Obsolete Files
+
+**Archive Location**: `archive/` (in repository root)
+**Git Status**: Listed in `.gitignore` - archived content is not committed
+**Purpose**: Safe storage for obsolete files that are no longer actively used but shouldn't be completely deleted
+
+**When to Archive Files:**
+- Documentation that has been superseded (but might be useful for reference)
+- Planning documents that are complete/obsolete
+- Legacy code that has been replaced
+- Temporary files from completed experiments
+- Any file that's obsolete but might have historical value
+
+**Archive Best Practices:**
+1. **Create subdirectories** in `archive/` by category:
+   - `archive/obsolete-documentation/` - Old docs
+   - `archive/legacy-install-scripts/` - Old scripts
+   - `archive/experiments/` - Test code
+2. **Always include a README.md** in each archive subdirectory explaining:
+   - What files are archived
+   - Why they were archived
+   - What replaced them (with links)
+   - Recovery instructions if needed
+3. **Document in review notes** when archiving files
+4. **Never archive ACTION_PLAN.md** - it's a living document, not obsolete
+
+**Archive Folder Contents (as of 2025-10-15):**
+- `archive/legacy-install-scripts/` - Old platform-specific install scripts (replaced by unified setup.zsh)
+- `archive/obsolete-documentation/` - Superseded planning and status documents
+
+**Important Files That Should NEVER Be Archived:**
+- **ACTION_PLAN.md** - Living task registry (update frequently, never archive)
+- **MEETINGS.md** - Historical journal (append-only, never archive)
+- **CHANGELOG.md** - Project history (always current)
+- Active configuration files
+- Core infrastructure scripts
+
 ### Update System Patterns
 
 When adding new package management scripts:
@@ -410,6 +774,142 @@ When adding new functionality:
 5. **Document test patterns** in TESTING.md if adding new approaches
 
 The goal is to create not just a functional dotfiles system, but a delightful experience that brings joy to daily development work.
+
+### ACTION_PLAN.md Approach (Best Practice)
+
+For **complex improvements** involving multiple related tasks, use the ACTION_PLAN.md methodology:
+
+#### When to Create an ACTION_PLAN.md
+
+Create an action plan for:
+- **Complex refactoring** involving multiple files or systems
+- **Major feature additions** with interdependent tasks
+- **Documentation overhauls** spanning multiple areas
+- **Quality improvements** requiring systematic changes
+- **Any work with 5+ distinct tasks** that benefit from organization
+
+#### ACTION_PLAN.md as Living Document
+
+**IMPORTANT**: `ACTION_PLAN.md` is an **active, living document** that should:
+- **Never be marked as obsolete** during review sessions
+- **Be updated frequently** as work progresses and priorities shift
+- **Serve as the central task management registry** for current and future work
+- **Track both near-term tasks** (what we're working on now) and **future enhancements** (what's coming next)
+- **Remain in the repository root** for easy access and visibility
+
+**Workflow Integration with MEETINGS.md**:
+- **ACTION_PLAN.md** = Dynamic registry of current/future tasks (frequently updated, forward-looking)
+- **MEETINGS.md** = Historical journal of completed milestones (append-only, retrospective)
+
+**When Tasks Complete**:
+1. Mark tasks complete in ACTION_PLAN.md (✅ checkmarks)
+2. Add a comprehensive paragraph/section to MEETINGS.md documenting:
+   - What was accomplished
+   - Key decisions made
+   - Results and impact
+   - Links to created files or documentation
+3. Keep the completed section in ACTION_PLAN.md for context (don't delete it)
+4. This creates a beautiful journal in MEETINGS.md while maintaining planning context in ACTION_PLAN.md
+
+**Example Workflow**:
+```markdown
+ACTION_PLAN.md:
+- [x] Phase 1: Documentation (✅ Complete - see MEETINGS.md 2025-10-15)
+- [x] Phase 2: Quality Infrastructure (✅ Complete - see MEETINGS.md 2025-10-15)
+- [ ] Phase 3: Testing (In Progress)
+- [ ] Phase 4: Advanced Features (Future)
+
+MEETINGS.md:
+## 🎉 Phase 1 & 2 Complete - Documentation & Quality Infrastructure
+**Date**: October 15, 2025
+**Delivered**: 11 files, 7200+ lines of documentation, full CI/CD, pre-commit hooks
+**Impact**: Comprehensive documentation, automated testing, quality gates
+**Details**: [Full description of work completed]...
+```
+
+#### ACTION_PLAN.md Structure
+
+```markdown
+# Action Plan: [Project Name]
+
+## Context
+Brief description of the problem or improvement opportunity.
+
+## Goals
+Clear objectives for what the plan aims to achieve.
+
+## Phase 1: [Phase Name]
+- [x] Task 1.1: Description (✅ Complete)
+- [x] Task 1.2: Description (✅ Complete)
+- [ ] Task 1.3: Description (In Progress)
+
+## Phase 2: [Phase Name]
+- [ ] Task 2.1: Description (Pending)
+- [ ] Task 2.2: Description (Pending)
+
+## Phase 3: [Phase Name]
+(Continue as needed...)
+
+## Success Criteria
+How we know the plan is complete.
+
+## Timeline
+Estimated completion for each phase.
+```
+
+#### Execution Workflow
+
+1. **Plan First**: Create comprehensive ACTION_PLAN.md with all phases
+2. **Review Together**: Discuss priorities and scope with Thomas
+3. **Tackle in Phases**: Complete 1-2 phases at a time
+4. **Assess Progress**: After each phase, review before continuing
+5. **Update ACTION_PLAN.md**: Mark completed tasks, adjust remaining work
+6. **Document in MEETINGS.md**: Add completed milestone to the journal
+7. **Update Supporting Docs**: Update README, CLAUDE.md, and other docs as you go
+
+#### Benefits
+
+- **Clear Organization**: All related work in one place
+- **Manageable Chunks**: Break large projects into digestible pieces
+- **Progress Tracking**: Easy to see what's done and what remains
+- **Flexible Prioritization**: Can pause between phases to assess
+- **Context Preservation**: Document rationale and decisions
+- **Collaboration**: Thomas can review and adjust priorities
+- **Historical Record**: MEETINGS.md captures completed work for future reference
+- **Beautiful Journal**: Track the project's evolution over time
+
+#### Example: Phases 1 & 2 Completion (2025-10-15)
+
+**Context**: Repository needed better documentation and quality infrastructure.
+
+**Phase 1: Documentation Enhancement** ✅ COMPLETE
+- Task 1.1: Create bin/lib/README.md (1000+ lines API reference)
+- Task 1.2: Create post-install/README.md (1280+ lines system guide)
+- Task 1.3: Add workflow examples to README.md and MANUAL.md (20 examples)
+
+**Phase 2: Consistency & Quality** ✅ COMPLETE
+- Task 2.1: Standardize argument parsing patterns (analysis + documentation)
+- Task 2.2: Add GitHub Actions CI/CD workflow (9 comprehensive test jobs)
+- Task 2.3: Add pre-commit hooks (standalone + framework support)
+
+**Result**:
+- 6500+ lines of new documentation
+- Comprehensive CI/CD pipeline
+- Automated local validation
+- Zero regressions, all tests passing
+- **Documented in MEETINGS.md** for historical record
+
+#### Best Practices
+
+1. **Start with Analysis**: Understand the problem before planning
+2. **Be Comprehensive**: Include all related tasks, even small ones
+3. **Group Logically**: Related tasks in the same phase
+4. **Prioritize Ruthlessly**: Most important phases first
+5. **Stay Flexible**: Adjust plan as new information emerges
+6. **Document Decisions**: Note why choices were made
+7. **Celebrate Progress**: Mark tasks complete as you finish them
+8. **Journal Milestones**: Move completed work to MEETINGS.md
+9. **Never Archive ACTION_PLAN.md**: It's a living document, not obsolete documentation
 
 ### Manual Maintenance (MANUAL.md)
 

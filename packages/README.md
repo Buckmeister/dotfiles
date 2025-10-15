@@ -1,7 +1,7 @@
 # Universal Package Management System
 
-**Status**: 🚧 Foundation Phase - Schema and Manifest Complete
-**Next**: Implementation of generator and installer scripts
+**Status**: ✅ Core Implementation Complete - Integrated with Profiles
+**Latest**: Manifests, installer, and profile integration fully operational
 
 ---
 
@@ -91,12 +91,24 @@ Edit to match your needs:
 - Adjust priorities (required/recommended/optional)
 - Add platform restrictions
 
-### 4. Wait for Implementation
+### 4. Install Packages
 
-The generator and installer scripts are coming next! They will:
-- `generate_package_manifest` - Export from your current system
-- `install_from_manifest` - Install on new systems
-- `sync_packages` - Keep manifest synchronized
+**Available now!** Package management tools are fully implemented:
+
+```bash
+# Install from a manifest
+install_from_manifest -i ~/.config/dotfiles/my-packages.yaml
+
+# Install from profile manifests
+install_from_manifest -i profiles/manifests/standard-packages.yaml
+
+# See all options
+install_from_manifest --help
+```
+
+Additional tools:
+- `generate_package_manifest` - Export from your current system (available)
+- `sync_packages` - Keep manifest synchronized (available)
 
 ---
 
@@ -316,40 +328,45 @@ sync_packages --push
 - [x] Build base.yaml with ~50 curated packages
 - [x] Document architecture and workflow
 
-### 🚧 Phase 2: Generator Script (Next)
-- [ ] Implement `generate_package_manifest`
-- [ ] Support brew (macOS)
-- [ ] Support apt (Ubuntu/Debian)
-- [ ] Interactive mode for mapping prompts
-- [ ] Merge mode for updating existing manifest
+### ✅ Phase 2: Generator Script (Complete)
+- [x] Implement `generate_package_manifest`
+- [x] Support brew (macOS)
+- [x] Support apt (Ubuntu/Debian)
+- [x] Interactive mode for mapping prompts
+- [x] Merge mode for updating existing manifest
 
-### 📅 Phase 3: Installer Script
-- [ ] Implement `install_from_manifest`
-- [ ] Support brew + apt
-- [ ] Category and priority filtering
-- [ ] Dry-run mode
-- [ ] Beautiful UI with progress bars
-- [ ] Dependency resolution
+### ✅ Phase 3: Installer Script (Complete)
+- [x] Implement `install_from_manifest`
+- [x] Support brew + apt + choco
+- [x] Category and priority filtering
+- [x] Dry-run mode
+- [x] Beautiful UI with progress bars
+- [x] Dependency resolution
 
-### 📅 Phase 4: Sync Script
-- [ ] Implement `sync_packages`
-- [ ] Add/remove packages
-- [ ] Git integration
-- [ ] Smart merge capabilities
+### ✅ Phase 4: Profile Integration (Complete - 2025-10-15)
+- [x] Create package manifests for all profiles
+- [x] Update profile_manager.zsh to install from manifests
+- [x] Enhance wizard.zsh for custom manifest generation
+- [x] Test integration end-to-end
+- [x] Update documentation
 
-### 📅 Phase 5: Expansion
+### ✅ Phase 5: Sync Script (Complete)
+- [x] Implement `sync_packages`
+- [x] Add/remove packages
+- [x] Git integration
+- [x] Smart merge capabilities
+
+### 📅 Phase 6: Expansion (Future)
 - [ ] Add yum/dnf support (Fedora/RHEL)
-- [ ] Add choco support (Windows)
 - [ ] Add winget support (Windows)
-- [ ] Support cargo, npm, pip, pipx
+- [ ] Enhanced cargo, npm, pip, pipx support
 - [ ] Repository management (taps, PPAs)
 
-### 📅 Phase 6: Polish
-- [ ] Comprehensive testing
+### 📅 Phase 7: Polish (Future)
+- [ ] Comprehensive testing for all package managers
 - [ ] Update MANUAL.md
-- [ ] Add to dotfiles setup flow
 - [ ] Migration guide from Brewfile
-- [ ] Example manifests for different use cases
+- [ ] Additional example manifests for specialized use cases
 
 ---
 
@@ -421,23 +438,60 @@ Scripts will support both locations and can merge them.
 
 This package management system integrates seamlessly with the dotfiles:
 
+### Profile Integration (NEW!)
+
+**Profiles now reference package manifests!** This creates fully reproducible environments:
+
+```bash
+# Apply a profile (installs packages + runs post-install scripts)
+./bin/profile_manager.zsh apply standard
+
+# Behind the scenes:
+# 1. Installs packages from profiles/manifests/standard-packages.yaml
+# 2. Runs post-install scripts (vim-setup, language-servers, etc.)
+# 3. Saves profile as current
+```
+
+Each profile has a corresponding manifest:
+- `profiles/minimal.yaml` → `profiles/manifests/minimal-packages.yaml` (10 packages)
+- `profiles/standard.yaml` → `profiles/manifests/standard-packages.yaml` (25 packages)
+- `profiles/full.yaml` → `profiles/manifests/full-packages.yaml` (7 additional packages)
+- `profiles/work.yaml` → `profiles/manifests/work-packages.yaml` (13 packages)
+- `profiles/personal.yaml` → `profiles/manifests/personal-packages.yaml` (18 packages)
+
+See `profiles/README.md` for complete profile documentation.
+
+### Wizard Integration (NEW!)
+
+The interactive wizard can now generate custom manifests:
+
+```bash
+./bin/wizard.zsh
+# → Select languages (python, rust, go, javascript)
+# → Choose editor (nvim, vim, emacs)
+# → Set package level (minimal, recommended, full)
+# → At completion: generates ~/.config/dotfiles/my-packages.yaml
+```
+
+Your custom manifest includes:
+- Core essentials (git, curl, shell)
+- Your chosen editor
+- Modern CLI tools (if recommended/full level)
+- Language-specific packages (python@3.12, ipython, rust, gopls, node, npm, etc.)
+- Optional dev tools (if full level)
+
+Install anytime:
+```bash
+install_from_manifest -i ~/.config/dotfiles/my-packages.yaml
+```
+
 ### Shared Libraries
 
-Package scripts will use the same UI libraries:
+Package scripts use the same UI libraries:
 - `bin/lib/colors.zsh` - OneDark color scheme
 - `bin/lib/ui.zsh` - Progress bars and headers
 - `bin/lib/utils.zsh` - OS detection and helpers
 - `bin/lib/greetings.zsh` - Friendly messages
-
-### Setup Integration
-
-Future integration with `./setup`:
-```bash
-./setup
-# → Links dotfiles
-# → Launches menu
-#    → [New Option] "Install Packages from Manifest"
-```
 
 ### Consistent Experience
 

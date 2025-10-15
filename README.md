@@ -80,6 +80,8 @@ The setup script will:
 
 ### Core Infrastructure
 - **`setup.zsh`** - The conductor: orchestrates the entire setup process
+- **`wizard.zsh`** - Interactive configuration wizard for first-time setup
+- **`profile_manager.zsh`** - Profile system for different machine contexts
 - **`menu_tui.zsh`** - Beautiful interactive menu with keyboard navigation
 - **`librarian.zsh`** - Your friendly system health reporter
 - **`link_dotfiles.zsh`** - Creates all the necessary symlinks
@@ -166,6 +168,30 @@ This allows scripts to adapt their behavior automatically.
 ---
 
 ## 🛠️ Advanced Usage
+
+### First-Time Configuration Wizard
+Run the interactive wizard for guided setup with profile selection:
+
+```bash
+./wizard
+```
+
+The wizard will help you configure:
+- Personal information (name, email)
+- Editor and shell preferences
+- Development languages
+- Theme selection
+- Profile selection (minimal, standard, full, work, or personal)
+
+### Profile Management
+Manage configuration profiles for different contexts:
+
+```bash
+./profile list              # List all available profiles
+./profile show standard     # Show profile details
+./profile apply work        # Apply a profile
+./profile current           # Check active profile
+```
 
 ### Skip Post-Install Scripts, Do Only Dotfile Linking
 ```bash
@@ -358,6 +384,379 @@ packages:
 - **[packages/README.md](packages/README.md)** - Overview, workflow, and getting started
 - **[packages/SCHEMA.md](packages/SCHEMA.md)** - Complete YAML schema reference
 - **[packages/base.yaml](packages/base.yaml)** - Curated manifest with 50+ packages
+
+---
+
+## 🎯 Common Workflows
+
+Real-world examples showing how to combine different components for daily tasks.
+
+### Workflow 1: Fresh Machine Setup
+
+**Scenario:** You just got a new MacBook and want your entire development environment set up.
+
+```bash
+# Step 1: Run the one-line installer
+curl -fsSL https://buckmeister.github.io/dfsetup | sh
+
+# Step 2: In the TUI menu, select what you need:
+#   - Press 'j/k' to navigate
+#   - Press Space on: cargo-packages, npm-global-packages, language-servers
+#   - Press 'a' to select all if you want everything
+#   - Press Enter to execute
+
+# Step 3: Verify everything is working
+./bin/librarian.zsh
+
+# Step 4: Start using your tools
+nvim          # Open Neovim with your configs
+exec zsh      # Restart shell to apply all changes
+tmux          # Start tmux with custom config
+```
+
+**Result:** Fully configured development environment in 5-10 minutes.
+
+---
+
+### Workflow 2: Syncing Dotfiles Across Multiple Machines
+
+**Scenario:** You have a work laptop and personal desktop, both need the same setup.
+
+**On Machine A (source):**
+```bash
+cd ~/.config/dotfiles
+
+# Make your customizations
+vim zsh/zshrc.symlink
+vim config/packages/cargo-packages.list
+
+# Commit and push changes
+git add .
+git commit -m "Customize shell and add new Rust tools"
+git push
+```
+
+**On Machine B (destination):**
+```bash
+cd ~/.config/dotfiles
+
+# Pull latest changes
+git pull
+
+# Re-run setup to apply new symlinks
+./setup --skip-pi    # Only update symlinks
+
+# Install new packages if package lists changed
+./post-install/scripts/cargo-packages.zsh
+
+# Or update everything at once
+./update
+
+# Verify sync
+./bin/librarian.zsh
+```
+
+**Result:** Both machines stay perfectly synchronized.
+
+---
+
+### Workflow 3: Customizing Your Environment
+
+**Scenario:** You want to add a new CLI tool and customize your shell prompt.
+
+```bash
+cd ~/.config/dotfiles
+
+# Add a new Rust tool to install list
+echo "tokei" >> config/packages/cargo-packages.list
+
+# Install it
+./post-install/scripts/cargo-packages.zsh
+
+# Customize your starship prompt
+vim starship/starship.symlink_config/starship.toml
+# Changes are immediately reflected (symlinked)
+
+# Test the new tool
+tokei .    # Count lines of code in current directory
+
+# Commit your changes
+git add config/packages/cargo-packages.list
+git add starship/starship.symlink_config/starship.toml
+git commit -m "Add tokei and customize prompt"
+git push
+```
+
+**Result:** New tool installed and prompt customized, ready to sync to other machines.
+
+---
+
+### Workflow 4: Developing in a Tmux + Neovim Session
+
+**Scenario:** You're working on a complex project and want to use tmux with multiple panes.
+
+```bash
+# Start/attach to default tmux session
+ta                  # Alias for: tmux attach -t λ
+
+# Inside tmux:
+Ctrl+a |            # Split pane vertically
+Ctrl+a -            # Split pane horizontally
+
+# Navigate between panes:
+Ctrl+a Arrow        # Move to pane
+
+# In one pane: Start Neovim
+nvim .              # Open file explorer
+
+# Neovim shortcuts:
+Space e             # Toggle file explorer
+Space ff            # Fuzzy find files
+Space fg            # Search text in project
+Space j/k           # Navigate buffers
+
+# In another pane: Run tests
+cargo test --watch  # Auto-run tests on changes
+
+# In third pane: Git operations
+git status
+git add .
+git commit -m "Implement feature"
+git push
+
+# Tmux commands:
+Ctrl+a z            # Zoom current pane (toggle fullscreen)
+Ctrl+a [            # Enter copy mode (vi keys)
+Ctrl+a ]            # Paste
+```
+
+**Result:** Powerful multi-pane development environment.
+
+---
+
+### Workflow 5: Updating All Packages
+
+**Scenario:** It's Monday morning and you want to update all your development tools.
+
+```bash
+cd ~/.config/dotfiles
+
+# Preview what would be updated
+./update --dry-run
+
+# Update everything
+./update
+
+# This updates:
+# - System packages (brew/apt)
+# - Rust toolchain and cargo packages
+# - Node.js and npm packages
+# - Python packages via pipx
+# - Ruby gems
+# - Development toolchains
+
+# Check for issues after update
+./bin/librarian.zsh
+
+# Run tests to ensure everything still works
+./tests/run_tests.zsh
+```
+
+**Result:** All tools updated to latest versions.
+
+---
+
+### Workflow 6: Backing Up Before Major Changes
+
+**Scenario:** You're about to experiment with major configuration changes and want a safety net.
+
+```bash
+cd ~/.config/dotfiles
+
+# Create a backup of current state
+./backup
+
+# Backup is saved to: ~/Downloads/dotfiles_repo_backups/dotfiles_backup_YYYYMMDD-HHMMSS.zip
+
+# Now experiment safely
+vim zsh/zshrc.symlink           # Make changes
+./setup --skip-pi                # Apply changes
+
+# If something breaks, restore:
+cd ~/Downloads/dotfiles_repo_backups
+unzip dotfiles_backup_20250114-143022.zip -d /tmp/restore
+cp -r /tmp/restore/.config/dotfiles ~/.config/
+
+# Or just revert with git:
+cd ~/.config/dotfiles
+git status                       # See what changed
+git checkout -- zsh/zshrc.symlink  # Revert specific file
+git reset --hard HEAD            # Revert everything
+```
+
+**Result:** Experiment fearlessly with easy rollback.
+
+---
+
+### Workflow 7: Contributing a New Post-Install Script
+
+**Scenario:** You wrote a script to install language servers and want to add it to your dotfiles.
+
+```bash
+cd ~/.config/dotfiles/post-install/scripts
+
+# Create new script from template
+cp language-servers.zsh my-lsp-setup.zsh
+chmod +x my-lsp-setup.zsh
+
+# Edit the script
+vim my-lsp-setup.zsh
+
+# Follow the template structure:
+# - Load shared libraries
+# - Declare dependencies
+# - Implement installation logic
+# - Use consistent UI (print_success, draw_section_header, etc.)
+
+# Test your script
+./post-install/scripts/my-lsp-setup.zsh --help
+./post-install/scripts/my-lsp-setup.zsh
+
+# Script is automatically available in TUI menu
+./setup
+# Navigate to your new script and select it
+
+# Commit and share
+git add post-install/scripts/my-lsp-setup.zsh
+git commit -m "Add custom LSP setup script"
+git push
+```
+
+**Result:** Reusable, shareable post-install script.
+
+---
+
+### Workflow 8: Using the Universal Package Manager
+
+**Scenario:** You want to track all your development tools in one place, portable across OSes.
+
+```bash
+# Generate manifest from your current macOS system
+generate_package_manifest
+
+# Review what was captured
+cat ~/.local/share/dotfiles/packages.yaml
+
+# Customize the manifest
+vim ~/.local/share/dotfiles/packages.yaml
+# Add descriptions, adjust priorities (required/recommended/optional)
+# Organize into categories (editor, shell, git, etc.)
+
+# On a fresh Ubuntu system (different machine):
+cd ~/.config/dotfiles
+install_from_manifest --required-only    # Install only essentials
+
+# Or install by category
+install_from_manifest --category editor,git,search
+
+# Later, after installing new tools:
+brew install htop bat             # Install some packages
+
+# Sync the manifest
+sync_packages                     # Updates packages.yaml
+sync_packages --push              # Commit and push to git
+
+# Now your manifest includes htop and bat, ready to install on any machine
+```
+
+**Result:** Single source of truth for all your packages, works anywhere.
+
+---
+
+### Workflow 9: Debugging and Health Checks
+
+**Scenario:** Something isn't working right and you need to diagnose the issue.
+
+```bash
+cd ~/.config/dotfiles
+
+# Run the Librarian for comprehensive health check
+./bin/librarian.zsh
+
+# The Librarian reports:
+# ✅ Symlinks status
+# ✅ Git repository health
+# ✅ Neovim submodule status
+# ✅ Essential tools (git, zsh, nvim, tmux, etc.)
+# ✅ Development toolchains (Rust, Node, Python, etc.)
+# ✅ Language servers status
+# ✅ Post-install scripts catalog
+
+# Run with tests for deeper validation
+./bin/librarian.zsh --with-tests
+
+# Check specific things:
+ls -la ~/.zshrc                   # Verify symlink exists
+ls -la ~/.local/bin               # Check utility scripts
+which nvim                        # Verify Neovim is in PATH
+
+# Test individual components:
+./tests/run_tests.zsh unit        # Test shared libraries
+./tests/run_tests.zsh integration # Test workflows
+
+# Check logs (if enabled):
+tail -f ~/.config/dotfiles/df_log.txt
+```
+
+**Result:** Comprehensive diagnostics pinpoint issues quickly.
+
+---
+
+### Workflow 10: Publishing Your Fork
+
+**Scenario:** You've customized the dotfiles and want to share them with your team.
+
+```bash
+# 1. Fork the repository on GitHub
+#    Visit: https://github.com/Buckmeister/dotfiles
+#    Click "Fork"
+
+# 2. Clone your fork
+git clone https://github.com/YOUR-USERNAME/dotfiles.git ~/.config/dotfiles
+cd ~/.config/dotfiles
+
+# 3. Update bootstrap scripts with your repo URL
+vim dfsetup dfauto dfsetup.ps1 dfauto.ps1
+# Change DOTFILES_REPO="https://github.com/Buckmeister/dotfiles.git"
+# To:     DOTFILES_REPO="https://github.com/YOUR-USERNAME/dotfiles.git"
+
+# Commit changes
+git add dfsetup dfauto dfsetup.ps1 dfauto.ps1
+git commit -m "Update installer URLs for fork"
+git push
+
+# 4. Create GitHub Pages repository (for clean URLs)
+# Create new repo: YOUR-USERNAME.github.io
+git clone https://github.com/YOUR-USERNAME/YOUR-USERNAME.github.io.git ~/YOUR-USERNAME.github.io
+
+# 5. Copy installer scripts
+cd ~/.config/dotfiles
+cp dfsetup dfauto dfsetup.ps1 dfauto.ps1 ~/YOUR-USERNAME.github.io/
+
+# Optional: Copy landing page
+cp docs/index.html ~/YOUR-USERNAME.github.io/
+
+# 6. Push to GitHub Pages
+cd ~/YOUR-USERNAME.github.io
+git add .
+git commit -m "Add dotfiles installation scripts"
+git push
+
+# 7. Test your installation URLs (wait 1-2 minutes for GitHub Pages deployment)
+curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh
+```
+
+**Result:** One-line installation for your custom dotfiles: `curl -fsSL https://YOUR-USERNAME.github.io/dfsetup | sh`
 
 ---
 

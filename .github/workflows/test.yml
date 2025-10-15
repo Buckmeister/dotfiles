@@ -1,0 +1,453 @@
+name: Dotfiles CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  # ============================================================================
+  # Unit Tests - Run test suite on Ubuntu
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh
+
+      - name: Run unit tests
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          ./tests/run_tests.zsh unit
+
+      - name: Upload unit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            tests/unit/*.log
+            tests/unit/*.xml
+          retention-days: 30
+
+  # ============================================================================
+  # Integration Tests - Run integration test suite
+  # ============================================================================
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh git curl
+
+      - name: Run integration tests
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          ./tests/run_tests.zsh integration
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            tests/integration/*.log
+            tests/integration/*.xml
+          retention-days: 30
+
+  # ============================================================================
+  # Docker Installation Tests - Test on multiple distributions
+  # ============================================================================
+  docker-install-test:
+    name: Docker Install Test - ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - ubuntu:24.04
+          - ubuntu:22.04
+          - debian:12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh
+
+      - name: Run Docker installation test for ${{ matrix.distro }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          ./tests/test_docker_install.zsh --distro "${{ matrix.distro }}" --quick
+
+      - name: Upload Docker test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-test-results-${{ matrix.distro }}
+          path: |
+            tests/docker/*.log
+            /tmp/docker_test_output.log
+          retention-days: 30
+
+  # ============================================================================
+  # Symlink Validation - Verify symlink creation
+  # ============================================================================
+  symlink-validation:
+    name: Symlink Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh git
+
+      - name: Create symlinks
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          ./bin/link_dotfiles.zsh
+
+      - name: Verify symlinks were created
+        run: |
+          echo "Checking ~/.local/bin symlinks..."
+          ls -la ~/.local/bin | head -20
+
+          echo "Checking ~/.config symlinks..."
+          ls -la ~/.config | head -20
+
+          # Count symlinks
+          LOCAL_BIN_COUNT=$(find ~/.local/bin -type l 2>/dev/null | wc -l)
+          CONFIG_COUNT=$(find ~/.config -maxdepth 1 -type l 2>/dev/null | wc -l)
+
+          echo "Found $LOCAL_BIN_COUNT symlinks in ~/.local/bin"
+          echo "Found $CONFIG_COUNT symlinks in ~/.config"
+
+          # Verify minimum expected symlinks
+          if [ "$LOCAL_BIN_COUNT" -lt 10 ]; then
+            echo "ERROR: Expected at least 10 symlinks in ~/.local/bin, found $LOCAL_BIN_COUNT"
+            exit 1
+          fi
+
+          echo "Symlink validation passed!"
+
+  # ============================================================================
+  # Shared Library Validation - Check library loading
+  # ============================================================================
+  library-validation:
+    name: Shared Library Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh
+
+      - name: Test library loading
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          zsh -c '
+            # Test loading each shared library
+            for lib in bin/lib/*.zsh; do
+              echo "Testing library: $lib"
+              if ! source "$lib" 2>/dev/null; then
+                echo "ERROR: Failed to load $lib"
+                exit 1
+              fi
+            done
+            echo "All shared libraries loaded successfully!"
+          '
+
+      - name: Test UI components
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          zsh -c '
+            source bin/lib/colors.zsh
+            source bin/lib/ui.zsh
+            source bin/lib/utils.zsh
+
+            # Test UI functions
+            draw_header "Test Header" "Test Subtitle"
+            draw_section_header "Test Section"
+            print_success "Success message"
+            print_error "Error message"
+            print_warning "Warning message"
+            print_info "Info message"
+
+            echo "UI components working correctly!"
+          '
+
+  # ============================================================================
+  # Script Validation - Verify all scripts are executable
+  # ============================================================================
+  script-validation:
+    name: Script Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check script permissions
+        run: |
+          echo "Checking executable permissions on scripts..."
+
+          # Check bin/ scripts
+          for script in bin/*.zsh; do
+            if [ ! -x "$script" ]; then
+              echo "ERROR: $script is not executable"
+              exit 1
+            fi
+          done
+
+          # Check post-install scripts
+          for script in post-install/scripts/*.zsh; do
+            if [ ! -x "$script" ]; then
+              echo "ERROR: $script is not executable"
+              exit 1
+            fi
+          done
+
+          echo "All scripts are executable!"
+
+      - name: Check shebang lines
+        run: |
+          echo "Checking shebang lines..."
+
+          # Check all .zsh files have proper shebang
+          for script in bin/*.zsh post-install/scripts/*.zsh; do
+            first_line=$(head -1 "$script")
+            if [[ ! "$first_line" =~ ^#!/.*zsh ]]; then
+              echo "ERROR: $script missing or incorrect shebang: $first_line"
+              exit 1
+            fi
+          done
+
+          echo "All scripts have correct shebang lines!"
+
+      - name: Syntax check all scripts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zsh
+
+          echo "Syntax checking all zsh scripts..."
+
+          # Syntax check all .zsh files
+          for script in bin/*.zsh bin/lib/*.zsh post-install/scripts/*.zsh tests/**/*.zsh; do
+            echo "Checking: $script"
+            if ! zsh -n "$script" 2>&1; then
+              echo "ERROR: Syntax error in $script"
+              exit 1
+            fi
+          done
+
+          echo "All scripts passed syntax check!"
+
+  # ============================================================================
+  # Documentation Validation - Check documentation files
+  # ============================================================================
+  documentation-validation:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check required documentation exists
+        run: |
+          echo "Checking for required documentation..."
+
+          required_docs=(
+            "README.md"
+            "MANUAL.md"
+            "INSTALL.md"
+            "CLAUDE.md"
+            "bin/lib/README.md"
+            "post-install/README.md"
+            "post-install/ARGUMENT_PARSING.md"
+            "tests/README.md"
+          )
+
+          for doc in "${required_docs[@]}"; do
+            if [ ! -f "$doc" ]; then
+              echo "ERROR: Missing required documentation: $doc"
+              exit 1
+            fi
+            echo "✓ Found: $doc"
+          done
+
+          echo "All required documentation files exist!"
+
+      - name: Validate markdown links
+        run: |
+          # Simple check for broken relative links in markdown
+          echo "Checking markdown links..."
+
+          # Find all markdown files and check for basic issues
+          for md in README.md MANUAL.md INSTALL.md post-install/*.md bin/lib/README.md tests/README.md; do
+            if [ -f "$md" ]; then
+              echo "Checking: $md"
+              # Check for incomplete markdown links []()
+              if grep -E '\[\]\(' "$md"; then
+                echo "WARNING: Found empty link text in $md"
+              fi
+              # Check for broken relative file links (very basic check)
+              # This is a simplified check - just ensures files referenced exist
+              grep -oE '\[.*\]\(([^http][^)]+)\)' "$md" | \
+                sed -E 's/.*\(([^)]+)\)/\1/' | while read link; do
+                  # Remove anchors
+                  file_path="${link%#*}"
+                  # Check if file exists (relative to the markdown file's directory)
+                  md_dir=$(dirname "$md")
+                  if [[ "$file_path" != "" && ! "$file_path" =~ ^# && ! -f "$md_dir/$file_path" ]]; then
+                    echo "WARNING: Potential broken link in $md: $file_path"
+                  fi
+                done
+            fi
+          done
+
+          echo "Markdown validation complete!"
+
+  # ============================================================================
+  # macOS Compatibility Check (Syntax only)
+  # ============================================================================
+  macos-syntax-check:
+    name: macOS Syntax Check
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check zsh version
+        run: |
+          echo "zsh version:"
+          zsh --version
+
+      - name: Syntax check all scripts on macOS
+        run: |
+          echo "Syntax checking all zsh scripts on macOS..."
+
+          for script in bin/*.zsh bin/lib/*.zsh post-install/scripts/*.zsh; do
+            echo "Checking: $script"
+            if ! zsh -n "$script" 2>&1; then
+              echo "ERROR: Syntax error in $script on macOS"
+              exit 1
+            fi
+          done
+
+          echo "All scripts compatible with macOS zsh!"
+
+      - name: Test library loading on macOS
+        run: |
+          cd "$GITHUB_WORKSPACE"
+
+          # Test loading shared libraries
+          for lib in bin/lib/*.zsh; do
+            echo "Testing library: $lib"
+            if ! zsh -c "source '$lib'" 2>/dev/null; then
+              echo "ERROR: Failed to load $lib on macOS"
+              exit 1
+            fi
+          done
+
+          echo "All libraries load successfully on macOS!"
+
+  # ============================================================================
+  # Test Summary - Aggregate results
+  # ============================================================================
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+      - integration-tests
+      - docker-install-test
+      - symlink-validation
+      - library-validation
+      - script-validation
+      - documentation-validation
+      - macos-syntax-check
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "============================================"
+          echo "         DOTFILES CI/CD TEST SUMMARY        "
+          echo "============================================"
+          echo ""
+          echo "Unit Tests:                ${{ needs.unit-tests.result }}"
+          echo "Integration Tests:         ${{ needs.integration-tests.result }}"
+          echo "Docker Install Tests:      ${{ needs.docker-install-test.result }}"
+          echo "Symlink Validation:        ${{ needs.symlink-validation.result }}"
+          echo "Library Validation:        ${{ needs.library-validation.result }}"
+          echo "Script Validation:         ${{ needs.script-validation.result }}"
+          echo "Documentation Validation:  ${{ needs.documentation-validation.result }}"
+          echo "macOS Syntax Check:        ${{ needs.macos-syntax-check.result }}"
+          echo ""
+          echo "============================================"
+
+          # Check if any job failed
+          if [[ "${{ needs.unit-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.integration-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.docker-install-test.result }}" == "failure" ]] || \
+             [[ "${{ needs.symlink-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.library-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.script-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.documentation-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.macos-syntax-check.result }}" == "failure" ]]; then
+            echo "❌ Some tests failed"
+            exit 1
+          else
+            echo "✅ All tests passed!"
+          fi

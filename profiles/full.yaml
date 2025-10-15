@@ -1,0 +1,67 @@
+# ============================================================================
+# Full Profile - Complete setup with all features enabled
+# ============================================================================
+#
+# This profile is designed for:
+# - Power users who want everything
+# - Primary development machine
+# - Users comfortable with large installations
+#
+# What's included:
+# - All post-install scripts
+# - All language servers
+# - All development toolchains
+# - Full package set with optional tools
+# - All language ecosystems
+# ============================================================================
+
+name: full
+description: "Complete setup with all features and tools"
+emoji: "🚀"
+
+# Post-install scripts to run (ALL scripts)
+post_install_scripts:
+  - vim-setup.zsh
+  - bash-preexec.zsh
+  - language-servers.zsh
+  - toolchains.zsh
+  - fonts.zsh
+  - lombok.zsh
+  - cargo-packages.zsh
+  - npm-global-packages.zsh
+  - pip-packages.zsh
+  - ruby-gems.zsh
+
+# Package installation level
+packages:
+  manifest: profiles/manifests/full-packages.yaml
+  level: full  # Install everything (required + recommended + optional)
+
+# Default settings
+settings:
+  editor: nvim
+  shell: zsh
+  theme: onedark
+
+# Development languages to configure (ALL)
+dev_languages:
+  - python
+  - javascript
+  - typescript
+  - lua
+  - rust
+  - go
+  - java
+  - ruby
+  - haskell
+  - c
+  - cpp
+
+# Feature flags (ALL ENABLED)
+features:
+  fonts: true
+  toolchains: true
+  cargo_packages: true
+  npm_packages: true
+  pip_packages: true
+  ruby_gems: true

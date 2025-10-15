@@ -1,0 +1,105 @@
+# ============================================================================
+# Full Profile Package Manifest  
+# ============================================================================
+#
+# Complete package set with all tools and optional dependencies
+# Focuses on: everything from standard + additional tools for power users
+#
+# Generated for dotfiles profile: full
+# Compatible with: macOS (brew), Ubuntu/Debian (apt), Windows (choco)
+# ============================================================================
+
+version: "1.0"
+
+metadata:
+  name: "Full Profile Packages"
+  description: "Complete package set for power users"
+  profile: full
+  last_updated: "2025-10-15"
+  compatible_systems:
+    - macos
+    - ubuntu
+    - debian
+
+settings:
+  skip_installed: true
+  auto_confirm: false
+
+# ============================================================================
+# Packages
+# ============================================================================
+# Note: Includes all packages from standard profile plus additional tools
+
+packages:
+  # All standard packages (inherited conceptually)
+  # Plus additional power user tools:
+
+  - id: docker
+    name: "Docker"
+    description: "Container platform"
+    category: devops
+    priority: optional
+    install:
+      brew: docker
+      apt: docker.io
+      choco: docker-desktop
+
+  - id: kubernetes-cli
+    name: "kubectl"
+    description: "Kubernetes CLI"
+    category: devops
+    priority: optional
+    install:
+      brew: kubernetes-cli
+      apt: kubectl
+      choco: kubernetes-cli
+
+  - id: terraform
+    name: "Terraform"
+    description: "Infrastructure as code"
+    category: devops
+    priority: optional
+    install:
+      brew: terraform
+      apt: terraform
+      choco: terraform
+
+  - id: ansible
+    name: "Ansible"
+    description: "IT automation tool"
+    category: devops
+    priority: optional
+    install:
+      brew: ansible
+      apt: ansible
+      choco: ansible
+
+  - id: java
+    name: "OpenJDK"
+    description: "Java Development Kit"
+    category: language
+    priority: optional
+    install:
+      brew: openjdk
+      apt: openjdk-17-jdk
+      choco: openjdk
+
+  - id: ruby
+    name: "Ruby"
+    description: "Dynamic programming language"
+    category: language
+    priority: optional
+    install:
+      brew: ruby
+      apt: ruby-full
+      choco: ruby
+
+  - id: haskell
+    name: "GHC"
+    description: "Glasgow Haskell Compiler"
+    category: language
+    priority: optional
+    install:
+      brew: ghc
+      apt: ghc
+      choco: ghc

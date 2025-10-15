@@ -1,0 +1,49 @@
+# ============================================================================
+# Minimal Profile - Lightweight setup with essential tools only
+# ============================================================================
+#
+# This profile is designed for:
+# - Resource-constrained systems
+# - Quick setup on temporary machines
+# - Users who want manual control over additions
+#
+# What's included:
+# - Essential editor setup (Neovim/Vim)
+# - Basic shell configuration
+# - Core language servers for primary languages
+# - Minimal package installation
+# ============================================================================
+
+name: minimal
+description: "Lightweight setup with essential tools only"
+emoji: "🎯"
+
+# Post-install scripts to run (from post-install/scripts/)
+post_install_scripts:
+  - vim-setup.zsh
+  - language-servers.zsh
+
+# Package installation level
+packages:
+  manifest: profiles/manifests/minimal-packages.yaml
+  level: minimal  # Only install required packages
+
+# Default settings
+settings:
+  editor: nvim
+  shell: zsh
+  theme: onedark
+
+# Development languages to configure
+dev_languages:
+  - python
+  - lua
+
+# Feature flags
+features:
+  fonts: false
+  toolchains: false
+  cargo_packages: false
+  npm_packages: false
+  pip_packages: false
+  ruby_gems: false

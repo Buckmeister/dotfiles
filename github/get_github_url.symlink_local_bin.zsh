@@ -2,6 +2,22 @@
 emulate -LR zsh
 script_name=${0##*/}
 
+# ============================================================================
+# Load Shared Libraries (for UI_SILENT mode)
+# ============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Try to load shared libraries (with fallback)
+if [[ -f "$HOME/.config/dotfiles/bin/lib/colors.zsh" ]]; then
+    source "$HOME/.config/dotfiles/bin/lib/colors.zsh" 2>/dev/null || true
+    source "$HOME/.config/dotfiles/bin/lib/ui.zsh" 2>/dev/null || true
+fi
+
+# ============================================================================
+# Usage and Argument Parsing
+# ============================================================================
+
 function print_usage {
   echo
   echo "Retrieve GitHub download URLs for a given project"
@@ -77,12 +93,25 @@ zparseopts -D -E \
 [[ $#o_repository == 0 ]] && print_usage
 [[ $#o_help > 0 ]] && print_usage
 
-# Set silent mode
-[[ $#o_silent > 0 ]] && IS_SILENT="true"
+# Set silent mode (use UI_SILENT from shared library if available)
+if [[ $#o_silent > 0 ]]; then
+    UI_SILENT="true"
+    IS_SILENT="true"
+fi
 
-# Function to print if not silent
+# Function to print if not silent (uses shared library if available)
 function print_info() {
-  [[ "$IS_SILENT" != "true" ]] && echo "$@"
+    if [[ "$IS_SILENT" == "true" ]]; then
+        return 0
+    fi
+
+    # Use shared library function if available, otherwise echo
+    if typeset -f print_info >/dev/null 2>&1 && [[ "$UI_SILENT" != "true" ]]; then
+        # Avoid recursion - just echo
+        echo "$@"
+    else
+        echo "$@"
+    fi
 }
 
 print_info

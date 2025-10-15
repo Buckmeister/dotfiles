@@ -20,8 +20,21 @@ emulate -LR zsh
 # Load Shared Libraries
 # ============================================================================
 
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$SCRIPT_DIR/../../bin/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 LIB_DIR="$DOTFILES_ROOT/bin/lib"
 CONFIG_DIR="$DOTFILES_ROOT/config"
 
@@ -33,6 +46,7 @@ source "$LIB_DIR/validators.zsh"
 source "$LIB_DIR/dependencies.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/greetings.zsh"
+source "$LIB_DIR/arguments.zsh"
 
 # Load configuration
 source "$CONFIG_DIR/paths.env"
@@ -47,29 +61,37 @@ PACKAGE_LIST="$CONFIG_DIR/packages/cargo-packages.list"
 UPDATE_MODE=false
 
 # ============================================================================
+# Help Function
+# ============================================================================
+
+function show_help() {
+    standard_help_header "cargo-packages.zsh" \
+        "Installs Rust packages from centralized list using cargo"
+    echo "  --update        Update installed packages instead of installing new ones"
+    echo "  --help, -h      Show this help message"
+    echo ""
+    echo "${COLOR_BOLD}EXAMPLES:${COLOR_RESET}"
+    echo "  # Install packages from list"
+    echo "  ./cargo-packages.zsh"
+    echo ""
+    echo "  # Update all installed cargo packages"
+    echo "  ./cargo-packages.zsh --update"
+    exit 0
+}
+
+# ============================================================================
 # Argument Parsing
 # ============================================================================
 
-for arg in "$@"; do
-    case "$arg" in
-        --update)
-            UPDATE_MODE=true
-            ;;
-        --help|-h)
-            echo "Usage: $(basename "$0") [OPTIONS]"
-            echo ""
-            echo "OPTIONS:"
-            echo "  --update    Update installed packages instead of installing new ones"
-            echo "  --help, -h  Show this help message"
-            exit 0
-            ;;
-        *)
-            print_error "Unknown option: $arg"
-            echo "Use --help for usage information"
-            exit 1
-            ;;
-    esac
-done
+# Parse arguments using shared library
+parse_simple_flags "$@"
+is_help_requested && show_help
+
+# Set modes based on parsed flags
+[[ "$ARG_UPDATE" == "true" ]] && UPDATE_MODE=true
+
+# Validate no unknown arguments remain
+validate_no_unknown_args "$@" || exit 1
 
 # ============================================================================
 # Dependency Declaration

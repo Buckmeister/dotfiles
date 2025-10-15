@@ -302,6 +302,40 @@ function get_dotfiles_dir() {
     realpath "$script_dir/.."
 }
 
+# Initialize all dotfiles paths in one call
+# This is the standardized way to set up paths in all scripts
+# Usage: Call this once at the top of your script after sourcing utils.zsh
+# Sets: DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR
+function init_dotfiles_paths() {
+    # Get the calling script's directory
+    local caller_script="${(%):-%x}"
+    export DF_SCRIPT_DIR="$(cd "$(dirname "$caller_script")" && pwd)"
+
+    # Determine dotfiles root based on script location
+    if [[ "$DF_SCRIPT_DIR" == */bin ]]; then
+        # Script is in bin/
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/.." && pwd)"
+    elif [[ "$DF_SCRIPT_DIR" == */bin/lib ]]; then
+        # Script is in bin/lib/
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
+    elif [[ "$DF_SCRIPT_DIR" == */post-install/scripts ]]; then
+        # Script is in post-install/scripts/
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
+    elif [[ "$DF_SCRIPT_DIR" == */tests/* ]]; then
+        # Script is in tests/unit or tests/integration
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
+    else
+        # Fallback: assume one level up
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/.." && pwd)"
+    fi
+
+    # Set library directory
+    export DF_LIB_DIR="$DF_DIR/bin/lib"
+
+    # Also set DOTFILES_ROOT for backward compatibility
+    export DOTFILES_ROOT="$DF_DIR"
+}
+
 # ============================================================================
 # Timestamp and Filename Utilities
 # ============================================================================
@@ -481,7 +515,7 @@ function load_config() {
     typeset -fx exit_with_error log_error log_warning
     typeset -fx complete_operation init_operations get_progress_percentage update_operation_progress
     typeset -fx get_file_size is_writable create_directory_safe expand_path path_exists
-    typeset -fx get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir
+    typeset -fx get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir init_dotfiles_paths
     typeset -fx get_timestamp generate_timestamped_filename
     typeset -fx safe_exec exec_with_output
     typeset -fx test_archive_integrity get_archive_file_count

@@ -1015,8 +1015,8 @@ function initialize_menu() {
 # Main Execution
 # ============================================================================
 
-# If script is run directly (not sourced), run the interactive menu
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]] || [[ "${(%):-%N}" == "$0" ]]; then
+# If script is run directly (not sourced) and not in test mode, run the interactive menu
+if [[ -z "$MENU_TEST_MODE" && ( "${BASH_SOURCE[0]}" == "${0}" || "${(%):-%N}" == "$0" ) ]]; then
     # Ensure we have the required environment
     if [[ -z "$DF_DIR" ]]; then
         export DF_DIR=$(realpath "$(dirname $0)/..")

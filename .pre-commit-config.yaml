@@ -1,0 +1,107 @@
+# Pre-Commit Configuration for Dotfiles Repository
+# https://pre-commit.com/
+#
+# This configuration uses the pre-commit framework for automated checks.
+# Alternative: Use the standalone .githooks/pre-commit script (no dependencies)
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Manual run:
+#   pre-commit run --all-files
+
+repos:
+  # ============================================================================
+  # General Checks
+  # ============================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # File checks
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+      # Content checks
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+      # YAML/JSON validation
+      - id: check-yaml
+      - id: check-json
+
+  # ============================================================================
+  # Shell Script Linting
+  # ============================================================================
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args:
+          - --severity=warning
+          - --exclude=SC1090,SC1091,SC2034,SC2154
+        files: \.(sh|bash|zsh)$
+
+  # ============================================================================
+  # Shell Script Formatting
+  # ============================================================================
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.7.0-4
+    hooks:
+      - id: shfmt
+        args:
+          - -w  # Write result to file
+          - -i
+          - '2'  # Indent with 2 spaces
+          - -ci  # Indent switch cases
+        files: \.(sh|bash|zsh)$
+
+  # ============================================================================
+  # Markdown Linting
+  # ============================================================================
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        args:
+          - --fix
+          - --disable
+          - MD013  # Line length
+          - MD033  # Inline HTML
+          - MD041  # First line heading
+
+  # ============================================================================
+  # Local Hooks (Custom)
+  # ============================================================================
+  - repo: local
+    hooks:
+      # Syntax check for zsh scripts
+      - id: zsh-syntax
+        name: Check zsh syntax
+        entry: zsh -n
+        language: system
+        files: \.zsh$
+        pass_filenames: true
+
+      # Verify executable permissions on bin/ scripts
+      - id: check-bin-permissions
+        name: Check bin/ script permissions
+        entry: bash -c 'for f in "$@"; do [[ -x "$f" ]] || { echo "Not executable: $f"; exit 1; }; done'
+        language: system
+        files: ^(bin/|post-install/scripts/).*\.zsh$
+        pass_filenames: true
+
+      # Quick unit tests (optional - commented out by default)
+      # - id: quick-tests
+      #   name: Run quick unit tests
+      #   entry: ./tests/run_tests.zsh unit
+      #   language: system
+      #   pass_filenames: false
+      #   stages: [commit]

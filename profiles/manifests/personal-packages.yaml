@@ -1,0 +1,195 @@
+# ============================================================================
+# Personal Profile Package Manifest
+# ============================================================================
+#
+# Modern development tools for personal projects and exploration
+# Focuses on: Rust, Go, Python, modern CLI tools, developer experience
+#
+# Generated for dotfiles profile: personal
+# Compatible with: macOS (brew), Ubuntu/Debian (apt), Windows (choco)
+# ============================================================================
+
+version: "1.0"
+
+metadata:
+  name: "Personal Profile Packages"
+  description: "Modern tools for personal projects and learning"
+  profile: personal
+  last_updated: "2025-10-15"
+  compatible_systems:
+    - macos
+    - ubuntu
+    - debian
+
+settings:
+  skip_installed: true
+  auto_confirm: false
+
+packages:
+  # Core essentials
+  - id: git
+    name: "Git"
+    category: vcs
+    priority: required
+    install:
+      brew: git
+      apt: git
+      choco: git
+
+  - id: neovim
+    name: "Neovim"
+    category: editor
+    priority: required
+    install:
+      brew: neovim
+      apt: neovim
+      choco: neovim
+
+  # Modern languages
+  - id: rust
+    name: "Rust"
+    description: "Systems programming language"
+    category: language
+    priority: required
+    install:
+      brew: rust
+      apt: rustc
+      choco: rust
+
+  - id: go
+    name: "Go"
+    category: language
+    priority: required
+    install:
+      brew: go
+      apt: golang
+      choco: golang
+
+  - id: python3
+    name: "Python 3"
+    category: language
+    priority: required
+    install:
+      brew: python3
+      apt: python3
+      choco: python3
+
+  - id: node
+    name: "Node.js"
+    category: language
+    priority: recommended
+    install:
+      brew: node
+      apt: nodejs
+      choco: nodejs
+
+  - id: lua
+    name: "Lua"
+    category: language
+    priority: recommended
+    install:
+      brew: lua
+      apt: lua5.4
+      choco: lua
+
+  # Modern CLI tools (full set)
+  - id: ripgrep
+    name: "ripgrep"
+    category: search
+    priority: required
+    install:
+      brew: ripgrep
+      apt: ripgrep
+      choco: ripgrep
+
+  - id: fd
+    name: "fd"
+    category: search
+    priority: required
+    install:
+      brew: fd
+      apt: fd-find
+      choco: fd
+
+  - id: bat
+    name: "bat"
+    category: utilities
+    priority: recommended
+    install:
+      brew: bat
+      apt: bat
+      choco: bat
+
+  - id: exa
+    name: "exa"
+    category: utilities
+    priority: recommended
+    install:
+      brew: exa
+      apt: exa
+      choco: exa
+
+  - id: fzf
+    name: "fzf"
+    category: utilities
+    priority: recommended
+    install:
+      brew: fzf
+      apt: fzf
+      choco: fzf
+
+  - id: zoxide
+    name: "zoxide"
+    category: navigation
+    priority: recommended
+    install:
+      brew: zoxide
+      apt: zoxide
+      choco: zoxide
+
+  - id: starship
+    name: "Starship"
+    category: shell
+    priority: recommended
+    install:
+      brew: starship
+      apt: |
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+      choco: starship
+
+  # Dev tools
+  - id: gh
+    name: "GitHub CLI"
+    category: vcs
+    priority: recommended
+    install:
+      brew: gh
+      apt: gh
+      choco: gh
+
+  - id: git-delta
+    name: "Delta"
+    category: vcs
+    priority: recommended
+    install:
+      brew: git-delta
+      apt: git-delta
+      choco: delta
+
+  - id: jq
+    name: "jq"
+    category: utilities
+    priority: recommended
+    install:
+      brew: jq
+      apt: jq
+      choco: jq
+
+  - id: tmux
+    name: "Tmux"
+    category: terminal
+    priority: recommended
+    install:
+      brew: tmux
+      apt: tmux
+      choco: tmux

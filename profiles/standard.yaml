@@ -1,0 +1,57 @@
+# ============================================================================
+# Standard Profile - Recommended default configuration
+# ============================================================================
+#
+# This profile is designed for:
+# - Most developers
+# - Balanced feature set without overwhelming
+# - Production-ready development environment
+#
+# What's included:
+# - Full editor setup with plugins
+# - Complete shell configuration
+# - Language servers for common languages
+# - Recommended package set
+# - Essential development tools
+# ============================================================================
+
+name: standard
+description: "Recommended default configuration for most developers"
+emoji: "⭐"
+
+# Post-install scripts to run (from post-install/scripts/)
+post_install_scripts:
+  - vim-setup.zsh
+  - bash-preexec.zsh
+  - language-servers.zsh
+  - fonts.zsh
+  - pip-packages.zsh
+  - npm-global-packages.zsh
+
+# Package installation level
+packages:
+  manifest: profiles/manifests/standard-packages.yaml
+  level: recommended  # Install required + recommended packages
+
+# Default settings
+settings:
+  editor: nvim
+  shell: zsh
+  theme: onedark
+
+# Development languages to configure
+dev_languages:
+  - python
+  - javascript
+  - lua
+  - rust
+  - go
+
+# Feature flags
+features:
+  fonts: true
+  toolchains: false  # Don't auto-install language toolchains
+  cargo_packages: false
+  npm_packages: true
+  pip_packages: true
+  ruby_gems: false

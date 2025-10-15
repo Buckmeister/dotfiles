@@ -8,7 +8,21 @@
 emulate -LR zsh
 
 # Load test framework
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../../bin/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 source "$SCRIPT_DIR/../lib/test_framework.zsh"
 
 # ============================================================================
@@ -21,7 +35,6 @@ test_suite "Help Flag Support Tests"
 # Test Helpers
 # ============================================================================
 
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ============================================================================
 # Test Cases - Core Management Scripts
@@ -190,6 +203,130 @@ test_case "get_github_url should have -h flag" '
     local help_output=$("$github_tool" -h 2>&1)
 
     if [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"usage"* ]] || [[ "$help_output" == *"help"* ]]; then
+        return 0
+    else
+        echo "No help output found in -h"
+        return 1
+    fi
+'
+
+# ============================================================================
+# Test Cases - New Management Scripts
+# ============================================================================
+
+test_case "wizard.zsh should have --help flag" '
+    local wizard="$DOTFILES_ROOT/bin/wizard.zsh"
+
+    if [[ ! -f "$wizard" ]]; then
+        echo "wizard.zsh not found"
+        return 1
+    fi
+
+    local help_output=$("$wizard" --help 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found in --help"
+        return 1
+    fi
+'
+
+test_case "wizard.zsh should have -h flag" '
+    local wizard="$DOTFILES_ROOT/bin/wizard.zsh"
+    local help_output=$("$wizard" -h 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found in -h"
+        return 1
+    fi
+'
+
+test_case "profile_manager.zsh should have --help flag" '
+    local profile_manager="$DOTFILES_ROOT/bin/profile_manager.zsh"
+
+    if [[ ! -f "$profile_manager" ]]; then
+        echo "profile_manager.zsh not found"
+        return 1
+    fi
+
+    local help_output=$("$profile_manager" --help 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found in --help"
+        return 1
+    fi
+'
+
+test_case "profile_manager.zsh should have -h flag" '
+    local profile_manager="$DOTFILES_ROOT/bin/profile_manager.zsh"
+    local help_output=$("$profile_manager" -h 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found in -h"
+        return 1
+    fi
+'
+
+test_case "update_all.zsh should have --help flag" '
+    local update_all="$DOTFILES_ROOT/bin/update_all.zsh"
+
+    if [[ ! -f "$update_all" ]]; then
+        echo "update_all.zsh not found"
+        return 1
+    fi
+
+    local help_output=$("$update_all" --help 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"usage"* ]]; then
+        return 0
+    else
+        echo "No help output found in --help"
+        return 1
+    fi
+'
+
+test_case "update_all.zsh should have -h flag" '
+    local update_all="$DOTFILES_ROOT/bin/update_all.zsh"
+    local help_output=$("$update_all" -h 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"usage"* ]]; then
+        return 0
+    else
+        echo "No help output found in -h"
+        return 1
+    fi
+'
+
+test_case "librarian.zsh should have --help flag" '
+    local librarian="$DOTFILES_ROOT/bin/librarian.zsh"
+
+    if [[ ! -f "$librarian" ]]; then
+        echo "librarian.zsh not found"
+        return 1
+    fi
+
+    local help_output=$("$librarian" --help 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
+        return 0
+    else
+        echo "No help output found in --help"
+        return 1
+    fi
+'
+
+test_case "librarian.zsh should have -h flag" '
+    local librarian="$DOTFILES_ROOT/bin/librarian.zsh"
+    local help_output=$("$librarian" -h 2>&1)
+
+    if [[ "$help_output" == *"USAGE"* ]] || [[ "$help_output" == *"Usage"* ]] || [[ "$help_output" == *"DESCRIPTION"* ]]; then
         return 0
     else
         echo "No help output found in -h"

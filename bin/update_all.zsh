@@ -33,8 +33,21 @@ emulate -LR zsh
 # Load Shared Libraries
 # ============================================================================
 
+
+# ============================================================================
+# Path Detection and Library Loading
+# ============================================================================
+
+# Initialize paths using shared utility
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DOTFILES_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$SCRIPT_DIR/../bin/lib/utils.zsh" 2>/dev/null || source "$SCRIPT_DIR/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
 LIB_DIR="$DOTFILES_ROOT/bin/lib"
 CONFIG_DIR="$DOTFILES_ROOT/config"
 
@@ -45,6 +58,7 @@ source "$LIB_DIR/utils.zsh"
 source "$LIB_DIR/validators.zsh"
 source "$LIB_DIR/package_managers.zsh"
 source "$LIB_DIR/greetings.zsh"
+source "$LIB_DIR/arguments.zsh"
 
 # Load configuration
 source "$CONFIG_DIR/paths.env"
@@ -78,18 +92,25 @@ UPDATE_LANGUAGE_SERVERS=false
 # ============================================================================
 
 function parse_args() {
+    # Handle no arguments case
     if [[ $# -eq 0 ]]; then
         UPDATE_ALL=true
         return 0
     fi
 
+    # Parse common flags using shared library
+    parse_simple_flags "$@"
+    is_help_requested && { show_help; exit 0; }
+
+    # Set dry-run mode from library variable
+    [[ "$ARG_DRY_RUN" == "true" ]] && DRY_RUN=true
+
+    # Parse script-specific flags
     UPDATE_ALL=false
+    local -a remaining_args=()
 
     for arg in "$@"; do
         case "$arg" in
-            --dry-run)
-                DRY_RUN=true
-                ;;
             --system)
                 UPDATE_SYSTEM=true
                 ;;
@@ -118,17 +139,21 @@ function parse_args() {
             --language-servers)
                 UPDATE_LANGUAGE_SERVERS=true
                 ;;
-            --help|-h)
-                show_help
-                exit 0
+            # Skip flags already handled by library
+            --dry-run|-n|--help|-h)
                 ;;
             *)
-                print_error "Unknown option: $arg"
-                show_help
-                exit 1
+                remaining_args+=("$arg")
                 ;;
         esac
     done
+
+    # Validate no unknown arguments remain
+    if [[ ${#remaining_args[@]} -gt 0 ]]; then
+        print_error "Unknown option: ${remaining_args[1]}"
+        show_help
+        exit 1
+    fi
 }
 
 function show_help() {

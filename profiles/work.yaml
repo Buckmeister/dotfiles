@@ -1,0 +1,59 @@
+# ============================================================================
+# Work Profile - Professional development environment
+# ============================================================================
+#
+# This profile is designed for:
+# - Corporate/professional development
+# - Focus on productivity tools
+# - Common enterprise languages (Java, JavaScript, Python)
+# - Clean, professional setup
+#
+# What's included:
+# - Professional editor setup
+# - Enterprise language support (Java, JavaScript, Python, TypeScript)
+# - Essential productivity tools
+# - Documentation and collaboration tools
+# ============================================================================
+
+name: work
+description: "Professional development environment for work projects"
+emoji: "💼"
+
+# Post-install scripts to run
+post_install_scripts:
+  - vim-setup.zsh
+  - bash-preexec.zsh
+  - language-servers.zsh
+  - lombok.zsh  # Java development
+  - npm-global-packages.zsh
+  - pip-packages.zsh
+  - fonts.zsh
+
+# Package installation level
+packages:
+  manifest: profiles/manifests/work-packages.yaml
+  level: recommended
+
+# Default settings
+settings:
+  editor: nvim
+  shell: zsh
+  theme: onedark
+
+# Development languages (enterprise focus)
+dev_languages:
+  - java
+  - javascript
+  - typescript
+  - python
+  - go
+  - lua
+
+# Feature flags
+features:
+  fonts: true
+  toolchains: false
+  cargo_packages: false
+  npm_packages: true
+  pip_packages: true
+  ruby_gems: false
