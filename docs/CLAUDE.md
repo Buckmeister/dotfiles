@@ -17,6 +17,7 @@ The dotfiles are organized into logical categories for easy navigation and maint
 ```
 ~/.config/dotfiles/
 ├── 📚 Documentation/              README, CLAUDE.md, ACTION_PLAN, guides
+├── 🌐 install/                    Web installer scripts (dfauto, dfsetup, .ps1 versions)
 ├── 🎯 Entry Points/               setup, wizard, backup, librarian, update
 ├── 🛠️ Core Infrastructure/
 │   ├── bin/                      Main scripts + shared libraries (lib/)
@@ -112,16 +113,18 @@ Comprehensive testing system with **251 tests across 15 suites** providing ~96% 
 
 ### One-Line Installation Scripts
 
-The repository provides two installation modes accessible via GitHub Pages:
+The repository provides two installation modes accessible via GitHub Pages. The installer scripts are located in the `install/` directory and are automatically synced to GitHub Pages via the `sync-installers` workflow:
 
-- **`dfsetup`** - Interactive installation with menu-driven post-install script selection
-- **`dfauto`** - Automatic installation with all modules (non-interactive, installs everything)
+- **`install/dfsetup`** - Interactive installation with menu-driven post-install script selection
+- **`install/dfauto`** - Automatic installation with all modules (non-interactive, installs everything)
 
 Both scripts are available in Unix (sh) and Windows (PowerShell) versions, accessible at:
 - `https://buckmeister.github.io/dfsetup` (Unix interactive)
 - `https://buckmeister.github.io/dfauto` (Unix automatic)
 - `https://buckmeister.github.io/dfsetup.ps1` (Windows interactive)
 - `https://buckmeister.github.io/dfauto.ps1` (Windows automatic)
+
+The workflow automatically copies files from `install/` to the GitHub Pages repository whenever changes are pushed to main.
 
 ### OS Detection and Context
 
