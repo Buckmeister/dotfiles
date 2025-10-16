@@ -1419,6 +1419,133 @@ brew bundle cleanup --file=~/.local/share/Brewfile
 
 ---
 
+#### speak
+
+**Location:** `~/.local/bin/speak`
+**Platform:** macOS only (uses `say` command)
+
+A delightful text-to-speech utility that brings audio feedback to your terminal workflow. Perfect for long-running tasks, test notifications, and making your dotfiles system more engaging.
+
+**Usage:**
+```bash
+speak [options] "text to speak"
+echo "text" | speak [options]
+```
+
+**Options:**
+- `-v, --voice VOICE` - Select voice (default: Samantha)
+- `-r, --rate RATE` - Speech rate in WPM (default: 175)
+- `-f, --file FILE` - Read text from file
+- `--celebrate` - Celebratory tone for success messages
+- `--friendly` - Extra friendly greeting tone
+- `--alert` - Alert tone for important messages
+- `--list-voices` - List all available voices
+- `-h, --help` - Show help message
+
+**Features:**
+- **ANSI Stripping:** Automatically removes color codes for clean speech
+- **Multiple Voices:** Samantha (default), Alex, Victoria (British), Daniel (British), Karen (Australian), Moira (Irish), Fiona (Scottish)
+- **Rate Control:** Adjust speech speed (words per minute)
+- **Personality Modes:** Three built-in modes (celebrate, friendly, alert)
+- **Flexible Input:** Supports arguments, stdin pipes, or file input
+
+**Examples:**
+
+Basic usage:
+```bash
+speak "Hello, friend!"
+```
+
+Pipe from commands:
+```bash
+echo "Build complete!" | speak
+```
+
+Different voices:
+```bash
+speak -v Alex "Testing different voice"
+speak -v Daniel "Jolly good show, old chap!"  # British accent
+```
+
+Adjust speed:
+```bash
+speak -r 200 "Speaking quickly"
+speak -r 150 "Speaking slowly"
+```
+
+Celebration mode:
+```bash
+speak --celebrate "All tests passing!"
+speak --celebrate "Menu system refactoring complete!"
+```
+
+Friendly greeting:
+```bash
+speak --friendly "Welcome to your dotfiles"
+```
+
+Alert mode:
+```bash
+speak --alert "Tests failed!"
+```
+
+Read from file:
+```bash
+speak -f README.md
+```
+
+**Integration Examples:**
+
+Task completion:
+```bash
+./setup && speak --celebrate "Dotfiles setup complete!"
+```
+
+Test notifications:
+```bash
+./tests/run_tests.zsh && speak "Tests passing!" || speak --alert "Tests failed!"
+```
+
+Background reminders:
+```bash
+(sleep 300; speak "Time to take a break!") &
+```
+
+Build notifications:
+```bash
+cargo build --release && speak --celebrate "Build succeeded!" || speak --alert "Build failed"
+```
+
+**Popular Voices:**
+- **Samantha** - Friendly female voice (default, warm and clear)
+- **Alex** - Professional male voice (clear and neutral)
+- **Victoria** - British female voice (elegant)
+- **Daniel** - British male voice (distinguished)
+- **Karen** - Australian female voice (casual and friendly)
+- **Moira** - Irish female voice (charming)
+- **Fiona** - Scottish female voice (distinctive)
+
+**Use Cases:**
+- Long-running task completion notifications
+- Test suite success/failure announcements
+- Build status updates (success/failure)
+- Timer and reminder notifications
+- Code review feedback
+- Making terminal output more accessible
+- Adding personality to automation scripts
+
+**Requirements:**
+- macOS with `say` command (built-in)
+- Works on all recent macOS versions
+
+**Tips:**
+- Use `speak --list-voices` to discover all available voices on your system
+- Pipe colored terminal output directly - ANSI codes are automatically stripped
+- Combine with background tasks (`&`) for non-blocking notifications
+- Use in CI/CD scripts for audio feedback during development
+
+---
+
 ### Recording & Screenshots
 
 #### record-demo
@@ -1917,6 +2044,7 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 ~/.local/bin/shorten_path                → dotfiles/tmux/shorten_path.symlink_local_bin.zsh
 ~/.local/bin/battery                     → dotfiles/tmux/battery.symlink_local_bin.bash
 ~/.local/bin/generate_brew_install_script → dotfiles/brew/generate_brew_install_script.symlink_local_bin.zsh
+~/.local/bin/speak                        → dotfiles/bin/speak.symlink_local_bin.zsh
 ```
 
 #### Repository Structure

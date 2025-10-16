@@ -186,6 +186,332 @@ All post-install scripts use shared libraries from `bin/lib/`:
 
 See [`bin/lib/README.md`](../bin/lib/README.md) for complete API reference.
 
+### Post-Install Script Control (.ignored and .disabled)
+
+The post-install system supports **fine-grained control** over which scripts run using marker files. This allows you to skip specific scripts without deleting them, either temporarily (local machine) or permanently (team-wide).
+
+#### Marker File Semantics
+
+| Marker File | Scope | Git Tracked | Use Case |
+|-------------|-------|-------------|----------|
+| **`.ignored`** | Local only | ❌ No (gitignored) | Machine-specific preferences, temporary testing |
+| **`.disabled`** | Team-wide | ✅ Yes (committable) | Deprecated scripts, incomplete features |
+
+#### How Marker Files Work
+
+**Creating Marker Files:**
+
+```bash
+# Temporarily skip a script on this machine only
+touch post-install/scripts/npm-global-packages.zsh.ignored
+
+# Permanently disable a script for everyone (committable)
+touch post-install/scripts/old-script.zsh.disabled
+```
+
+**Effects on System Components:**
+
+1. **`./setup` and `bin/setup.zsh`** - Skips marked scripts during initial setup
+2. **`bin/menu_tui.zsh`** - Marked scripts don't appear in the interactive TUI menu
+3. **`bin/librarian.zsh --all-pi`** - Skips marked scripts when running all post-install scripts
+4. **Direct execution** - Marker files have NO effect (script still runs if invoked directly)
+
+**Detection Logic:**
+
+```zsh
+# Scripts are skipped if EITHER marker file exists
+if [[ -f "$script.ignored" ]] || [[ -f "$script.disabled" ]]; then
+    # Skip this script
+    continue
+fi
+```
+
+#### Use Cases
+
+**Use Case 1: Minimal Docker Profile (`.ignored` for local testing)**
+
+You're testing the dotfiles in a minimal Docker container and want to skip heavy installations:
+
+```bash
+# Skip large installations in Docker
+cd ~/.config/dotfiles/post-install/scripts
+touch cargo-packages.zsh.ignored
+touch npm-global-packages.zsh.ignored
+touch ruby-gems.zsh.ignored
+touch language-servers.zsh.ignored
+
+# Run setup - these scripts are automatically skipped
+./setup
+```
+
+**Why `.ignored`?** The exclusions are specific to this Docker container and shouldn't affect other machines or be committed to git.
+
+**Use Case 2: Team Standardization (`.disabled` for permanent removal)**
+
+Your team decides certain tools are no longer needed:
+
+```bash
+# Permanently disable obsolete scripts (committable to git)
+cd ~/.config/dotfiles/post-install/scripts
+touch old-package-manager.zsh.disabled
+touch deprecated-tool.zsh.disabled
+
+# Commit these changes
+git add post-install/scripts/*.disabled
+git commit -m "Disable obsolete post-install scripts"
+git push
+
+# Everyone on the team now skips these scripts automatically
+```
+
+**Why `.disabled`?** The decision applies to the entire team and should be tracked in version control.
+
+**Use Case 3: Work vs. Personal Machines (`.ignored` for profiles)**
+
+You maintain separate profiles for work and personal machines:
+
+```bash
+# On work machine - skip personal development tools
+touch post-install/scripts/game-dev-tools.zsh.ignored
+touch post-install/scripts/personal-scripts.zsh.ignored
+
+# On personal machine - skip work-specific tools
+touch post-install/scripts/work-vpn-setup.zsh.ignored
+touch post-install/scripts/corporate-tools.zsh.ignored
+```
+
+**Why `.ignored`?** Each machine has different requirements, and these preferences shouldn't be committed.
+
+**Use Case 4: Incomplete Features (`.disabled` during development)**
+
+You're developing a new post-install script that's not ready for production:
+
+```bash
+# Disable incomplete script (committable)
+touch post-install/scripts/experimental-feature.zsh.disabled
+
+# Develop and test by running directly (marker files don't affect direct execution)
+./post-install/scripts/experimental-feature.zsh
+
+# When ready, remove the marker and commit
+rm post-install/scripts/experimental-feature.zsh.disabled
+git add post-install/scripts/experimental-feature.zsh
+git commit -m "Enable experimental feature script"
+```
+
+**Why `.disabled`?** Prevents incomplete features from running in TUI menu or during `./setup` while still allowing direct testing.
+
+**Use Case 5: Debugging and Isolation**
+
+You're troubleshooting a post-install script issue:
+
+```bash
+# Temporarily disable all scripts except the one you're debugging
+cd ~/.config/dotfiles/post-install/scripts
+for script in *.zsh; do
+    [[ "$script" != "debug-this-script.zsh" ]] && touch "$script.ignored"
+done
+
+# Run setup - only debug-this-script.zsh will run
+./setup
+
+# Clean up when done
+rm *.ignored
+```
+
+**Why `.ignored`?** Temporary debugging configuration that shouldn't be committed.
+
+#### Practical Examples
+
+**Example 1: Skip Rust Toolchain on CI Servers**
+
+```bash
+# In CI environment, skip Rust installation (use pre-installed version)
+echo "Skipping Rust toolchain (using system version)" > post-install/scripts/toolchains.zsh.ignored
+```
+
+**Example 2: Disable Deprecated Script Team-Wide**
+
+```bash
+# Old script no longer maintained, disable for everyone
+touch post-install/scripts/old-bash-config.zsh.disabled
+git add post-install/scripts/old-bash-config.zsh.disabled
+git commit -m "Disable old-bash-config (superseded by new-bash-config)"
+```
+
+**Example 3: Profile-Based Filtering**
+
+```bash
+# Function to apply minimal profile (add to your setup script)
+function apply_minimal_profile() {
+    local scripts=(
+        "cargo-packages.zsh"
+        "npm-global-packages.zsh"
+        "ruby-gems.zsh"
+        "language-servers.zsh"
+        "fonts.zsh"
+    )
+
+    for script in "${scripts[@]}"; do
+        touch "post-install/scripts/$script.ignored"
+    done
+
+    echo "✅ Minimal profile applied (heavy scripts disabled)"
+}
+
+# Apply the profile
+apply_minimal_profile
+```
+
+**Example 4: Conditional Disabling Based on Environment**
+
+```bash
+# In your setup script or .zshrc
+if [[ "$CI" == "true" ]]; then
+    # CI environment - skip interactive scripts
+    touch ~/.config/dotfiles/post-install/scripts/vim-setup.zsh.ignored
+    touch ~/.config/dotfiles/post-install/scripts/fonts.zsh.ignored
+elif [[ "$(uname)" == "Linux" ]] && grep -q "docker" /proc/1/cgroup 2>/dev/null; then
+    # Docker container - minimal installation
+    touch ~/.config/dotfiles/post-install/scripts/*.ignored
+    rm ~/.config/dotfiles/post-install/scripts/git-settings-general.zsh.ignored
+fi
+```
+
+#### Checking Marker File Status
+
+**List all marked scripts:**
+
+```bash
+# List all ignored scripts (local only)
+ls -1 post-install/scripts/*.ignored 2>/dev/null | sed 's/\.ignored$//'
+
+# List all disabled scripts (team-wide)
+ls -1 post-install/scripts/*.disabled 2>/dev/null | sed 's/\.disabled$//'
+
+# List all marked scripts (both types)
+ls -1 post-install/scripts/*.{ignored,disabled} 2>/dev/null
+```
+
+**Check if a specific script is marked:**
+
+```bash
+# Check if script is marked
+script="post-install/scripts/npm-global-packages.zsh"
+if [[ -f "$script.ignored" ]]; then
+    echo "⚠️  Script is locally ignored"
+elif [[ -f "$script.disabled" ]]; then
+    echo "🚫 Script is disabled team-wide"
+else
+    echo "✅ Script is active"
+fi
+```
+
+**Clean up all `.ignored` files:**
+
+```bash
+# Remove all local ignore markers
+rm post-install/scripts/*.ignored
+
+# This is safe - .ignored files are never committed to git
+```
+
+#### Integration with System Tools
+
+**`bin/librarian.zsh` Status Reporting:**
+
+The librarian tool automatically reports marked scripts:
+
+```bash
+./bin/librarian.zsh
+
+# Output includes:
+# 📋 Post-Install Scripts:
+#    - Active: 12
+#    - Ignored (local): 3
+#    - Disabled (team): 2
+```
+
+**`bin/menu_tui.zsh` Filtering:**
+
+The TUI menu automatically filters out marked scripts:
+
+```bash
+./setup
+
+# Only active scripts appear in the menu
+# Marked scripts are silently filtered
+```
+
+**Git Status Check:**
+
+```bash
+# Check for uncommitted .disabled files (reminder to commit team decisions)
+git status post-install/scripts/*.disabled
+
+# .ignored files never appear in git status (they're gitignored)
+git status post-install/scripts/*.ignored
+# (no output - gitignored)
+```
+
+#### Advanced: Programmatic Script Selection
+
+**Dynamic profile application using YAML manifests:**
+
+See [`packages/`](../packages/) for comprehensive profile management using YAML manifests. These manifests allow you to specify:
+
+- Package lists (brew, apt, cargo, npm, pip, etc.)
+- Post-install script inclusion/exclusion rules
+- Profile inheritance (minimal → standard → full)
+
+**Example from `packages/minimal.yaml`:**
+
+```yaml
+post_install:
+  include:
+    - git-settings-general.zsh
+    - git-delta-config.zsh
+  exclude:
+    - cargo-packages.zsh
+    - npm-global-packages.zsh
+    - ruby-gems.zsh
+    - language-servers.zsh
+```
+
+The profile system automatically creates `.ignored` marker files for excluded scripts.
+
+#### Cross-References
+
+- **Package Profiles:** [`packages/README.md`](../packages/README.md) - YAML-based profile management
+- **Main README:** [`README.md`](../README.md#profile-system) (lines 114-135) - Profile system overview
+- **Project Philosophy:** [`CLAUDE.md`](../CLAUDE.md#post-install-script-filtering) (lines 187-244) - Design rationale
+- **Testing Documentation:** [`tests/README.md`](../tests/README.md) - Test coverage for filtering
+- **Git Configuration:** [`.gitignore`](../.gitignore) - Why `.ignored` files are excluded
+
+#### Best Practices
+
+**When to use `.ignored`:**
+- ✅ Machine-specific preferences (work vs. personal)
+- ✅ Temporary testing and debugging
+- ✅ CI/CD environment customization
+- ✅ Docker container profiles
+- ❌ Don't commit `.ignored` files (they're gitignored by design)
+
+**When to use `.disabled`:**
+- ✅ Deprecating scripts team-wide
+- ✅ Incomplete features during development
+- ✅ Scripts that are broken or unmaintained
+- ✅ Platform-specific exclusions (e.g., "macos-only.zsh.disabled" on Linux)
+- ❌ Don't use for temporary testing (use `.ignored` instead)
+
+**Workflow Tips:**
+
+1. **Start with `.ignored`** for experimentation
+2. **Promote to `.disabled`** when decisions are team-wide
+3. **Document** why scripts are disabled (commit messages, code comments)
+4. **Review periodically** - clean up obsolete markers
+5. **Use profiles** for complex multi-script configurations
+
 ---
 
 ## Writing New Scripts

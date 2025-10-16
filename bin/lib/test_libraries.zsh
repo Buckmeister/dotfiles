@@ -4,7 +4,9 @@
 # Library Test Script - Verify Shared Libraries Work Correctly
 # ============================================================================
 
-emulate -LR zsh
+# Note: emulate -LR zsh removed - this library is sourced by scripts that already have it.
+# The caller's emulate directive applies to the entire execution context, making it
+# redundant here. Removing it prevents potential array scoping issues in subshells.
 
 # Get library directory
 LIB_DIR="$(dirname "$0")"

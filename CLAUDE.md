@@ -325,6 +325,61 @@ sync_packages --push --message "Add new tools"    # Custom commit
 ~/.local/bin/get_jdtls_url [--version VERSION] [--silent]
 ```
 
+### Text-to-Speech (speak)
+
+The `speak` utility provides delightful audio feedback using macOS's `say` command:
+
+```bash
+# Basic usage
+speak "Hello, friend!"
+
+# Pipe from commands
+echo "Build complete!" | speak
+
+# Use different voices
+speak -v Alex "Testing different voice"
+speak -v Daniel "Jolly good show!"  # British accent
+
+# Adjust speech rate (words per minute)
+speak -r 200 "Speaking quickly"
+
+# Celebration mode (enthusiastic tone)
+speak --celebrate "All tests passing!"
+speak --celebrate "Menu system refactoring complete!"
+
+# Friendly greeting mode
+speak --friendly "Welcome to your dotfiles"
+
+# Alert mode (important messages)
+speak --alert "Tests failed!"
+
+# Read from file
+speak -f README.md
+
+# Integration with scripts
+./setup && speak --celebrate "Dotfiles setup complete!"
+./tests/run_tests.zsh && speak "Tests passing!" || speak --alert "Tests failed!"
+
+# Background notifications
+(sleep 300; speak "Time to take a break!") &
+```
+
+**Features:**
+- Automatically strips ANSI color codes for clean speech
+- Multiple voice options (Samantha, Alex, Victoria, Daniel, Karen, Moira, Fiona)
+- Rate control for speech speed
+- Three personality modes: celebrate, friendly, alert
+- Supports stdin, arguments, or file input
+- Comprehensive help system (`speak --help`)
+- List available voices (`speak --list-voices`)
+
+**Use Cases:**
+- Long-running task completion notifications
+- Test suite success/failure announcements
+- Build status updates
+- Timer/reminder notifications
+- Making terminal output more engaging and accessible
+
 ### Testing and Validation
 
 ```bash
@@ -1102,3 +1157,4 @@ ls -la ~/.config/
 ls -la ~/.local/bin/
 ls -la ~ | grep "^\."
 ```
+- That's perfect .. thank you very much for your great assessment. What do think about an interesting side quest? Do you know about the mac cli tool "say" and do you think it is possible that you create a script to speak your wonderful "white circle outputs" directly to me? 😍

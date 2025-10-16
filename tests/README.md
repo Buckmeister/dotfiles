@@ -107,40 +107,279 @@ check_prereq_command docker "Docker daemon"
 check_prereq_ssh ~/.ssh/key root host "XCP-NG host"
 ```
 
+#### `tests/lib/test_pi_helpers.zsh`
+
+Post-install script testing utilities (400+ lines):
+
+```zsh
+source "tests/lib/test_pi_helpers.zsh"
+
+# Create test scripts
+create_test_pi_script "/tmp/test.zsh" "echo 'test'"
+create_test_pi_scripts "/tmp/scripts" "script1" "script2" "script3"
+
+# Mark scripts as ignored/disabled
+mark_script_ignored "/tmp/test.zsh" "Temporarily disabled"
+mark_script_disabled "/tmp/test.zsh" "Feature not ready"
+
+# Set up test environment
+setup_test_pi_environment "/tmp/test_env"  # Creates enabled/disabled/ignored scripts
+cleanup_test_pi_scripts  # Automatic cleanup
+
+# Count and list scripts
+count_enabled_scripts "/tmp/scripts"    # Returns: 3
+count_disabled_scripts "/tmp/scripts"   # Returns: 2
+list_enabled_scripts "/tmp/scripts"     # Lists paths
+list_disabled_scripts "/tmp/scripts"    # Lists paths
+
+# Execute enabled scripts only
+execute_enabled_scripts "/tmp/scripts"
+
+# Assertions for tests
+assert_script_enabled "/tmp/test.zsh"
+assert_script_disabled "/tmp/test.zsh"
+assert_enabled_count "/tmp/scripts" 5
+```
+
+**Purpose:** Comprehensive utilities for testing post-install script filtering (.ignored/.disabled), execution, and counting.
+
+#### `tests/lib/xen_cluster.zsh`
+
+XCP-NG cluster management library (470+ lines):
+
+```zsh
+source "tests/lib/xen_cluster.zsh"
+
+# Host availability checking
+is_host_available "opt-bck01.bck.intern"  # Returns: true/false
+
+# Get available hosts with priority
+get_available_hosts  # Returns array of available hosts sorted by priority
+
+# Select host using strategy (priority, round-robin, random, least-loaded)
+select_host "priority"
+
+# Host health monitoring
+check_host_health "opt-bck01.bck.intern"
+
+# VM lifecycle management
+create_xen_vm "ubuntu-24.04" "dotfiles-test-vm"
+start_xen_vm "vm-uuid"
+stop_xen_vm "vm-uuid"
+destroy_xen_vm "vm-uuid"
+
+# NFS operations
+deploy_to_nfs_storage "local-script.zsh" "remote-name.zsh"
+verify_nfs_deployment "remote-name.zsh"
+```
+
+**Purpose:** Multi-host XCP-NG cluster management with automatic failover, health monitoring, and NFS shared storage support.
+
+### Phase 5: Configuration-Driven Testing
+
+The Phase 5 testing infrastructure (implemented October 2025) provides a flexible, modular system for comprehensive testing across multiple platforms.
+
+#### `test_config.yaml` - Centralized Test Configuration
+
+**Location:** `tests/test_config.yaml` (590 lines)
+
+**Purpose:** Single source of truth for all test execution configuration
+
+**Key Sections:**
+
+1. **Global Configuration**
+   - Parallel execution (up to 4 concurrent tests)
+   - Default timeouts and caching
+   - Results directory
+   - Cleanup behavior
+
+2. **Test Suites**
+   - `smoke` (~2-5 min) - Fast feedback loop, 1 distro, basic components
+   - `standard` (~10-15 min) - Multiple distros, core tests, before commits
+   - `comprehensive` (~30-45 min) - All distros, all tests, before releases
+
+3. **Test Components**
+   - `installation` - Setup, directory structure, prerequisites
+   - `symlinks` - Creation, verification, backup handling
+   - `config` - OS detection, package managers, shell loading
+   - `scripts` - Post-install scripts, librarian, menu TUI
+   - `filtering` - .ignored/.disabled script filtering tests
+   - `integration` - Full workflows, reinstallation, upgrades
+
+4. **Docker Configuration**
+   - 7 supported distros (Ubuntu 20.04/22.04/24.04, Debian 11/12, Fedora 39, Rocky Linux 9)
+   - Resource limits (2GB RAM, 2 CPUs)
+   - Container reuse and cleanup options
+
+5. **XCP-NG Configuration**
+   - 4-host cluster (opt-bck01/02/03, lat-bck04)
+   - NFS shared storage (SR UUID: 75fa3703-d020-e865-dd0e-3682b83c35f6)
+   - 4 OS templates (Ubuntu 22.04/24.04, Debian 12, Rocky Linux 9)
+   - VM resources (2GB RAM, 2 vCPUs)
+   - Host selection strategies (priority, round-robin, random, least-loaded)
+   - Automatic failover support
+
+6. **Reporting Configuration**
+   - JSON export for CI/CD
+   - HTML reports
+   - JUnit XML for CI systems
+   - GitHub Actions integration
+
+**Example Usage:**
+
+```yaml
+# Add custom test component
+components:
+  mycomponent:
+    description: "My custom tests"
+    tests:
+      mytest:
+        description: "Test something"
+        timeout: 60
+        tags: [custom, quick]
+
+# Add to smoke suite
+suites:
+  smoke:
+    components:
+      - name: mycomponent
+        tests:
+          - mytest
+```
+
+#### `run_suite.zsh` - Modular Test Runner
+
+**Location:** `tests/run_suite.zsh` (605 lines)
+
+**Purpose:** Orchestrate test execution based on test_config.yaml
+
+**Features:**
+- YAML configuration parser
+- Suite-based execution (smoke/standard/comprehensive)
+- Component filtering
+- Tag-based selection
+- Docker and XEN test execution
+- JSON result export
+- Beautiful OneDark-themed output
+
+**Command Examples:**
+
+```bash
+# Run test suites
+./tests/run_suite.zsh --suite smoke          # Quick tests (2-5 min)
+./tests/run_suite.zsh --suite standard       # Standard (10-15 min)
+./tests/run_suite.zsh --suite comprehensive  # Full suite (30-45 min)
+
+# Test specific components
+./tests/run_suite.zsh --component installation
+./tests/run_suite.zsh --component symlinks
+./tests/run_suite.zsh --component filtering
+
+# Test specific platforms
+./tests/run_suite.zsh --docker ubuntu:24.04
+./tests/run_suite.zsh --xen ubuntu-24.04
+
+# Export results for CI/CD
+./tests/run_suite.zsh --suite standard --json
+./tests/run_suite.zsh --suite comprehensive --json --report
+```
+
+**Output:**
+- Real-time progress updates
+- Test pass/fail tracking
+- Duration reporting
+- Success rate calculation
+- Failed test details
+- JSON export: `tests/results/test_results.json`
+
+#### XCP-NG Cluster Testing
+
+**4-Host Cluster Setup:**
+
+| Host | IP | Role | Priority | Tags |
+|------|----|----|----------|------|
+| opt-bck01.bck.intern | 192.168.188.11 | Primary | 1 (highest) | opt, primary |
+| opt-bck02.bck.intern | 192.168.188.12 | Failover | 2 | opt, failover |
+| opt-bck03.bck.intern | 192.168.188.13 | Failover | 3 | opt, failover |
+| lat-bck04.bck.intern | 192.168.188.19 | Failover | 4 | lat, failover |
+
+**Features:**
+- **Multi-Host Failover:** Automatic fallback if primary unavailable
+- **Health Monitoring:** 10-second timeout health checks
+- **Load Balancing:** Round-robin, random, or least-loaded strategies
+- **Shared NFS Storage:** Deploy scripts once, available to all hosts
+
+**NFS Shared Storage:**
+- SR UUID: `75fa3703-d020-e865-dd0e-3682b83c35f6`
+- Mount path: `/var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/`
+- Scripts directory: `.../dotfiles-test-helpers/`
+- Deployment tool: `./tests/deploy_xen_helpers.zsh`
+
+**Helper Script Deployment:**
+
+```bash
+# Deploy helpers to NFS (all hosts have access)
+./tests/deploy_xen_helpers.zsh
+
+# Verify deployment
+./tests/deploy_xen_helpers.zsh --verify
+
+# Update existing scripts
+./tests/deploy_xen_helpers.zsh --update
+```
+
 ## Test Structure
 
 ```
 tests/
-├── lib/
-│   ├── test_framework.zsh      # Unit testing framework
-│   └── test_helpers.zsh         # Integration/E2E test utilities
+├── lib/                                    # Test libraries
+│   ├── test_framework.zsh                  # Unit testing framework
+│   ├── test_helpers.zsh                    # Integration/E2E test utilities
+│   ├── test_pi_helpers.zsh                 # Post-install script testing (Phase 5)
+│   └── xen_cluster.zsh                     # XEN cluster management (Phase 5)
 │
-├── unit/                        # Unit tests for libraries
+├── unit/                                   # Unit tests for libraries
 │   ├── test_colors.zsh
 │   ├── test_ui.zsh
 │   ├── test_utils.zsh
 │   ├── test_greetings.zsh
 │   ├── test_validators.zsh
-│   └── test_package_managers.zsh
+│   ├── test_package_managers.zsh
+│   ├── test_arguments.zsh
+│   └── test_edge_cases.zsh
 │
-├── integration/                 # Integration tests for workflows
+├── integration/                            # Integration tests for workflows
 │   ├── test_symlinks.zsh
 │   ├── test_update_system.zsh
 │   ├── test_librarian.zsh
 │   ├── test_post_install_scripts.zsh
+│   ├── test_post_install_filtering.zsh     # .ignored/.disabled filtering
 │   ├── test_help_flags.zsh
 │   ├── test_wrappers.zsh
 │   ├── test_github_downloaders.zsh
 │   ├── test_error_handling.zsh
 │   ├── test_setup_workflow.zsh
-│   └── test_package_management.zsh
+│   ├── test_package_management.zsh
+│   ├── test_menu_tui.zsh                   # TUI menu integration tests
+│   ├── test_wizard.zsh                     # Wizard integration tests
+│   └── test_profile_manager.zsh            # Profile manager tests
 │
-├── run_tests.zsh                # Main test runner
-├── test_docker_install.zsh      # Docker E2E tests
-├── test_xen_install.zsh         # XCP-NG VM E2E tests
+├── results/                                # Test results (Phase 5)
+│   ├── test_results.json                   # JSON export
+│   ├── test_report.html                    # HTML report
+│   ├── junit.xml                           # JUnit XML for CI
+│   ├── docker-*.log                        # Docker test logs
+│   └── xen-*.log                           # XEN test logs
 │
-├── REFACTORING_PLAN.md          # Detailed refactoring documentation
-└── README.md                    # This file
+├── test_config.yaml                        # Centralized test configuration (Phase 5)
+├── run_suite.zsh                           # Modular test runner (Phase 5)
+├── run_tests.zsh                           # Main test runner
+├── test_docker_install.zsh                 # Docker E2E tests
+├── test_xen_install.zsh                    # XCP-NG VM E2E tests
+├── deploy_xen_helpers.zsh                  # XEN helper deployment (Phase 5)
+│
+├── REFACTORING_PLAN.md                     # Detailed refactoring documentation
+└── README.md                               # This file
 ```
 
 ## Writing Tests
@@ -423,12 +662,41 @@ When adding new tests:
 4. **Beautiful Output** - Use OneDark colors and UI components
 5. **Document** - Add comments explaining complex test logic
 
-## References
+## See Also
 
-- **Refactoring Plan**: `tests/REFACTORING_PLAN.md`
-- **Shared Libraries**: `bin/lib/*.zsh`
-- **XCP-NG Setup**: `~/.config/xen/README.md`
-- **XCP-NG Windows**: `~/.config/xen/WINDOWS_TESTING.md`
+### User-Facing Documentation
+
+- **[TESTING.md](../TESTING.md)** - Comprehensive testing guide for users (how to run tests, write tests, best practices)
+- **[README.md](../README.md)** - Main repository documentation
+- **[INSTALL.md](../INSTALL.md)** - Installation guide and troubleshooting
+- **[MANUAL.md](../MANUAL.md)** - User manual with keybindings and daily workflows
+
+### Developer Documentation
+
+- **[CLAUDE.md](../CLAUDE.md)** - Project philosophy, architecture, and AI assistant guidance
+- **[ACTION_PLAN.md](../ACTION_PLAN.md)** - Project roadmap, Phase 5 testing infrastructure details
+- **[tests/REFACTORING_PLAN.md](REFACTORING_PLAN.md)** - Test suite refactoring documentation
+
+### Related Systems
+
+- **[packages/README.md](../packages/README.md)** - Universal package management (tested via manifests)
+- **[post-install/README.md](../post-install/README.md)** - Post-install scripts (.ignored/.disabled filtering tested here)
+- **[profiles/README.md](../profiles/README.md)** - Configuration profiles (profile application tested)
+- **[bin/lib/README.md](../bin/lib/README.md)** - Shared libraries API reference (tested by unit tests)
+
+### Test Infrastructure
+
+- **[test_config.yaml](test_config.yaml)** - Centralized test configuration (Phase 5)
+- **[run_suite.zsh](run_suite.zsh)** - Modular test runner (Phase 5)
+- **[lib/test_framework.zsh](lib/test_framework.zsh)** - Unit testing framework
+- **[lib/test_helpers.zsh](lib/test_helpers.zsh)** - Integration test utilities
+- **[lib/test_pi_helpers.zsh](lib/test_pi_helpers.zsh)** - Post-install script testing
+- **[lib/xen_cluster.zsh](lib/xen_cluster.zsh)** - XCP-NG cluster management
+
+### External Resources
+
+- **XCP-NG Setup**: `~/.config/xen/README.md` (if exists)
+- **XCP-NG Windows Testing**: `~/.config/xen/WINDOWS_TESTING.md` (if exists)
 
 ---
 

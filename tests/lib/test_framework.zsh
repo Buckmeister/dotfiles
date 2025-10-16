@@ -20,7 +20,10 @@
 #
 # ============================================================================
 
-emulate -LR zsh
+# Note: emulate -LR zsh was removed because it prevents array assignment
+# from persisting outside of functions, which breaks tests that modify arrays
+# (like menu_state_pop test). The -L flag makes options local, which creates
+# a scope barrier for array operations other than +=.
 
 # ============================================================================
 # Load Shared Libraries

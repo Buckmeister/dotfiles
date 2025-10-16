@@ -829,6 +829,33 @@ Complete documentation suite for all aspects of the dotfiles system:
 - **[TESTING.md](TESTING.md)** - **Testing guide:** Testing infrastructure, guidelines, and test suite documentation
 - **[TeamBio.md](TeamBio.md)** - **Team information:** Project context and contributors
 
+### Specialized Documentation
+
+- **[packages/README.md](packages/README.md)** - Universal package management system overview and workflow
+- **[packages/SCHEMA.md](packages/SCHEMA.md)** - Package manifest YAML schema reference
+- **[profiles/README.md](profiles/README.md)** - Configuration profiles (minimal, standard, full, work, personal)
+- **[post-install/README.md](post-install/README.md)** - Post-install scripts system and writing guide
+- **[post-install/ARGUMENT_PARSING.md](post-install/ARGUMENT_PARSING.md)** - Standardized argument parsing patterns
+- **[tests/README.md](tests/README.md)** - Test directory structure, libraries, and framework reference
+- **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and Phase 5 testing infrastructure
+
+### Quick Navigation
+
+**For Users:**
+1. Start here → **[INSTALL.md](INSTALL.md)** - Get up and running
+2. Daily use → **[MANUAL.md](MANUAL.md)** - Learn keybindings and workflows
+3. Troubleshooting → **[INSTALL.md](INSTALL.md#troubleshooting)**
+
+**For Developers:**
+1. Architecture → **[CLAUDE.md](CLAUDE.md)** - Understanding the system
+2. Testing → **[TESTING.md](TESTING.md)** - Running and writing tests
+3. Contributing → **[post-install/README.md](post-install/README.md#writing-new-scripts)**
+
+**For Package Management:**
+1. Overview → **[packages/README.md](packages/README.md)** - Getting started
+2. Schema → **[packages/SCHEMA.md](packages/SCHEMA.md)** - Complete reference
+3. Examples → **[packages/base.yaml](packages/base.yaml)** - Real-world manifest
+
 ---
 
 ## 🎵 Final Note

@@ -12,7 +12,9 @@
 #   mark_script_ignored "/tmp/test.zsh"
 #   cleanup_test_pi_scripts
 
-emulate -LR zsh
+# Note: emulate -LR zsh removed - this library is sourced by scripts that already have it.
+# The caller's emulate directive applies to the entire execution context, making it
+# redundant here. Removing it prevents potential array scoping issues in subshells.
 
 # ============================================================================
 # Global Test State

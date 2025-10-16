@@ -536,6 +536,184 @@ From Phase 4 (pending assessment):
 
 ---
 
+## Phase 4: Profile & Package Management Integration
+
+**Date**: October 15, 2025 (Evening)
+**Impact**: High - Complete reproducible environment management
+
+### Added
+
+#### Profile System
+- **5 comprehensive package manifests** in `packages/`
+  - `minimal.yaml` - Essential tools only (50+ packages)
+  - `standard.yaml` - Core development stack (120+ packages)
+  - `full.yaml` - Complete toolset (200+ packages)
+  - `work.yaml` - Professional development environment
+  - `personal.yaml` - Personal machine configuration
+
+#### Enhanced Profile Manager
+- **`bin/profile_manager.zsh`** (enhanced with YAML parser)
+  - Profile creation and selection
+  - Package manifest integration
+  - Automatic package installation from profiles
+  - Profile-to-manifest workflow
+  - Status reporting and validation
+
+#### Enhanced Wizard
+- **`bin/wizard.zsh`** (enhanced with custom manifest generation)
+  - Interactive profile selection
+  - Custom package selection interface
+  - Generate custom manifests from user choices
+  - Seamless integration with profile manager
+  - Beautiful OneDark-themed TUI
+
+#### Docker and XCP-NG E2E Testing
+- **`tests/test_docker_install.zsh`** - Docker-based E2E tests
+  - Tests on Ubuntu 24.04, 22.04, Debian 12, 11
+  - Both dfauto and dfsetup modes
+  - Quick and comprehensive test modes
+  - Validates full installation workflow
+
+- **`tests/test_xen_install.zsh`** - XCP-NG VM E2E tests
+  - Tests on real VMs (Ubuntu, Debian, Windows)
+  - Cloud-init integration
+  - SSH-based validation
+  - Multi-host support
+  - NFS helper script deployment
+
+#### Post-Install Script Control
+- **`.ignored` and `.disabled` marker files**
+  - `.ignored` - Local-only, gitignored, machine-specific
+  - `.disabled` - Committable, team-wide, permanent
+  - Integrated into setup.zsh, menu_tui.zsh, librarian.zsh
+  - Comprehensive test coverage in `tests/integration/test_post_install_filtering.zsh`
+  - Documented in README.md, CLAUDE.md, post-install/README.md
+
+#### Test Helper Libraries
+- **`tests/lib/test_pi_helpers.zsh`** (400+ lines)
+  - Post-install script testing utilities
+  - Script creation, marking, cleanup
+  - Counting and listing enabled/disabled scripts
+  - Execution and assertion helpers
+  - Complete test environment setup
+
+### Changed
+
+- **`bin/setup.zsh`** - Respects .ignored/.disabled markers
+- **`bin/menu_tui.zsh`** - Filters out disabled scripts
+- **`bin/librarian.zsh`** - Reports on disabled scripts
+- **Cross-platform fixes** - Ubuntu zsh compatibility
+
+### Impact
+
+- **Complete Environment Management**: Profile → Manifest → Packages workflow
+- **Flexibility**: Choose between minimal, standard, full, or custom setups
+- **Reproducibility**: Same profile generates identical environments
+- **Containerized Testing**: Docker and XCP-NG validation
+- **Script Control**: Fine-grained control over post-install script execution
+- **Team Collaboration**: Share disabled scripts via .disabled files
+
+---
+
+## Phase 5: Advanced Testing Infrastructure
+
+**Date**: October 15, 2025 (Late evening)
+**Impact**: Very High - Flexible, modular, high-speed testing system
+
+### Added
+
+#### Centralized Test Configuration
+- **`tests/test_config.yaml`** (590 lines)
+  - Single source of truth for test execution
+  - **3 test suites**:
+    - `smoke` (~2-5 min) - Fast feedback, 1 distro, basic components
+    - `standard` (~10-15 min) - Multiple distros, core tests, pre-commit
+    - `comprehensive` (~30-45 min) - All distros, all tests, pre-release
+  - **6 test components**: installation, symlinks, config, scripts, filtering, integration
+  - **Docker configuration**: 7 distros (Ubuntu, Debian, Fedora, Rocky Linux)
+  - **XCP-NG configuration**: 4-host cluster, NFS storage, 4 OS templates
+  - **Reporting**: JSON, HTML, JUnit XML for CI/CD
+
+#### Modular Test Runner
+- **`tests/run_suite.zsh`** (605 lines)
+  - YAML configuration parser
+  - Suite-based execution (smoke/standard/comprehensive)
+  - Component filtering
+  - Tag-based selection
+  - Docker and XEN test orchestration
+  - JSON result export
+  - Beautiful OneDark-themed output
+  - Real-time progress tracking
+  - Success rate calculation
+
+#### XCP-NG Cluster Management
+- **`tests/lib/xen_cluster.zsh`** (470+ lines)
+  - **4-host cluster support**:
+    - opt-bck01.bck.intern (192.168.188.11) - Primary
+    - opt-bck02.bck.intern (192.168.188.12) - Failover
+    - opt-bck03.bck.intern (192.168.188.13) - Failover
+    - lat-bck04.bck.intern (192.168.188.19) - Failover
+  - **Multi-host failover**: Automatic fallback if primary unavailable
+  - **Host selection strategies**: Priority, round-robin, random, least-loaded
+  - **Health monitoring**: 10-second timeout health checks
+  - **NFS shared storage**: SR UUID 75fa3703-d020-e865-dd0e-3682b83c35f6
+  - **VM lifecycle management**: Create, start, stop, destroy
+  - **SSH operations**: Remote command execution
+
+#### NFS Helper Deployment
+- **`tests/deploy_xen_helpers.zsh`** (400+ lines)
+  - Deploy scripts to NFS storage (cluster-wide availability)
+  - Verify deployment
+  - Update existing scripts
+  - Version tracking
+  - Automatic fallback to local scripts
+
+#### Test Results System
+- **`tests/results/`** directory structure
+  - JSON export: `test_results.json`
+  - HTML reports: `test_report.html`
+  - JUnit XML: `junit.xml` (for CI/CD)
+  - Individual test logs: `docker-*.log`, `xen-*.log`
+
+### Changed
+
+- **`TESTING.md`** - Added comprehensive Phase 5 documentation
+- **`tests/README.md`** - Updated with Phase 5 tools and libraries
+- **Test directory structure** - Organized results/ subdirectory
+
+### Impact
+
+- **Speed**: Smoke tests in 2-5 min, comprehensive in 30-45 min
+- **Flexibility**: Test exactly what you need (suite, component, platform)
+- **Resilience**: Automatic XEN host failover, no single point of failure
+- **Maintainability**: Centralized configuration, modular architecture
+- **CI/CD Ready**: JSON export, JUnit XML, exit codes for automation
+- **Cluster-Wide**: NFS storage makes helpers available to all hosts
+- **Configuration-Driven**: Easy to add distros, templates, components
+
+### Usage Examples
+
+```bash
+# Run test suites
+./tests/run_suite.zsh --suite smoke          # Quick (2-5 min)
+./tests/run_suite.zsh --suite standard       # Standard (10-15 min)
+./tests/run_suite.zsh --suite comprehensive  # Full (30-45 min)
+
+# Test specific components
+./tests/run_suite.zsh --component installation
+./tests/run_suite.zsh --component symlinks
+./tests/run_suite.zsh --component filtering
+
+# Test specific platforms
+./tests/run_suite.zsh --docker ubuntu:24.04
+./tests/run_suite.zsh --xen ubuntu-24.04
+
+# Export for CI/CD
+./tests/run_suite.zsh --suite standard --json
+```
+
+---
+
 ---
 
 ## [2025.10.15] - Path Detection Standardization

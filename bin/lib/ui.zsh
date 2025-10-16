@@ -462,6 +462,12 @@ function ask_confirmation() {
     esac
 }
 
+# Wait for any keypress to continue (returns to menu/previous screen)
+function wait_for_keypress() {
+    print_colored_message "$UI_HEADER_COLOR" "\nPress any key to return to menu..."
+    read -k1
+}
+
 # ============================================================================
 # Layout and Formatting Helpers
 # ============================================================================
@@ -522,6 +528,6 @@ function setup_ui_cleanup() {
     typeset -f get_display_width get_safe_display_width
     typeset -f draw_header draw_separator draw_section_header draw_progress_bar
     typeset -f update_progress increment_progress reset_progress_cache update_status_display show_status
-    typeset -f show_spinner ask_confirmation print_centered print_box
+    typeset -f show_spinner ask_confirmation wait_for_keypress print_centered print_box
     typeset -f cleanup_ui setup_ui_cleanup
 } >/dev/null 2>&1 || true

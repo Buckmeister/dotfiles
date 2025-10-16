@@ -121,36 +121,10 @@ typeset -i current_item=0
 typeset -i total_items=0
 
 # ============================================================================
-# Menu-Specific Terminal Functions (extending shared UI library)
+# Menu-Specific Utility Functions (extends shared UI library)
 # ============================================================================
-
-# Move cursor to specific row and column position
-# Args: row (int), column (int)
-function move_cursor() {
-    local row=$1
-    local col=$2
-    printf "\033[${row};${col}H"
-}
-
-# Save current cursor position for later restoration
-function save_cursor() {
-    printf "\033[s"
-}
-
-# Restore cursor to previously saved position
-function restore_cursor() {
-    printf "\033[u"
-}
-
-# ============================================================================
-# Menu-Specific Utility Functions (extending shared UI library)
-# ============================================================================
-
-# Wait for user to press any key to continue
-function wait_for_keypress() {
-    print_colored_message "$UI_HEADER_COLOR" "\nPress any key to return to menu..."
-    read -k1
-}
+# Note: Terminal control functions (move_cursor_to, save_cursor, restore_cursor,
+# wait_for_keypress) are provided by ui.zsh.
 
 # Check if a menu item is a control item (non-actionable)
 # Args: title (string)
@@ -389,14 +363,14 @@ function update_menu_display() {
         # Clear previous highlight (if valid)
         if [[ $previous_current_item -ge 0 && $previous_current_item -lt $total_items ]]; then
             local prev_row=$((menu_start_row + previous_current_item + 1))
-            move_cursor $prev_row 1
+            move_cursor_to $prev_row 1
             printf "\033[2K"  # Clear entire line
             draw_menu_item $((previous_current_item + 1)) 0
         fi
 
         # Draw new highlight
         local curr_row=$((menu_start_row + current_item + 1))
-        move_cursor $curr_row 1
+        move_cursor_to $curr_row 1
         printf "\033[2K"  # Clear entire line
         draw_menu_item $((current_item + 1)) 1
 
@@ -418,7 +392,7 @@ function update_selection_counter() {
     # Only update if count actually changed
     if [[ $selected_count -ne $previous_selected_count ]]; then
         local footer_row=$((menu_start_row + total_items + 3))
-        move_cursor $footer_row 1
+        move_cursor_to $footer_row 1
         printf "\033[2K"  # Clear entire line
 
         if [[ $selected_count -gt 0 ]]; then
@@ -444,7 +418,7 @@ function update_all_actionable_items_display() {
             # Only update the Select All button to show state change
             if [[ "$title" == "$MENU_SELECT_ALL" ]]; then
                 local row=$((menu_start_row + i))
-                move_cursor $row 1
+                move_cursor_to $row 1
                 printf "\033[2K"  # Clear entire line
 
                 # Check if this is the current item for highlighting
@@ -455,7 +429,7 @@ function update_all_actionable_items_display() {
         else
             # Update actionable items to show selection change
             local row=$((menu_start_row + i))
-            move_cursor $row 1
+            move_cursor_to $row 1
             printf "\033[2K"  # Clear entire line
 
             # Check if this is the current item for highlighting
@@ -520,7 +494,7 @@ function handle_menu_navigation() {
                     # Redraw the current item to show selection change
                     local menu_start_row=9  # First menu item is at row 10 (9 + 0 + 1)
                     local curr_row=$((menu_start_row + current_item + 1))
-                    move_cursor $curr_row 1
+                    move_cursor_to $curr_row 1
                     printf "\033[2K"  # Clear entire line
                     draw_menu_item $((current_item + 1)) 1
                     # Update counter since selection changed

@@ -127,11 +127,427 @@ Test the complete installation process on fresh Linux containers:
 - Ubuntu 24.04, 22.04
 - Debian 12, 11
 
+### Phase 5: Advanced Testing Infrastructure
+
+The dotfiles repository includes a **flexible, configuration-driven testing system** built in Phase 5 that supports:
+
+- **Test Suites**: Smoke (~2-5 min), Standard (~10-15 min), Comprehensive (~30-45 min)
+- **Component-Level Testing**: Test individual components (installation, symlinks, config, scripts, filtering)
+- **Multi-Platform**: Docker (7 distros) and XCP-NG (4-host cluster with failover)
+- **Centralized Configuration**: YAML-based configuration (`test_config.yaml`)
+- **Modular Execution**: Run exactly what you need, when you need it
+
+#### Quick Reference
+
+```bash
+# Run complete test suites
+./tests/run_suite.zsh --suite smoke          # Fast smoke tests (2-5 min)
+./tests/run_suite.zsh --suite standard       # Standard tests (10-15 min)
+./tests/run_suite.zsh --suite comprehensive  # Full comprehensive (30-45 min)
+
+# Test specific components
+./tests/run_suite.zsh --component installation
+./tests/run_suite.zsh --component symlinks
+./tests/run_suite.zsh --component filtering
+
+# Test specific platforms
+./tests/run_suite.zsh --docker ubuntu:24.04
+./tests/run_suite.zsh --xen
+
+# Export results
+./tests/run_suite.zsh --suite standard --json
+```
+
+#### Test Configuration System
+
+The `tests/test_config.yaml` file (590 lines) provides centralized control over test execution:
+
+**Global Configuration:**
+- Parallel execution support (up to 4 parallel tests)
+- Default timeout: 300 seconds
+- Test result caching
+- Configurable cleanup
+
+**Test Suites:**
+
+| Suite | Duration | Description | Use Case |
+|-------|----------|-------------|----------|
+| **smoke** | 2-5 min | Fast smoke tests, 1 distro | Rapid iteration during development |
+| **standard** | 10-15 min | Multiple distros, core tests | Before commits/PRs |
+| **comprehensive** | 30-45 min | All distros, all tests, edge cases | Before releases |
+
+**Test Components:**
+- `installation` - Core setup and directory structure
+- `symlinks` - Symlink creation, verification, backup
+- `config` - OS detection, package managers, shell loading
+- `scripts` - Post-install scripts, librarian, menu TUI
+- `filtering` - .ignored/.disabled script filtering
+- `integration` - Full workflows, reinstallation, upgrades
+
+#### Modular Test Runner
+
+The `tests/run_suite.zsh` script (605 lines) orchestrates test execution:
+
+**Features:**
+- YAML configuration parser
+- Suite selection (smoke/standard/comprehensive)
+- Component filtering
+- Tag-based filtering
+- Docker and XEN execution
+- JSON export for CI/CD
+- Beautiful OneDark-themed output
+
+**Command-Line Interface:**
+
+```bash
+# Test Suite Options
+./tests/run_suite.zsh --suite SUITE       # smoke, standard, comprehensive
+./tests/run_suite.zsh --component NAME    # installation, symlinks, etc.
+./tests/run_suite.zsh --tag TAG           # quick, core, comprehensive
+
+# Platform Options
+./tests/run_suite.zsh --docker [DISTRO]   # Docker tests (optional distro)
+./tests/run_suite.zsh --xen [TEMPLATE]    # XEN tests (optional template)
+
+# Execution Options
+./tests/run_suite.zsh --parallel          # Enable parallel execution
+./tests/run_suite.zsh --no-cleanup        # Keep containers (debugging)
+./tests/run_suite.zsh --verbose           # Detailed output
+
+# Output Options
+./tests/run_suite.zsh --json              # Export JSON results
+./tests/run_suite.zsh --report            # Generate HTML report
+```
+
+#### Docker Testing Configuration
+
+**Supported Distributions (7 total):**
+- Ubuntu: 24.04 LTS, 22.04 LTS, 20.04 LTS
+- Debian: 12 (Bookworm), 11 (Bullseye)
+- Fedora: 39
+- Rocky Linux: 9
+
+**Test Modes:**
+- `dfauto` - Automatic installation (non-interactive)
+- `dfsetup` - Interactive installation with menu
+
+**Resource Configuration:**
+- Memory: 2GB per container
+- CPU: 2 cores
+- Container cleanup: Automatic
+- Container reuse: Optional (experimental)
+
+**Example Usage:**
+
+```bash
+# Test specific distro
+./tests/run_suite.zsh --docker ubuntu:24.04
+
+# Test all distros in smoke suite
+./tests/run_suite.zsh --suite smoke
+
+# Test with custom resources (via test_config.yaml)
+# docker:
+#   resources:
+#     memory: 4g
+#     cpu: 4
+```
+
+#### XCP-NG Cluster Testing
+
+**4-Host Cluster Configuration:**
+
+| Host | IP | Role | Priority |
+|------|----|----|----------|
+| **opt-bck01.bck.intern** | 192.168.188.11 | Primary | 1 (highest) |
+| **opt-bck02.bck.intern** | 192.168.188.12 | Failover | 2 |
+| **opt-bck03.bck.intern** | 192.168.188.13 | Failover | 3 |
+| **lat-bck04.bck.intern** | 192.168.188.19 | Failover | 4 |
+
+**Features:**
+- **Multi-Host Failover**: Automatic fallback if primary host unavailable
+- **Host Selection Strategies**: Priority (default), round-robin, random, least-loaded
+- **Health Monitoring**: Automatic health checks with 10-second timeout
+- **NFS Shared Storage**: Cluster-wide helper script availability
+
+**Shared NFS Storage:**
+- **SR Name**: xenstore1
+- **SR UUID**: `75fa3703-d020-e865-dd0e-3682b83c35f6`
+- **Mount Path**: `/var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/`
+- **Scripts Directory**: `.../dotfiles-test-helpers/`
+- **Purpose**: Deploy helper scripts once, available to all hosts
+
+**Supported OS Templates (4 total):**
+- Ubuntu: 24.04 (Noble), 22.04 (Jammy) - Cloud-init
+- Debian: 12 (Bookworm) - Cloud-init
+- Rocky Linux: 9 - Cloud-init
+- Windows Server: 2022 (experimental) - Cloudbase-init
+
+**VM Configuration:**
+- Memory: 2048 MB
+- vCPUs: 2
+- Boot timeout: 180 seconds
+- SSH timeout: 120 seconds
+- Automatic cleanup: Enabled
+
+**Helper Script Deployment:**
+
+```bash
+# Deploy helper scripts to NFS storage
+./tests/deploy_xen_helpers.zsh
+
+# Verify deployment
+./tests/deploy_xen_helpers.zsh --verify
+
+# Update existing scripts
+./tests/deploy_xen_helpers.zsh --update
+```
+
+**XEN Cluster Management Library:**
+
+The `tests/lib/xen_cluster.zsh` library (470+ lines) provides:
+- Host availability checking
+- Automatic failover logic
+- SSH key management
+- VM lifecycle management
+- NFS path handling
+- Error recovery
+
+**Example Usage:**
+
+```bash
+# Run XEN tests (uses primary host)
+./tests/run_suite.zsh --xen
+
+# Run with specific template
+./tests/run_suite.zsh --xen ubuntu-24.04
+
+# Test with all hosts (failover testing)
+./tests/run_suite.zsh --suite comprehensive  # Uses all hosts
+```
+
+#### Test Result Reporting
+
+**JSON Export:**
+
+```bash
+./tests/run_suite.zsh --suite standard --json
+# Creates: tests/results/test_results.json
+```
+
+Example JSON structure:
+```json
+{
+  "test_run": {
+    "timestamp": "2025-10-15T20:00:00Z",
+    "duration_seconds": 450,
+    "total_tests": 15,
+    "passed": 14,
+    "failed": 1,
+    "skipped": 0
+  },
+  "tests": {
+    "docker-ubuntu-24.04-dfauto": {
+      "result": "PASS",
+      "log": "tests/results/docker-ubuntu-24.04-dfauto.log"
+    }
+  }
+}
+```
+
+**Test Results Directory:**
+
+```
+tests/results/
+├── test_results.json          # JSON test results
+├── test_report.html           # HTML report (if enabled)
+├── junit.xml                  # JUnit XML for CI (if enabled)
+├── docker-*.log               # Docker test logs
+└── xen-*.log                  # XEN test logs
+```
+
+#### Component Test Details
+
+**Installation Component:**
+- Basic setup.zsh execution
+- Directory structure creation
+- Prerequisites installation (git, zsh, curl)
+- Repository cloning with submodules
+- Edge case handling
+
+**Symlinks Component:**
+- Symlink creation (*.symlink, *.symlink_config, *.symlink_local_bin)
+- Symlink verification
+- Backup creation before overwriting
+- Existing file handling
+- Permission handling
+
+**Config Component:**
+- OS detection (macOS, Linux, Windows)
+- Package manager detection (brew, apt, yum, etc.)
+- Shell configuration loading
+- Environment variable setup
+- Path detection and initialization
+
+**Scripts Component:**
+- Post-install script execution
+- Librarian health check
+- Menu TUI functionality
+- Backup system
+- Update system
+
+**Filtering Component:**
+- .ignored file behavior (local, gitignored)
+- .disabled file behavior (committable)
+- Normal script execution
+- Multiple marker handling (.ignored + .disabled)
+- Find command integration
+- Removal behavior (re-enabling scripts)
+- Count accuracy (enabled vs disabled)
+- Special characters in filenames
+
+**Integration Component:**
+- Full installation flow (clean → complete)
+- Reinstallation scenario (existing → updated)
+- Upgrade scenarios (version migration)
+
+#### CI/CD Integration
+
+The Phase 5 infrastructure is designed for CI/CD integration:
+
+**GitHub Actions:**
+```yaml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke tests
+        run: ./tests/run_suite.zsh --suite smoke --json
+
+  comprehensive-tests:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run comprehensive tests
+        run: ./tests/run_suite.zsh --suite comprehensive --json
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: tests/results/
+```
+
+**Exit Codes:**
+- `0` - All tests passed
+- `1` - One or more tests failed
+- `2` - Configuration error
+- `3` - Missing dependencies
+
+#### Performance Characteristics
+
+**Smoke Suite (~2-5 minutes):**
+- 1 Docker distro (Ubuntu 24.04)
+- Basic components only
+- Quick feedback loop
+- Perfect for development
+
+**Standard Suite (~10-15 minutes):**
+- 3 Docker distros (Ubuntu 24.04/22.04, Debian 12)
+- Core components + filtering
+- Both dfauto and dfsetup modes
+- 1 XEN host (if enabled)
+- Recommended for pre-commit
+
+**Comprehensive Suite (~30-45 minutes):**
+- 7 Docker distros (all supported)
+- All components + edge cases + integration tests
+- Both installation modes
+- All XEN hosts with failover
+- Required for releases
+
+#### Configuration Customization
+
+Edit `tests/test_config.yaml` to customize:
+
+**Add new distro:**
+```yaml
+docker:
+  distros:
+    alpine-3.19:
+      image: alpine:3.19
+      name: "Alpine Linux 3.19"
+      supported_modes: [dfauto]
+      tags: [linux, alpine, musl]
+```
+
+**Add new test component:**
+```yaml
+components:
+  mycomponent:
+    description: "My custom tests"
+    tests:
+      mytest:
+        description: "Test something specific"
+        timeout: 60
+        tags: [custom, quick]
+```
+
+**Modify suite:**
+```yaml
+suites:
+  smoke:
+    components:
+      - name: mycomponent  # Add your component
+        tests:
+          - mytest
+```
+
+#### Troubleshooting Phase 5 Tests
+
+**"Configuration file not found":**
+- Ensure you're running from the tests/ directory or dotfiles root
+- Check that `tests/test_config.yaml` exists
+
+**"Docker daemon not running":**
+```bash
+# macOS/Linux:
+systemctl start docker  # or: open -a Docker
+
+# Verify:
+docker ps
+```
+
+**"XEN host unreachable":**
+- Check SSH key: `~/.ssh/aria_xen_key`
+- Verify host connectivity: `ping opt-bck01.bck.intern`
+- Check host availability: `ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern`
+- Review failover logs in test results
+
+**"Tests are slow":**
+- Use `--suite smoke` for faster iteration
+- Enable parallel execution (default)
+- Use container reuse (experimental): Edit `test_config.yaml`:
+  ```yaml
+  docker:
+    reuse_containers: true
+  ```
+
+**"Component tests not running":**
+- Component-level execution is partially implemented
+- Full granular testing coming in Task 5.2
+- Currently, components are tested as part of suites
+
 ### Getting Help
 
 ```bash
 ./tests/run_tests.zsh --help
 ./tests/test_docker_install.zsh --help
+./tests/run_suite.zsh --help  # Phase 5 test runner
 ```
 
 ---
@@ -575,6 +991,33 @@ Planned improvements to the testing infrastructure:
 - [ ] Mock framework for external commands
 - [ ] Visual regression tests for TUI
 - [ ] Automated snapshot testing
+
+---
+
+## See Also
+
+### Related Documentation
+
+- **[tests/README.md](tests/README.md)** - Detailed test directory structure, libraries, and framework API reference
+- **[CLAUDE.md](CLAUDE.md)** - Project philosophy, architecture, and developer guidance
+- **[packages/README.md](packages/README.md)** - Universal package management system (used in test manifests)
+- **[post-install/README.md](post-install/README.md)** - Post-install scripts (tested by integration tests)
+- **[MANUAL.md](MANUAL.md)** - User manual with keybindings and daily workflows
+- **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and testing infrastructure evolution
+
+### Test-Specific Documentation
+
+- **[tests/test_config.yaml](tests/test_config.yaml)** - Centralized test configuration (Phase 5)
+- **[tests/lib/test_framework.zsh](tests/lib/test_framework.zsh)** - Test framework implementation
+- **[tests/lib/test_helpers.zsh](tests/lib/test_helpers.zsh)** - Reusable test utilities
+- **[tests/lib/test_pi_helpers.zsh](tests/lib/test_pi_helpers.zsh)** - Post-install script testing helpers
+- **[tests/lib/xen_cluster.zsh](tests/lib/xen_cluster.zsh)** - XCP-NG cluster management (470+ lines)
+
+### Cross-Platform Testing
+
+- **Docker Testing**: See Docker-Based Installation Testing section (line 99)
+- **XCP-NG Testing**: See XCP-NG Cluster Testing section (line 257)
+- **Phase 5 Infrastructure**: See Phase 5: Advanced Testing Infrastructure section (line 130)
 
 ---
 

@@ -20,7 +20,9 @@
 #   selected_host=$(xen_cluster_select_host)
 #   xen_cluster_ssh "$selected_host" "xe host-list"
 
-emulate -LR zsh
+# Note: emulate -LR zsh removed - this library is sourced by scripts that already have it.
+# The caller's emulate directive applies to the entire execution context, making it
+# redundant here. Removing it prevents potential array scoping issues in subshells.
 
 # ============================================================================
 # Configuration
