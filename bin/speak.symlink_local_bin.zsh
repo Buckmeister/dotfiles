@@ -22,7 +22,15 @@ emulate -LR zsh
 # Configuration
 # ============================================================================
 
-# Default voice (Samantha is friendly and clear)
+# Premium voice preferences (Neural voices sound much more natural)
+# Maps role -> preferred voices (in priority order)
+typeset -A PREMIUM_VOICES
+PREMIUM_VOICES[friendly]="Eddy (English (US)) Flo (English (US)) Samantha"
+PREMIUM_VOICES[male]="Eddy (English (US)) Reed (English (US)) Alex"
+PREMIUM_VOICES[female]="Flo (English (US)) Samantha Sandy (English (US))"
+PREMIUM_VOICES[british]="Eddy (English (UK)) Daniel"
+
+# Default voice (will auto-select best available)
 DEFAULT_VOICE="Samantha"
 
 # Default speech rate (words per minute, 175 is natural)
@@ -49,6 +57,25 @@ strip_ansi() {
     local text="$1"
     # Remove ANSI escape sequences
     echo "$text" | sed -E 's/\x1b\[[0-9;]*m//g' | sed -E 's/\x1b\[?[0-9;]*[a-zA-Z]//g'
+}
+
+# Select the best available voice from a preference list
+# Args: space-separated list of voice names (in priority order)
+# Returns: first available voice, or last fallback
+select_best_voice() {
+    local preferences="$1"
+    local available_voices=$(say -v '?' 2>/dev/null)
+
+    # Try each preferred voice in order
+    for voice in ${=preferences}; do
+        if echo "$available_voices" | grep -q "^${voice}"; then
+            echo "$voice"
+            return 0
+        fi
+    done
+
+    # Return last voice as fallback
+    echo "${preferences##* }"
 }
 
 # Show help message
@@ -91,14 +118,19 @@ EXAMPLES:
     # Read from file
     speak -f README.md
 
-POPULAR VOICES:
-    Samantha    - Friendly female voice (default)
+PREMIUM VOICES (Higher Quality Neural TTS):
+    Eddy (English (US))   - Natural male voice (recommended)
+    Flo (English (US))    - Natural female voice
+    Reed (English (US))   - Professional male voice
+    Sandy (English (US))  - Warm female voice
+
+STANDARD VOICES:
+    Samantha    - Friendly female voice (fallback default)
     Alex        - Clear male voice
-    Victoria    - British female voice
     Daniel      - British male voice
     Karen       - Australian female voice
-    Moira       - Irish female voice
-    Fiona       - Scottish female voice
+
+💡 Tip: The script automatically selects premium voices when available!
 
 To see all voices: speak --list-voices
 
@@ -222,20 +254,20 @@ fi
 
 case "$mode" in
     celebrate)
-        # Add celebratory prefix and use enthusiastic voice
-        voice="Samantha"
+        # Add celebratory prefix and use enthusiastic premium voice
+        voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
         rate="190"  # Slightly faster for excitement
         text="Hooray! $text Congratulations!"
         ;;
     friendly)
-        # Add friendly greeting
-        voice="Samantha"
+        # Add friendly greeting with premium voice
+        voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
         rate="170"  # Slightly slower for warmth
         text="Hey there, friend! $text"
         ;;
     alert)
         # Add alert prefix and use more serious voice
-        voice="Alex"
+        voice=$(select_best_voice "${PREMIUM_VOICES[male]}")
         rate="160"  # Slower for emphasis
         text="Attention! $text"
         ;;
