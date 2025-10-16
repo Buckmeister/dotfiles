@@ -195,6 +195,26 @@ function create_symlink() {
 
     update_status_display "Linking" "$operation_name"
 
+    # Handle existing symlinks intelligently
+    if [[ -L "$target" ]]; then
+        local link_dest="$(readlink "$target")"
+
+        # Check if it's a broken symlink to old dotfiles location
+        if [[ ! -e "$target" ]] && [[ "$link_dest" == *"/.config/dotfiles/"* ]]; then
+            # Remove broken symlink to old dotfiles location
+            if rm -f "$target" 2>/dev/null; then
+                operation_results+=("🔄 Removed stale symlink: $(basename "$target") [was: ${link_dest:t:h:t}/${link_dest:t}]")
+            fi
+        elif [[ -e "$target" ]]; then
+            # Valid symlink exists - nothing to do
+            operation_results+=("ℹ️  Already exists: $target")
+            ((completed_operations++))
+            sleep 0.1
+            return
+        fi
+    fi
+
+    # Try to create symlink (target may have been removed above, or doesn't exist)
     if [[ -e "$target" ]]; then
         operation_results+=("ℹ️  Already exists: $target")
     elif ln -s "$source" "$target" 2>/dev/null; then
@@ -222,7 +242,7 @@ function setup_backup_directories() {
 }
 
 function create_home_symlinks() {
-    local home_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink" -print0)"})
+    local home_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink" -print0)"})
 
     for link_source in $home_symlinks; do
         local link_target="$DF_INSTALL_DIR/.$link_source:t:r"
@@ -234,7 +254,7 @@ function create_home_symlinks() {
 function create_config_symlinks() {
     create_directory "$DF_INSTALL_DIR/.config"
 
-    local config_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink_config" -print0)"})
+    local config_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_config" -print0)"})
 
     for link_source in $config_symlinks; do
         local link_target="$DF_INSTALL_DIR/.config/$link_source:t:r"
@@ -244,7 +264,7 @@ function create_config_symlinks() {
 }
 
 function create_local_bin_symlinks() {
-    local local_bin_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -name "*.symlink_local_bin.*" -print0)"})
+    local local_bin_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_local_bin.*" -print0)"})
 
     for link_source in $local_bin_symlinks; do
         local basename="$(basename "$link_source" | sed 's/\.symlink_local_bin\..*//')"
@@ -263,29 +283,29 @@ function count_operations() {
     local dir_operations=4
 
     # Count symlink files
-    local home_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink" -print | wc -l)
-    local config_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink_config" -print | wc -l)
-    local bin_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -name "*.symlink_local_bin.*" -print | wc -l)
+    local home_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink" -print | wc -l)
+    local config_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_config" -print | wc -l)
+    local bin_count=$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_local_bin.*" -print | wc -l)
 
     # Count actual backup operations needed
     local backup_operations=0
 
     # Check home symlinks
-    local home_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink" -print0)"})
+    local home_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink" -print0)"})
     for link_source in $home_symlinks; do
         local link_target="$DF_INSTALL_DIR/.$link_source:t:r"
         [[ -e "$link_target" ]] && ((backup_operations++))
     done
 
     # Check config symlinks
-    local config_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -o -name "*.symlink_config" -print0)"})
+    local config_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_config" -print0)"})
     for link_source in $config_symlinks; do
         local link_target="$DF_INSTALL_DIR/.config/$link_source:t:r"
         [[ -e "$link_target" ]] && ((backup_operations++))
     done
 
     # Check local bin symlinks
-    local local_bin_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -false -name "*.symlink_local_bin.*" -print0)"})
+    local local_bin_symlinks=(${(0)"$(find $DF_DIR -path "$DF_DIR/.git" -prune -o -name "*.symlink_local_bin.*" -print0)"})
     for link_source in $local_bin_symlinks; do
         local basename="$(basename "$link_source" | sed 's/\.symlink_local_bin\..*//')"
         local link_target="$HOME/.local/bin/$basename"
