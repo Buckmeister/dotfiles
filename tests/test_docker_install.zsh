@@ -161,6 +161,26 @@ test_installation() {
             echo 'SUCCESS:Setup script found'
         fi
 
+        echo 'PROGRESS:Running librarian health check'
+        cd ~/.config/dotfiles
+
+        # Run librarian and capture output
+        librarian_output=\$(./bin/librarian.zsh 2>&1 || true)
+
+        # Check for errors and warnings in librarian output
+        if echo "\$librarian_output" | grep -qi 'error'; then
+            echo 'FAILED:Librarian detected errors'
+            echo "\$librarian_output" | grep -i 'error' | head -5
+            exit 1
+        fi
+
+        if echo "\$librarian_output" | grep -qi 'warning'; then
+            echo 'INFO:Librarian warnings detected (non-critical)'
+            echo "\$librarian_output" | grep -i 'warning' | head -3
+        else
+            echo 'SUCCESS:Librarian health check passed'
+        fi
+
         echo 'PROGRESS:Complete'
         echo \"INFO:Distribution: \$(cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"')\"
         echo \"INFO:Install mode: $mode\"
@@ -169,7 +189,7 @@ test_installation() {
 
     draw_section_header "Running Test Phases"
 
-    print_info "Phase 1/4: Pulling container image..."
+    print_info "Phase 1/5: Pulling container image..."
 
     if docker run --rm \
         --name "$container_name" \
@@ -179,13 +199,16 @@ test_installation() {
             # Process output in real-time using helper function
             case "$line" in
                 PROGRESS:Installing*)
-                    print_info "Phase 2/4: Installing prerequisites..."
+                    print_info "Phase 2/5: Installing prerequisites..."
                     ;;
                 PROGRESS:Running*)
-                    print_info "Phase 3/4: Running web installer..."
+                    print_info "Phase 3/5: Running web installer..."
                     ;;
                 PROGRESS:Verifying*)
-                    print_info "Phase 4/4: Verifying installation..."
+                    print_info "Phase 4/5: Verifying installation..."
+                    ;;
+                PROGRESS:Running\ librarian*)
+                    print_info "Phase 5/5: Running librarian health check..."
                     ;;
                 *)
                     # Use parse_test_output for standard markers
@@ -217,6 +240,7 @@ run_tests() {
     echo "   • Spins up fresh Docker container(s)"
     echo "   • Downloads and runs the web installer"
     echo "   • Verifies the dotfiles installation worked"
+    echo "   • Runs librarian health check to catch errors"
     echo "   • Cleans up containers when done"
     echo ""
     echo "   ${COLOR_BOLD}${UI_WARNING_COLOR}⏱️  Estimated time:${COLOR_RESET} ~2-3 minutes per distribution"

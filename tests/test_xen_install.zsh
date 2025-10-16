@@ -278,6 +278,26 @@ test_installation() {
             echo 'SUCCESS:Git configuration applied'
         fi
 
+        echo 'PROGRESS:Running librarian health check'
+        cd ~/.config/dotfiles
+
+        # Run librarian and capture output
+        librarian_output=\$(./bin/librarian.zsh 2>&1 || true)
+
+        # Check for errors and warnings in librarian output
+        if echo "\$librarian_output" | grep -qi 'error'; then
+            echo 'FAILED:Librarian detected errors'
+            echo "\$librarian_output" | grep -i 'error' | head -5
+            exit 1
+        fi
+
+        if echo "\$librarian_output" | grep -qi 'warning'; then
+            echo 'INFO:Librarian warnings detected (non-critical)'
+            echo "\$librarian_output" | grep -i 'warning' | head -3
+        else
+            echo 'SUCCESS:Librarian health check passed'
+        fi
+
         echo 'PROGRESS:Complete'
     "
 
@@ -473,6 +493,7 @@ run_tests() {
     echo "   • Creates fresh XCP-NG VM with cloud-init (Linux) or cloudbase-init (Windows)"
     echo "   • Provisions VM with SSH keys and packages/OpenSSH"
     echo "   • Linux: Clones and installs dotfiles automatically"
+    echo "   • Runs librarian health check to verify installation quality"
     echo "   • Windows: Verifies SSH access and PowerShell automation readiness"
     echo "   • Cleans up VM and cloud-init ISO when done"
     echo ""
