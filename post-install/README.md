@@ -1600,12 +1600,20 @@ source "$LIB_DIR/package_managers.zsh"
 
 ## References
 
-- **Argument Parsing Standard:** [`ARGUMENT_PARSING.md`](ARGUMENT_PARSING.md) ⭐ **NEW**
-- **Shared Libraries API:** [`bin/lib/README.md`](../bin/lib/README.md)
-- **Main Setup Script:** [`bin/setup.zsh`](../bin/setup.zsh)
-- **TUI Menu:** [`bin/menu_tui.zsh`](../bin/menu_tui.zsh)
-- **System Health Check:** [`bin/librarian.zsh`](../bin/librarian.zsh)
-- **Test Documentation:** [`tests/README.md`](../tests/README.md)
+### Developer Documentation
+- **[DEVELOPMENT.md](../DEVELOPMENT.md)** - **Developer hub:** Complete API reference, library documentation, and contribution guide ⭐ **NEW**
+- **[Argument Parsing Standard](ARGUMENT_PARSING.md)** - Standardized CLI patterns for all scripts
+- **[Shared Libraries API](../bin/lib/README.md)** - Complete 1750-line API reference for all 14 libraries
+- **[bin/lib/MENU_ENGINE_API.md](../bin/lib/MENU_ENGINE_API.md)** - Menu system documentation (624 lines)
+
+### Core Scripts
+- **[bin/setup.zsh](../bin/setup.zsh)** - Main setup orchestrator
+- **[bin/menu_tui.zsh](../bin/menu_tui.zsh)** - Interactive TUI menu
+- **[bin/librarian.zsh](../bin/librarian.zsh)** - System health checker
+
+### Testing
+- **[tests/README.md](../tests/README.md)** - Test infrastructure and execution guide
+- **[TESTING.md](../TESTING.md)** - Comprehensive testing documentation
 
 ---
 

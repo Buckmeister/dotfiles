@@ -89,46 +89,28 @@ The setup script will:
 
 ### Shared Libraries (`bin/lib/`)
 
-A comprehensive library system providing consistent UI, utilities, and OS detection across all scripts:
+The dotfiles system includes **14 specialized libraries** providing 200+ functions for UI, validation, package management, menu systems, and more. These libraries ensure consistent behavior, beautiful output, and cross-platform compatibility across all 80+ scripts in the repository.
 
-- **`colors.zsh`** - OneDark color scheme constants
-  - Color variables: `$ONEDARK_BLACK`, `$ONEDARK_RED`, `$ONEDARK_GREEN`, etc.
-  - Semantic colors: `$COLOR_ERROR`, `$COLOR_SUCCESS`, `$COLOR_INFO`
-  - Terminal control: `$BOLD`, `$ITALIC`, `$UNDERLINE`, `$RESET`
+**Quick overview:**
+- **Core:** colors.zsh, ui.zsh, utils.zsh, greetings.zsh
+- **Infrastructure:** arguments.zsh, dependencies.zsh, validators.zsh
+- **Package Management:** package_managers.zsh, installers.zsh, os_operations.zsh
+- **Menu System:** menu_engine.zsh, menu_state.zsh, menu_navigation.zsh
+- **Testing:** test_libraries.zsh
 
-- **`ui.zsh`** - Beautiful terminal output functions
-  - `draw_section_header "Title"` - Styled section headers
-  - `print_success "Message"`, `print_error "Message"`, `print_info "Message"`
-  - `show_progress_bar 50 100 "Processing"` - Real-time progress bars
-  - `print_step N "Description"` - Numbered step indicators
+**For script authors and contributors:** See **[DEVELOPMENT.md](DEVELOPMENT.md#shared-libraries-system)** for complete library documentation, API reference, usage patterns, and contribution guidelines.
 
-- **`utils.zsh`** - Cross-platform utilities and OS detection
-  - `detect_os` - Returns: macos, linux, windows, unknown
-  - `ensure_writable_directory "path" "description"` - Safe directory creation
-  - `is_command_available "cmd"` - Command existence checking
-  - OS context: `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
+**Quick reference:**
+```zsh
+# Example: Using shared libraries in a script
+source "$DF_LIB_DIR/ui.zsh"
+source "$DF_LIB_DIR/utils.zsh"
 
-- **`greetings.zsh`** - Friendly, encouraging messages
-  - `get_random_greeting` - Welcome messages
-  - `get_random_completion_message` - Success celebrations
-  - `get_random_friend_greeting` - Warm, personal greetings
-
-**Using in your own scripts:**
-```bash
-#!/usr/bin/env zsh
-# Source shared libraries
-source "${0:A:h}/../bin/lib/colors.zsh"
-source "${0:A:h}/../bin/lib/ui.zsh"
-source "${0:A:h}/../bin/lib/utils.zsh"
-
-# Use consistent UI
-draw_section_header "My Custom Script"
-print_info "Detecting operating system..."
-OS=$(detect_os)
-print_success "Running on: $OS"
+draw_section_header "My Script"
+print_info "Detecting OS: $(get_os)"
+validate_command "git" || exit 1
+print_success "Ready to go!"
 ```
-
-See **[CLAUDE.md](CLAUDE.md#shared-libraries-binlib)** for complete library documentation.
 
 ### Configuration Files
 
@@ -978,9 +960,10 @@ Complete documentation suite for all aspects of the dotfiles system:
 3. Troubleshooting → **[INSTALL.md](INSTALL.md#troubleshooting)**
 
 **For Developers:**
-1. Architecture → **[CLAUDE.md](CLAUDE.md)** - Understanding the system
-2. Testing → **[TESTING.md](TESTING.md)** - Running and writing tests
-3. Contributing → **[post-install/README.md](post-install/README.md#writing-new-scripts)**
+1. Developer Hub → **[DEVELOPMENT.md](DEVELOPMENT.md)** - Complete API reference, library documentation, and contribution guide
+2. Architecture → **[CLAUDE.md](CLAUDE.md)** - Understanding the system structure and philosophy
+3. Testing → **[TESTING.md](TESTING.md)** - Running and writing tests
+4. Contributing → **[post-install/README.md](post-install/README.md#writing-new-scripts)** - Writing post-install scripts
 
 **For Package Management:**
 1. Overview → **[packages/README.md](packages/README.md)** - Getting started
