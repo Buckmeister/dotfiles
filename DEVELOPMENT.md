@@ -695,9 +695,9 @@ The dotfiles use a **symlink-based architecture** for managing configuration fil
 
 | Pattern | Target Location | Example |
 |---------|----------------|---------|
-| `*.symlink` | `~/.{basename}` | `zsh/zshrc.symlink` → `~/.zshrc` |
-| `*.symlink_config` | `~/.config/{basename}` | `nvim/nvim.symlink_config/` → `~/.config/nvim/` |
-| `*.symlink_local_bin.*` | `~/.local/bin/{basename}` | `github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url` |
+| `*.symlink` | `~/.{basename}` | `configs/shell/zsh/zshrc.symlink` → `~/.zshrc` |
+| `*.symlink_config` | `~/.config/{basename}` | `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/` |
+| `*.symlink_local_bin.*` | `~/.local/bin/{basename}` | `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url` |
 
 **Benefits:**
 - Version control your configurations
@@ -821,13 +821,20 @@ dotfiles/
 │   ├── lib/                      # Test framework
 │   └── README.md                 # Testing documentation
 │
-├── zsh/                          # Shell configurations
-├── nvim/                         # Neovim configuration (submodule)
-├── git/                          # Git configurations
-├── tmux/                         # tmux configuration
-├── kitty/                        # Kitty terminal
-├── alacritty/                    # Alacritty terminal
-└── ...                           # Additional tool configurations
+├── configs/                      # Application configurations (organized by category)
+│   ├── shell/                    # zsh, bash, fish, aliases, readline
+│   ├── editors/                  # nvim (submodule), vim, emacs
+│   ├── terminals/                # kitty, alacritty, macos-terminal
+│   ├── multiplexers/             # tmux
+│   ├── prompts/                  # starship, p10k
+│   ├── version-control/          # git, github
+│   ├── development/              # maven, jdt.ls, ghci
+│   ├── languages/                # R, ipython, stylua, black
+│   ├── utilities/                # ranger, neofetch, bat
+│   ├── system/                   # karabiner, xcode, xmodmap, xprofile
+│   └── package-managers/         # brew, apt
+│
+└── resources/                    # Screenshots, snippets, shared assets
 ```
 
 ---
