@@ -2,6 +2,38 @@
 
 This directory contains pre-configured dotfiles profiles for different use cases. Profiles provide a quick way to set up your development environment with sensible defaults.
 
+## Quick Start
+
+**Impatient? Start here:**
+
+```bash
+# Option 1: Use interactive wizard (recommended for first-time)
+cd ~/.config/dotfiles && ./wizard
+
+# Option 2: Apply a profile directly (fast, uses sensible defaults)
+cd ~/.config/dotfiles && ./profile apply standard
+```
+
+**Want to explore first?**
+```bash
+# List all available profiles
+./profile list
+
+# See what a profile includes before applying
+./profile show standard
+```
+
+**After setup, verify everything works:**
+```bash
+# Comprehensive system health check
+./bin/librarian.zsh
+
+# Check which profile is active
+./profile current
+```
+
+---
+
 ## Available Profiles
 
 ### 🎯 Minimal (`minimal.yaml`)
@@ -710,6 +742,135 @@ cat ~/.cache/dotfiles/wizard.log
 
 ---
 
+## Verification & Validation
+
+After applying a profile, use these commands to verify your setup is working correctly:
+
+### System Health Check
+
+```bash
+# Comprehensive status report
+./bin/librarian.zsh
+
+# Expected output includes:
+# ✅ Dotfiles directory
+# ✅ Git repository status
+# ✅ Symlinks created (count)
+# ✅ Post-install scripts status
+# ✅ Package managers available
+# ✅ Current profile
+```
+
+### Profile Verification
+
+```bash
+# Confirm which profile is active
+./profile current
+# Expected: Current profile: standard (or your chosen profile)
+
+# View profile details
+./profile show standard
+# Shows: description, packages, scripts, settings
+
+# List all profiles
+./profile list
+# Shows: all 5 available profiles with descriptions
+```
+
+### Package Verification
+
+```bash
+# Check installed packages from manifest
+cat profiles/manifests/standard-packages.yaml
+
+# Verify specific tools are installed
+command -v nvim   # Editor
+command -v rg     # ripgrep (if in manifest)
+command -v fd     # fd-find (if in manifest)
+command -v git    # Version control
+
+# Check language toolchains
+python3 --version
+node --version
+rustc --version   # If rust profile selected
+```
+
+### Post-Install Script Verification
+
+```bash
+# Check which scripts ran successfully
+ls -la ~/.config/dotfiles/post-install/scripts/ | grep -v ".ignored\|.disabled"
+
+# Verify script outputs
+# Example: vim-setup should have installed plugins
+nvim +PlugStatus +qall
+
+# Example: language-servers should be available
+ls -la ~/.local/share/nvim/lsp-servers/
+```
+
+### Configuration Files Verification
+
+```bash
+# Check symlinks were created
+ls -la ~ | grep "^l.*-> .config/dotfiles"
+
+# Check config directory symlinks
+ls -la ~/.config/ | grep "^l.*-> dotfiles"
+
+# Check ~/.local/bin symlinks
+ls -la ~/.local/bin/ | head -10
+```
+
+### Testing Your Setup
+
+```bash
+# Test editor opens correctly
+nvim --version
+nvim +checkhealth
+
+# Test shell configuration loads
+zsh -c 'echo $SHELL'
+source ~/.zshrc  # Should load without errors
+
+# Test post-install script helpers
+~/.local/bin/speak "Setup verification complete!"  # Text-to-speech test
+```
+
+### Troubleshooting Verification Failures
+
+**If librarian shows issues:**
+```bash
+# Re-run setup to fix missing components
+./setup
+
+# Or re-apply your profile
+./profile apply standard
+```
+
+**If packages are missing:**
+```bash
+# Re-install from manifest
+install_from_manifest -i profiles/manifests/standard-packages.yaml
+
+# Or install packages manually
+brew install ripgrep fd-find bat  # macOS
+sudo apt install ripgrep fd-find bat  # Linux
+```
+
+**If post-install scripts failed:**
+```bash
+# Run scripts individually to see errors
+./post-install/scripts/vim-setup.zsh
+./post-install/scripts/language-servers.zsh
+
+# Check for .ignored/.disabled markers preventing execution
+ls -la post-install/scripts/*.ignored
+ls -la post-install/scripts/*.disabled
+```
+
+---
+
 ## FAQ
 
 **Q: Can I change my profile after running the wizard?**
@@ -740,11 +901,40 @@ A: Commit your custom profile YAML and manifest to your dotfiles repo, then your
 
 ## Cross-References
 
+### Core Documentation
 - **Package Management:** [`../packages/README.md`](../packages/README.md) - Universal package system details
-- **Package Schema:** [`../packages/SCHEMA.md`](../packages/SCHEMA.md) - Manifest file format
-- **Wizard Guide:** [`../bin/wizard.md`](../bin/wizard.md) - Interactive setup wizard (if exists)
-- **Profile Manager Code:** [`../bin/profile_manager.zsh`](../bin/profile_manager.zsh) - Implementation details
+- **Package Schema:** [`../packages/SCHEMA.md`](../packages/SCHEMA.md) - Manifest file format reference
 - **Main README:** [`../README.md`](../README.md#profiles) - Quick start with profiles
+- **Installation Guide:** [`../INSTALL.md`](../INSTALL.md) - Detailed installation instructions
+- **User Manual:** [`../MANUAL.md`](../MANUAL.md) - Complete command reference
+
+### System Tools
+- **Profile Manager:** [`../bin/profile_manager.zsh`](../bin/profile_manager.zsh) - Profile management implementation
+- **Wizard:** [`../bin/wizard.zsh`](../bin/wizard.zsh) - Interactive setup wizard
+- **Librarian:** [`../bin/librarian.zsh`](../bin/librarian.zsh) - System health checker and status reporter
+- **Menu System:** [`../bin/menu_tui.zsh`](../bin/menu_tui.zsh) - Interactive TUI menu for post-install scripts
+
+### Post-Install System
+- **Post-Install Guide:** [`../post-install/README.md`](../post-install/README.md) - Complete post-install system documentation
+- **Script Filtering:** [`../post-install/README.md#post-install-script-control`](../post-install/README.md#post-install-script-control) - `.ignored` and `.disabled` markers
+- **Argument Parsing:** [`../post-install/ARGUMENT_PARSING.md`](../post-install/ARGUMENT_PARSING.md) - Standardized patterns
+
+### Testing & Validation
+- **Testing Guide:** [`../TESTING.md`](../TESTING.md) - Comprehensive testing documentation (Phase 5)
+- **Test Directory:** [`../tests/README.md`](../tests/README.md) - Test infrastructure and execution
+- **Docker Testing:** [`../tests/test_docker_comprehensive.zsh`](../tests/test_docker_comprehensive.zsh) - Container-based validation
+- **XEN Testing:** [`../tests/lib/xen_cluster.zsh`](../tests/lib/xen_cluster.zsh) - Multi-host cluster testing
+
+### Phase 5-7 Features (Recent)
+- **Configuration-Driven Testing:** [`../tests/test_config.yaml`](../tests/test_config.yaml) - Centralized test configuration
+- **Test Suites:** [`../tests/run_suite.zsh`](../tests/run_suite.zsh) - Modular test runner (smoke/standard/comprehensive)
+- **Menu System Documentation:** [`../bin/menu_tui.md`](../bin/menu_tui.md) - TUI menu architecture guide
+- **Text-to-Speech Utility:** [`../bin/speak.symlink_local_bin.zsh`](../bin/speak.symlink_local_bin.zsh) - Audio notifications
+
+### Project Philosophy
+- **Claude Instructions:** [`../CLAUDE.md`](../CLAUDE.md) - AI assistant guidance and system architecture
+- **Action Plan:** [`../ACTION_PLAN.md`](../ACTION_PLAN.md) - Development roadmap and improvement opportunities
+- **Changelog:** [`../CHANGELOG.md`](../CHANGELOG.md) - Complete project history
 
 ---
 

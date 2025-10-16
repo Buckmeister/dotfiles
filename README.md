@@ -87,19 +87,99 @@ The setup script will:
 - **`link_dotfiles.zsh`** - Creates all the necessary symlinks
 - **`update_all.zsh`** - Central update system for packages and toolchains
 
-### Shared Libraries
-- **`colors.zsh`** - OneDark color scheme for consistent UI
-- **`ui.zsh`** - Progress bars, headers, and beautiful output
-- **`utils.zsh`** - OS detection and common utilities
-- **`greetings.zsh`** - Friendly messages to brighten your day
+### Shared Libraries (`bin/lib/`)
+
+A comprehensive library system providing consistent UI, utilities, and OS detection across all scripts:
+
+- **`colors.zsh`** - OneDark color scheme constants
+  - Color variables: `$ONEDARK_BLACK`, `$ONEDARK_RED`, `$ONEDARK_GREEN`, etc.
+  - Semantic colors: `$COLOR_ERROR`, `$COLOR_SUCCESS`, `$COLOR_INFO`
+  - Terminal control: `$BOLD`, `$ITALIC`, `$UNDERLINE`, `$RESET`
+
+- **`ui.zsh`** - Beautiful terminal output functions
+  - `draw_section_header "Title"` - Styled section headers
+  - `print_success "Message"`, `print_error "Message"`, `print_info "Message"`
+  - `show_progress_bar 50 100 "Processing"` - Real-time progress bars
+  - `print_step N "Description"` - Numbered step indicators
+
+- **`utils.zsh`** - Cross-platform utilities and OS detection
+  - `detect_os` - Returns: macos, linux, windows, unknown
+  - `ensure_writable_directory "path" "description"` - Safe directory creation
+  - `is_command_available "cmd"` - Command existence checking
+  - OS context: `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
+
+- **`greetings.zsh`** - Friendly, encouraging messages
+  - `get_random_greeting` - Welcome messages
+  - `get_random_completion_message` - Success celebrations
+  - `get_random_friend_greeting` - Warm, personal greetings
+
+**Using in your own scripts:**
+```bash
+#!/usr/bin/env zsh
+# Source shared libraries
+source "${0:A:h}/../bin/lib/colors.zsh"
+source "${0:A:h}/../bin/lib/ui.zsh"
+source "${0:A:h}/../bin/lib/utils.zsh"
+
+# Use consistent UI
+draw_section_header "My Custom Script"
+print_info "Detecting operating system..."
+OS=$(detect_os)
+print_success "Running on: $OS"
+```
+
+See **[CLAUDE.md](CLAUDE.md#shared-libraries-binlib)** for complete library documentation.
 
 ### Configuration Files
-Meticulously crafted configurations for:
-- **Shells**: zsh, bash, starship prompt
-- **Editors**: [Neovim](https://github.com/Buckmeister/lualoves.nvim) (git submodule), Vim, Emacs
-- **Terminals**: Kitty, Alacritty
-- **Tools**: tmux, git, ranger, and more
-- **macOS**: Karabiner keyboard remapping
+
+Meticulously crafted configurations providing a cohesive development environment:
+
+- **Shells**: `zsh/`, `bash/`, `aliases/`
+  - zsh with zplug plugin management
+  - Shared aliases across shells
+  - Custom functions and completion
+  - Integration with starship prompt
+
+- **Prompts**: `starship/`, `p10k/`
+  - Starship: Modern, fast, cross-shell prompt
+  - Powerlevel10k: Feature-rich zsh theme
+  - Git status, language versions, execution time
+  - Custom segments and styling
+
+- **Editors**: [Neovim](https://github.com/Buckmeister/lualoves.nvim), `vim/`, `emacs/`
+  - Neovim: Full-featured Lua config (git submodule)
+  - lazy.nvim plugin manager
+  - LSP support for 10+ languages
+  - Telescope, nvim-tree, and more
+  - Traditional Vim config for fallback
+  - Emacs config for macOS
+
+- **Terminals**: `kitty/`, `alacritty/`
+  - Kitty: GPU-accelerated with ligatures
+  - Alacritty: Fast, minimal, cross-platform
+  - Consistent OneDark color scheme
+  - Font configurations for Nerd Fonts
+
+- **Multiplexer**: `tmux/`
+  - Custom prefix key (Ctrl+a)
+  - Vim-style navigation
+  - Status bar with system info
+  - Session management
+
+- **Version Control**: `git/`
+  - Global gitconfig with aliases
+  - diff-so-fancy integration
+  - Commit templates and hooks
+  - GPG signing support
+
+- **File Manager**: `ranger/`
+  - Vim keybindings
+  - Image previews
+  - Custom commands
+
+- **macOS Integration**: `karabiner/`, `hammerspoon/`
+  - Karabiner: Keyboard remapping
+  - Hammerspoon: Window management and automation
 
 **See [MANUAL.md](MANUAL.md) for complete configuration reference, keybindings, and usage guides.**
 
@@ -110,6 +190,10 @@ Modular, OS-aware installation for:
 - Development toolchains
 - Fonts and visual enhancements
 - System integrations
+
+All post-install scripts follow standardized argument parsing patterns and use shared libraries for consistent UI and error handling.
+
+**See [post-install/README.md](post-install/README.md) for complete documentation on writing, testing, and managing post-install scripts.**
 
 **Disabling Scripts:**
 Control which post-install scripts are available using control files:
@@ -163,6 +247,10 @@ Use ↑↓ or j/k to navigate, Space to select, Enter to execute!
 - `b` - Create backup
 - `q` - Quit
 
+The menu system features a refactored architecture with state management, comprehensive error handling, and extensive test coverage (41/41 tests passing).
+
+**See [bin/menu_tui.md](bin/menu_tui.md) for complete menu architecture, implementation details, and extension guide.**
+
 ---
 
 ## 📖 Architecture Philosophy
@@ -215,6 +303,10 @@ Manage configuration profiles for different contexts:
 ./profile current           # Check active profile
 ```
 
+Profiles provide curated package collections and post-install scripts for different use cases (minimal, standard, full, work, personal). Each profile includes a corresponding package manifest for reproducible environments.
+
+**See [profiles/README.md](profiles/README.md) for complete profile documentation, package lists, and customization guide.**
+
 ### Skip Post-Install Scripts, Do Only Dotfile Linking
 ```bash
 ./setup --skip-pi
@@ -253,6 +345,8 @@ RUST_VERSION=""
 # Pin to specific version
 MAVEN_VERSION="3.9.6"
 ```
+
+The `config/versions.env` file provides centralized version management for all toolchains and packages. Empty values enable automatic updates, while specific version numbers pin packages to those versions.
 
 ### System Health Check
 ```bash
@@ -320,7 +414,9 @@ The repository includes **251 comprehensive tests** across **15 test suites** wi
 - ✅ 100% Pass Rate: All tests consistently pass
 - ✅ ~96% Code Coverage: Comprehensive coverage of critical paths
 
-See [TESTING.md](TESTING.md) for detailed testing documentation.
+The test suite includes configuration-driven testing, modular test runners (smoke/standard/comprehensive), Docker-based validation, and XEN cluster testing for multi-host scenarios.
+
+**See [TESTING.md](TESTING.md) for complete testing documentation including guidelines, infrastructure, and writing new tests.**
 
 ### Managing the Neovim Submodule
 
@@ -354,6 +450,40 @@ git commit -m "Update Neovim submodule reference"
 # Specialized JDT.LS downloader
 ~/.local/bin/get_jdtls_url --version latest
 ```
+
+### Text-to-Speech Utility
+
+The `speak` utility provides audio feedback and notifications for long-running operations:
+
+```bash
+# Basic usage
+speak "Build completed successfully"
+
+# Celebrate success
+speak --celebrate "All tests passed"
+
+# Alert on errors (louder, more urgent)
+speak --alert "Deployment failed - check logs"
+
+# Custom voice (macOS)
+speak --voice "Samantha" "Hello from Samantha"
+
+# Adjust speech rate (words per minute)
+speak --rate 200 "Speaking quickly"
+
+# Combine options
+speak --celebrate --rate 180 "Setup complete"
+```
+
+**Cross-Platform Support:**
+- **macOS**: Uses built-in `say` command with full voice and rate control
+- **Linux**: Uses `espeak` or `festival` (install via package manager)
+- **WSL/Windows**: Falls back to silent operation with visual feedback
+
+**Perfect for:**
+- Long test suite completions: `./tests/run_tests.zsh && speak --celebrate "Tests done"`
+- Build notifications: `cargo build --release && speak "Build ready"`
+- Remote deployments: `./deploy.sh && speak --alert "Check deployment status"`
 
 **See [MANUAL.md](MANUAL.md#utility-scripts) for complete documentation of all utility scripts.**
 
@@ -836,8 +966,9 @@ Complete documentation suite for all aspects of the dotfiles system:
 - **[profiles/README.md](profiles/README.md)** - Configuration profiles (minimal, standard, full, work, personal)
 - **[post-install/README.md](post-install/README.md)** - Post-install scripts system and writing guide
 - **[post-install/ARGUMENT_PARSING.md](post-install/ARGUMENT_PARSING.md)** - Standardized argument parsing patterns
+- **[bin/menu_tui.md](bin/menu_tui.md)** - Interactive TUI menu architecture and implementation (Phase 7)
 - **[tests/README.md](tests/README.md)** - Test directory structure, libraries, and framework reference
-- **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and Phase 5 testing infrastructure
+- **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and testing infrastructure evolution (Phases 5-7)
 
 ### Quick Navigation
 

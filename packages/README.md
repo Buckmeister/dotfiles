@@ -537,6 +537,39 @@ Package scripts use the same UI libraries:
 
 ---
 
+## 📚 See Also
+
+### Core Documentation
+- **[SCHEMA.md](SCHEMA.md)** - Complete package manifest schema reference
+- **[base.yaml](base.yaml)** - Curated base manifest with ~50 essential packages
+- **[profiles/README.md](../profiles/README.md)** - Configuration profiles that use package manifests
+- **[Main README](../README.md)** - Dotfiles repository overview and quick start
+
+### Package Management Tools
+- **[bin/generate_package_manifest](../bin/generate_package_manifest.symlink_local_bin.zsh)** - Export current system to manifest
+- **[bin/install_from_manifest](../bin/install_from_manifest.symlink_local_bin.zsh)** - Install packages from manifest
+- **[bin/sync_packages](../bin/sync_packages.symlink_local_bin.zsh)** - Keep manifest synchronized with system
+
+### Integration Points
+- **[bin/profile_manager.zsh](../bin/profile_manager.zsh)** - Profile management (auto-installs packages)
+- **[bin/wizard.zsh](../bin/wizard.zsh)** - Interactive setup wizard (generates custom manifests)
+- **[bin/librarian.zsh](../bin/librarian.zsh)** - System health checker (validates package installation)
+
+### Post-Install System
+- **[post-install/README.md](../post-install/README.md)** - Post-install script system documentation
+- **[post-install/scripts/](../post-install/scripts/)** - Individual package installation scripts
+
+### Testing & Validation
+- **[TESTING.md](../TESTING.md)** - Comprehensive testing documentation
+- **[tests/README.md](../tests/README.md)** - Test infrastructure and execution guide
+
+### Project Philosophy
+- **[CLAUDE.md](../CLAUDE.md)** - AI assistant guidance and system architecture
+- **[ACTION_PLAN.md](../ACTION_PLAN.md)** - Development roadmap including Phase 4 integration
+- **[CHANGELOG.md](../CHANGELOG.md)** - Project history (see Phase 4 for package-profile integration)
+
+---
+
 ## 🙏 Acknowledgments
 
 This system draws inspiration from:
