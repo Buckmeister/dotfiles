@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'dfauto'
-      - 'dfsetup'
-      - 'dfauto.ps1'
-      - 'dfsetup.ps1'
+      - 'install/dfauto'
+      - 'install/dfsetup'
+      - 'install/dfauto.ps1'
+      - 'install/dfsetup.ps1'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -31,10 +31,10 @@ jobs:
       - name: Sync installer files
         run: |
           # Copy installers from dotfiles to GitHub Pages
-          cp dotfiles/dfauto pages/dfauto
-          cp dotfiles/dfsetup pages/dfsetup
-          cp dotfiles/dfauto.ps1 pages/dfauto.ps1
-          cp dotfiles/dfsetup.ps1 pages/dfsetup.ps1
+          cp dotfiles/install/dfauto pages/dfauto
+          cp dotfiles/install/dfsetup pages/dfsetup
+          cp dotfiles/install/dfauto.ps1 pages/dfauto.ps1
+          cp dotfiles/install/dfsetup.ps1 pages/dfsetup.ps1
 
           # Set executable permissions for Unix scripts
           chmod +x pages/dfauto pages/dfsetup
