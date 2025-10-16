@@ -301,12 +301,12 @@ main() {
     printf "${COLOR_RESET}"
 
     print_info "Dotfiles location: $DOTFILES_DIR"
-    print_info "Configuration: $DOTFILES_DIR/config/"
+    print_info "Configuration: $DOTFILES_DIR/env/"
     echo ""
     print_info "💡 Next steps:"
     echo "   1. Restart your terminal or run: source ~/.zshrc"
-    echo "   2. Review the configuration in $DOTFILES_DIR/config/"
-    echo "   3. Customize personal settings in $DOTFILES_DIR/config/personal.env"
+    echo "   2. Review the configuration in $DOTFILES_DIR/env/"
+    echo "   3. Customize personal settings in $DOTFILES_DIR/env/personal.env"
     echo ""
 
     printf "${COLOR_PURPLE}${COLOR_BOLD}"
