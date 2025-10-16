@@ -363,7 +363,7 @@ Profiles provide curated package collections and post-install scripts for differ
 ./update --system --toolchains
 ```
 
-**Version Pinning**: Control which packages get updated by editing `config/versions.env`:
+**Version Pinning**: Control which packages get updated by editing `env/versions.env`:
 ```bash
 # Auto-update (empty value)
 RUST_VERSION=""
@@ -372,7 +372,7 @@ RUST_VERSION=""
 MAVEN_VERSION="3.9.6"
 ```
 
-The `config/versions.env` file provides centralized version management for all toolchains and packages. Empty values enable automatic updates, while specific version numbers pin packages to those versions.
+The `env/versions.env` file provides centralized version management for all toolchains and packages. Empty values enable automatic updates, while specific version numbers pin packages to those versions.
 
 ### System Health Check
 ```bash
@@ -606,7 +606,7 @@ cd ~/.config/dotfiles
 
 # Make your customizations
 vim configs/shell/zsh/zshrc.symlink
-vim config/packages/cargo-packages.list
+vim env/packages/cargo-packages.list
 
 # Commit and push changes
 git add .
@@ -646,7 +646,7 @@ git pull
 cd ~/.config/dotfiles
 
 # Add a new Rust tool to install list
-echo "tokei" >> config/packages/cargo-packages.list
+echo "tokei" >> env/packages/cargo-packages.list
 
 # Install it
 ./post-install/scripts/cargo-packages.zsh
@@ -659,7 +659,7 @@ vim configs/prompts/starship/starship.symlink_config/starship.toml
 tokei .    # Count lines of code in current directory
 
 # Commit your changes
-git add config/packages/cargo-packages.list
+git add env/packages/cargo-packages.list
 git add configs/prompts/starship/starship.symlink_config/starship.toml
 git commit -m "Add tokei and customize prompt"
 git push

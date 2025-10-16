@@ -11,7 +11,7 @@
 #   - ruby (Ruby interpreter) → system package (brew install ruby)
 #   - gem (Ruby package manager) → installed with Ruby
 #
-# Package list: config/packages/ruby-gems.list
+# Package list: env/packages/ruby-gems.list
 #
 # Note: Some gems may require sudo for system-wide installation.
 #       Solargraph (Ruby LSP) is installed via system package manager.

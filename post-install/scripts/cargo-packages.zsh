@@ -11,7 +11,7 @@
 #   - cargo (Rust package manager) → provided by toolchains.zsh
 #   - rustc (Rust compiler) → provided by toolchains.zsh
 #
-# Package list: config/packages/cargo-packages.list
+# Package list: env/packages/cargo-packages.list
 # ============================================================================
 
 emulate -LR zsh

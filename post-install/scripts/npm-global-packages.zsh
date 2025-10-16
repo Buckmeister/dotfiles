@@ -10,7 +10,7 @@
 # Dependencies:
 #   - npm (Node.js package manager) → system package (brew install node)
 #
-# Package list: config/packages/npm-packages.list
+# Package list: env/packages/npm-packages.list
 # ============================================================================
 
 emulate -LR zsh

@@ -141,7 +141,7 @@ echo "   • Log format: pretty with colors"
 echo "   • Global gitignore: ~/.gitignore"
 
 echo
-print_info "💡 Tip: Override user settings in config/personal.env with GIT_USER_NAME and GIT_USER_EMAIL"
+print_info "💡 Tip: Override user settings in env/personal.env with GIT_USER_NAME and GIT_USER_EMAIL"
 
 echo
 print_success "$(get_random_friend_greeting)"

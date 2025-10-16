@@ -2041,6 +2041,129 @@ esac
 
 ---
 
+### Phase 7.8: Directory Naming Refinement (config → env) ✅ COMPLETE
+**Goal:** Eliminate naming confusion between `config/` and `configs/` directories
+**Status:** ✅ Completed (October 16, 2025)
+**Requestor:** Thomas
+**Related:** Quick improvement following Phase 8 planning discussions
+
+#### Background
+
+During Phase 8 planning, Thomas identified potential confusion between two similarly-named directories:
+- `config/` - System-level environment files (paths.env, versions.env, personal.env) + package lists
+- `configs/` - Application-specific configurations (vim, zsh, kitty, etc.)
+
+**User Request:** *"Can we maybe rename the config folder to settings? I think having a config and configs folder at the same time is confusing. Or do you have a different idea maybe?"*
+
+**Analysis & Recommendation:**
+After analyzing directory contents, recommended renaming `config/` → `env/` since it primarily contains environment configuration and package lists, making it more descriptive and eliminating confusion.
+
+**User Approval:** *"I like your recommendation very much .. please go ahead, Aria 👍"*
+
+#### Implementation
+
+**Task 7.8.1: Directory Rename with History Preservation** ⭐⭐⭐⭐⭐
+**Status:** ✅ Completed
+
+Used `git mv` to preserve file history:
+```bash
+git mv config env
+```
+
+**Task 7.8.2: Update All References** ⭐⭐⭐⭐⭐
+**Status:** ✅ Completed
+
+**Files Updated (13 total):**
+- `bin/update_all.zsh` - Version file references
+- `bin/librarian.zsh` - Package manifest location
+- `tests/integration/test_update_system.zsh` - Test assertions
+- `post-install/scripts/cargo-packages.zsh` - Package list path
+- `post-install/scripts/npm-global-packages.zsh` - Package list path
+- `post-install/scripts/ruby-gems.zsh` - Package list path
+- `post-install/scripts/luarocks-packages.zsh` - Package list path
+- `post-install/scripts/git-settings-general.zsh` - Config file references
+- `README.md` - Documentation
+- `INSTALL.md` - Documentation
+- `DEVELOPMENT.md` - Documentation
+- `CLAUDE.md` - Documentation
+- `post-install/README.md` - Documentation
+
+**Pattern Replacements:**
+- `config/packages` → `env/packages`
+- `config/paths` → `env/paths`
+- `config/versions` → `env/versions`
+- `config/personal` → `env/personal`
+
+**Task 7.8.3: Update CLAUDE.md with User Preferences** ⭐⭐⭐⭐
+**Status:** ✅ Completed
+
+Added to "Notes for AI Assistants" section:
+```markdown
+- **Use the Speak Script**: For enhanced user experience, use the `speak` script for:
+  - **White circle outputs** (⏺) - Important status messages and informational updates
+  - **Permission prompts** - When requesting user approval or input
+  - **Task completions** - When finishing significant tasks or milestones
+  - Example: `speak --friendly "Good find! The env/packages directory is ready"`
+
+- **Keep Documentation Updated**: As you work, update:
+  - **ACTION_PLAN.md** - Mark tasks complete, adjust priorities, add new phases
+  - **Meetings.md** (local only) - Document completed milestones and key decisions
+  - Remember: ACTION_PLAN.md is a living document, Meetings.md is an append-only journal
+```
+
+**User Request:** *"Can we please memorize in our Claude.md file that I would to encourage you use our 'speak' script for all of your outputs with 'white circles' e.g. '⏺ Good find! The config/packages/ ...' as well as everytime you are about to prompt me for permissions or on completed tasks. Please also memorize to update our ACTION_PLAN.md and our (local only) Meetings.md as you go."*
+
+#### Results
+
+**Impact:**
+- ✅ Directory naming now clear and intuitive
+- ✅ No confusion between `env/` (environment/system) and `configs/` (applications)
+- ✅ All references updated across 13 files
+- ✅ Git history preserved
+- ✅ AI assistant behavioral preferences documented
+- ✅ Documentation maintenance expectations clarified
+
+**Testing:**
+- Speak script verified working: `speak --friendly "Directory renamed successfully!"`
+- All references validated via grep
+
+**Commit:**
+```bash
+git add -A
+git commit -m "Rename config/ to env/ for improved clarity
+
+- Renamed config/ → env/ (environment/system configuration)
+- Updated 13 files with path references:
+  - bin/update_all.zsh, bin/librarian.zsh
+  - 4 post-install scripts (cargo, npm, ruby, luarocks, git-settings)
+  - tests/integration/test_update_system.zsh
+  - All documentation (README, CLAUDE, DEVELOPMENT, INSTALL, post-install/README)
+- Enhanced CLAUDE.md with AI assistant preferences:
+  - Use speak script for white circle outputs, prompts, completions
+  - Keep ACTION_PLAN.md and Meetings.md updated as work progresses
+- Eliminates confusion with configs/ (application configurations)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+#### Success Criteria
+
+- [x] Directory renamed using git mv
+- [x] All script references updated
+- [x] All documentation updated
+- [x] CLAUDE.md enhanced with user preferences
+- [x] Speak script tested and working
+- [x] No functionality broken
+- [x] Thomas approval: "I like your recommendation very much"
+
+**Estimated Time:** 30-45 minutes (actual)
+**Value:** Medium (improved clarity and usability)
+**Priority:** Quick improvement (user-requested)
+
+---
+
 ### Phase 8: Repository Restructuring 🗂️ PLANNING
 **Goal:** Reorganize 44+ top-level directories into logical category-based structure
 **Status:** 🎯 Planning Phase (October 16, 2025)

@@ -859,7 +859,7 @@ dotfiles/
 #   - command1 (description) → provider_script.zsh
 #   - command2 (description) → "system package"
 #
-# Package list: config/packages/your-packages.list
+# Package list: env/packages/your-packages.list
 #
 # Options:
 #   --help, -h      Show help message
@@ -1028,7 +1028,7 @@ draw_section_header "Installing Cargo Packages"
 cargo_install_from_list "$PACKAGE_LIST"
 ```
 
-**Package list format** (`config/packages/cargo-packages.list`):
+**Package list format** (`env/packages/cargo-packages.list`):
 ```
 # Comments start with #
 # Blank lines ignored

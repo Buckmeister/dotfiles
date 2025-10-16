@@ -329,7 +329,7 @@ After installation, customize your setup to match your preferences:
 
 ### 1. Personal Settings
 
-Edit `~/.config/dotfiles/config/personal.env` for personal configurations:
+Edit `~/.config/dotfiles/env/personal.env` for personal configurations:
 ```bash
 # Git identity
 export GIT_USER_NAME="Your Name"
@@ -345,7 +345,7 @@ export PATH="$HOME/my-tools:$PATH"
 
 ### 2. Package Lists
 
-Modify package lists in `~/.config/dotfiles/config/packages/`:
+Modify package lists in `~/.config/dotfiles/env/packages/`:
 - `cargo-packages.list` - Rust command-line tools (ripgrep, fd, bat, etc.)
 - `npm-packages.list` - Node.js global packages (language servers, CLI tools)
 - `ruby-gems.list` - Ruby gems (solargraph, standard)
@@ -353,7 +353,7 @@ Modify package lists in `~/.config/dotfiles/config/packages/`:
 
 **Example: Adding a Rust package**
 ```bash
-echo "tokei" >> ~/.config/dotfiles/config/packages/cargo-packages.list
+echo "tokei" >> ~/.config/dotfiles/env/packages/cargo-packages.list
 cd ~/.config/dotfiles
 ./setup  # Re-run cargo-packages script from menu
 ```

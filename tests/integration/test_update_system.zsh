@@ -95,7 +95,7 @@ test_case "ruby-gems.zsh should have --update flag" '
 '
 
 test_case "versions.env should document update strategy" '
-    local versions_file="$DOTFILES_ROOT/config/versions.env"
+    local versions_file="$DOTFILES_ROOT/env/versions.env"
 
     assert_file_exists "$versions_file" "versions.env should exist"
 

@@ -11,7 +11,7 @@
 #   - luarocks (Lua package manager) → system package
 #
 # Note: Currently no packages configured for installation.
-#       Edit this script or create config/packages/luarocks-packages.list to add packages.
+#       Edit this script or create env/packages/luarocks-packages.list to add packages.
 # ============================================================================
 
 emulate -LR zsh
@@ -94,7 +94,7 @@ draw_section_header "Installing LuaRocks Packages"
 # luarocks install <package-name>
 
 print_info "No LuaRocks packages configured for installation"
-print_info "Edit this script or config/packages/luarocks-packages.list to add packages"
+print_info "Edit this script or env/packages/luarocks-packages.list to add packages"
 
 # ============================================================================
 # Summary
@@ -109,7 +109,7 @@ echo "   • No packages currently configured"
 echo "   • Edit this script to add packages"
 
 echo
-print_info "💡 Note: Add package installations above or create config/packages/luarocks-packages.list"
+print_info "💡 Note: Add package installations above or create env/packages/luarocks-packages.list"
 
 echo
 print_success "$(get_random_friend_greeting)"

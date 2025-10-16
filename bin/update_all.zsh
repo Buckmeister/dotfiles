@@ -6,7 +6,7 @@
 #
 # This script provides a single entry point for updating all development
 # tools, packages, and configurations. It respects version pins from
-# config/versions.env and provides detailed control over what gets updated.
+# env/versions.env and provides detailed control over what gets updated.
 #
 # Usage:
 #   ./bin/update_all.zsh                    # Update everything
@@ -21,7 +21,7 @@
 #   ./bin/update_all.zsh --dry-run          # Preview what would be updated
 #
 # Version Pinning:
-#   - Reads config/versions.env for pinned versions
+#   - Reads env/versions.env for pinned versions
 #   - Empty values = "use latest" (will update)
 #   - Specific values = pinned (will skip update with message)
 #
@@ -189,7 +189,7 @@ EXAMPLES:
     ./bin/update_all.zsh --dry-run
 
 VERSION PINNING:
-    Version pins are read from config/versions.env:
+    Version pins are read from env/versions.env:
     - Empty values ("") = use latest (will update)
     - Specific values = pinned (will skip with message)
 

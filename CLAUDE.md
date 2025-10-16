@@ -94,7 +94,7 @@ These wrappers provide helpful error messages and OS-specific installation instr
 The update system provides a centralized way to update all packages and toolchains:
 
 - **`bin/update_all.zsh`** - Central update script with category filtering and dry-run mode
-- **Version Pinning** - Control updates via `config/versions.env` (empty = auto-update, specific = pin)
+- **Version Pinning** - Control updates via `env/versions.env` (empty = auto-update, specific = pin)
 - **Individual --update Flags** - Post-install scripts support `--update` for granular control
 - **Menu Integration** - Press `u` in menu for one-click updates
 
@@ -660,8 +660,18 @@ When working with this codebase:
 - **Document Changes**: Update this file, README.md, and TESTING.md as appropriate
 - **Write Tests**: Add tests for new functionality (see TESTING.md)
 - **Update System Integration**: New package scripts should support `--update` flag
-- **Version Pinning**: Document version control in `config/versions.env`
+- **Version Pinning**: Document version control in `env/versions.env`
 - **Preserve the Vision**: This is a "symphony" - every component should harmonize
+- **Use the Speak Script**: For enhanced user experience, use the `speak` script for:
+  - **White circle outputs** (⏺) - Important status messages and informational updates
+  - **Permission prompts** - When requesting user approval or input
+  - **Task completions** - When finishing significant tasks or milestones
+  - Example: `speak --friendly "Good find! The env/packages directory is ready"`
+  - See "Text-to-Speech (speak)" section above for full documentation
+- **Keep Documentation Updated**: As you work, update:
+  - **ACTION_PLAN.md** - Mark tasks complete, adjust priorities, add new phases
+  - **Meetings.md** (local only) - Document completed milestones and key decisions
+  - Remember: ACTION_PLAN.md is a living document, Meetings.md is an append-only journal
 
 ### Coding Standards and Style Guidelines
 
@@ -907,7 +917,7 @@ When refactoring existing code:
 - **Important**: This file contains personal and private information and must remain local only
 
 Other local-only files in `.gitignore`:
-- `config/personal.env` - Personal environment variables
+- `env/personal.env` - Personal environment variables
 - `.claude/settings.local.json` - Claude Code local settings
 - `archive/` - Archived legacy files
 - Various cache and temporary files

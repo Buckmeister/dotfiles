@@ -534,7 +534,7 @@ Use this template as a starting point for new post-install scripts:
 #   - command1 (description) → provider script or "system package"
 #   - command2 (description) → provider script or "system package"
 #
-# Package list: config/packages/your-package-list.list (if applicable)
+# Package list: env/packages/your-package-list.list (if applicable)
 #
 # Notes:
 #   - Any special considerations
@@ -881,7 +881,7 @@ draw_section_header "Installing Cargo Packages"
 cargo_install_from_list "$PACKAGE_LIST"
 ```
 
-**Package List Format** (`config/packages/cargo-packages.list`):
+**Package List Format** (`env/packages/cargo-packages.list`):
 ```
 # Rust CLI tools
 ripgrep
@@ -1180,11 +1180,11 @@ check_and_resolve_dependencies || exit 1
 
 **Issue:** Package list not found
 ```
-Error: Package list not found: config/packages/your-list.list
+Error: Package list not found: env/packages/your-list.list
 ```
 **Solution:** Create the package list file or adjust the path:
 ```bash
-touch ~/.config/dotfiles/config/packages/your-packages.list
+touch ~/.config/dotfiles/env/packages/your-packages.list
 ```
 
 ---
@@ -1337,7 +1337,7 @@ Follow this order:
 2. **Follow the template** provided in this document
 3. **Use shared libraries** for consistency
 4. **Test thoroughly** on your target platforms
-5. **Add package list** to `config/packages/` if needed
+5. **Add package list** to `env/packages/` if needed
 6. **Update this README** if you're adding a new category
 
 ### Improving Existing Scripts
@@ -1358,7 +1358,7 @@ Follow this order:
 - [ ] Supports `--help` flag
 - [ ] Includes helpful output and messages
 - [ ] Works on target platforms (macOS, Linux, Windows)
-- [ ] Package lists are in `config/packages/`
+- [ ] Package lists are in `env/packages/`
 - [ ] Documentation is updated
 
 ---

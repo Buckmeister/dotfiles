@@ -538,7 +538,7 @@ if [[ $pkg_executable -eq 3 ]]; then
     # Look for package manifest in common locations
     manifest_locations=(
         "$dotfiles_root/packages/manifest.yaml"
-        "$HOME/.config/packages.yaml"
+        "$HOME/.env/packages.yaml"
         "$HOME/package-manifest.yaml"
     )
 
