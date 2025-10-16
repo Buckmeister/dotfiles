@@ -112,56 +112,98 @@ validate_command "git" || exit 1
 print_success "Ready to go!"
 ```
 
+### Repository Structure
+
+The dotfiles are organized into logical categories for easy navigation and maintenance:
+
+```
+~/.config/dotfiles/
+├── 📚 Documentation/              README, guides, philosophy
+├── 🎯 Entry Points/               setup, wizard, backup, librarian
+├── 🛠️ Core Infrastructure/
+│   ├── bin/                      Main scripts + shared libraries
+│   ├── tests/                    Test suite (251 tests)
+│   ├── post-install/             Post-install script system
+│   ├── packages/                 Universal package management
+│   └── profiles/                 Configuration profiles
+├── 🎨 configs/                    Application configurations (organized by category)
+│   ├── shell/                    zsh, bash, fish, aliases, readline
+│   ├── editors/                  nvim, vim, emacs
+│   ├── terminals/                kitty, alacritty, macos-terminal
+│   ├── multiplexers/             tmux
+│   ├── prompts/                  starship, p10k
+│   ├── version-control/          git, github
+│   ├── development/              maven, jdt.ls, ghci
+│   ├── utilities/                ranger, neofetch, bat
+│   └── system/                   karabiner, xcode, xmodmap, xprofile
+└── 📦 resources/                  Screenshots, snippets, shared assets
+```
+
+**Benefits of the organized structure:**
+- ✅ **Easy Discovery** - Browse by category to find configurations
+- ✅ **Logical Grouping** - Related tools are together
+- ✅ **Scalability** - Clear place for new configurations
+- ✅ **Maintainability** - Clean, professional appearance
+- ✅ **Full Compatibility** - Symlink system works seamlessly with subdirectories
+
+**See [DEVELOPMENT.md](DEVELOPMENT.md#repository-structure) for complete structural details and [CLAUDE.md](CLAUDE.md#repository-architecture) for architecture philosophy.**
+
 ### Configuration Files
 
 Meticulously crafted configurations providing a cohesive development environment:
 
-- **Shells**: `zsh/`, `bash/`, `aliases/`
+- **Shells**: `configs/shell/{zsh,bash,fish,aliases,readline}`
   - zsh with zplug plugin management
   - Shared aliases across shells
   - Custom functions and completion
   - Integration with starship prompt
 
-- **Prompts**: `starship/`, `p10k/`
+- **Prompts**: `configs/prompts/{starship,p10k}`
   - Starship: Modern, fast, cross-shell prompt
   - Powerlevel10k: Feature-rich zsh theme
   - Git status, language versions, execution time
   - Custom segments and styling
 
-- **Editors**: [Neovim](https://github.com/Buckmeister/lualoves.nvim), `vim/`, `emacs/`
-  - Neovim: Full-featured Lua config (git submodule)
+- **Editors**: `configs/editors/{nvim,vim,emacs}`
+  - Neovim: Full-featured Lua config ([git submodule](https://github.com/Buckmeister/lualoves.nvim))
   - lazy.nvim plugin manager
   - LSP support for 10+ languages
   - Telescope, nvim-tree, and more
   - Traditional Vim config for fallback
   - Emacs config for macOS
 
-- **Terminals**: `kitty/`, `alacritty/`
+- **Terminals**: `configs/terminals/{kitty,alacritty,macos-terminal}`
   - Kitty: GPU-accelerated with ligatures
   - Alacritty: Fast, minimal, cross-platform
+  - macOS Terminal.app themes
   - Consistent OneDark color scheme
   - Font configurations for Nerd Fonts
 
-- **Multiplexer**: `tmux/`
+- **Multiplexer**: `configs/multiplexers/tmux`
   - Custom prefix key (Ctrl+a)
   - Vim-style navigation
   - Status bar with system info
   - Session management
 
-- **Version Control**: `git/`
+- **Version Control**: `configs/version-control/git`
   - Global gitconfig with aliases
   - diff-so-fancy integration
   - Commit templates and hooks
   - GPG signing support
 
-- **File Manager**: `ranger/`
-  - Vim keybindings
-  - Image previews
-  - Custom commands
+- **Utilities**: `configs/utilities/{ranger,neofetch,bat}`
+  - Ranger: Vim keybindings, image previews
+  - Neofetch: System info display
+  - Bat: Cat replacement with syntax highlighting
 
-- **macOS Integration**: `karabiner/`, `hammerspoon/`
+- **Development Tools**: `configs/development/{maven,jdt.ls,ghci}`
+  - Maven wrapper installation
+  - Eclipse JDT Language Server for Java
+  - GHCi configuration for Haskell
+
+- **macOS Integration**: `configs/system/{karabiner,xcode}`
   - Karabiner: Keyboard remapping
-  - Hammerspoon: Window management and automation
+  - Xcode: Command-line tools management
 
 **See [MANUAL.md](MANUAL.md) for complete configuration reference, keybindings, and usage guides.**
 
@@ -238,16 +280,18 @@ The menu system features a refactored architecture with state management, compre
 ## 📖 Architecture Philosophy
 
 ### Symlink Patterns
-This repository uses a convention-based symlink system:
+This repository uses a convention-based symlink system that works regardless of directory depth:
 
 - `*.symlink` → `~/.{basename}`
 - `*.symlink_config` → `~/.config/{basename}`
 - `*.symlink_local_bin.*` → `~/.local/bin/{basename}`
 
 **Example**:
-- `zsh/zshrc.symlink` → `~/.zshrc`
-- `nvim/nvim.symlink_config/` → `~/.config/nvim/`
-- `github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+- `configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
+- `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
+- `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+
+The `link_dotfiles.zsh` script uses `find` to discover files by pattern, making subdirectory organization transparent to the linking system.
 
 ### OS Context Variables
 Every post-install script receives:
@@ -561,7 +605,7 @@ tmux          # Start tmux with custom config
 cd ~/.config/dotfiles
 
 # Make your customizations
-vim zsh/zshrc.symlink
+vim configs/shell/zsh/zshrc.symlink
 vim config/packages/cargo-packages.list
 
 # Commit and push changes
@@ -608,7 +652,7 @@ echo "tokei" >> config/packages/cargo-packages.list
 ./post-install/scripts/cargo-packages.zsh
 
 # Customize your starship prompt
-vim starship/starship.symlink_config/starship.toml
+vim configs/prompts/starship/starship.symlink_config/starship.toml
 # Changes are immediately reflected (symlinked)
 
 # Test the new tool
@@ -616,7 +660,7 @@ tokei .    # Count lines of code in current directory
 
 # Commit your changes
 git add config/packages/cargo-packages.list
-git add starship/starship.symlink_config/starship.toml
+git add configs/prompts/starship/starship.symlink_config/starship.toml
 git commit -m "Add tokei and customize prompt"
 git push
 ```
@@ -713,8 +757,8 @@ cd ~/.config/dotfiles
 # Backup is saved to: ~/Downloads/dotfiles_repo_backups/dotfiles_backup_YYYYMMDD-HHMMSS.zip
 
 # Now experiment safely
-vim zsh/zshrc.symlink           # Make changes
-./setup --skip-pi                # Apply changes
+vim configs/shell/zsh/zshrc.symlink    # Make changes
+./setup --skip-pi                       # Apply changes
 
 # If something breaks, restore:
 cd ~/Downloads/dotfiles_repo_backups
@@ -723,9 +767,9 @@ cp -r /tmp/restore/.config/dotfiles ~/.config/
 
 # Or just revert with git:
 cd ~/.config/dotfiles
-git status                       # See what changed
-git checkout -- zsh/zshrc.symlink  # Revert specific file
-git reset --hard HEAD            # Revert everything
+git status                              # See what changed
+git checkout -- configs/shell/zsh/zshrc.symlink  # Revert specific file
+git reset --hard HEAD                   # Revert everything
 ```
 
 **Result:** Experiment fearlessly with easy rollback.
