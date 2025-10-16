@@ -202,7 +202,7 @@ docker run -it --rm ubuntu:24.04 bash
 
 # Inside container:
 apt-get update && apt-get install -y curl git zsh
-curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
+curl -fsSL https://buckmeister.github.io/dfauto | sh
 cd ~/.config/dotfiles
 ./bin/profile_manager.zsh list
 ./bin/librarian.zsh
@@ -213,7 +213,7 @@ cd ~/.config/dotfiles
 # After test failure, inspect specific issue
 docker run --rm ubuntu:24.04 bash -c "
   apt-get update -qq && apt-get install -y -qq curl git zsh
-  curl -fsSL https://buckmeister.github.io/dotfiles/dfauto | sh
+  curl -fsSL https://buckmeister.github.io/dfauto | sh
   cd ~/.config/dotfiles
   ls -la profiles/manifests/
   ./bin/profile_manager.zsh show standard
