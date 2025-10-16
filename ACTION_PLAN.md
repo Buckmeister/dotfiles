@@ -2041,6 +2041,957 @@ esac
 
 ---
 
+### Phase 8: Repository Restructuring 🗂️ PLANNING
+**Goal:** Reorganize 44+ top-level directories into logical category-based structure
+**Status:** 🎯 Planning Phase (October 16, 2025)
+**Requestor:** Thomas
+**Related:** Will be documented in MEETINGS.md when implementation begins
+
+#### Background
+
+The dotfiles repository has grown organically to **44+ top-level directories**, creating a cluttered structure that makes navigation difficult. However, the symlink-based architecture is resilient: `link_dotfiles.zsh` uses `find` to discover files by pattern, making subdirectory grouping safe. Similarly, scripts in `~/.local/bin/` are path-agnostic.
+
+**Current Challenge:**
+```
+~/.config/dotfiles/
+├── alacritty/           # Terminal emulator config
+├── kitty/               # Terminal emulator config
+├── macos-terminal/      # Terminal emulator config
+├── bash/                # Shell config
+├── zsh/                 # Shell config
+├── fish/                # Shell config
+├── aliases/             # Shell config
+├── nvim/                # Editor config
+├── vim/                 # Editor config
+├── emacs/               # Editor config
+├── starship/            # Prompt config
+├── p10k/                # Prompt config
+... (30+ more directories at root level)
+```
+
+**Goal:** Group related configurations while maintaining full compatibility with existing infrastructure.
+
+---
+
+#### Proposed Repository Structure
+
+**New Organization:**
+
+```
+~/.config/dotfiles/
+│
+├── 📚 Documentation (Keep at Root)
+│   ├── README.md
+│   ├── INSTALL.md
+│   ├── MANUAL.md
+│   ├── CLAUDE.md
+│   ├── DEVELOPMENT.md
+│   ├── TESTING.md
+│   ├── CHANGELOG.md
+│   ├── ACTION_PLAN.md
+│   ├── Meetings.md
+│   ├── TeamBio.md
+│   ├── SESSION_SUMMARY.md
+│   └── LICENSE
+│
+├── 🎯 Entry Points (Keep at Root)
+│   ├── setup                    # POSIX wrapper for setup.zsh
+│   ├── update                   # POSIX wrapper for update_all.zsh
+│   ├── backup                   # POSIX wrapper for backup_dotfiles_repo.zsh
+│   ├── wizard                   # POSIX wrapper for wizard.zsh
+│   ├── librarian                # POSIX wrapper for librarian.zsh
+│   ├── dfauto                   # Web installer (automatic mode)
+│   ├── dfauto.ps1               # PowerShell web installer
+│   ├── dfsetup                  # Web installer (interactive mode)
+│   └── dfsetup.ps1              # PowerShell web installer
+│
+├── 🛠️ Core Infrastructure (Keep at Root)
+│   ├── bin/                     # Main scripts + shared libraries
+│   ├── tests/                   # Test suite (251 tests)
+│   ├── post-install/            # Post-install script system
+│   ├── packages/                # Universal package management
+│   ├── profiles/                # Configuration profiles
+│   └── profile/                 # Profile state
+│
+├── 🎨 Application Configurations (NEW: configs/)
+│   ├── shell/                   # Shell configurations
+│   │   ├── zsh/                 # Zsh config (zshrc.symlink)
+│   │   ├── bash/                # Bash config (bashrc.symlink)
+│   │   ├── fish/                # Fish shell config
+│   │   ├── aliases/             # Shared aliases
+│   │   └── readline/            # Readline config
+│   │
+│   ├── editors/                 # Text editor configurations
+│   │   ├── nvim/                # Neovim config (nvim.symlink_config)
+│   │   ├── vim/                 # Vim config (vimrc.symlink)
+│   │   └── emacs/               # Emacs config
+│   │
+│   ├── terminals/               # Terminal emulator configurations
+│   │   ├── kitty/               # Kitty terminal
+│   │   ├── alacritty/           # Alacritty terminal
+│   │   └── macos-terminal/      # macOS Terminal.app
+│   │
+│   ├── multiplexers/            # Terminal multiplexers
+│   │   └── tmux/                # Tmux config
+│   │
+│   ├── prompts/                 # Shell prompt themes
+│   │   ├── starship/            # Starship prompt (starship.symlink_config)
+│   │   └── p10k/                # Powerlevel10k theme
+│   │
+│   ├── version-control/         # Git and version control
+│   │   ├── git/                 # Git config (gitconfig.symlink)
+│   │   └── github/              # GitHub CLI utilities
+│   │
+│   ├── development/             # Development tool configurations
+│   │   ├── maven/               # Maven wrapper
+│   │   ├── jdt.ls/              # Eclipse JDT Language Server
+│   │   ├── stack/               # Haskell Stack
+│   │   └── ghci/                # GHCi (Haskell REPL)
+│   │
+│   ├── languages/               # Language-specific tools
+│   │   ├── R/                   # R language config
+│   │   ├── ipython/             # IPython config
+│   │   ├── stylua/              # Lua formatter
+│   │   └── black/               # Python formatter
+│   │
+│   ├── utilities/               # CLI utility configurations
+│   │   ├── ranger/              # File manager
+│   │   ├── neofetch/            # System info tool
+│   │   └── bat/                 # Cat replacement
+│   │
+│   ├── system/                  # System-level configurations
+│   │   ├── karabiner/           # Keyboard remapping (macOS)
+│   │   ├── xcode/               # Xcode config (macOS)
+│   │   ├── xmodmap/             # X11 key mapping (Linux)
+│   │   └── xprofile/            # X11 session config (Linux)
+│   │
+│   └── package-managers/        # Package manager configs (if applicable)
+│       ├── brew/                # Homebrew config
+│       └── apt/                 # APT config
+│
+├── 📦 Resources (NEW: resources/)
+│   ├── res/                     # Shared resources
+│   ├── screenshots/             # Screenshot utilities
+│   └── snippets/                # Code snippets
+│
+├── 🗄️ Local User Data (Keep at Root)
+│   ├── local/                   # Local-only files (.gitignored)
+│   └── archive/                 # Archived configurations
+│
+└── 🔧 Build/Config Artifacts (Keep at Root)
+    └── config/                  # Build-time configuration
+```
+
+---
+
+#### Category Rationale
+
+**configs/** - Application configurations (30+ directories → 10 categories)
+- **shell/** - All shell configurations (zsh, bash, fish, aliases, readline)
+- **editors/** - Text editors (nvim, vim, emacs)
+- **terminals/** - Terminal emulators (kitty, alacritty, macos-terminal)
+- **multiplexers/** - Terminal multiplexers (tmux)
+- **prompts/** - Shell prompt themes (starship, p10k)
+- **version-control/** - Git and GitHub utilities
+- **development/** - Development tools (maven, jdt.ls, stack, ghci)
+- **languages/** - Language-specific tools (R, ipython, stylua, black)
+- **utilities/** - CLI utilities (ranger, neofetch, bat)
+- **system/** - OS-level configs (karabiner, xcode, xmodmap, xprofile)
+- **package-managers/** - Package manager configs (brew, apt)
+
+**resources/** - Non-configuration resources
+- Screenshots, snippets, shared assets
+
+**Benefits:**
+- Clear logical grouping
+- Easy to find related configurations
+- Scales well as repository grows
+- Maintains compatibility with linking system
+- Clean root directory (only docs, entry points, infrastructure)
+
+---
+
+#### Migration Strategy
+
+**Phase-Based Approach:** Migrate one category at a time, test thoroughly, commit progress.
+
+**Safety Principles:**
+1. **Non-Destructive:** Use `git mv` (preserves history)
+2. **Incremental:** One category at a time
+3. **Validated:** Test linking after each phase
+4. **Reversible:** Easy rollback via git
+5. **Documented:** Clear migration log
+
+---
+
+#### Task Breakdown
+
+**Task 8.1: Pre-Migration Validation** ⭐⭐⭐⭐⭐ CRITICAL
+**Status:** Pending
+**Estimated Effort:** 1 hour
+
+**Deliverables:**
+- [x] Analyze current structure (44 directories identified)
+- [ ] Verify linking script uses find (confirmed: link_dotfiles.zsh uses find)
+- [ ] Verify scripts are path-agnostic (need to check ~/.local/bin scripts)
+- [ ] Create backup of current state
+- [ ] Document all symlink patterns in use
+- [ ] Run full test suite baseline (establish pre-migration test results)
+
+**Validation Steps:**
+```zsh
+# Create pre-migration backup
+./backup  # Creates timestamped backup in ~/Downloads
+
+# Verify linking system
+grep -n "find" bin/link_dotfiles.zsh  # Confirm find-based discovery
+
+# Document current symlinks
+ls -la ~ | grep "^l" > /tmp/symlinks_before.txt
+ls -la ~/.config | grep "^l" >> /tmp/symlinks_before.txt
+ls -la ~/.local/bin | grep "^l" >> /tmp/symlinks_before.txt
+
+# Baseline test run
+./tests/run_tests.zsh > /tmp/test_results_before.txt
+```
+
+**Success Criteria:**
+- Full backup created
+- Linking system confirmed find-based
+- Current symlinks documented
+- Test baseline established (all tests passing)
+
+---
+
+**Task 8.2: Create New Directory Structure** ⭐⭐⭐⭐⭐ CRITICAL
+**Status:** Pending
+**Estimated Effort:** 15 minutes
+
+**Deliverables:**
+- [ ] Create `configs/` directory with subdirectories
+- [ ] Create `resources/` directory
+- [ ] Add README.md files explaining each category
+- [ ] Commit empty structure (safe, reversible)
+
+**Commands:**
+```zsh
+# Create new structure
+mkdir -p configs/{shell,editors,terminals,multiplexers,prompts,version-control,development,languages,utilities,system,package-managers}
+mkdir -p resources
+
+# Add category README files
+cat > configs/README.md <<'EOF'
+# Application Configurations
+
+This directory contains all application-specific configurations, organized by category.
+
+Each subdirectory contains configurations for related tools that share common purposes.
+
+## Categories
+
+- **shell/** - Shell configurations (zsh, bash, fish, aliases)
+- **editors/** - Text editors (nvim, vim, emacs)
+- **terminals/** - Terminal emulators (kitty, alacritty)
+- **multiplexers/** - Terminal multiplexers (tmux)
+- **prompts/** - Shell prompts (starship, p10k)
+- **version-control/** - Git and GitHub
+- **development/** - Development tools (maven, jdt.ls)
+- **languages/** - Language-specific tools (R, python, lua)
+- **utilities/** - CLI utilities (ranger, bat, neofetch)
+- **system/** - OS-level configs (karabiner, xcode, xmodmap)
+- **package-managers/** - Package manager configs (brew, apt)
+
+## Symlink Compatibility
+
+The dotfiles linking system (`bin/link_dotfiles.zsh`) uses `find` to discover configuration files by naming pattern, making this subdirectory organization fully compatible:
+
+- `*.symlink` → `~/.{basename}`
+- `*.symlink_config` → `~/.config/{basename}`
+- `*.symlink_local_bin.*` → `~/.local/bin/{basename}`
+
+Files can be nested arbitrarily deep; the linking system will find them.
+EOF
+
+# Commit structure (safe, no moves yet)
+git add configs/ resources/
+git commit -m "Phase 8.2: Create new repository structure
+
+- Add configs/ directory with 11 category subdirectories
+- Add resources/ directory for non-config assets
+- Add README.md explaining category organization
+- No files moved yet (zero risk)
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+**Success Criteria:**
+- Directory structure created
+- README files document purpose
+- Committed to git (can rollback easily)
+- No existing files moved yet
+
+---
+
+**Task 8.3: Migrate Shell Configurations** ⭐⭐⭐⭐ HIGH
+**Status:** Pending
+**Estimated Effort:** 20 minutes
+
+**Deliverables:**
+- [ ] Move zsh/ → configs/shell/zsh/
+- [ ] Move bash/ → configs/shell/bash/
+- [ ] Move fish/ → configs/shell/fish/
+- [ ] Move aliases/ → configs/shell/aliases/
+- [ ] Move readline/ → configs/shell/readline/
+- [ ] Test linking system
+- [ ] Verify symlinks recreated correctly
+- [ ] Run tests
+- [ ] Commit changes
+
+**Commands:**
+```zsh
+# Move shell configs
+git mv zsh configs/shell/
+git mv bash configs/shell/
+git mv fish configs/shell/
+git mv aliases configs/shell/
+git mv readline configs/shell/
+
+# Recreate symlinks
+./bin/link_dotfiles.zsh
+
+# Verify symlinks
+ls -la ~/.zshrc ~/.bashrc ~/.config/fish
+
+# Test
+./tests/run_tests.zsh
+
+# Commit
+git commit -m "Phase 8.3: Migrate shell configurations to configs/shell/
+
+Moved:
+- zsh/ → configs/shell/zsh/
+- bash/ → configs/shell/bash/
+- fish/ → configs/shell/fish/
+- aliases/ → configs/shell/aliases/
+- readline/ → configs/shell/readline/
+
+✅ Symlinks verified working
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+**Validation:**
+```zsh
+# Verify symlinks exist and point to correct locations
+test -L ~/.zshrc && echo "✓ zshrc symlink exists"
+test -L ~/.bashrc && echo "✓ bashrc symlink exists"
+readlink ~/.zshrc  # Should show new path: ...configs/shell/zsh/zshrc.symlink
+```
+
+**Success Criteria:**
+- All 5 shell directories moved
+- Symlinks recreated correctly
+- All tests still passing
+- Changes committed
+
+**Rollback Strategy:**
+```zsh
+# If issues occur:
+git reset --hard HEAD~1  # Undo commit
+./bin/link_dotfiles.zsh  # Recreate symlinks from previous state
+```
+
+---
+
+**Task 8.4: Migrate Editor Configurations** ⭐⭐⭐⭐ HIGH
+**Status:** Pending
+**Estimated Effort:** 15 minutes
+
+**Deliverables:**
+- [ ] Move nvim/ → configs/editors/nvim/
+- [ ] Move vim/ → configs/editors/vim/
+- [ ] Move emacs/ → configs/editors/emacs/
+- [ ] Test linking system
+- [ ] Verify symlinks (especially ~/.config/nvim)
+- [ ] Run tests
+- [ ] Commit changes
+
+**Commands:**
+```zsh
+# Move editor configs
+git mv nvim configs/editors/
+git mv vim configs/editors/
+git mv emacs configs/editors/
+
+# Recreate symlinks
+./bin/link_dotfiles.zsh
+
+# Verify symlinks
+ls -la ~/.vimrc ~/.config/nvim ~/.config/emacs
+
+# Test
+./tests/run_tests.zsh
+
+# Commit
+git commit -m "Phase 8.4: Migrate editor configurations to configs/editors/
+
+Moved:
+- nvim/ → configs/editors/nvim/
+- vim/ → configs/editors/vim/
+- emacs/ → configs/editors/emacs/
+
+✅ Symlinks verified working
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+**Success Criteria:**
+- All 3 editor directories moved
+- Symlinks correct (especially nvim.symlink_config → ~/.config/nvim)
+- All tests passing
+- Committed
+
+---
+
+**Task 8.5: Migrate Terminal & Multiplexer Configurations** ⭐⭐⭐⭐ HIGH
+**Status:** Pending
+**Estimated Effort:** 15 minutes
+
+**Deliverables:**
+- [ ] Move kitty/ → configs/terminals/kitty/
+- [ ] Move alacritty/ → configs/terminals/alacritty/
+- [ ] Move macos-terminal/ → configs/terminals/macos-terminal/
+- [ ] Move tmux/ → configs/multiplexers/tmux/
+- [ ] Test, verify, commit
+
+**Commands:**
+```zsh
+# Move terminal configs
+git mv kitty configs/terminals/
+git mv alacritty configs/terminals/
+git mv macos-terminal configs/terminals/
+
+# Move multiplexer
+git mv tmux configs/multiplexers/
+
+# Recreate symlinks
+./bin/link_dotfiles.zsh
+
+# Verify
+ls -la ~/.config/kitty ~/.config/alacritty ~/.tmux.conf
+
+# Test and commit
+./tests/run_tests.zsh
+git commit -m "Phase 8.5: Migrate terminal and multiplexer configs
+
+Moved:
+- kitty/ → configs/terminals/kitty/
+- alacritty/ → configs/terminals/alacritty/
+- macos-terminal/ → configs/terminals/macos-terminal/
+- tmux/ → configs/multiplexers/tmux/
+
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.6: Migrate Prompts & Version Control** ⭐⭐⭐ MEDIUM
+**Status:** Pending
+**Estimated Effort:** 15 minutes
+
+**Deliverables:**
+- [ ] Move starship/ → configs/prompts/starship/
+- [ ] Move p10k/ → configs/prompts/p10k/
+- [ ] Move git/ → configs/version-control/git/
+- [ ] Move github/ → configs/version-control/github/
+- [ ] Test, verify, commit
+
+**Commands:**
+```zsh
+# Move prompts
+git mv starship configs/prompts/
+git mv p10k configs/prompts/
+
+# Move version control
+git mv git configs/version-control/
+git mv github configs/version-control/
+
+# Recreate, test, commit
+./bin/link_dotfiles.zsh
+ls -la ~/.config/starship ~/.gitconfig ~/.local/bin/get_github_url
+./tests/run_tests.zsh
+git commit -m "Phase 8.6: Migrate prompts and version control configs
+
+Moved:
+- starship/ → configs/prompts/starship/
+- p10k/ → configs/prompts/p10k/
+- git/ → configs/version-control/git/
+- github/ → configs/version-control/github/
+
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.7: Migrate Development & Language Tools** ⭐⭐⭐ MEDIUM
+**Status:** Pending
+**Estimated Effort:** 20 minutes
+
+**Deliverables:**
+- [ ] Move maven/ → configs/development/maven/
+- [ ] Move jdt.ls/ → configs/development/jdt.ls/
+- [ ] Move stack/ → configs/development/stack/
+- [ ] Move ghci/ → configs/development/ghci/
+- [ ] Move R/ → configs/languages/R/
+- [ ] Move ipython/ → configs/languages/ipython/
+- [ ] Move stylua/ → configs/languages/stylua/
+- [ ] Move black/ → configs/languages/black/
+- [ ] Test, verify, commit
+
+**Commands:**
+```zsh
+# Move development tools
+git mv maven configs/development/
+git mv jdt.ls configs/development/
+git mv stack configs/development/
+git mv ghci configs/development/
+
+# Move language tools
+git mv R configs/languages/
+git mv ipython configs/languages/
+git mv stylua configs/languages/
+git mv black configs/languages/
+
+# Recreate, test, commit
+./bin/link_dotfiles.zsh
+./tests/run_tests.zsh
+git commit -m "Phase 8.7: Migrate development and language tool configs
+
+Development tools moved to configs/development/:
+- maven, jdt.ls, stack, ghci
+
+Language tools moved to configs/languages/:
+- R, ipython, stylua, black
+
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.8: Migrate Utilities & System Configs** ⭐⭐⭐ MEDIUM
+**Status:** Pending
+**Estimated Effort:** 20 minutes
+
+**Deliverables:**
+- [ ] Move ranger/ → configs/utilities/ranger/
+- [ ] Move neofetch/ → configs/utilities/neofetch/
+- [ ] Move bat/ → configs/utilities/bat/
+- [ ] Move karabiner/ → configs/system/karabiner/
+- [ ] Move xcode/ → configs/system/xcode/
+- [ ] Move xmodmap/ → configs/system/xmodmap/
+- [ ] Move xprofile/ → configs/system/xprofile/
+- [ ] Test, verify, commit
+
+**Commands:**
+```zsh
+# Move utilities
+git mv ranger configs/utilities/
+git mv neofetch configs/utilities/
+git mv bat configs/utilities/
+
+# Move system configs
+git mv karabiner configs/system/
+git mv xcode configs/system/
+git mv xmodmap configs/system/
+git mv xprofile configs/system/
+
+# Recreate, test, commit
+./bin/link_dotfiles.zsh
+./tests/run_tests.zsh
+git commit -m "Phase 8.8: Migrate utilities and system configurations
+
+Utilities moved to configs/utilities/:
+- ranger, neofetch, bat
+
+System configs moved to configs/system/:
+- karabiner, xcode, xmodmap, xprofile
+
+✅ All tests passing
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.9: Migrate Resources & Remaining Items** ⭐⭐ LOW
+**Status:** Pending
+**Estimated Effort:** 15 minutes
+
+**Deliverables:**
+- [ ] Move res/ → resources/res/
+- [ ] Move screenshots/ → resources/screenshots/
+- [ ] Move snippets/ → resources/snippets/
+- [ ] Handle brew/, apt/ (determine if configs or scripts)
+- [ ] Test, verify, commit
+
+**Commands:**
+```zsh
+# Move resources
+git mv res resources/
+git mv screenshots resources/
+git mv snippets resources/
+
+# Evaluate brew/apt directories
+ls -la brew/ apt/  # Check contents
+
+# If they're configs (not generated files):
+git mv brew configs/package-managers/ 2>/dev/null || true
+git mv apt configs/package-managers/ 2>/dev/null || true
+
+# Recreate, test, commit
+./bin/link_dotfiles.zsh
+./tests/run_tests.zsh
+git commit -m "Phase 8.9: Migrate resources and remaining items
+
+Moved to resources/:
+- res/, screenshots/, snippets/
+
+Package manager configs (if applicable):
+- brew/, apt/ → configs/package-managers/
+
+✅ All tests passing
+✅ Repository restructuring complete
+
+Part of Phase 8: Repository Restructuring
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.10: Update Documentation** ⭐⭐⭐⭐⭐ CRITICAL
+**Status:** Pending
+**Estimated Effort:** 1-1.5 hours
+
+**Deliverables:**
+- [ ] Update README.md with new structure
+- [ ] Update CLAUDE.md with new paths
+- [ ] Update DEVELOPMENT.md if needed
+- [ ] Update directory structure diagrams
+- [ ] Add "Repository Structure" section to MANUAL.md
+- [ ] Update any path references in documentation
+- [ ] Commit documentation updates
+
+**Files to Update:**
+- README.md - Repository structure section
+- CLAUDE.md - Architecture overview, directory paths
+- DEVELOPMENT.md - Any path references
+- MANUAL.md - Add directory structure guide
+- INSTALL.md - Verify no path assumptions
+
+**Example README.md Update:**
+```markdown
+## Repository Structure
+
+```
+~/.config/dotfiles/
+├── 📚 Documentation/         README, guides, philosophy
+├── 🎯 Entry Points/          setup, wizard, backup scripts
+├── 🛠️ Infrastructure/        bin/, tests/, post-install/
+├── 🎨 configs/               Application configurations (organized by category)
+│   ├── shell/               zsh, bash, fish, aliases
+│   ├── editors/             nvim, vim, emacs
+│   ├── terminals/           kitty, alacritty
+│   └── ...                  (11 categories total)
+└── 📦 resources/            Screenshots, snippets, assets
+```
+
+For details, see [DEVELOPMENT.md](DEVELOPMENT.md#repository-structure).
+```
+
+**Commit:**
+```zsh
+git add README.md CLAUDE.md DEVELOPMENT.md MANUAL.md
+git commit -m "Phase 8.10: Update documentation for new repository structure
+
+Updated:
+- README.md - Repository structure overview
+- CLAUDE.md - Architecture and path references
+- DEVELOPMENT.md - Directory paths
+- MANUAL.md - Added repository structure guide
+
+Documentation now reflects Phase 8 restructuring.
+
+Part of Phase 8: Repository Restructuring - COMPLETE
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+**Task 8.11: Final Validation & Cleanup** ⭐⭐⭐⭐⭐ CRITICAL
+**Status:** Pending
+**Estimated Effort:** 30 minutes
+
+**Deliverables:**
+- [ ] Full test suite run (all 251+ tests)
+- [ ] Docker E2E test (fresh installation)
+- [ ] Symlink verification script
+- [ ] Compare before/after symlink snapshots
+- [ ] Verify no broken links
+- [ ] Clean up any temporary files
+- [ ] Final commit marking completion
+
+**Validation Commands:**
+```zsh
+# Run full test suite
+./tests/run_tests.zsh
+
+# Docker E2E test (fresh installation)
+./tests/test_docker_install.zsh --distro ubuntu:24.04 --quick
+
+# Verify all symlinks
+ls -la ~ | grep "^l" > /tmp/symlinks_after.txt
+ls -la ~/.config | grep "^l" >> /tmp/symlinks_after.txt
+ls -la ~/.local/bin | grep "^l" >> /tmp/symlinks_after.txt
+
+# Compare (should be identical except paths)
+diff /tmp/symlinks_before.txt /tmp/symlinks_after.txt
+
+# Check for broken symlinks
+find ~ -maxdepth 1 -xtype l  # Should be empty
+find ~/.config -maxdepth 1 -xtype l  # Should be empty
+find ~/.local/bin -xtype l  # Should be empty
+
+# Run librarian health check
+./bin/librarian.zsh
+```
+
+**Success Criteria:**
+- All 251+ tests passing
+- Docker E2E test successful
+- All symlinks valid (no broken links)
+- Symlink targets updated but destinations identical
+- Librarian reports healthy system
+
+**Final Commit:**
+```zsh
+git commit --allow-empty -m "Phase 8: Repository Restructuring - COMPLETE ✅
+
+Summary of Changes:
+- Reorganized 44+ top-level directories into logical structure
+- Created configs/ directory with 11 category subdirectories
+- Created resources/ directory for assets
+- Maintained full compatibility with linking system
+- Updated all documentation
+
+Migration Statistics:
+- Directories moved: 35+
+- Categories created: 11
+- Tests passing: 251/251 (100%)
+- Symlinks verified: All working
+- Documentation updated: 5 files
+
+Benefits:
+✅ Clean, organized repository structure
+✅ Easy navigation by category
+✅ Improved discoverability
+✅ Maintained full compatibility
+✅ Zero functionality regressions
+
+Total time: ~5 hours
+Commits: 11 (one per phase + docs + final)
+
+🎉 Phase 8 Complete!
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+---
+
+#### Rollback Strategy
+
+**If Issues Occur at Any Phase:**
+
+**Immediate Rollback (Git-Based):**
+```zsh
+# Roll back last commit
+git reset --hard HEAD~1
+
+# Recreate symlinks from rolled-back state
+./bin/link_dotfiles.zsh
+
+# Verify
+./tests/run_tests.zsh
+```
+
+**Full Rollback to Pre-Phase-8:**
+```zsh
+# Find the commit before Phase 8.2 started
+git log --oneline | grep "Phase 8"
+
+# Roll back to before Phase 8 started
+git reset --hard <commit-before-phase-8>
+
+# Recreate symlinks
+./bin/link_dotfiles.zsh
+
+# Restore from backup if needed
+unzip ~/Downloads/dotfiles_repo_backup_<timestamp>.zip -d /tmp/dotfiles_restore
+```
+
+**Partial Rollback (Undo Specific Category):**
+```zsh
+# Example: Undo shell migration
+git mv configs/shell/zsh zsh
+git mv configs/shell/bash bash
+git mv configs/shell/fish fish
+git mv configs/shell/aliases aliases
+git mv configs/shell/readline readline
+git commit -m "Rollback: Undo shell migration"
+./bin/link_dotfiles.zsh
+```
+
+---
+
+#### Risk Assessment
+
+**Risk Level: LOW** ✅
+
+**Why This is Safe:**
+
+1. **Git-Based:** Every change committed separately, easy rollback
+2. **Find-Based Linking:** `link_dotfiles.zsh` doesn't care about directory depth
+3. **Path-Agnostic Scripts:** Scripts in ~/.local/bin use basenames, not full paths
+4. **Incremental:** One category at a time, test between each
+5. **Non-Destructive:** `git mv` preserves history
+6. **Backup Created:** Full backup before starting
+7. **Tested Approach:** Same principles as symlink system design
+
+**Potential Issues & Mitigations:**
+
+| Issue | Likelihood | Impact | Mitigation |
+|-------|-----------|--------|------------|
+| Broken symlink | Very Low | Low | Test after each phase, easy to fix |
+| Script path hardcoding | Very Low | Medium | Audit scripts in Task 8.1 |
+| Test failure | Very Low | Low | Roll back, investigate, fix |
+| Git history complexity | None | None | git mv preserves history perfectly |
+| Documentation outdated | Medium | Low | Task 8.10 updates all docs |
+
+---
+
+#### Benefits
+
+🎯 **Organization:**
+- 44+ directories → 13 top-level items (docs, scripts, infrastructure, configs, resources)
+- Related configs grouped logically
+- Easy to find what you need
+
+🔍 **Discoverability:**
+- New users can browse by category
+- Clear purpose for each directory
+- Intuitive structure
+
+📈 **Scalability:**
+- Easy to add new configs (know exactly where they go)
+- Structure supports growth
+- Categories prevent future clutter
+
+🎨 **Maintainability:**
+- Cleaner git status output
+- Easier to navigate in editor
+- Professional appearance
+
+✅ **Compatibility:**
+- Zero breaking changes
+- All symlinks work identically
+- Scripts continue functioning
+- Tests all pass
+
+---
+
+#### Success Criteria
+
+**Phase 8 Complete When:**
+
+- [ ] All 35+ config directories migrated to configs/
+- [ ] All resource directories migrated to resources/
+- [ ] New directory structure fully implemented
+- [ ] All documentation updated (README, CLAUDE, DEVELOPMENT, MANUAL)
+- [ ] All 251+ tests passing
+- [ ] Docker E2E test successful
+- [ ] All symlinks valid and working
+- [ ] Librarian reports healthy system
+- [ ] Git history clean (one commit per phase)
+- [ ] Thomas approval and satisfaction ✨
+
+---
+
+#### Timeline Estimate
+
+**Total Estimated Time: 5-6 hours**
+
+**Breakdown:**
+- Task 8.1: Pre-migration validation - 1 hour
+- Task 8.2: Create structure - 15 minutes
+- Tasks 8.3-8.9: Migrations (7 phases) - 2 hours total
+- Task 8.10: Documentation updates - 1.5 hours
+- Task 8.11: Final validation - 30 minutes
+
+**Recommended Schedule:**
+- **Week 1, Day 1:** Tasks 8.1-8.2 (setup and structure)
+- **Week 1, Day 2:** Tasks 8.3-8.5 (shell, editors, terminals)
+- **Week 1, Day 3:** Tasks 8.6-8.8 (remaining configs)
+- **Week 1, Day 4:** Tasks 8.9-8.11 (resources, docs, validation)
+
+**Value:** Very High (significantly improves repository organization)
+**Priority:** High (requested by Thomas, natural evolution)
+**Risk:** Low (incremental, reversible, well-planned)
+
+---
+
 ## Long-Term Vision
 
 ### The Perfect Dotfiles System
