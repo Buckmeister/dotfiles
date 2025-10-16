@@ -5,5 +5,5 @@
 	path = macos-terminal/colorschemes
 	url = https://github.com/lysyi3m/macos-terminal-themes.git
 [submodule "nvim/nvim.symlink_config"]
-	path = nvim/nvim.symlink_config
+	path = configs/editors/nvim/nvim.symlink_config
 	url = https://github.com/Buckmeister/lualoves.nvim.git
