@@ -205,8 +205,9 @@ function execute_docker_test() {
     local test_output="$RESULTS_DIR/${test_name}.log"
     mkdir -p "$RESULTS_DIR"
 
-    # Run the Docker test
-    if "$SCRIPT_DIR/test_docker_install.zsh" --distro "$distro" --mode "$mode" > "$test_output" 2>&1; then
+    # Run the Docker test using unified script
+    local mode_flag="--${mode}"  # Convert mode to flag (dfauto -> --dfauto)
+    if "$SCRIPT_DIR/test_docker.zsh" --distro "$distro" "$mode_flag" > "$test_output" 2>&1; then
         TEST_RESULTS[$test_name]="PASS"
         PASSED_TESTS=$((PASSED_TESTS + 1))
         print_success "Docker test passed: $distro ($mode)"

@@ -105,7 +105,7 @@ Comprehensive testing system with **251 tests across 15 suites** providing ~96% 
 - **`tests/lib/test_framework.zsh`** - Lightweight zsh testing framework with beautiful OneDark output
 - **`tests/unit/`** - 105 unit tests for shared libraries (colors, ui, utils, validators, package_managers, greetings)
 - **`tests/integration/`** - 64 integration tests for workflows (symlinks, updates, librarian, post-install scripts)
-- **`tests/test_docker_install.zsh`** - Docker-based installation testing on fresh Linux containers (Ubuntu, Debian)
+- **`tests/test_docker.zsh`** - Unified Docker testing with PI script filtering and multiple test modes
 - **`tests/run_tests.zsh`** - Test runner with detailed reporting and suite summaries
 - **100% Pass Rate** - All tests consistently pass with fast execution (~90 seconds for full suite)
 - **Test Coverage** - Comprehensive assertions, setup/teardown, mocking, and smoke tests
@@ -185,9 +185,10 @@ This allows all scripts to adapt their behavior cross-platform automatically.
 ./tests/run_tests.zsh integration
 
 # Docker-based installation testing (requires Docker)
-./tests/test_docker_install.zsh                      # Full test suite
-./tests/test_docker_install.zsh --quick              # Quick test (dfauto only)
-./tests/test_docker_install.zsh --distro ubuntu:24.04 # Test specific distro
+./tests/test_docker.zsh --quick                       # Fast smoke test
+./tests/test_docker.zsh --comprehensive --quick       # Full feature validation
+./tests/test_docker.zsh --enable-pi "git-*" --quick   # Test specific PI scripts
+./tests/test_docker.zsh --skip-pi --all-distros       # Test all distros without PI
 ```
 
 ### Interactive Menu

@@ -1,222 +1,360 @@
 # Docker Testing Guide
 
-Comprehensive testing strategy for dotfiles installation validation using Docker containers.
+Flexible and comprehensive testing framework for dotfiles installation validation using Docker containers.
 
 ## 📋 Overview
 
-The Docker test suite validates the complete dotfiles installation workflow on fresh Linux containers, testing all recent features including the new profiling and package management systems.
+The unified Docker test script (`test_docker.zsh`) provides a powerful, flexible testing framework that validates dotfiles installation on fresh Linux containers. It supports multiple test modes, post-install script filtering, and comprehensive feature validation.
 
-## 🧪 Test Scripts
+## 🚀 Quick Start
 
-### 1. Basic Installation Test (`test_docker_install.zsh`)
-
-**Purpose**: Quick validation of web installer functionality
-**Duration**: ~2-3 minutes per distribution
-**Coverage**:
-- Web installer downloads and executes
-- Repository clones successfully
-- Basic directory structure created
-- Git repository initialized
-
-**Usage**:
 ```bash
 cd ~/.config/dotfiles
 
-# Full test suite (all distributions + both modes)
-./tests/test_docker_install.zsh
+# Fast smoke test (30 seconds)
+./tests/test_docker.zsh --quick --skip-pi
 
-# Quick test (Ubuntu 24.04 + dfauto only)
-./tests/test_docker_install.zsh --quick
+# Basic installation test
+./tests/test_docker.zsh --quick
 
-# Specific distribution
-./tests/test_docker_install.zsh --distro debian:12
+# Full feature validation
+./tests/test_docker.zsh --comprehensive --quick
+
+# Test specific PI script
+./tests/test_docker.zsh --enable-pi "git-*" --quick
 ```
 
-**Tested Distributions**:
+## 🎯 Test Script: `test_docker.zsh`
+
+### Key Features
+
+1. **Multiple Test Modes**: Choose between basic, comprehensive, or full validation
+2. **PI Script Filtering**: Control which post-install scripts run during testing
+3. **Flexible Distribution Selection**: Test specific distros or all of them
+4. **Installer Mode Selection**: Test dfauto, dfsetup, or both
+5. **Librarian Health Checks**: Automatic error detection after installation
+6. **Beautiful Output**: Progress tracking and detailed test results
+
+---
+
+## 📚 Test Modes
+
+### Basic Mode (Default)
+
+**Purpose**: Quick validation of installation mechanics
+**Duration**: ~1-2 minutes per distribution
+
+**Tests**:
+- ✅ Web installer downloads and executes
+- ✅ Repository clones with submodules
+- ✅ Directory structure created correctly
+- ✅ Git repository initialized
+- ✅ Librarian health check passes (no errors)
+
+**Usage**:
+```bash
+./tests/test_docker.zsh --basic --quick
+```
+
+### Comprehensive Mode
+
+**Purpose**: Deep validation of all dotfiles features
+**Duration**: ~2-3 minutes per distribution
+
+**Tests Everything in Basic Mode, Plus**:
+- ✅ Profile manager functionality
+- ✅ Profile manifests (5 files) exist and valid
+- ✅ Package management scripts present
+- ✅ YAML manifest structure validation
+- ✅ Wizard availability and help command
+- ✅ Librarian executable and functional
+- ✅ Script permissions correct
+
+**Usage**:
+```bash
+./tests/test_docker.zsh --comprehensive --quick
+```
+
+### Full Mode
+
+**Purpose**: Maximum coverage - runs both basic AND comprehensive tests
+**Duration**: ~3-5 minutes per distribution
+
+**Usage**:
+```bash
+./tests/test_docker.zsh --full --quick
+```
+
+---
+
+## 🎛️ Post-Install Script Control
+
+One of the most powerful features is the ability to control which post-install scripts run during testing. This enables:
+- **Faster iteration** when testing specific features
+- **Isolated testing** of individual PI scripts
+- **Reduced test time** by skipping slow package installations
+
+### Skip All PI Scripts (Fastest)
+
+Perfect for testing installation mechanics without waiting for package installations:
+
+```bash
+./tests/test_docker.zsh --skip-pi --quick
+```
+
+**Use Cases**:
+- Testing symlink creation
+- Validating directory structure
+- Testing profile system without packages
+- Quick smoke tests after making changes
+
+### Disable Specific PI Scripts
+
+Disable scripts matching a glob pattern:
+
+```bash
+# Disable all package installation scripts
+./tests/test_docker.zsh --disable-pi "*packages*" --quick
+
+# Disable language servers
+./tests/test_docker.zsh --disable-pi "language-servers" --quick
+
+# Disable cargo-related scripts
+./tests/test_docker.zsh --disable-pi "cargo-*" --quick
+```
+
+### Enable Only Specific PI Scripts
+
+Enable ONLY scripts matching a pattern (all others disabled):
+
+```bash
+# Test only git configuration
+./tests/test_docker.zsh --enable-pi "git-*" --quick
+
+# Test only cargo packages
+./tests/test_docker.zsh --enable-pi "cargo-packages" --quick
+
+# Test only ruby-related scripts
+./tests/test_docker.zsh --enable-pi "ruby-*" --quick
+```
+
+**Use Cases**:
+- Validating a specific PI script works correctly
+- Testing new PI script in isolation
+- Debugging PI script issues
+- Faster iteration when developing new scripts
+
+---
+
+## 🐧 Distribution Selection
+
+### Quick Mode (Ubuntu 24.04 only)
+
+Fastest option - tests only the latest Ubuntu LTS:
+
+```bash
+./tests/test_docker.zsh --quick
+```
+
+### Specific Distribution
+
+Test a specific Linux distribution:
+
+```bash
+./tests/test_docker.zsh --distro ubuntu:24.04
+./tests/test_docker.zsh --distro debian:12
+./tests/test_docker.zsh --distro ubuntu:22.04
+```
+
+### All Distributions (Default)
+
+Tests all supported distributions:
 - Ubuntu 24.04 LTS
 - Ubuntu 22.04 LTS
 - Debian 12 (Bookworm)
 - Debian 11 (Bullseye)
 
-**Tested Installers**:
-- `dfauto` - Automatic, non-interactive installation
-- `dfsetup` - Interactive installation (optional)
-
----
-
-### 2. Comprehensive Validation Test (`test_docker_comprehensive.zsh`)
-
-**Purpose**: Deep validation of all dotfiles features
-**Duration**: ~3-5 minutes per distribution
-**Coverage**:
-- ✅ Web installer functionality
-- ✅ Profile manager availability and commands
-- ✅ Profile manifests existence (5 manifests)
-- ✅ Package management system
-- ✅ Wizard availability
-- ✅ Librarian execution
-- ✅ Script permissions
-- ✅ YAML manifest validation
-
-**Usage**:
 ```bash
-cd ~/.config/dotfiles
-
-# Full comprehensive test
-./tests/test_docker_comprehensive.zsh
-
-# Quick comprehensive test (Ubuntu 24.04 only)
-./tests/test_docker_comprehensive.zsh --quick
-
-# Specific distribution
-./tests/test_docker_comprehensive.zsh --distro ubuntu:24.04
-```
-
-**What It Tests**:
-
-#### Phase 1: Prerequisites Installation
-- curl, git, zsh installation
-- Package manager detection
-
-#### Phase 2: Web Installer
-- dfauto web installer execution
-- Repository cloning with submodules
-- Automatic setup with all modules
-
-#### Phase 3: Basic Verification
-- Dotfiles directory structure
-- Git repository integrity
-- Core script availability
-
-#### Phase 4: Profile System Validation
-- `profile_manager.zsh` executable
-- `--help` flag functionality
-- `list` command output
-- `show standard` command output
-- Profile manifests existence:
-  - `profiles/manifests/minimal-packages.yaml`
-  - `profiles/manifests/standard-packages.yaml`
-  - `profiles/manifests/full-packages.yaml`
-  - `profiles/manifests/work-packages.yaml`
-  - `profiles/manifests/personal-packages.yaml`
-
-#### Phase 5: Package Management Validation
-- Package management scripts presence
-- Manifest YAML structure validation
-- Package count verification
-- Command availability checks
-
-#### Phase 6: System Tools Validation
-- `wizard.zsh` executable and help
-- `librarian.zsh` executable and output
-- `link_dotfiles.zsh` executable
-
----
-
-## 📊 Test Matrix
-
-| Test Script | Distributions | Installers | Duration | Coverage |
-|-------------|---------------|------------|----------|----------|
-| `test_docker_install.zsh` | 4 | 2 | ~10-15 min | Basic |
-| `test_docker_comprehensive.zsh` | 3 | 1 | ~10-15 min | Complete |
-
----
-
-## 🚀 Quick Start
-
-### Run All Tests (Recommended)
-```bash
-cd ~/.config/dotfiles
-
-# Basic + Comprehensive tests
-./tests/test_docker_install.zsh --quick
-./tests/test_docker_comprehensive.zsh --quick
-```
-
-### Fast Validation (1 distribution)
-```bash
-# Just Ubuntu 24.04 comprehensive test
-./tests/test_docker_comprehensive.zsh --quick
-```
-
-### Full Test Suite (CI/CD)
-```bash
-# All distributions, all tests
-./tests/test_docker_install.zsh
-./tests/test_docker_comprehensive.zsh
+./tests/test_docker.zsh --all-distros
 ```
 
 ---
 
-## 🔍 What Each Test Validates
+## 🔧 Installer Mode Selection
 
-### Web Installer Tests
-- ✅ OS detection (Linux, WSL, macOS)
-- ✅ Package manager detection (apt, dnf, yum, pacman)
-- ✅ Dependency installation (git, zsh)
-- ✅ Repository cloning
-- ✅ Submodule initialization
-- ✅ Setup script execution
+### Automatic Installer (Default)
 
-### Profile System Tests
-- ✅ `profile_manager.zsh` functionality
-- ✅ Profile listing and display
-- ✅ Manifest file existence
-- ✅ YAML parsing capability
-- ✅ Package count accuracy
+Tests the non-interactive `dfauto` installer:
 
-### Package Management Tests
-- ✅ `install_from_manifest` script presence
-- ✅ `generate_package_manifest` script presence
-- ✅ Manifest YAML validation
-- ✅ Cross-platform package mappings
-- ✅ Priority levels (required/recommended/optional)
+```bash
+./tests/test_docker.zsh --dfauto
+```
 
-### Librarian Tests
-- ✅ Execution without errors
-- ✅ Configuration management section
-- ✅ System health reporting
+### Interactive Installer
 
-### Wizard Tests
-- ✅ Executable permissions
-- ✅ Help flag functionality
-- ✅ Manifest generation capability
+Tests the interactive `dfsetup` installer (automated with simulated inputs):
+
+```bash
+./tests/test_docker.zsh --dfsetup --quick
+```
+
+### Both Installers
+
+Tests both dfauto AND dfsetup:
+
+```bash
+./tests/test_docker.zsh --both-modes --quick
+```
+
+---
+
+## 💡 Common Usage Patterns
+
+### Fast Smoke Test (30 seconds)
+Quick validation after making changes:
+```bash
+./tests/test_docker.zsh --skip-pi --basic --quick
+```
+
+### Test Git Configuration Only
+Validate git-related PI scripts work:
+```bash
+./tests/test_docker.zsh --enable-pi "git-*" --quick
+```
+
+### Test Profile System (No PI Scripts)
+Validate profile manager without package installations:
+```bash
+./tests/test_docker.zsh --comprehensive --skip-pi --quick
+```
+
+### Test Cargo Packages on Debian
+Validate Rust package installation on Debian:
+```bash
+./tests/test_docker.zsh --enable-pi "cargo-*" --distro debian:12
+```
+
+### Full Regression Test (Slow but Thorough)
+Complete validation before releasing:
+```bash
+./tests/test_docker.zsh --full --both-modes --all-distros
+```
+
+### Test Interactive Installer
+Validate dfsetup works without PI overhead:
+```bash
+./tests/test_docker.zsh --dfsetup --skip-pi --quick
+```
+
+### Test All Distros Without Packages
+Validate installation mechanics across all distributions:
+```bash
+./tests/test_docker.zsh --skip-pi --all-distros
+```
+
+---
+
+## 📊 Test Matrix Examples
+
+| Command | Distributions | Installers | PI Scripts | Time | Purpose |
+|---------|--------------|------------|------------|------|---------|
+| `--quick --skip-pi` | 1 | 1 | None | 30s | Smoke test |
+| `--quick` | 1 | 1 | All | 2m | Quick validation |
+| `--comprehensive --quick` | 1 | 1 | All | 3m | Feature validation |
+| `--enable-pi "git-*" --quick` | 1 | 1 | Git only | 1m | Test git configs |
+| `--all-distros --skip-pi` | 4 | 1 | None | 2m | Multi-distro check |
+| `--full --both-modes --all-distros` | 4 | 2 | All | 40m | Full regression |
+
+---
+
+## 🔍 What Gets Tested
+
+### Phase 1: Prerequisites
+- Package manager detection (apt, dnf, yum, pacman)
+- curl installation
+- git installation
+
+### Phase 2: Web Installer
+- Installer downloads successfully
+- Repository clones from GitHub
+- Submodules initialized (nvim config)
+- Setup script executes
+
+### Phase 3: Basic Installation Verification
+- `~/.config/dotfiles` directory exists
+- Git repository properly initialized
+- `bin/setup.zsh` present and executable
+
+### Phase 4: Librarian Health Check
+- Librarian executes without errors
+- Output scanned for ERROR markers
+- Warnings logged but non-fatal
+- Installation quality validated
+
+### Phase 5: Comprehensive Features (if --comprehensive or --full)
+- Profile manager executable and functional
+- `--help`, `list`, `show` commands work
+- All 5 profile manifests exist:
+  - minimal-packages.yaml
+  - standard-packages.yaml
+  - full-packages.yaml
+  - work-packages.yaml
+  - personal-packages.yaml
+- Package management scripts present
+- YAML manifests have valid structure
+- Package counts accurate
+- Wizard executable with working --help
+- link_dotfiles.zsh present
 
 ---
 
 ## 🐛 Debugging Failed Tests
 
 ### View Live Container Logs
-```bash
-# Start test in background
-./tests/test_docker_comprehensive.zsh --quick &
 
-# Watch logs (container name shown in test output)
-docker logs -f dotfiles-comprehensive-test-ubuntu-24-04
+The test script shows you how to follow logs in real-time:
+
+```bash
+# The script outputs this command:
+docker logs -f dotfiles-test-ubuntu-24-04-dfauto
 ```
 
 ### Manual Container Testing
+
 ```bash
 # Start interactive container
 docker run -it --rm ubuntu:24.04 bash
 
-# Inside container:
-apt-get update && apt-get install -y curl git zsh
+# Inside container, run installation manually:
+apt-get update && apt-get install -y curl git
 curl -fsSL https://buckmeister.github.io/dfauto | sh
 cd ~/.config/dotfiles
+
+# Test specific components:
 ./bin/profile_manager.zsh list
 ./bin/librarian.zsh
+ls -la profiles/manifests/
 ```
 
-### Check Specific Components
+### Test Specific PI Script in Isolation
+
 ```bash
-# After test failure, inspect specific issue
+# Test only the script you're debugging
+./tests/test_docker.zsh --enable-pi "your-script-name" --quick
+
+# Watch it run in detail:
+docker logs -f dotfiles-test-ubuntu-24-04-dfauto
+```
+
+### Check Librarian Output
+
+```bash
+# Run comprehensive test to see full librarian output
 docker run --rm ubuntu:24.04 bash -c "
-  apt-get update -qq && apt-get install -y -qq curl git zsh
+  apt-get update -qq && apt-get install -y -qq curl git
   curl -fsSL https://buckmeister.github.io/dfauto | sh
   cd ~/.config/dotfiles
-  ls -la profiles/manifests/
-  ./bin/profile_manager.zsh show standard
+  ./bin/librarian.zsh
 "
 ```
 
@@ -224,52 +362,59 @@ docker run --rm ubuntu:24.04 bash -c "
 
 ## 📈 Expected Output
 
-### Successful Test Output
+### Successful Basic Test
+
 ```
-════════════════════════════════════════════════════════════════
-🐳 Dotfiles Comprehensive Testing - ubuntu:24.04
-════════════════════════════════════════════════════════════════
+╔════════════════════════════════════════════════════════════════════════════╗
+║                         Unified Docker Testing                             ║
+║                      Flexible and Comprehensive                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
 
-📋 Phase 1/6: Installing Prerequisites
-✅ Prerequisites installed
+═══ Test Configuration ═══
+ℹ️  Test mode: basic
+ℹ️  Installer mode: dfauto
+ℹ️  Post-install scripts: ALL DISABLED (--skip-pi)
+ℹ️  Distributions: 1
+   • ubuntu:24.04
+ℹ️  Total tests to run: 1
 
-════════════════════════════════════════════════════════════════
-🚀 Phase 2/6: Running Web Installer (dfauto)
-════════════════════════════════════════════════════════════════
-[Web installer output...]
-✅ Repository cloned successfully
+   ⏱️  Estimated time: ~1 minutes
 
-════════════════════════════════════════════════════════════════
-✅ Phase 3/6: Basic Installation Verification
-════════════════════════════════════════════════════════════════
-✅ Dotfiles directory exists
+╔════════════════════════════════════════════════════════════════════════════╗
+║                      Docker Test: ubuntu:24.04                             ║
+║                       Running dfauto installer                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+ℹ️  Container: dotfiles-test-ubuntu-24-04-dfauto
+ℹ️  Installer URL: https://buckmeister.github.io/dfauto
+ℹ️  Test mode: basic
+
+   💡 Follow live: docker logs -f dotfiles-test-ubuntu-24-04-dfauto
+
+═══ Running Test Phases ═══
+ℹ️  Phase 1/5: Pulling container image...
+ℹ️  Phase 2/5: Installing prerequisites...
+ℹ️  Phase 3/5: Running web installer...
+ℹ️  Phase 4/5: Verifying installation...
+✅ Dotfiles directory created
 ✅ Git repository initialized
 ✅ Setup script found
+ℹ️  Phase 5/5: Running librarian health check...
+✅ Librarian health check passed
+   → Complete
+   Distribution: Ubuntu 24.04.3 LTS
+   Install mode: dfauto
+   Dotfiles location: ~/.config/dotfiles
 
-════════════════════════════════════════════════════════════════
-📦 Phase 4/6: Profile System Validation
-════════════════════════════════════════════════════════════════
-✅ profile_manager.zsh is executable
-✅ profile_manager --help works
-✅ All profile manifests found (5)
+✅ Test passed: ubuntu:24.04 with dfauto
 
-════════════════════════════════════════════════════════════════
-📦 Phase 5/6: Package Management Validation
-════════════════════════════════════════════════════════════════
-✅ Package management scripts present
-✅ minimal-packages.yaml: 10 packages
-✅ standard-packages.yaml: 25 packages
-[...]
+═══ Test Results Summary ═══
+ℹ️  📊 Test Statistics:
+   Total tests:  1
+   Passed:       1
+   Failed:       0
 
-════════════════════════════════════════════════════════════════
-🔧 Phase 6/6: System Tools Validation
-════════════════════════════════════════════════════════════════
-✅ wizard.zsh is executable
-✅ librarian.zsh is executable
-
-════════════════════════════════════════════════════════════════
-🎉 ALL TESTS PASSED
-════════════════════════════════════════════════════════════════
+✅ All tests passed! 🎉
 ```
 
 ---
@@ -279,84 +424,81 @@ docker run --rm ubuntu:24.04 bash -c "
 ### Required
 - Docker daemon running
 - Internet connection (for pulling images and cloning repo)
-- Zsh shell (for test scripts)
-
-### Optional
-- `tee` command (for logging output)
+- Zsh shell (for test script)
 
 ### Check Docker Status
 ```bash
-docker ps  # Should show running containers or empty list (not error)
+docker ps  # Should succeed (even if empty)
 ```
 
 ---
 
-## 📝 Test Development
+## 📝 Help and Options
 
-### Adding New Tests
+View all available options:
 
-1. **Identify what to test**:
-   - New feature added to dotfiles
-   - Edge case or regression
-
-2. **Choose test script**:
-   - Basic functionality → `test_docker_install.zsh`
-   - New feature validation → `test_docker_comprehensive.zsh`
-
-3. **Add test phase**:
 ```bash
-# In test_comprehensive_installation function
-echo '════════════════════════════════════════════════════════════════'
-echo '📦 Phase 7/7: New Feature Validation'
-echo '════════════════════════════════════════════════════════════════'
-echo
-
-if [ -x ./bin/new_feature.zsh ]; then
-    echo '✅ new_feature.zsh is executable'
-else
-    echo '❌ FAILED: new_feature.zsh not found'
-    exit 1
-fi
+./tests/test_docker.zsh --help
 ```
 
-4. **Test locally**:
-```bash
-./tests/test_docker_comprehensive.zsh --quick
-```
+This shows the complete help screen with all test modes, PI control options, distribution selection, and usage examples.
 
 ---
 
 ## 🎯 CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Docker Tests
 
 on: [push, pull_request]
 
 jobs:
-  docker-tests:
+  quick-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Run comprehensive Docker tests
+      - name: Quick smoke test
         run: |
-          chmod +x tests/*.zsh
-          tests/test_docker_comprehensive.zsh
+          chmod +x tests/test_docker.zsh
+          ./tests/test_docker.zsh --skip-pi --quick
+
+  full-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Comprehensive validation
+        run: |
+          chmod +x tests/test_docker.zsh
+          ./tests/test_docker.zsh --comprehensive --all-distros
 ```
 
-### GitLab CI Example
-```yaml
-docker-tests:
-  stage: test
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - apk add --no-cache zsh
-    - cd tests
-    - ./test_docker_comprehensive.zsh
+---
+
+## 🚧 Test Development
+
+### Adding New Tests
+
+When adding new features to dotfiles, update the comprehensive test section in `test_docker.zsh`:
+
+```bash
+# In run_comprehensive_tests() function:
+echo 'INFO:Testing new feature...'
+
+if [ -x ./bin/new_feature.zsh ]; then
+    echo 'SUCCESS:new_feature.zsh is executable'
+else
+    echo 'FAILED:new_feature.zsh not found'
+    exit 1
+fi
+```
+
+Test locally:
+```bash
+./tests/test_docker.zsh --comprehensive --quick
 ```
 
 ---
@@ -364,30 +506,61 @@ docker-tests:
 ## 📚 Related Documentation
 
 - [Main README](../README.md) - Repository overview
-- [Profiles README](../profiles/README.md) - Profile system documentation
-- [Packages README](../packages/README.md) - Package management documentation
 - [Testing README](README.md) - General testing guidelines
+- [Profiles README](../profiles/README.md) - Profile system
+- [Packages README](../packages/README.md) - Package management
 
 ---
 
 ## 🤝 Contributing
 
-When adding new features to the dotfiles system, please:
+When adding features or fixing bugs:
 
-1. Add corresponding tests to `test_docker_comprehensive.zsh`
-2. Update this documentation
-3. Run the test suite before committing
-4. Document any new test requirements
+1. Test your changes with Docker tests:
+   ```bash
+   ./tests/test_docker.zsh --quick
+   ```
+
+2. Add tests for new features in `test_docker.zsh`
+
+3. Run full test suite before committing:
+   ```bash
+   ./tests/test_docker.zsh --comprehensive --all-distros
+   ```
+
+4. Update this documentation if adding new test modes
 
 ---
 
-## 💡 Tips
+## 💡 Pro Tips
 
-- Use `--quick` for rapid iteration during development
-- Check container logs with `docker logs -f <container-name>`
-- Test on multiple distributions before finalizing
-- Keep tests idempotent (can run multiple times)
+1. **Use `--skip-pi` during development** - Iterate faster when testing installation mechanics
+
+2. **Use `--enable-pi` to test specific scripts** - Debug individual PI scripts in isolation
+
+3. **Watch container logs** - `docker logs -f <container-name>` shows real-time progress
+
+4. **Test on multiple distros before releasing** - `--all-distros` catches platform-specific issues
+
+5. **Start with `--quick`** - Always run quick tests first before full suite
+
+6. **Combine options for targeted testing**:
+   ```bash
+   # Example: Test git configs on Debian without other scripts
+   ./tests/test_docker.zsh --enable-pi "git-*" --distro debian:12
+   ```
 
 ---
 
-*Docker testing ensures our dotfiles work reliably across different Linux distributions. Test often, ship confidently!* 🐳✨
+## 🔄 Migration from Old Scripts
+
+The old test scripts have been archived but remain available:
+
+- `tests/archive/test_docker_install.zsh` - Old basic test (now part of --basic mode)
+- `tests/archive/test_docker_comprehensive.zsh` - Old comprehensive test (now --comprehensive mode)
+
+The new unified script (`test_docker.zsh`) replaces both with enhanced functionality and flexibility.
+
+---
+
+*Flexible testing enables rapid iteration. Test smart, ship fast!* 🐳✨

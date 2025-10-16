@@ -109,7 +109,7 @@ jobs:
       - name: Run Docker installation test for ${{ matrix.distro }}
         run: |
           cd "$GITHUB_WORKSPACE"
-          ./tests/test_docker_install.zsh --distro "${{ matrix.distro }}" --quick
+          ./tests/test_docker.zsh --distro "${{ matrix.distro }}" --quick
 
       - name: Upload Docker test results
         if: always()
