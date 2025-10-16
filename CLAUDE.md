@@ -10,6 +10,42 @@ The repository showcases a harmonious blend of technical sophistication and user
 
 ## Repository Architecture
 
+### Repository Structure
+
+The dotfiles are organized into logical categories for easy navigation and maintenance:
+
+```
+~/.config/dotfiles/
+├── 📚 Documentation/              README, CLAUDE.md, ACTION_PLAN, guides
+├── 🎯 Entry Points/               setup, wizard, backup, librarian, update
+├── 🛠️ Core Infrastructure/
+│   ├── bin/                      Main scripts + shared libraries (lib/)
+│   ├── tests/                    Test suite (251 tests across 15 suites)
+│   ├── post-install/             Post-install script system
+│   ├── packages/                 Universal package management
+│   └── profiles/                 Configuration profiles
+├── 🎨 configs/                    Application configurations (organized by category)
+│   ├── shell/                    zsh, bash, fish, aliases, readline
+│   ├── editors/                  nvim, vim, emacs
+│   ├── terminals/                kitty, alacritty, macos-terminal
+│   ├── multiplexers/             tmux
+│   ├── prompts/                  starship, p10k
+│   ├── version-control/          git, github
+│   ├── development/              maven, jdt.ls, ghci
+│   ├── languages/                R, ipython, stylua, black
+│   ├── utilities/                ranger, neofetch, bat
+│   ├── system/                   karabiner, xcode, xmodmap, xprofile
+│   └── package-managers/         brew, apt
+└── 📦 resources/                  screenshots, snippets, shared assets
+```
+
+**Benefits of the organized structure:**
+- ✅ **Easy Discovery** - Browse by category to find configurations
+- ✅ **Logical Grouping** - Related tools are together
+- ✅ **Scalability** - Clear place for new configurations
+- ✅ **Maintainability** - Clean, professional appearance
+- ✅ **Full Compatibility** - Symlink system works seamlessly with subdirectories
+
 The repository structure follows these conventions:
 
 ### Symlink Patterns
@@ -18,9 +54,11 @@ The repository structure follows these conventions:
 - `*.symlink_local_bin.*` files → linked to `~/.local/bin/{basename}`
 
 **Examples:**
-- `zsh/zshrc.symlink` → `~/.zshrc`
-- `nvim/nvim.symlink_config/` → `~/.config/nvim/`
-- `github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+- `configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
+- `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
+- `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+
+The `link_dotfiles.zsh` script uses `find` to discover files by pattern, making subdirectory organization transparent to the linking system.
 
 ### Core Infrastructure
 
@@ -395,28 +433,61 @@ speak -f README.md
 
 ## Configuration Structure
 
-### Shell Configuration
+All application configurations are organized under `configs/` by functional category. The linking system automatically discovers and symlinks these configurations to their appropriate destinations.
+
+### Shell Configurations (`configs/shell/`)
 - **zsh**: Main shell with zplug plugin management
 - **bash**: Backup configuration for compatibility
+- **fish**: Fish shell configuration
 - **aliases**: Shared command aliases across shells
+- **readline**: Input line editing configuration
+
+### Shell Prompts (`configs/prompts/`)
 - **starship**: Cross-shell prompt with custom configuration
-- **p10k**: Powerlevel10k theme configuration
+- **p10k**: Powerlevel10k theme configuration for zsh
 
-### Development Tools
-- **vim/nvim**: Neovim configuration with lazy.nvim package manager
+### Editor Configurations (`configs/editors/`)
+- **nvim**: Neovim configuration with lazy.nvim package manager (git submodule)
+- **vim**: Classic Vim configuration
 - **emacs**: Emacs configuration for macOS
-- **git**: Git settings and diff-so-fancy integration
-- **tmux**: Terminal multiplexer configuration
 
-### Terminal Applications
+### Terminal Emulators (`configs/terminals/`)
 - **kitty**: Primary terminal emulator
 - **alacritty**: Alternative terminal emulator
-- **starship**: Cross-shell prompt configuration
+- **macos-terminal**: macOS Terminal.app configuration
 
-### System Integration
+### Terminal Multiplexers (`configs/multiplexers/`)
+- **tmux**: Terminal multiplexer configuration
+
+### Version Control (`configs/version-control/`)
+- **git**: Git settings and diff-so-fancy integration
+- **github**: GitHub CLI utilities and downloaders
+
+### Development Tools (`configs/development/`)
+- **maven**: Maven wrapper installation script
+- **jdt.ls**: Eclipse JDT Language Server for Java
+- **ghci**: GHC interactive environment (Haskell REPL)
+
+### Language Configurations (`configs/languages/`)
+- **R**: R profile configuration
+- **ipython**: IPython configuration
+- **stylua**: Lua code formatter settings
+- **black**: Python code formatter settings
+
+### Utilities (`configs/utilities/`)
+- **ranger**: File manager configuration
+- **neofetch**: System information display
+- **bat**: Cat alternative with syntax highlighting
+
+### System Integration (`configs/system/`)
 - **karabiner**: Keyboard remapping for macOS
-- **hammerspoon**: macOS automation (installed via brew)
-- **local/bin/**: Custom utility scripts
+- **xcode**: Xcode configuration
+- **xmodmap**: X11 keyboard modifier mapping
+- **xprofile**: X11 session initialization
+
+### Package Managers (`configs/package-managers/`)
+- **brew**: Homebrew configuration and manifest generation
+- **apt**: APT configuration
 
 ## Language Support
 
@@ -555,10 +626,27 @@ done
 
 ### Adding New Configurations
 
-1. Create directory for application (e.g., `myapp/`)
-2. Add configuration files with appropriate symlink suffix
-3. Run `./bin/link_dotfiles.zsh` to create symlinks
-4. Verify with `./bin/librarian.zsh`
+1. Choose the appropriate category in `configs/` (shell, editors, terminals, utilities, etc.)
+2. Create directory for application (e.g., `configs/utilities/myapp/`)
+3. Add configuration files with appropriate symlink suffix
+4. Run `./bin/link_dotfiles.zsh` to create symlinks
+5. Verify with `./bin/librarian.zsh`
+
+**Example - Adding a new utility:**
+```bash
+# Create directory in appropriate category
+mkdir -p configs/utilities/mytool
+
+# Add configuration with symlink suffix
+echo "my config" > configs/utilities/mytool/mytool.symlink_config
+
+# Create symlinks
+./bin/link_dotfiles.zsh
+
+# Verify
+./bin/librarian.zsh
+ls -la ~/.config/mytool
+```
 
 ## Notes for AI Assistants
 
