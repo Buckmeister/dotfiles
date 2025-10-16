@@ -61,7 +61,7 @@ After running the setup, you'll have access to:
 
 ### Zsh (Primary Shell)
 
-**Location:** `~/.zshrc` (symlinked from `zsh/zshrc.symlink`)
+**Location:** `~/.zshrc` (symlinked from `configs/shell/zsh/zshrc.symlink`)
 **Project:** [Zsh](https://www.zsh.org/) | **Shell:** Modern, powerful shell with advanced features
 
 Zsh is configured as the primary shell with extensive customizations.
@@ -209,7 +209,7 @@ ponythink   # → ponythink -bunicode
 
 ### Starship Prompt
 
-**Location:** `~/.config/starship/starship.toml` (symlinked from `starship/starship.symlink_config/`)
+**Location:** `~/.config/starship/starship.toml` (symlinked from `configs/prompts/starship/starship.symlink_config/`)
 **Project:** [Starship](https://starship.rs/) | **Prompt:** The minimal, blazing-fast, and infinitely customizable prompt for any shell
 
 A fast, cross-shell prompt with language detection and git integration.
@@ -252,7 +252,7 @@ symbol = " "          # Git branch symbol
 
 ### Tmux
 
-**Location:** `~/.tmux.conf` (symlinked from `tmux/tmux.conf.symlink`)
+**Location:** `~/.tmux.conf` (symlinked from `configs/multiplexers/tmux/tmux.conf.symlink`)
 **Project:** [tmux](https://github.com/tmux/tmux) | **Terminal Multiplexer:** Powerful terminal multiplexer for managing multiple terminal sessions
 
 Tmux is configured with vi-mode, custom status bar, and smart keybindings.
@@ -337,7 +337,7 @@ Ctrl+a (instead of default Ctrl+b)
 
 ### Neovim
 
-**Location:** `~/.config/nvim/` (symlinked from `nvim/nvim.symlink_config/`)
+**Location:** `~/.config/nvim/` (symlinked from `configs/editors/nvim/nvim.symlink_config/`)
 **Project:** [Neovim](https://neovim.io/) | **Editor:** Hyperextensible Vim-based text editor
 **Submodule:** [lualoves.nvim](https://github.com/Buckmeister/lualoves.nvim) - Custom Lua configuration
 
@@ -1011,7 +1011,7 @@ Packages are automatically installed on first launch via `use-package`.
 
 ### Kitty (Primary)
 
-**Location:** `~/.config/kitty/kitty.conf` (symlinked from `kitty/kitty.symlink_config/`)
+**Location:** `~/.config/kitty/kitty.conf` (symlinked from `configs/terminals/kitty/kitty.symlink_config/`)
 **Project:** [Kitty](https://sw.kovidgoyal.net/kitty/) | **Terminal:** The fast, feature-rich, GPU based terminal emulator
 
 Modern, GPU-accelerated terminal with extensive customization.
@@ -2023,17 +2023,17 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 #### Configuration Files (symlinked)
 
 ```
-~/.zshrc                    → dotfiles/zsh/zshrc.symlink
+~/.zshrc                    → dotfiles/configs/shell/zsh/zshrc.symlink
 ~/.bashrc                   → dotfiles/bash/bashrc.symlink
 ~/.aliases                  → dotfiles/aliases/aliases.symlink
-~/.tmux.conf                → dotfiles/tmux/tmux.conf.symlink
+~/.tmux.conf                → dotfiles/configs/multiplexers/tmux/tmux.conf.symlink
 ~/.vimrc                    → dotfiles/vim/vimrc.symlink
 ~/.emacs                    → dotfiles/emacs/emacs.symlink
 ~/.gitconfig                → dotfiles/git/gitconfig.symlink
-~/.config/nvim/             → dotfiles/nvim/nvim.symlink_config/
-~/.config/kitty/            → dotfiles/kitty/kitty.symlink_config/
+~/.config/nvim/             → dotfiles/configs/editors/nvim/nvim.symlink_config/
+~/.config/kitty/            → dotfiles/configs/terminals/kitty/kitty.symlink_config/
 ~/.config/alacritty/        → dotfiles/alacritty/alacritty.symlink_config/
-~/.config/starship/         → dotfiles/starship/starship.symlink_config/
+~/.config/starship/         → dotfiles/configs/prompts/starship/starship.symlink_config/
 ```
 
 #### Utility Scripts
@@ -2054,7 +2054,7 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 ├── bin/                      # Management scripts
 ├── post-install/scripts/     # Post-install automation
 ├── config/                   # Configuration files
-├── nvim/nvim.symlink_config/ # Neovim submodule
+├── configs/editors/nvim/nvim.symlink_config/ # Neovim submodule
 ├── README.md                 # Installation guide
 ├── INSTALL.md                # Detailed setup instructions
 ├── CLAUDE.md                 # AI assistant guidance
@@ -2083,7 +2083,7 @@ Ctrl+a -            # Split bottom pane horizontally (terminal | logs)
 Ctrl+a Arrow keys   # Move focus
 
 # Pane 1: Editor
-nvim ~/.config/dotfiles/zsh/zshrc.symlink
+nvim ~/.config/dotfiles/configs/shell/zsh/zshrc.symlink
 
 # Pane 2: Watch for changes
 cargo test --watch

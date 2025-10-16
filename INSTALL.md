@@ -312,7 +312,7 @@ This repository uses a convention-based symlink system to organize configuration
 
 | Pattern | Destination | Example |
 |---------|------------|---------|
-| `*.symlink` | `~/.{basename}` | `zsh/zshrc.symlink` → `~/.zshrc` |
+| `*.symlink` | `~/.{basename}` | `configs/shell/zsh/zshrc.symlink` → `~/.zshrc` |
 | `*.symlink_config` | `~/.config/{basename}` | `kitty.symlink_config/` → `~/.config/kitty/` |
 | `*.symlink_local_bin.*` | `~/.local/bin/{basename}` | `get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url` |
 
@@ -375,7 +375,7 @@ cd ~/.config/dotfiles
 Edit any dotfile directly in the repository:
 ```bash
 # Example: Customize zsh configuration
-vim ~/.config/dotfiles/zsh/zshrc.symlink
+vim ~/.config/dotfiles/configs/shell/zsh/zshrc.symlink
 
 # Changes are immediately reflected (symlinked)
 source ~/.zshrc
@@ -419,7 +419,7 @@ cd ~/.config/dotfiles
 git submodule update --init --recursive
 
 # Verify Neovim config is present
-ls -la nvim/nvim.symlink_config/
+ls -la configs/editors/nvim/nvim.symlink_config/
 ```
 
 ### Setup Issues
@@ -495,7 +495,7 @@ cd ~/.config/dotfiles
 git submodule status
 
 # Re-initialize submodule if needed
-git submodule update --init --recursive nvim/nvim.symlink_config
+git submodule update --init --recursive configs/editors/nvim/nvim.symlink_config
 ```
 
 ### Getting Help
