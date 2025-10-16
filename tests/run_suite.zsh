@@ -232,8 +232,8 @@ function execute_xen_test() {
     local test_output="$RESULTS_DIR/${test_name}.log"
     mkdir -p "$RESULTS_DIR"
 
-    # Run the XEN test
-    if "$SCRIPT_DIR/test_xen_install.zsh" --template "$template" > "$test_output" 2>&1; then
+    # Run the XEN test using unified script
+    if "$SCRIPT_DIR/test_xen.zsh" --distro "$template" > "$test_output" 2>&1; then
         TEST_RESULTS[$test_name]="PASS"
         PASSED_TESTS=$((PASSED_TESTS + 1))
         print_success "XEN test passed: $template"

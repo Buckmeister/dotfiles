@@ -25,7 +25,7 @@ The test suite is organized into three main categories:
 ./tests/test_docker_install.zsh --quick
 
 # Run XCP-NG VM installation tests
-./tests/test_xen_install.zsh --quick
+./tests/test_xen.zsh --quick
 ```
 
 ## Architecture
@@ -382,7 +382,7 @@ tests/
 ├── run_suite.zsh                           # Modular test runner (Phase 5)
 ├── run_tests.zsh                           # Main test runner
 ├── test_docker_install.zsh                 # Docker E2E tests
-├── test_xen_install.zsh                    # XCP-NG VM E2E tests
+├── test_xen.zsh                    # XCP-NG VM E2E tests
 ├── deploy_xen_helpers.zsh                  # XEN helper deployment (Phase 5)
 │
 ├── REFACTORING_PLAN.md                     # Detailed refactoring documentation
@@ -461,7 +461,7 @@ run_tests
 
 ### End-to-End Tests
 
-See `test_docker_install.zsh` or `test_xen_install.zsh` as examples. Key patterns:
+See `test_docker_install.zsh` or `test_xen.zsh` as examples. Key patterns:
 
 ```zsh
 # Initialize tracking
@@ -531,17 +531,17 @@ Tests dotfiles on real VMs (Linux & Windows):
 
 ```bash
 # Full test suite (all distros)
-./tests/test_xen_install.zsh
+./tests/test_xen.zsh
 
 # Quick test (Ubuntu only)
-./tests/test_xen_install.zsh --quick
+./tests/test_xen.zsh --quick
 
 # Specific distribution
-./tests/test_xen_install.zsh --distro ubuntu
-./tests/test_xen_install.zsh --distro w11      # Windows 11
+./tests/test_xen.zsh --distro ubuntu
+./tests/test_xen.zsh --distro w11      # Windows 11
 
 # Custom XCP-NG host
-./tests/test_xen_install.zsh --host my-xen-host.local
+./tests/test_xen.zsh --host my-xen-host.local
 ```
 
 **Supported Distributions:**
