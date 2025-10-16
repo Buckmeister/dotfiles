@@ -2,7 +2,7 @@
 
 > A comprehensive guide to the applications, configurations, and utility scripts in this dotfiles repository
 
-**For installation and setup instructions, see [README.md](README.md) and [INSTALL.md](INSTALL.md).**
+**For installation and setup instructions, see [README.md](../README.md) and [INSTALL.md](INSTALL.md).**
 
 ## Table of Contents
 
@@ -40,7 +40,7 @@
 
 ## Overview
 
-This manual documents the **configurations and tools** provided by the dotfiles repository, NOT the dotfiles management system itself (which is covered in [README.md](README.md) and [INSTALL.md](INSTALL.md)).
+This manual documents the **configurations and tools** provided by the dotfiles repository, NOT the dotfiles management system itself (which is covered in [README.md](../README.md) and [INSTALL.md](INSTALL.md)).
 
 After running the setup, you'll have access to:
 - A powerful shell environment with vi-mode keybindings
@@ -2537,7 +2537,7 @@ deploy
 ## Getting Help
 
 **For Management System:**
-- [README.md](README.md) - Quick start and overview
+- [README.md](../README.md) - Quick start and overview
 - [INSTALL.md](INSTALL.md) - Detailed installation guide
 - [CLAUDE.md](CLAUDE.md) - Developer guidance
 

@@ -1035,7 +1035,7 @@ Planned improvements to the testing infrastructure:
 - **[packages/README.md](packages/README.md)** - Universal package management system (used in test manifests)
 - **[post-install/README.md](post-install/README.md)** - Post-install scripts (tested by integration tests)
 - **[MANUAL.md](MANUAL.md)** - User manual with keybindings and daily workflows
-- **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and testing infrastructure evolution
+- **[ACTION_PLAN.md](../ACTION_PLAN.md)** - Project roadmap and testing infrastructure evolution
 
 ### Test-Specific Documentation
 

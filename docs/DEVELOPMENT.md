@@ -1524,13 +1524,13 @@ sync_packages --push
 
 ### Core Documentation
 
-- **[README.md](README.md)** - User-facing quick start and overview
+- **[README.md](../README.md)** - User-facing quick start and overview
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - This file (developer documentation hub)
 - **[CLAUDE.md](CLAUDE.md)** - AI assistant guidance and system architecture
 - **[INSTALL.md](INSTALL.md)** - Detailed installation and troubleshooting
 - **[MANUAL.md](MANUAL.md)** - Configuration reference and keybindings
 - **[TESTING.md](TESTING.md)** - Comprehensive testing documentation
-- **[CHANGELOG.md](CHANGELOG.md)** - Project history and milestones
+- **[CHANGELOG.md](../CHANGELOG.md)** - Project history and milestones
 
 ### Shared Libraries
 

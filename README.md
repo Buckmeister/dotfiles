@@ -53,7 +53,7 @@ That's it! This single command will:
 
 **Memorable URL:** Visit [buckmeister.github.io](https://buckmeister.github.io/) for easy installation commands
 
-See [INSTALL.md](INSTALL.md) for detailed installation options and publishing your own fork.
+See [INSTALL.md](docs/INSTALL.md) for detailed installation options and publishing your own fork.
 
 ### Manual Installation
 
@@ -205,7 +205,7 @@ Meticulously crafted configurations providing a cohesive development environment
   - Karabiner: Keyboard remapping
   - Xcode: Command-line tools management
 
-**See [MANUAL.md](MANUAL.md) for complete configuration reference, keybindings, and usage guides.**
+**See [MANUAL.md](docs/MANUAL.md) for complete configuration reference, keybindings, and usage guides.**
 
 ### Post-Install Scripts
 Modular, OS-aware installation for:
@@ -442,7 +442,7 @@ The repository includes **251 comprehensive tests** across **15 test suites** wi
 
 The test suite includes configuration-driven testing, modular test runners (smoke/standard/comprehensive), Docker-based validation, and XEN cluster testing for multi-host scenarios.
 
-**See [TESTING.md](TESTING.md) for complete testing documentation including guidelines, infrastructure, and writing new tests.**
+**See [TESTING.md](docs/TESTING.md) for complete testing documentation including guidelines, infrastructure, and writing new tests.**
 
 ### Managing the Neovim Submodule
 
@@ -979,11 +979,11 @@ Enhanced with contributions from **Claude Code** (that's me! 👋), bringing:
 
 Complete documentation suite for all aspects of the dotfiles system:
 
-- **[MANUAL.md](MANUAL.md)** - **Configuration guide:** Comprehensive reference for all configurations, keybindings, and utility scripts
-- **[INSTALL.md](INSTALL.md)** - **Installation guide:** Detailed setup instructions, troubleshooting, and publishing your fork
-- **[CLAUDE.md](CLAUDE.md)** - **Architecture guide:** Repository structure, technical documentation, and development workflow
-- **[TESTING.md](TESTING.md)** - **Testing guide:** Testing infrastructure, guidelines, and test suite documentation
-- **[TeamBio.md](TeamBio.md)** - **Team information:** Project context and contributors
+- **[MANUAL.md](docs/MANUAL.md)** - **Configuration guide:** Comprehensive reference for all configurations, keybindings, and utility scripts
+- **[INSTALL.md](docs/INSTALL.md)** - **Installation guide:** Detailed setup instructions, troubleshooting, and publishing your fork
+- **[CLAUDE.md](docs/CLAUDE.md)** - **Architecture guide:** Repository structure, technical documentation, and development workflow
+- **[TESTING.md](docs/TESTING.md)** - **Testing guide:** Testing infrastructure, guidelines, and test suite documentation
+- **[TeamBio.md](docs/TeamBio.md)** - **Team information:** Project context and contributors
 
 ### Specialized Documentation
 
@@ -999,14 +999,14 @@ Complete documentation suite for all aspects of the dotfiles system:
 ### Quick Navigation
 
 **For Users:**
-1. Start here → **[INSTALL.md](INSTALL.md)** - Get up and running
-2. Daily use → **[MANUAL.md](MANUAL.md)** - Learn keybindings and workflows
-3. Troubleshooting → **[INSTALL.md](INSTALL.md#troubleshooting)**
+1. Start here → **[INSTALL.md](docs/INSTALL.md)** - Get up and running
+2. Daily use → **[MANUAL.md](docs/MANUAL.md)** - Learn keybindings and workflows
+3. Troubleshooting → **[INSTALL.md](docs/INSTALL.md#troubleshooting)**
 
 **For Developers:**
-1. Developer Hub → **[DEVELOPMENT.md](DEVELOPMENT.md)** - Complete API reference, library documentation, and contribution guide
-2. Architecture → **[CLAUDE.md](CLAUDE.md)** - Understanding the system structure and philosophy
-3. Testing → **[TESTING.md](TESTING.md)** - Running and writing tests
+1. Developer Hub → **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Complete API reference, library documentation, and contribution guide
+2. Architecture → **[CLAUDE.md](docs/CLAUDE.md)** - Understanding the system structure and philosophy
+3. Testing → **[TESTING.md](docs/TESTING.md)** - Running and writing tests
 4. Contributing → **[post-install/README.md](post-install/README.md#writing-new-scripts)** - Writing post-install scripts
 
 **For Package Management:**
