@@ -25,13 +25,13 @@ emulate -LR zsh
 # Premium voice preferences (Neural voices sound much more natural)
 # Maps role -> preferred voices (in priority order)
 typeset -A PREMIUM_VOICES
-PREMIUM_VOICES[friendly]="Eddy (English (US)) Flo (English (US)) Samantha"
+PREMIUM_VOICES[friendly]="Serena (Premium) Serena (Enhanced) Eddy (English (US)) Flo (English (US)) Samantha"
 PREMIUM_VOICES[male]="Eddy (English (US)) Reed (English (US)) Alex"
-PREMIUM_VOICES[female]="Flo (English (US)) Samantha Sandy (English (US))"
-PREMIUM_VOICES[british]="Eddy (English (UK)) Daniel"
+PREMIUM_VOICES[female]="Serena (Premium) Serena (Enhanced) Flo (English (US)) Samantha Sandy (English (US))"
+PREMIUM_VOICES[british]="Serena (Premium) Serena (Enhanced) Eddy (English (UK)) Daniel"
 
-# Default voice (will auto-select best available)
-DEFAULT_VOICE="Samantha"
+# Default voice (Serena Premium if available, otherwise fallback)
+DEFAULT_VOICE="Serena (Premium)"
 
 # Default speech rate (words per minute, 175 is natural)
 DEFAULT_RATE="175"
@@ -119,13 +119,15 @@ EXAMPLES:
     speak -f README.md
 
 PREMIUM VOICES (Higher Quality Neural TTS):
-    Eddy (English (US))   - Natural male voice (recommended)
+    Serena (Premium)      - Best quality British female (default)
+    Serena (Enhanced)     - Enhanced British female
+    Eddy (English (US))   - Natural male voice
     Flo (English (US))    - Natural female voice
     Reed (English (US))   - Professional male voice
     Sandy (English (US))  - Warm female voice
 
 STANDARD VOICES:
-    Samantha    - Friendly female voice (fallback default)
+    Samantha    - Friendly female voice (fallback)
     Alex        - Clear male voice
     Daniel      - British male voice
     Karen       - Australian female voice
