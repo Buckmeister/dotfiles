@@ -59,6 +59,7 @@ SKIP_PI=false
 DISABLE_PI_GLOB=""
 ENABLE_PI_GLOB=""
 SINGLE_DISTRO=""
+NO_CLEANUP=false               # Keep containers for debugging
 
 # ============================================================================
 # Argument Parsing
@@ -120,6 +121,12 @@ parse_arguments() {
                 ;;
             --all-distros)
                 # Use default DISTROS array
+                shift
+                ;;
+
+            # Container management
+            --no-cleanup)
+                NO_CLEANUP=true
                 shift
                 ;;
 
@@ -193,6 +200,11 @@ DISTRIBUTION SELECTION:
   --distro IMAGE       Test specific distribution
                        Example: --distro debian:12
   --all-distros        Test all 4 distributions (default)
+
+CONTAINER MANAGEMENT:
+  --no-cleanup         Keep containers after test (for debugging)
+                       Use 'docker ps -a' to see stopped containers
+                       Use 'docker exec -it <name> bash' to inspect
 
 COMMON USAGE PATTERNS:
 
@@ -542,6 +554,80 @@ run_comprehensive_tests() {
 }
 
 # ============================================================================
+# Performance Metrics and Resource Monitoring
+# ============================================================================
+
+# Global variables for performance tracking
+declare -A TEST_START_TIMES
+declare -A TEST_END_TIMES
+declare -A TEST_DURATIONS
+
+# Start tracking test performance
+start_test_timer() {
+    local test_name="$1"
+    TEST_START_TIMES[$test_name]=$(date +%s)
+}
+
+# End tracking test performance
+end_test_timer() {
+    local test_name="$1"
+    TEST_END_TIMES[$test_name]=$(date +%s)
+
+    local start=${TEST_START_TIMES[$test_name]}
+    local end=${TEST_END_TIMES[$test_name]}
+    local duration=$((end - start))
+    TEST_DURATIONS[$test_name]=$duration
+}
+
+# Get container resource usage stats
+get_container_stats() {
+    local container_name="$1"
+
+    # Try to get stats (may fail if container is already stopped)
+    local stats=$(docker stats --no-stream --format "{{.CPUPerc}} {{.MemUsage}}" "$container_name" 2>/dev/null || echo "N/A N/A")
+    echo "$stats"
+}
+
+# Print performance summary
+print_performance_summary() {
+    if [[ ${#TEST_DURATIONS[@]} -eq 0 ]]; then
+        return
+    fi
+
+    echo ""
+    draw_section_header "Performance Metrics"
+
+    print_info "📊 Test Duration Breakdown:"
+    echo ""
+
+    local total_duration=0
+    for test_name in "${(@k)TEST_DURATIONS}"; do
+        local duration=${TEST_DURATIONS[$test_name]}
+        total_duration=$((total_duration + duration))
+
+        local minutes=$((duration / 60))
+        local seconds=$((duration % 60))
+
+        printf "   %-40s %2dm %2ds\n" "$test_name" "$minutes" "$seconds"
+    done
+
+    echo ""
+    local total_minutes=$((total_duration / 60))
+    local total_seconds=$((total_duration % 60))
+    print_info "⏱️  Total test time: ${COLOR_BOLD}${total_minutes}m ${total_seconds}s${COLOR_RESET}"
+
+    # Calculate average
+    local test_count=${#TEST_DURATIONS[@]}
+    if [[ $test_count -gt 0 ]]; then
+        local avg_duration=$((total_duration / test_count))
+        local avg_minutes=$((avg_duration / 60))
+        local avg_seconds=$((avg_duration % 60))
+        print_info "📈 Average per test: ${avg_minutes}m ${avg_seconds}s"
+    fi
+    echo ""
+}
+
+# ============================================================================
 # Main Test Execution
 # ============================================================================
 
@@ -582,17 +668,17 @@ test_installation() {
         fi
     "
 
-    # Add PI filtering if needed
+    # Add basic tests (always run)
+    test_cmd=$(run_basic_installation_tests "$test_cmd")
+
+    # Add Phase 11 validation tests (BEFORE PI filtering, always run to ensure refactoring is correct)
+    test_cmd=$(run_phase11_validation_tests "$test_cmd")
+
+    # Add PI filtering if needed (AFTER Phase 11 validation so it doesn't interfere with checks)
     local pi_filter=$(prepare_pi_filtering "$distro")
     if [[ -n "$pi_filter" ]]; then
         test_cmd+="$pi_filter"
     fi
-
-    # Add basic tests (always run)
-    test_cmd=$(run_basic_installation_tests "$test_cmd")
-
-    # Add Phase 11 validation tests (always run to ensure refactoring is correct)
-    test_cmd=$(run_phase11_validation_tests "$test_cmd")
 
     # Add comprehensive tests if requested
     if [[ "$TEST_MODE" == "comprehensive" ]] || [[ "$TEST_MODE" == "full" ]]; then
@@ -609,7 +695,19 @@ test_installation() {
 
     print_info "Phase 1/$total_phases: Pulling container image..."
 
-    if docker run --rm \
+    # Conditionally set --rm flag based on NO_CLEANUP setting
+    local rm_flag="--rm"
+    if [[ "$NO_CLEANUP" == true ]]; then
+        rm_flag=""
+        echo ""
+        print_warning "Container will be preserved for debugging: $container_name"
+        print_info "Use 'docker ps -a' to see stopped containers"
+        print_info "Use 'docker exec -it $container_name bash' to inspect (if still running)"
+        print_info "Use 'docker start $container_name && docker attach $container_name' to resume"
+        echo ""
+    fi
+
+    if docker run $rm_flag \
         --name "$container_name" \
         -e DEBIAN_FRONTEND=noninteractive \
         "$distro" \
@@ -709,12 +807,20 @@ run_tests() {
 
     for distro in "${DISTROS[@]}"; do
         for mode in "${modes_to_test[@]}"; do
+            local test_name="$distro ($mode)"
+
+            # Start performance tracking
+            start_test_timer "$test_name"
+
             # Run test and track result
             if test_installation "$distro" "$mode"; then
-                track_test_result "$distro ($mode)" true
+                track_test_result "$test_name" true
             else
-                track_test_result "$distro ($mode)" false
+                track_test_result "$test_name" false
             fi
+
+            # End performance tracking
+            end_test_timer "$test_name"
 
             echo ""
         done
@@ -722,6 +828,9 @@ run_tests() {
 
     # Print summary using helper function
     print_test_summary
+
+    # Print performance metrics
+    print_performance_summary
 }
 
 # ============================================================================
