@@ -94,6 +94,24 @@ All changes validated:
 - ✅ Dependent scripts (cargo-packages, ghcup-packages) work with new references
 - ✅ Help flags functional on all new scripts
 - ✅ No regressions in existing functionality
+- ✅ **Docker test validation added** - Phase 11 refactoring validated in fresh containers
+
+**Enhanced Docker Testing Infrastructure:**
+- Added `run_phase11_validation_tests()` function to `tests/test_docker.zsh`
+- Validates Phase 11 refactoring automatically on every Docker test run
+- Tests performed in fresh Ubuntu 24.04 containers:
+  - ✓ haskell-toolchain.zsh exists and is executable
+  - ✓ rust-toolchain.zsh exists and is executable
+  - ✓ starship-prompt.zsh exists and is executable
+  - ✓ Old toolchains.zsh properly removed
+  - ✓ cargo-packages.zsh dependency updated to rust-toolchain.zsh
+  - ✓ ghcup-packages.zsh dependency updated to haskell-toolchain.zsh
+  - ✓ Post-install script count validation (≥15 scripts)
+  - ✓ --help flags functional on new scripts
+- Phase 11 validation runs automatically in basic test mode
+- Updated phase counting: 6 phases (basic + Phase 11) or 7 (comprehensive)
+- Enhanced help documentation mentions Phase 11 validation
+- Ensures future refactoring changes are automatically validated
 
 ### Files Changed
 
@@ -109,6 +127,8 @@ All changes validated:
 - `post-install/scripts/cargo-packages.zsh` (dependency references)
 - `post-install/scripts/ghcup-packages.zsh` (dependency references)
 - `post-install/README.md` (script index and categories)
+- `tests/test_docker.zsh` (Phase 11 validation tests)
+- `ACTION_PLAN.md` (Phase 11 completion status)
 - `CHANGELOG.md` (this entry)
 
 **Net Change:** +47 lines of code, +3 independent scripts, improved modularity
