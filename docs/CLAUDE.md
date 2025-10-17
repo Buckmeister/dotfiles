@@ -24,19 +24,27 @@ The dotfiles are organized into logical categories for easy navigation and maint
 │   ├── tests/                    Test suite (251 tests across 15 suites)
 │   ├── post-install/             Post-install script system
 │   ├── packages/                 Universal package management
-│   └── profiles/                 Configuration profiles
-├── 🎨 configs/                    Application configurations (organized by category)
-│   ├── shell/                    zsh, bash, fish, aliases, readline
-│   ├── editors/                  nvim, vim, emacs
-│   ├── terminals/                kitty, alacritty, macos-terminal
-│   ├── multiplexers/             tmux
-│   ├── prompts/                  starship, p10k
-│   ├── version-control/          git, github
-│   ├── development/              maven, jdt.ls, ghci
-│   ├── languages/                R, ipython, stylua, black
-│   ├── utilities/                ranger, neofetch, bat
-│   ├── system/                   karabiner, xcode, xmodmap, xprofile
-│   └── package-managers/         brew, apt
+│   ├── profiles/                 Configuration profiles
+│   └── env/                      Environment variables (versions, paths, packages)
+├── 🎨 user/                       All user-facing deployables
+│   ├── configs/                  Application configurations (→ ~/.*, ~/.config/*)
+│   │   ├── shell/                zsh, bash, fish, aliases, readline
+│   │   ├── editors/              nvim, vim, emacs
+│   │   ├── terminals/            kitty, alacritty, macos-terminal
+│   │   ├── multiplexers/         tmux
+│   │   ├── prompts/              starship, p10k
+│   │   ├── version-control/      git, github
+│   │   ├── development/          maven, jdt.ls, ghci
+│   │   ├── languages/            R, ipython, stylua, black
+│   │   ├── utilities/            ranger, neofetch, bat, fzf
+│   │   ├── system/               karabiner, xcode, xmodmap, xprofile
+│   │   └── package-managers/     brew, apt
+│   └── scripts/                  User executables (→ ~/.local/bin/*)
+│       ├── shell/                shell, shorten_path
+│       ├── development/          jdt.ls, install_maven_wrapper
+│       ├── utilities/            battery, iperl, rustp, create_hie_yaml
+│       ├── version-control/      get_github_url, get_jdtls_url
+│       └── package-managers/     generate_brew_install_script
 └── 📦 resources/                  screenshots, snippets, shared assets
 ```
 
@@ -55,9 +63,9 @@ The repository structure follows these conventions:
 - `*.symlink_local_bin.*` files → linked to `~/.local/bin/{basename}`
 
 **Examples:**
-- `configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
-- `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
-- `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+- `user/configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
+- `user/configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
+- `user/scripts/version-control/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
 
 The `link_dotfiles.zsh` script uses `find` to discover files by pattern, making subdirectory organization transparent to the linking system.
 
@@ -630,8 +638,8 @@ done
 
 ### Adding New Configurations
 
-1. Choose the appropriate category in `configs/` (shell, editors, terminals, utilities, etc.)
-2. Create directory for application (e.g., `configs/utilities/myapp/`)
+1. Choose the appropriate category in `user/configs/` (shell, editors, terminals, utilities, etc.)
+2. Create directory for application (e.g., `user/configs/utilities/myapp/`)
 3. Add configuration files with appropriate symlink suffix
 4. Run `./bin/link_dotfiles.zsh` to create symlinks
 5. Verify with `./bin/librarian.zsh`
@@ -639,10 +647,10 @@ done
 **Example - Adding a new utility:**
 ```bash
 # Create directory in appropriate category
-mkdir -p configs/utilities/mytool
+mkdir -p user/configs/utilities/mytool
 
 # Add configuration with symlink suffix
-echo "my config" > configs/utilities/mytool/mytool.symlink_config
+echo "my config" > user/configs/utilities/mytool/mytool.symlink_config
 
 # Create symlinks
 ./bin/link_dotfiles.zsh

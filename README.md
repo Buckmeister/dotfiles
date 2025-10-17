@@ -126,16 +126,25 @@ The dotfiles are organized into logical categories for easy navigation and maint
 │   ├── post-install/             Post-install script system
 │   ├── packages/                 Universal package management
 │   └── profiles/                 Configuration profiles
-├── 🎨 configs/                    Application configurations (organized by category)
-│   ├── shell/                    zsh, bash, fish, aliases, readline
-│   ├── editors/                  nvim, vim, emacs
-│   ├── terminals/                kitty, alacritty, macos-terminal
-│   ├── multiplexers/             tmux
-│   ├── prompts/                  starship, p10k
-│   ├── version-control/          git, github
-│   ├── development/              maven, jdt.ls, ghci
-│   ├── utilities/                ranger, neofetch, bat
-│   └── system/                   karabiner, xcode, xmodmap, xprofile
+├── 🎨 user/                       All user-facing deployables
+│   ├── configs/                  Application configurations (→ ~/.*, ~/.config/*)
+│   │   ├── shell/                zsh, bash, fish, aliases, readline
+│   │   ├── editors/              nvim, vim, emacs
+│   │   ├── terminals/            kitty, alacritty, macos-terminal
+│   │   ├── multiplexers/         tmux
+│   │   ├── prompts/              starship, p10k
+│   │   ├── version-control/      git, github
+│   │   ├── development/          maven, jdt.ls, ghci
+│   │   ├── languages/            R, ipython, stylua, black
+│   │   ├── utilities/            ranger, neofetch, bat, fzf
+│   │   ├── system/               karabiner, xcode, xmodmap, xprofile
+│   │   └── package-managers/     brew, apt
+│   └── scripts/                  User executables (→ ~/.local/bin/*)
+│       ├── shell/                shell, shorten_path
+│       ├── development/          jdt.ls, install_maven_wrapper
+│       ├── utilities/            battery, iperl, rustp, create_hie_yaml
+│       ├── version-control/      get_github_url, get_jdtls_url
+│       └── package-managers/     generate_brew_install_script
 └── 📦 resources/                  Screenshots, snippets, shared assets
 ```
 
@@ -152,19 +161,19 @@ The dotfiles are organized into logical categories for easy navigation and maint
 
 Meticulously crafted configurations providing a cohesive development environment:
 
-- **Shells**: `configs/shell/{zsh,bash,fish,aliases,readline}`
+- **Shells**: `user/configs/shell/{zsh,bash,fish,aliases,readline}`
   - zsh with zplug plugin management
   - Shared aliases across shells
   - Custom functions and completion
   - Integration with starship prompt
 
-- **Prompts**: `configs/prompts/{starship,p10k}`
+- **Prompts**: `user/configs/prompts/{starship,p10k}`
   - Starship: Modern, fast, cross-shell prompt
   - Powerlevel10k: Feature-rich zsh theme
   - Git status, language versions, execution time
   - Custom segments and styling
 
-- **Editors**: `configs/editors/{nvim,vim,emacs}`
+- **Editors**: `user/configs/editors/{nvim,vim,emacs}`
   - Neovim: Full-featured Lua config ([git submodule](https://github.com/Buckmeister/lualoves.nvim))
   - lazy.nvim plugin manager
   - LSP support for 10+ languages
@@ -172,36 +181,36 @@ Meticulously crafted configurations providing a cohesive development environment
   - Traditional Vim config for fallback
   - Emacs config for macOS
 
-- **Terminals**: `configs/terminals/{kitty,alacritty,macos-terminal}`
+- **Terminals**: `user/configs/terminals/{kitty,alacritty,macos-terminal}`
   - Kitty: GPU-accelerated with ligatures
   - Alacritty: Fast, minimal, cross-platform
   - macOS Terminal.app themes
   - Consistent OneDark color scheme
   - Font configurations for Nerd Fonts
 
-- **Multiplexer**: `configs/multiplexers/tmux`
+- **Multiplexer**: `user/configs/multiplexers/tmux`
   - Custom prefix key (Ctrl+a)
   - Vim-style navigation
   - Status bar with system info
   - Session management
 
-- **Version Control**: `configs/version-control/git`
+- **Version Control**: `user/configs/version-control/git`
   - Global gitconfig with aliases
   - diff-so-fancy integration
   - Commit templates and hooks
   - GPG signing support
 
-- **Utilities**: `configs/utilities/{ranger,neofetch,bat}`
+- **Utilities**: `user/configs/utilities/{ranger,neofetch,bat}`
   - Ranger: Vim keybindings, image previews
   - Neofetch: System info display
   - Bat: Cat replacement with syntax highlighting
 
-- **Development Tools**: `configs/development/{maven,jdt.ls,ghci}`
+- **Development Tools**: `user/configs/development/{maven,jdt.ls,ghci}`
   - Maven wrapper installation
   - Eclipse JDT Language Server for Java
   - GHCi configuration for Haskell
 
-- **macOS Integration**: `configs/system/{karabiner,xcode}`
+- **macOS Integration**: `user/configs/system/{karabiner,xcode}`
   - Karabiner: Keyboard remapping
   - Xcode: Command-line tools management
 
@@ -287,9 +296,9 @@ This repository uses a convention-based symlink system that works regardless of 
 - `*.symlink_local_bin.*` → `~/.local/bin/{basename}`
 
 **Example**:
-- `configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
-- `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
-- `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
+- `user/configs/shell/zsh/zshrc.symlink` → `~/.zshrc`
+- `user/configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/`
+- `user/scripts/version-control/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url`
 
 The `link_dotfiles.zsh` script uses `find` to discover files by pattern, making subdirectory organization transparent to the linking system.
 
@@ -652,7 +661,7 @@ echo "tokei" >> env/packages/cargo-packages.list
 ./post-install/scripts/cargo-packages.zsh
 
 # Customize your starship prompt
-vim configs/prompts/starship/starship.symlink_config/starship.toml
+vim user/configs/prompts/starship/starship.symlink_config/starship.toml
 # Changes are immediately reflected (symlinked)
 
 # Test the new tool

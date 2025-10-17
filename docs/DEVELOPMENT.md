@@ -695,9 +695,9 @@ The dotfiles use a **symlink-based architecture** for managing configuration fil
 
 | Pattern | Target Location | Example |
 |---------|----------------|---------|
-| `*.symlink` | `~/.{basename}` | `configs/shell/zsh/zshrc.symlink` → `~/.zshrc` |
-| `*.symlink_config` | `~/.config/{basename}` | `configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/` |
-| `*.symlink_local_bin.*` | `~/.local/bin/{basename}` | `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url` |
+| `*.symlink` | `~/.{basename}` | `user/configs/shell/zsh/zshrc.symlink` → `~/.zshrc` |
+| `*.symlink_config` | `~/.config/{basename}` | `user/configs/editors/nvim/nvim.symlink_config/` → `~/.config/nvim/` |
+| `*.symlink_local_bin.*` | `~/.local/bin/{basename}` | `user/scripts/version-control/get_github_url.symlink_local_bin.zsh` → `~/.local/bin/get_github_url` |
 
 **Benefits:**
 - Version control your configurations
@@ -809,7 +809,7 @@ dotfiles/
 │   ├── manifests/                # Package manifests per profile
 │   └── README.md                 # Profile system documentation
 │
-├── config/                       # Configuration files
+├── env/                          # Environment configuration
 │   ├── paths.env                 # Path configuration
 │   ├── versions.env              # Version pinning
 │   └── packages/                 # Package lists (.list files)
@@ -821,18 +821,25 @@ dotfiles/
 │   ├── lib/                      # Test framework
 │   └── README.md                 # Testing documentation
 │
-├── configs/                      # Application configurations (organized by category)
-│   ├── shell/                    # zsh, bash, fish, aliases, readline
-│   ├── editors/                  # nvim (submodule), vim, emacs
-│   ├── terminals/                # kitty, alacritty, macos-terminal
-│   ├── multiplexers/             # tmux
-│   ├── prompts/                  # starship, p10k
-│   ├── version-control/          # git, github
-│   ├── development/              # maven, jdt.ls, ghci
-│   ├── languages/                # R, ipython, stylua, black
-│   ├── utilities/                # ranger, neofetch, bat
-│   ├── system/                   # karabiner, xcode, xmodmap, xprofile
-│   └── package-managers/         # brew, apt
+├── user/                         # All user-facing deployables
+│   ├── configs/                  # Application configurations (→ ~/.*, ~/.config/*)
+│   │   ├── shell/                # zsh, bash, fish, aliases, readline
+│   │   ├── editors/              # nvim (submodule), vim, emacs
+│   │   ├── terminals/            # kitty, alacritty, macos-terminal
+│   │   ├── multiplexers/         # tmux
+│   │   ├── prompts/              # starship, p10k
+│   │   ├── version-control/      # git, github
+│   │   ├── development/          # maven, jdt.ls, ghci
+│   │   ├── languages/            # R, ipython, stylua, black
+│   │   ├── utilities/            # ranger, neofetch, bat, fzf
+│   │   ├── system/               # karabiner, xcode, xmodmap, xprofile
+│   │   └── package-managers/     # brew, apt
+│   └── scripts/                  # User executables (→ ~/.local/bin/*)
+│       ├── shell/                # shell, shorten_path
+│       ├── development/          # jdt.ls, install_maven_wrapper
+│       ├── utilities/            # battery, iperl, rustp, create_hie_yaml
+│       ├── version-control/      # get_github_url, get_jdtls_url
+│       └── package-managers/     # generate_brew_install_script
 │
 └── resources/                    # Screenshots, snippets, shared assets
 ```

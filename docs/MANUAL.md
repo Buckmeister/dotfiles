@@ -61,7 +61,7 @@ After running the setup, you'll have access to:
 
 ### Zsh (Primary Shell)
 
-**Location:** `~/.zshrc` (symlinked from `configs/shell/zsh/zshrc.symlink`)
+**Location:** `~/.zshrc` (symlinked from `user/configs/shell/zsh/zshrc.symlink`)
 **Project:** [Zsh](https://www.zsh.org/) | **Shell:** Modern, powerful shell with advanced features
 
 Zsh is configured as the primary shell with extensive customizations.
@@ -209,7 +209,7 @@ ponythink   # → ponythink -bunicode
 
 ### Starship Prompt
 
-**Location:** `~/.config/starship/starship.toml` (symlinked from `configs/prompts/starship/starship.symlink_config/`)
+**Location:** `~/.config/starship/starship.toml` (symlinked from `user/configs/prompts/starship/starship.symlink_config/`)
 **Project:** [Starship](https://starship.rs/) | **Prompt:** The minimal, blazing-fast, and infinitely customizable prompt for any shell
 
 A fast, cross-shell prompt with language detection and git integration.
@@ -252,7 +252,7 @@ symbol = " "          # Git branch symbol
 
 ### Tmux
 
-**Location:** `~/.tmux.conf` (symlinked from `configs/multiplexers/tmux/tmux.conf.symlink`)
+**Location:** `~/.tmux.conf` (symlinked from `user/configs/multiplexers/tmux/tmux.conf.symlink`)
 **Project:** [tmux](https://github.com/tmux/tmux) | **Terminal Multiplexer:** Powerful terminal multiplexer for managing multiple terminal sessions
 
 Tmux is configured with vi-mode, custom status bar, and smart keybindings.
@@ -337,7 +337,7 @@ Ctrl+a (instead of default Ctrl+b)
 
 ### Neovim
 
-**Location:** `~/.config/nvim/` (symlinked from `configs/editors/nvim/nvim.symlink_config/`)
+**Location:** `~/.config/nvim/` (symlinked from `user/configs/editors/nvim/nvim.symlink_config/`)
 **Project:** [Neovim](https://neovim.io/) | **Editor:** Hyperextensible Vim-based text editor
 **Submodule:** [lualoves.nvim](https://github.com/Buckmeister/lualoves.nvim) - Custom Lua configuration
 
@@ -1011,7 +1011,7 @@ Packages are automatically installed on first launch via `use-package`.
 
 ### Kitty (Primary)
 
-**Location:** `~/.config/kitty/kitty.conf` (symlinked from `configs/terminals/kitty/kitty.symlink_config/`)
+**Location:** `~/.config/kitty/kitty.conf` (symlinked from `user/configs/terminals/kitty/kitty.symlink_config/`)
 **Project:** [Kitty](https://sw.kovidgoyal.net/kitty/) | **Terminal:** The fast, feature-rich, GPU based terminal emulator
 
 Modern, GPU-accelerated terminal with extensive customization.
@@ -1952,7 +1952,7 @@ For complete schema documentation, see [packages/SCHEMA.md](packages/SCHEMA.md).
 
 ### Karabiner (macOS Keyboard Remapping)
 
-**Location:** `~/.config/karabiner/` (symlinked from `karabiner/karabiner.symlink_config/`)
+**Location:** `~/.config/karabiner/` (symlinked from `user/configs/system/karabiner/karabiner.symlink_config/`)
 **Project:** [Karabiner-Elements](https://karabiner-elements.pqrs.org/) | **macOS Tool:** Powerful keyboard customizer
 
 Advanced keyboard customization for macOS.
@@ -2023,28 +2023,29 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 #### Configuration Files (symlinked)
 
 ```
-~/.zshrc                    → dotfiles/configs/shell/zsh/zshrc.symlink
-~/.bashrc                   → dotfiles/bash/bashrc.symlink
-~/.aliases                  → dotfiles/aliases/aliases.symlink
-~/.tmux.conf                → dotfiles/configs/multiplexers/tmux/tmux.conf.symlink
-~/.vimrc                    → dotfiles/vim/vimrc.symlink
-~/.emacs                    → dotfiles/emacs/emacs.symlink
-~/.gitconfig                → dotfiles/git/gitconfig.symlink
-~/.config/nvim/             → dotfiles/configs/editors/nvim/nvim.symlink_config/
-~/.config/kitty/            → dotfiles/configs/terminals/kitty/kitty.symlink_config/
-~/.config/alacritty/        → dotfiles/alacritty/alacritty.symlink_config/
-~/.config/starship/         → dotfiles/configs/prompts/starship/starship.symlink_config/
+~/.zshrc                    → dotfiles/user/configs/shell/zsh/zshrc.symlink
+~/.bashrc                   → dotfiles/user/configs/shell/bash/bashrc.symlink
+~/.aliases                  → dotfiles/user/configs/shell/aliases/aliases.symlink
+~/.tmux.conf                → dotfiles/user/configs/multiplexers/tmux/tmux.conf.symlink
+~/.vimrc                    → dotfiles/user/configs/editors/vim/vimrc.symlink
+~/.emacs                    → dotfiles/user/configs/editors/emacs/emacs.symlink
+~/.gitconfig                → dotfiles/user/configs/version-control/git/gitconfig.symlink
+~/.config/nvim/             → dotfiles/user/configs/editors/nvim/nvim.symlink_config/
+~/.config/kitty/            → dotfiles/user/configs/terminals/kitty/kitty.symlink_config/
+~/.config/alacritty/        → dotfiles/user/configs/terminals/alacritty/alacritty.symlink_config/
+~/.config/starship/         → dotfiles/user/configs/prompts/starship/starship.symlink_config/
 ```
 
 #### Utility Scripts
 
 ```
-~/.local/bin/get_github_url              → dotfiles/github/get_github_url.symlink_local_bin.zsh
-~/.local/bin/get_jdtls_url               → dotfiles/github/get_jdtls_url.symlink_local_bin.zsh
-~/.local/bin/shorten_path                → dotfiles/tmux/shorten_path.symlink_local_bin.zsh
-~/.local/bin/battery                     → dotfiles/tmux/battery.symlink_local_bin.bash
-~/.local/bin/generate_brew_install_script → dotfiles/brew/generate_brew_install_script.symlink_local_bin.zsh
-~/.local/bin/speak                        → dotfiles/bin/speak.symlink_local_bin.zsh
+~/.local/bin/get_github_url               → dotfiles/user/scripts/version-control/get_github_url.symlink_local_bin.zsh
+~/.local/bin/get_jdtls_url                → dotfiles/user/scripts/version-control/get_jdtls_url.symlink_local_bin.zsh
+~/.local/bin/shorten_path                 → dotfiles/user/scripts/shell/shorten_path.symlink_local_bin.zsh
+~/.local/bin/battery                      → dotfiles/user/scripts/utilities/battery.symlink_local_bin.sh
+~/.local/bin/generate_brew_install_script → dotfiles/user/scripts/package-managers/generate_brew_install_script.symlink_local_bin.zsh
+~/.local/bin/shell                        → dotfiles/user/scripts/shell/shell.symlink_local_bin.zsh
+~/.local/bin/speak                        → dotfiles/user/scripts/utilities/speak.symlink_local_bin.zsh
 ```
 
 #### Repository Structure
@@ -2053,12 +2054,15 @@ Nerd Fonts are installed via `post-install/scripts/fonts.zsh`
 ~/.config/dotfiles/           # Main repository
 ├── bin/                      # Management scripts
 ├── post-install/scripts/     # Post-install automation
-├── config/                   # Configuration files
-├── configs/editors/nvim/nvim.symlink_config/ # Neovim submodule
+├── env/                      # Environment configuration
+├── user/                     # All user-facing deployables
+│   ├── configs/              # Application configurations
+│   │   └── editors/nvim/nvim.symlink_config/ # Neovim submodule
+│   └── scripts/              # User executables
 ├── README.md                 # Installation guide
-├── INSTALL.md                # Detailed setup instructions
-├── CLAUDE.md                 # AI assistant guidance
-└── MANUAL.md                 # This file
+├── docs/INSTALL.md           # Detailed setup instructions
+├── docs/CLAUDE.md            # AI assistant guidance
+└── docs/MANUAL.md            # This file
 ```
 
 ---
