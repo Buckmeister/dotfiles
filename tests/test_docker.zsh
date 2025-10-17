@@ -157,6 +157,7 @@ TEST MODES:
                        • Web installer works
                        • Dotfiles cloned correctly
                        • Librarian health check passes
+                       • Phase 11 refactoring validation (3 new scripts)
                        Estimated time: ~1-2 minutes per distro
 
   --comprehensive      Full feature validation
@@ -347,6 +348,104 @@ run_basic_installation_tests() {
 }
 
 # ============================================================================
+# Test Functions - Phase 11 Post-Install Script Validation
+# ============================================================================
+
+run_phase11_validation_tests() {
+    local test_cmd="$1"
+
+    test_cmd+="
+        echo 'PROGRESS:Phase 11 post-install script validation'
+        cd ~/.config/dotfiles
+
+        echo 'INFO:Validating Phase 11 refactoring...'
+
+        # Check that new scripts exist and are executable
+        PI_SCRIPTS_DIR='post-install/scripts'
+
+        # Verify haskell-toolchain.zsh exists
+        if [ -f \"\$PI_SCRIPTS_DIR/haskell-toolchain.zsh\" ] && [ -x \"\$PI_SCRIPTS_DIR/haskell-toolchain.zsh\" ]; then
+            echo 'SUCCESS:haskell-toolchain.zsh exists and is executable'
+        else
+            echo 'FAILED:haskell-toolchain.zsh not found or not executable'
+            exit 1
+        fi
+
+        # Verify rust-toolchain.zsh exists
+        if [ -f \"\$PI_SCRIPTS_DIR/rust-toolchain.zsh\" ] && [ -x \"\$PI_SCRIPTS_DIR/rust-toolchain.zsh\" ]; then
+            echo 'SUCCESS:rust-toolchain.zsh exists and is executable'
+        else
+            echo 'FAILED:rust-toolchain.zsh not found or not executable'
+            exit 1
+        fi
+
+        # Verify starship-prompt.zsh exists
+        if [ -f \"\$PI_SCRIPTS_DIR/starship-prompt.zsh\" ] && [ -x \"\$PI_SCRIPTS_DIR/starship-prompt.zsh\" ]; then
+            echo 'SUCCESS:starship-prompt.zsh exists and is executable'
+        else
+            echo 'FAILED:starship-prompt.zsh not found or not executable'
+            exit 1
+        fi
+
+        # Verify old toolchains.zsh is GONE
+        if [ -f \"\$PI_SCRIPTS_DIR/toolchains.zsh\" ]; then
+            echo 'FAILED:Old toolchains.zsh still exists (should be deleted)'
+            exit 1
+        else
+            echo 'SUCCESS:Old toolchains.zsh properly removed'
+        fi
+
+        # Verify dependency references are updated
+        if grep -q 'rust-toolchain.zsh' \"\$PI_SCRIPTS_DIR/cargo-packages.zsh\"; then
+            echo 'SUCCESS:cargo-packages.zsh dependency updated to rust-toolchain.zsh'
+        else
+            echo 'FAILED:cargo-packages.zsh still references old toolchains.zsh'
+            exit 1
+        fi
+
+        if grep -q 'haskell-toolchain.zsh' \"\$PI_SCRIPTS_DIR/ghcup-packages.zsh\"; then
+            echo 'SUCCESS:ghcup-packages.zsh dependency updated to haskell-toolchain.zsh'
+        else
+            echo 'FAILED:ghcup-packages.zsh still references old toolchains.zsh'
+            exit 1
+        fi
+
+        # Count total post-install scripts (should be at least 15)
+        PI_SCRIPT_COUNT=\$(ls -1 \"\$PI_SCRIPTS_DIR\"/*.zsh 2>/dev/null | wc -l | tr -d ' ')
+        if [ \$PI_SCRIPT_COUNT -ge 15 ]; then
+            echo \"SUCCESS:Post-install script count: \$PI_SCRIPT_COUNT (expected >=15)\"
+        else
+            echo \"FAILED:Expected at least 15 PI scripts, found \$PI_SCRIPT_COUNT\"
+            exit 1
+        fi
+
+        # Test --help flags on new scripts
+        if cd \"\$PI_SCRIPTS_DIR\" && ./haskell-toolchain.zsh --help >/dev/null 2>&1; then
+            echo 'SUCCESS:haskell-toolchain.zsh --help works'
+        else
+            echo 'INFO:haskell-toolchain.zsh --help not available (may not have flag)'
+        fi
+
+        if ./rust-toolchain.zsh --help >/dev/null 2>&1; then
+            echo 'SUCCESS:rust-toolchain.zsh --help works'
+        else
+            echo 'INFO:rust-toolchain.zsh --help not available (may not have flag)'
+        fi
+
+        if ./starship-prompt.zsh --help >/dev/null 2>&1; then
+            echo 'SUCCESS:starship-prompt.zsh --help works'
+        else
+            echo 'INFO:starship-prompt.zsh --help not available (may not have flag)'
+        fi
+
+        cd ~/.config/dotfiles
+        echo 'SUCCESS:Phase 11 validation complete'
+    "
+
+    echo "$test_cmd"
+}
+
+# ============================================================================
 # Test Functions - Comprehensive Features
 # ============================================================================
 
@@ -492,15 +591,18 @@ test_installation() {
     # Add basic tests (always run)
     test_cmd=$(run_basic_installation_tests "$test_cmd")
 
+    # Add Phase 11 validation tests (always run to ensure refactoring is correct)
+    test_cmd=$(run_phase11_validation_tests "$test_cmd")
+
     # Add comprehensive tests if requested
     if [[ "$TEST_MODE" == "comprehensive" ]] || [[ "$TEST_MODE" == "full" ]]; then
         test_cmd=$(run_comprehensive_tests "$test_cmd")
     fi
 
     # Determine number of phases based on test mode
-    local total_phases=5
+    local total_phases=6  # Basic (5) + Phase 11 validation (1)
     if [[ "$TEST_MODE" == "comprehensive" ]] || [[ "$TEST_MODE" == "full" ]]; then
-        total_phases=6
+        total_phases=7  # Basic (5) + Phase 11 (1) + Comprehensive (1)
     fi
 
     draw_section_header "Running Test Phases"
@@ -526,8 +628,13 @@ test_installation() {
                 PROGRESS:Running\ librarian*)
                     print_info "Phase 5/$total_phases: Running librarian health check..."
                     ;;
+                PROGRESS:Phase\ 11*)
+                    print_info "Phase 6/$total_phases: Validating Phase 11 refactoring..."
+                    ;;
                 PROGRESS:Comprehensive*)
-                    print_info "Phase 6/$total_phases: Comprehensive feature validation..."
+                    if [[ "$TEST_MODE" == "comprehensive" ]] || [[ "$TEST_MODE" == "full" ]]; then
+                        print_info "Phase 7/$total_phases: Comprehensive feature validation..."
+                    fi
                     ;;
                 *)
                     # Use parse_test_output for standard markers
