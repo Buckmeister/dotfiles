@@ -580,6 +580,88 @@ packages:
 - **[packages/SCHEMA.md](packages/SCHEMA.md)** - Complete YAML schema reference
 - **[packages/base.yaml](packages/base.yaml)** - Curated manifest with 50+ packages
 
+### Remote Deployment
+
+Deploy your dotfiles to remote servers via SSH with beautiful progress tracking and comprehensive error handling.
+
+```bash
+# Interactive mode - prompts for hosts
+./deploy
+
+# Deploy to specific hosts
+./deploy --hosts server1.example.com server2.example.com
+
+# Deploy using hosts file
+./deploy --hosts-file production_servers.txt
+
+# Automatic deployment (non-interactive)
+./deploy --auto --hosts server.example.com
+
+# Parallel deployment to multiple hosts
+./deploy --parallel --hosts host1 host2 host3
+
+# Dry-run to test without executing
+./deploy --dry-run --hosts testserver.local
+```
+
+**Features:**
+- 🌐 **Multi-Host Deployment** - Deploy to one or many servers simultaneously
+- 🔑 **Smart SSH Authentication** - Key-based (preferred) with password fallback
+- 🎨 **Beautiful Progress Tracking** - OneDark-themed progress with status updates
+- ⚡ **Parallel or Sequential** - Choose deployment strategy
+- 🧪 **Dry-Run Mode** - Test configuration before deploying
+- 📝 **Hosts File Support** - Manage server lists easily
+
+**Hosts File Format:**
+```
+# Production servers
+server1.example.com
+server2.example.com
+
+# Staging
+staging.example.com
+```
+
+**Web Installer Integration:**
+- **Interactive Mode** (default): Uses `dfsetup` for guided installation with prompts
+- **Automatic Mode** (`--auto`): Uses `dfauto` for fully automatic installation
+
+**SSH Authentication:**
+The script prefers SSH key-based authentication. Set it up once:
+```bash
+# Generate SSH key
+ssh-keygen -t ed25519
+
+# Copy to remote
+ssh-copy-id user@host
+
+# Test connection
+ssh user@host "echo OK"
+```
+
+**Advanced Options:**
+- `--timeout SECONDS` - Set SSH connection timeout (default: 10s)
+- `--sequential` - Deploy to hosts one at a time (default)
+- `--parallel` - Deploy to all hosts simultaneously
+- `--dry-run` - Preview deployment without executing
+
+**Example Workflows:**
+```bash
+# Deploy to production cluster (sequential for safety)
+./deploy --hosts-file production.txt --sequential
+
+# Quick deployment to staging (parallel for speed)
+./deploy --auto --parallel --hosts staging1 staging2 staging3
+
+# Test deployment configuration
+./deploy --dry-run --hosts-file all-servers.txt
+
+# Deploy with custom timeout for slow networks
+./deploy --timeout 30 --hosts remote-server.example.com
+```
+
+**Result:** Your dotfiles deployed consistently across all your remote machines with a single command!
+
 ---
 
 ## 🎯 Common Workflows

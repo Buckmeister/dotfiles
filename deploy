@@ -1,0 +1,52 @@
+#!/bin/sh
+
+# ============================================================================
+# deploy - POSIX Shell Wrapper for bin/deploy.zsh
+# ============================================================================
+#
+# Convenience wrapper that ensures zsh is available before running
+# the main deploy.zsh script.
+#
+# Usage: ./deploy [options]
+#
+# ============================================================================
+
+# Detect script directory
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+DEPLOY_SCRIPT="$SCRIPT_DIR/bin/deploy.zsh"
+
+# Check if zsh is available
+if ! command -v zsh >/dev/null 2>&1; then
+    echo "Error: zsh is required but not found"
+    echo ""
+    echo "Please install zsh:"
+    echo ""
+
+    # Detect OS and provide appropriate install command
+    if [ "$(uname)" = "Darwin" ]; then
+        echo "  macOS (Homebrew):"
+        echo "    brew install zsh"
+    elif [ -f /etc/debian_version ]; then
+        echo "  Ubuntu/Debian:"
+        echo "    sudo apt update && sudo apt install zsh"
+    elif [ -f /etc/redhat-release ]; then
+        echo "  Fedora/RHEL/CentOS:"
+        echo "    sudo dnf install zsh"
+    elif [ -f /etc/arch-release ]; then
+        echo "  Arch Linux:"
+        echo "    sudo pacman -S zsh"
+    else
+        echo "  Please consult your package manager documentation"
+    fi
+
+    exit 1
+fi
+
+# Check if deploy.zsh exists
+if [ ! -f "$DEPLOY_SCRIPT" ]; then
+    echo "Error: $DEPLOY_SCRIPT not found"
+    exit 1
+fi
+
+# Execute deploy.zsh with all arguments
+exec zsh "$DEPLOY_SCRIPT" "$@"

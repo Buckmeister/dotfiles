@@ -209,6 +209,7 @@ The system is built on a shared library architecture:
 - **`bin/librarian.zsh`** - System health checker and status reporter
 - **`bin/link_dotfiles.zsh`** - Symlink creation engine
 - **`bin/backup_dotfiles_repo.zsh`** - Comprehensive backup system
+- **`bin/deploy.zsh`** - Remote deployment script for SSH-based distribution
 
 ### Shared Libraries (`bin/lib/`)
 
@@ -226,6 +227,7 @@ The system is built on a shared library architecture:
 - **`./setup`** - POSIX shell wrapper that ensures zsh is available before running `bin/setup.zsh`
 - **`./backup`** - POSIX shell wrapper for `bin/backup_dotfiles_repo.zsh`
 - **`./update`** - POSIX shell wrapper for `bin/update_all.zsh`
+- **`./deploy`** - POSIX shell wrapper for `bin/deploy.zsh`
 
 These wrappers provide helpful error messages and OS-specific installation instructions if zsh is missing.
 
@@ -441,6 +443,69 @@ Comprehensive test coverage ensures this feature works correctly:
 # Generate new brew install script from current system (deprecated)
 ~/.local/bin/generate_brew_install_script
 ```
+
+### Remote Deployment
+
+Deploy your dotfiles to remote servers via SSH with beautiful progress tracking:
+
+```bash
+# Interactive mode - prompts for hosts
+./deploy
+
+# Deploy to specific hosts
+./deploy --hosts server1.example.com server2.example.com
+
+# Deploy using hosts file
+./deploy --hosts-file production_servers.txt
+
+# Automatic deployment (non-interactive)
+./deploy --auto --hosts server.example.com
+
+# Parallel deployment to multiple hosts
+./deploy --parallel --hosts host1 host2 host3
+
+# Dry-run to test without executing
+./deploy --dry-run --hosts testserver.local
+
+# Custom SSH timeout for slow networks
+./deploy --timeout 30 --hosts remote-server.example.com
+```
+
+**Features:**
+- **Multi-Host Support**: Deploy to single or multiple servers with one command
+- **Smart SSH Authentication**: Prefers key-based auth, falls back to password
+- **Web Installer Integration**: Uses `dfauto` (automatic) or `dfsetup` (interactive) installers
+- **Beautiful Progress Tracking**: OneDark-themed UI with status updates
+- **Parallel or Sequential**: Choose deployment strategy based on your needs
+- **Dry-Run Mode**: Test configuration before deploying
+- **Hosts File Support**: Manage server lists in text files
+
+**Hosts File Format:**
+```
+# Production servers
+server1.example.com
+server2.example.com
+
+# Staging
+staging.example.com
+```
+
+**SSH Setup:**
+For best results, configure SSH key-based authentication:
+```bash
+ssh-keygen -t ed25519
+ssh-copy-id user@host
+```
+
+**Web Installer Modes:**
+- `dfsetup` (interactive): Guided installation with prompts
+- `dfauto` (automatic): Non-interactive, installs everything
+
+**Implementation:**
+- Script: `bin/deploy.zsh` (560+ lines)
+- Wrapper: `./deploy` (POSIX shell wrapper)
+- Tests: `tests/test_deploy.zsh` (26 tests, 100% pass rate)
+- Uses: Shared libraries (colors, ui, utils, arguments)
 
 ### Universal Package Management System (NEW!)
 
