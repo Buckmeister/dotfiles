@@ -2,7 +2,7 @@
 
 > *Where configuration meets orchestration, and your terminal sings.*
 
-A beautifully crafted, cross-platform dotfiles system featuring an interactive TUI menu, intelligent OS detection, and a harmonious blend of development tools. Like a well-composed symphony, every component works together to create something greater than the sum of its parts.
+A beautifully crafted, cross-platform dotfiles system featuring an interactive hierarchical menu with breadcrumb navigation, intelligent OS detection, and a harmonious blend of development tools. Like a well-composed symphony, every component works together to create something greater than the sum of its parts.
 
 ---
 
@@ -10,7 +10,7 @@ A beautifully crafted, cross-platform dotfiles system featuring an interactive T
 
 This isn't just another dotfiles repository. It's a **complete configuration management system** that:
 
-- 🎨 **Beautiful TUI Interface** - Navigate post-install scripts with an elegant, keyboard-driven menu using the OneDark color scheme
+- 🎨 **Beautiful Hierarchical Menu** - Navigate through organized categories with breadcrumb navigation, keyboard-driven controls, and elegant OneDark color scheme
 - 🌍 **Cross-Platform Intelligence** - Automatically detects macOS, Linux, or Windows and adapts accordingly
 - 📚 **The Librarian** - A friendly system health checker that knows every component of your dotfiles
 - 🔗 **Symlink Architecture** - Clean, organized file structure with automatic linking
@@ -82,7 +82,8 @@ The setup script will:
 - **`setup.zsh`** - The conductor: orchestrates the entire setup process
 - **`wizard.zsh`** - Interactive configuration wizard for first-time setup
 - **`profile_manager.zsh`** - Profile system for different machine contexts
-- **`menu_tui.zsh`** - Beautiful interactive menu with keyboard navigation
+- **`menu_hierarchical.zsh`** - Hierarchical menu with breadcrumb navigation and organized categories
+- **`menu_tui.zsh`** - Legacy flat menu (available with `--flat-menu` flag)
 - **`librarian.zsh`** - Your friendly system health reporter
 - **`link_dotfiles.zsh`** - Creates all the necessary symlinks
 - **`update_all.zsh`** - Central update system for packages and toolchains
@@ -254,35 +255,66 @@ This enables:
 
 ## 🎹 The Interactive Experience
 
-When you run `./setup`, you're greeted with an elegant TUI menu:
+When you run `./setup`, you're greeted with an elegant hierarchical menu system:
 
 ```
 ╔══════════════════════════════════════════════╗
 ║    Dotfiles Management System                ║
-║    Interactive Menu                          ║
+║    Main Menu                                 ║
 ╚══════════════════════════════════════════════╝
 
-  ● link-dotfiles        Create symlinks for all dotfiles
-  ○ cargo-packages       Install Rust packages via Cargo
-  ○ npm-global-packages  Install system packages via npm
-  ...
+  📦 Post-Install Scripts    Configure system components and packages
+  👤 Profile Management      Manage configuration profiles
+  🧙 Configuration Wizard    Interactive setup and customization
+  📋 Package Management      Universal package system
+  🔧 System Tools           Update, backup, and health check
 
-Use ↑↓ or j/k to navigate, Space to select, Enter to execute!
+  ─────────────────────────────────────────────────────────────
+
+  ❌ Quit
+
+Navigate with ↑↓/j/k • Enter to select • ESC/h to go back • q to quit
 ```
 
-**Navigation**:
+**Hierarchical Navigation**:
+The menu system organizes all functionality into logical categories. Navigate into any submenu to access related tools:
+
+- **📦 Post-Install Scripts** - Execute installation scripts for languages, toolchains, and packages
+- **👤 Profile Management** - Switch between minimal, standard, full, work, or personal profiles
+- **🧙 Configuration Wizard** - Guided first-time setup with preference selection
+- **📋 Package Management** - Install from universal manifest, generate manifests, sync packages
+- **🔧 System Tools** - Link dotfiles, run Librarian, update all packages, create backups
+
+**Breadcrumb Navigation**:
+```
+Main Menu → System Tools → Update All Packages
+```
+The breadcrumb trail shows your current location and lets you navigate back up the hierarchy.
+
+**Keyboard Shortcuts**:
 - `↑`/`↓` or `j`/`k` - Move through options
-- `Space` - Select/deselect items
-- `a` - Select all
-- `Enter` - Execute selected scripts
-- `u` - Update all packages and toolchains
+- `Enter` - Execute action or enter submenu
+- `ESC` or `h` - Return to parent menu
+- `Space` - Select/deselect items (multi-select menus)
+- `a` - Select all (multi-select menus)
+- `q` - Quit from any menu level
+- `?` - Show help (context-sensitive)
+
+**Global Quick Actions**:
 - `l` - Launch Librarian (system health check)
 - `b` - Create backup
-- `q` - Quit
+- `u` - Update all packages
 
-The menu system features a refactored architecture with state management, comprehensive error handling, and extensive test coverage (41/41 tests passing).
+**Legacy Flat Menu**:
+Prefer the original single-level menu? Use `./setup --flat-menu` to access the legacy interface.
 
-**See [bin/menu_tui.md](bin/menu_tui.md) for complete menu architecture, implementation details, and extension guide.**
+The menu system features a modern architecture with:
+- **Three-layer engine**: menu_engine.zsh (rendering), menu_state.zsh (navigation stack), menu_navigation.zsh (input handling)
+- **Cursor memory**: Remembers your position when navigating between menus
+- **State management**: Clean hierarchical navigation with proper back-stack
+- **Beautiful UI**: OneDark theme with progress indicators and status messages
+
+**See [bin/lib/MENU_ENGINE_API.md](bin/lib/MENU_ENGINE_API.md) for complete menu architecture and API reference.**
 
 ---
 
@@ -1125,7 +1157,7 @@ Originally created by **Thomas Burk** as a personal dotfiles system.
 
 Enhanced with contributions from **Claude Code** (that's me! 👋), bringing:
 - Cross-platform OS detection and adaptation
-- Beautiful TUI menu system with OneDark theme
+- Beautiful hierarchical menu system with breadcrumb navigation
 - Shared library architecture for code reuse
 - The Librarian system health reporter
 - Comprehensive backup and restore functionality
@@ -1150,7 +1182,7 @@ Complete documentation suite for all aspects of the dotfiles system:
 - **[profiles/README.md](profiles/README.md)** - Configuration profiles (minimal, standard, full, work, personal)
 - **[post-install/README.md](post-install/README.md)** - Post-install scripts system and writing guide
 - **[post-install/ARGUMENT_PARSING.md](post-install/ARGUMENT_PARSING.md)** - Standardized argument parsing patterns
-- **[bin/menu_tui.md](bin/menu_tui.md)** - Interactive TUI menu architecture and implementation (Phase 7)
+- **[bin/lib/MENU_ENGINE_API.md](bin/lib/MENU_ENGINE_API.md)** - Hierarchical menu system architecture and API reference
 - **[tests/README.md](tests/README.md)** - Test directory structure, libraries, and framework reference
 - **[ACTION_PLAN.md](ACTION_PLAN.md)** - Project roadmap and testing infrastructure evolution (Phases 5-7)
 

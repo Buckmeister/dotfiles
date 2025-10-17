@@ -54,7 +54,7 @@ That's it! The script will:
 - ✅ Check for required tools (git, zsh)
 - ✅ Offer to install missing dependencies
 - ✅ Clone the dotfiles repository to `~/.config/dotfiles`
-- ✅ Run the interactive setup menu
+- ✅ Run the interactive hierarchical menu with breadcrumb navigation
 - ✅ Configure your development environment
 
 ## 🎯 What You Get
@@ -89,7 +89,7 @@ git clone --recurse-submodules https://github.com/Buckmeister/dotfiles.git ~/.co
 # 2. Navigate to the dotfiles directory
 cd ~/.config/dotfiles
 
-# 3. Run the setup script (launches interactive menu)
+# 3. Run the setup script (launches interactive hierarchical menu)
 ./setup
 
 # Alternative: Install everything automatically without prompts
@@ -97,6 +97,9 @@ cd ~/.config/dotfiles
 
 # Alternative: Only create symlinks, skip post-install scripts
 ./setup --skip-pi
+
+# Alternative: Use legacy flat menu (single-level)
+./setup --flat-menu
 ```
 
 **What the setup script does:**
@@ -104,7 +107,7 @@ cd ~/.config/dotfiles
 2. Creates necessary directories (`~/.tmp`, `~/.local/bin`, etc.)
 3. Backs up existing configurations to `~/.tmp/dotfilesBackup-{timestamp}/`
 4. Creates symlinks for all dotfiles (see [Symlink Architecture](#symlink-architecture))
-5. Launches the interactive menu or runs post-install scripts
+5. Launches the interactive hierarchical menu (or runs post-install scripts if `--all-modules` is specified)
 
 **Note:** The `--recurse-submodules` flag ensures the Neovim configuration (managed as a separate repository) is cloned automatically.
 
@@ -565,10 +568,15 @@ curl -fsSL https://buckmeister.github.io/dfauto | sh
 ls ~/.tmp/dotfilesBackup-*
 ```
 
-**Selective installation:** Use the interactive menu to install only what you need:
+**Selective installation:** Use the interactive hierarchical menu to install only what you need:
 ```bash
 cd ~/.config/dotfiles && ./setup
-# Then use j/k to navigate, Space to select, Enter to execute
+# Navigation:
+# - Use ↑/↓ or j/k to move between options
+# - Enter to select submenu or execute action
+# - ESC or h to return to parent menu
+# - Space to select/deselect (multi-select menus)
+# - q to quit
 ```
 
 ### Recommended Workflow

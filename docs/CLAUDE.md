@@ -197,7 +197,7 @@ Read ACTION_PLAN.md          # Check for related planned work
 
 # 2. Study similar existing code
 Read bin/setup.zsh           # For setup patterns
-Read bin/menu_tui.zsh        # For interactive UIs
+Read bin/menu_hierarchical.zsh  # For interactive UIs and hierarchical navigation
 Read bin/librarian.zsh       # For status reporting
 Read bin/lib/ui.zsh          # For UI functions
 Read bin/lib/utils.zsh       # For utility functions
@@ -508,7 +508,8 @@ The `link_dotfiles.zsh` script uses `find` to discover files by pattern, making 
 The system is built on a shared library architecture:
 
 - **`bin/setup.zsh`** - Cross-platform setup orchestrator with automatic OS detection
-- **`bin/menu_tui.zsh`** - Interactive TUI menu with OneDark color scheme
+- **`bin/menu_hierarchical.zsh`** - Hierarchical menu with breadcrumb navigation and organized categories (primary menu)
+- **`bin/menu_tui.zsh`** - Legacy flat menu (available with `--flat-menu` flag)
 - **`bin/librarian.zsh`** - System health checker and status reporter
 - **`bin/link_dotfiles.zsh`** - Symlink creation engine
 - **`bin/backup_dotfiles_repo.zsh`** - Comprehensive backup system
@@ -640,14 +641,26 @@ This allows all scripts to adapt their behavior cross-platform automatically.
 
 ### Interactive Menu
 
-The TUI menu (`bin/menu_tui.zsh`) provides an elegant interface for managing post-install scripts:
+The hierarchical menu system (`bin/menu_hierarchical.zsh`) provides an elegant, multi-level interface for dotfiles management:
 
-**Navigation:**
+**Hierarchical Navigation:**
 - `↑`/`↓` or `j`/`k` - Move through options
-- `Space` - Select/deselect items
-- `a` - Select all
-- `Enter` - Execute selected scripts
-- `q` - Quit
+- `Enter` - Execute action or enter submenu
+- `ESC` or `h` - Return to parent menu
+- `Space` - Select/deselect items (multi-select menus)
+- `a` - Select all (multi-select menus)
+- `q` - Quit from any level
+- `?` - Show help
+
+**Menu Organization:**
+- 📦 Post-Install Scripts - Configure system components
+- 👤 Profile Management - Configuration profiles
+- 🧙 Configuration Wizard - Interactive setup
+- 📋 Package Management - Universal package system
+- 🔧 System Tools - Update, backup, health check
+
+**Legacy Flat Menu:**
+The original flat menu (`bin/menu_tui.zsh`) remains available with `./setup --flat-menu` flag for users who prefer the single-level interface
 
 ### Post-Install Scripts
 
@@ -689,7 +702,7 @@ rm post-install/scripts/fonts.zsh.ignored
 
 **How it works:**
 - `is_post_install_script_enabled()` in `bin/lib/utils.zsh` checks for these markers
-- Used by: `setup.zsh`, `menu_tui.zsh`, `librarian.zsh`
+- Used by: `setup.zsh`, `menu_hierarchical.zsh` (and legacy `menu_tui.zsh`), `librarian.zsh`
 - `.ignored` files are in `.gitignore` (local-only)
 - `.disabled` files can be committed (team/profile sharing)
 
@@ -1183,7 +1196,7 @@ fi
    ```
 4. Use standardized argument parsing (see "Argument Parsing Patterns" below)
 5. Access OS context via `$DF_OS`, `$DF_PKG_MANAGER`, `$DF_PKG_INSTALL_CMD`
-6. Add to interactive menu automatically (detected by menu_tui.zsh)
+6. Add to interactive menu automatically (detected by both hierarchical and flat menus)
 
 ### Argument Parsing Patterns
 
@@ -1323,7 +1336,8 @@ These standards ensure consistency, readability, and maintainability across the 
 - **Follow existing patterns**: Match the style of similar scripts
 - **Examples to reference**:
   - `bin/setup.zsh` - Argument parsing, OS detection
-  - `bin/menu_tui.zsh` - UI patterns, user interaction
+  - `bin/menu_hierarchical.zsh` - Hierarchical UI, breadcrumb navigation, user interaction
+  - `bin/menu_tui.zsh` - Flat UI patterns, single-level menus
   - `bin/librarian.zsh` - Status reporting, system health
   - `bin/lib/ui.zsh` - Progress bars, headers, formatting
   - `bin/lib/utils.zsh` - Helper functions, path detection

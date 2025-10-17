@@ -95,24 +95,26 @@ print_info "Dotfiles Directory: $DF_DIR"
 # Command Line Options
 # ============================================================================
 
-zparseopts -D -E -- s=o_skip_pi -skip-pi-scripts=o_skip_pi a=o_all_modules -all-modules=o_all_modules l=o_logfile -logfile=o_logfile h=o_help -help=o_help
+zparseopts -D -E -- s=o_skip_pi -skip-pi-scripts=o_skip_pi a=o_all_modules -all-modules=o_all_modules -flat-menu=o_flat_menu l=o_logfile -logfile=o_logfile h=o_help -help=o_help
 # Set execution mode
 [[ $#o_skip_pi == 0 && $#o_all_modules == 0 ]] && DF_INTERACTIVE_MODE=true
 [[ $#o_skip_pi > 0 ]] && DF_SKIP_PI_SCRIPTS=true
 [[ $#o_all_modules > 0 ]] && DF_ALL_MODULES=true
+[[ $#o_flat_menu > 0 ]] && DF_FLAT_MENU=true
 
 [[ $#o_help  >  0 ]] && {
   echo
-  echo "Usage: $0 [-s|--skip-pi-scripts] [-a|--all-modules] [-l|--logfile] [-h|--help]"
+  echo "Usage: $0 [-s|--skip-pi-scripts] [-a|--all-modules] [--flat-menu] [-l|--logfile] [-h|--help]"
   echo
   echo "  [-s|--skip-pi-scripts]:  Silent mode: Link dotfiles only, skip post-install scripts"
   echo "  [-a|--all-modules]:      Silent mode: Link dotfiles AND run all post-install scripts"
+  echo "  [--flat-menu]:           Use flat menu instead of hierarchical menu (legacy mode)"
   echo "  [-l|--logfile]:          Set path to log file"
   echo "  [-h|--help]:             Print usage and exit"
   echo
-  echo "Without flags: Interactive menu mode (recommended)"
+  echo "Without flags: Interactive hierarchical menu mode (recommended)"
   echo
-  echo "Supported OS: macOS (Darwin), Linux, Windows"
+  echo "Supported OS: macOS (Darwin), Linux, WSL, Windows"
   echo "Current OS: $DF_OS"
   echo
   exit 0
@@ -261,24 +263,40 @@ elif [[ $DF_SKIP_PI_SCRIPTS == true ]]; then
     print_info "💡 Post-install scripts were skipped (use --all-modules to include them)"
 
 else
-    # Interactive mode: Launch the TUI menu
-    print_info "🎮 Launching interactive menu system..."
-    print_info "   Choose exactly what you want to install and configure!"
-    echo
-    sleep 1
+    # Interactive mode: Launch the menu system
+    if [[ $DF_FLAT_MENU == true ]]; then
+        # User requested flat menu explicitly
+        print_info "🎮 Launching flat menu (legacy mode)..."
+        print_info "   💡 Tip: Run without --flat-menu for the new hierarchical menu!"
+        echo
+        sleep 1
+        menu_script="$DF_DIR/bin/menu_tui.zsh"
+    else
+        # Default: hierarchical menu
+        print_info "🎮 Launching interactive hierarchical menu..."
+        print_info "   Navigate through organized categories to customize your setup!"
+        echo
+        sleep 1
+        menu_script="$DF_DIR/bin/menu_hierarchical.zsh"
+    fi
 
-    # Launch the TUI menu with environment context
-    menu_script="$DF_DIR/bin/menu_tui.zsh"
+    # Launch the selected menu with environment context
     if [[ -x "$menu_script" ]]; then
         DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$menu_script"
     else
-        print_error "Menu system not found at: $menu_script"
-        print_info "💡 Falling back to librarian..."
-        librarian_script="$DF_DIR/bin/librarian.zsh"
-        if [[ -x "$librarian_script" ]]; then
-            DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$librarian_script"
+        print_error "Menu not found at: $menu_script"
+        # Fallback logic
+        if [[ $DF_FLAT_MENU != true ]]; then
+            print_info "💡 Falling back to flat menu..."
+            menu_script="$DF_DIR/bin/menu_tui.zsh"
+            if [[ -x "$menu_script" ]]; then
+                DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$menu_script"
+            else
+                print_error "No menu system found. Setup incomplete."
+                exit 1
+            fi
         else
-            print_error "Neither menu nor librarian found. Setup incomplete."
+            print_error "Flat menu not found. Setup incomplete."
             exit 1
         fi
     fi

@@ -6,6 +6,201 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased] - Hierarchical Menu System Integration (Phase 13)
+
+**Date**: October 17, 2025
+**Impact**: High - Improved user experience with organized, multi-level menu navigation
+**Breaking Changes**: None (backward compatible with `--flat-menu` flag)
+
+### Added
+
+#### Hierarchical Menu System
+- **Hierarchical menu as default** - `bin/menu_hierarchical.zsh` now launches by default when running `./setup`
+  - Multi-level navigation with 5 organized categories
+  - Breadcrumb trail showing current location (e.g., "Main Menu → System Tools")
+  - ESC/h key navigation to return to parent menu
+  - Cursor position memory when navigating between menus
+  - Professional organization for better discoverability
+
+- **5 Menu Categories** for organized functionality:
+  - 📦 **Post-Install Scripts** - Configure system components and packages
+  - 👤 **Profile Management** - Manage configuration profiles
+  - 🧙 **Configuration Wizard** - Interactive setup and customization
+  - 📋 **Package Management** - Universal package system
+  - 🔧 **System Tools** - Update, backup, and health check operations
+
+- **Legacy flat menu preserved** with `--flat-menu` flag
+  - Original single-level `menu_tui.zsh` still available
+  - Useful for users who prefer simpler interface
+  - Automatic fallback if hierarchical menu unavailable
+
+### Changed
+
+#### Setup Integration
+- **`bin/setup.zsh`** (3 changes)
+  - Line 98: Added `--flat-menu` flag parsing via zparseopts
+  - Line 103: Set `DF_FLAT_MENU` variable when flag present
+  - Lines 266-302: Complete menu selection logic rewrite
+    - Defaults to hierarchical menu (`menu_hierarchical.zsh`)
+    - Falls back to flat menu with `--flat-menu` flag
+    - Intelligent fallback chain (hierarchical → flat → error)
+    - Clear user messaging about which menu is launching
+
+#### Documentation Updates
+- **`README.md`** (4 changes)
+  - Line 5: Updated tagline to mention hierarchical menu with breadcrumb navigation
+  - Line 13: Updated "What Makes This Special" section
+  - Lines 85-86: Updated Core Infrastructure to list both menu systems
+  - Lines 256-317: Complete rewrite of "The Interactive Experience" section
+    - Documented hierarchical navigation and breadcrumbs
+    - Listed all 5 menu categories with descriptions
+    - Explained keyboard shortcuts (↑/↓, j/k, Enter, ESC/h, Space, a, q)
+    - Noted legacy flat menu availability
+
+- **`docs/CLAUDE.md`** (6 changes)
+  - Lines 511-512: Updated Core Infrastructure section
+  - Line 200: Updated Sandwich Approach example to reference hierarchical menu
+  - Lines 642-663: Complete rewrite of Interactive Menu section
+  - Line 705: Updated script usage reference
+  - Line 1199: Updated post-install script instructions
+  - Lines 1339-1340: Updated code consistency examples
+
+- **`docs/INSTALL.md`** (4 changes)
+  - Line 57: Updated "That's it!" section to mention hierarchical menu
+  - Lines 92-102: Added `--flat-menu` flag to manual installation options
+  - Lines 571-580: Updated "Selective installation" with hierarchical navigation instructions
+  - Line 110: Updated "What the setup script does" description
+
+- **`CHANGELOG.md`** (this entry)
+
+### Impact
+
+**User Experience Benefits:**
+- ✅ **Better Organization** - Functionality grouped into logical categories
+- ✅ **Improved Discoverability** - Easier to find specific scripts and tools
+- ✅ **Clear Navigation** - Breadcrumbs show current location at all times
+- ✅ **Intuitive Controls** - Natural navigation with ESC/h to go back
+- ✅ **Cursor Memory** - Position remembered when navigating menus
+- ✅ **Professional Feel** - Multi-level interface feels polished and complete
+
+**Backward Compatibility:**
+- ✅ **No Breaking Changes** - Existing workflows continue to work
+- ✅ **Legacy Option Available** - `--flat-menu` flag preserves old interface
+- ✅ **Automatic Fallback** - Graceful degradation if hierarchical menu unavailable
+- ✅ **Same Functionality** - All features accessible in both menu systems
+
+### Testing
+
+**Manual Testing Completed:**
+- ✅ All 5 menu categories load and display correctly
+- ✅ Breadcrumb navigation updates properly
+- ✅ ESC/h returns to parent menu
+- ✅ Cursor position remembered across navigation
+- ✅ All actions execute correctly from hierarchical menu
+- ✅ `--flat-menu` flag launches legacy menu successfully
+- ✅ Fallback logic works when menu files missing
+
+**Integration Testing:**
+- ✅ `./setup` launches hierarchical menu by default
+- ✅ `./setup --flat-menu` launches flat menu
+- ✅ `./setup --skip-pi` works correctly
+- ✅ `./setup --all-modules` works correctly
+- ✅ All environment variables propagate correctly
+
+### Migration Notes
+
+**For Existing Users:**
+
+No action required! The hierarchical menu will automatically launch on next `./setup` run.
+
+**To use the old flat menu:**
+```bash
+./setup --flat-menu
+```
+
+**Menu Navigation:**
+- **↑/↓** or **j/k** - Move between options
+- **Enter** - Select submenu or execute action
+- **ESC** or **h** - Return to parent menu
+- **Space** - Select/deselect (multi-select menus)
+- **a** - Select all (multi-select menus)
+- **q** - Quit from any level
+
+**Menu Organization:**
+```
+Main Menu
+├── 📦 Post-Install Scripts
+├── 👤 Profile Management
+├── 🧙 Configuration Wizard
+├── 📋 Package Management
+└── 🔧 System Tools
+    ├── Link Dotfiles
+    ├── Run Librarian
+    ├── Update All Packages
+    ├── Backup Repository
+    └── Back to Main Menu
+```
+
+### Files Changed
+
+**Core Scripts (1 file):**
+- `bin/setup.zsh` (3 edits - flag parsing, menu selection logic)
+
+**Documentation (4 files):**
+- `README.md` (4 edits - tagline, features, core infrastructure, interactive experience)
+- `docs/CLAUDE.md` (6 edits - core infrastructure, examples, interactive menu, references)
+- `docs/INSTALL.md` (4 edits - installation description, navigation instructions)
+- `CHANGELOG.md` (this entry)
+
+**Existing Hierarchical Menu System (already existed from Phase 7):**
+- `bin/menu_hierarchical.zsh` (680 lines - primary menu)
+- `bin/lib/menu_engine.zsh` (511 lines - rendering engine)
+- `bin/lib/menu_state.zsh` (333 lines - navigation stack)
+- `bin/lib/menu_navigation.zsh` (367 lines - keyboard input)
+- `bin/lib/MENU_ENGINE_API.md` (625 lines - API documentation)
+
+**Legacy Menu Preserved:**
+- `bin/menu_tui.zsh` (1008 lines - available with `--flat-menu`)
+
+**Net Change:** ~13 edits across 4 documentation files, hierarchical menu system activated
+
+### Technical Implementation
+
+**Menu Selection Logic:**
+```zsh
+# In bin/setup.zsh (lines 266-302)
+if [[ $DF_FLAT_MENU == true ]]; then
+    # User requested flat menu explicitly
+    print_info "🎮 Launching flat menu (legacy mode)..."
+    menu_script="$DF_DIR/bin/menu_tui.zsh"
+else
+    # Default: hierarchical menu
+    print_info "🎮 Launching interactive hierarchical menu..."
+    print_info "   Navigate through organized categories to customize your setup!"
+    menu_script="$DF_DIR/bin/menu_hierarchical.zsh"
+fi
+```
+
+**Fallback Chain:**
+```
+Hierarchical Menu (default)
+    ↓ (if --flat-menu)
+Flat Menu (legacy)
+    ↓ (if menu not found)
+Error Message + Alternative Attempt
+    ↓ (if still failing)
+Exit with error
+```
+
+### Related
+
+- See `bin/menu_hierarchical.zsh` for hierarchical menu implementation
+- See `bin/lib/MENU_ENGINE_API.md` for complete menu system API
+- See `ACTION_PLAN_MENU.md` for Phase 13 implementation details
+- See Phase 7 changelog entry (October 16, 2025) for original menu system development
+
+---
+
 ## [Unreleased] - Windows Subsystem for Linux (WSL) Support (Phase 12)
 
 **Date**: October 17, 2025
