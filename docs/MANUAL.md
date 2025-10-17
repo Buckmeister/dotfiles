@@ -1190,6 +1190,7 @@ get_github_url -u username -r repository [options]
 - `-f, --fallback-recent` - Use most recent release if 'latest' fails
 - `-s, --silent` - Print URLs only (no headers)
 - `-c, --count` - Limit number of results
+- `-h, --help` - Show comprehensive help with examples
 
 **Examples:**
 
@@ -1219,6 +1220,9 @@ get_github_url -u eclipse-jdtls -r eclipse.jdt.ls -f -p 'jdt-language-server.*\.
 - Fallback for projects with quirky release patterns
 - Silent mode for scripting
 - Result limiting
+- OneDark color scheme with beautiful headers and section dividers
+- Enhanced help system with comprehensive examples and use cases
+- Visual feedback with progress indicators
 
 ---
 
@@ -1233,8 +1237,20 @@ Specialized downloader for Eclipse JDT.LS (Java Language Server).
 get_jdtls_url [--version VERSION] [--silent]
 ```
 
+**Options:**
+- `-v, --version VERSION` - Specific JDT.LS version (default: latest)
+- `-s, --silent` - Silent mode (URL only, no headers)
+- `-h, --help` - Show comprehensive help with examples
+
 **Why it exists:**
-JDT.LS has a non-standard release naming scheme that doesn't work with GitHub's 'latest' endpoint. This script wraps `get_github_url` with the correct fallback logic.
+JDT.LS has a non-standard release naming scheme that doesn't work with GitHub's 'latest' endpoint. This script wraps `get_github_url` with the correct fallback logic and multiple URL pattern attempts.
+
+**Features:**
+- Automatic version resolution (latest or specific version)
+- Multiple URL pattern attempts for reliability
+- Version-independent fallback URLs
+- OneDark color scheme with beautiful headers
+- Educational content explaining JDT.LS and fallback strategies
 
 **Examples:**
 
@@ -1274,6 +1290,7 @@ battery [OPTIONS]
 - `--tmux` - Tmux status bar format
 - `--kitty` - Kitty terminal format
 - `-r, --remain` - Show time remaining
+- `-h, --help` - Show comprehensive help with examples
 
 **Output Formats:**
 
@@ -1300,6 +1317,8 @@ battery --kitty
 - Color-coded warnings (red below 20%)
 - Charging indicator
 - Works on macOS (pmset/ioreg)
+- OneDark color scheme for beautiful output
+- Comprehensive --help with usage examples and documentation
 
 **Integration:**
 - Used in tmux status bar
@@ -1584,7 +1603,65 @@ Utility for shell-related operations.
 
 **Location:** `~/.local/bin/rustp`
 
-Rust project utility.
+Create a temporary Rust playground with automatic recompilation using cargo-watch. Perfect for quick experiments and testing Rust code.
+
+**Usage:**
+```bash
+rustp [OPTIONS] [crate1] [crate2] ...
+```
+
+**Options:**
+- `-h, --help` - Show comprehensive help message
+
+**Features:**
+- Creates temporary cargo project in `/tmp`
+- Opens editor in one tmux pane
+- Runs `cargo watch` in another pane for automatic recompilation
+- Automatically adds specified crates as dependencies
+- Works both inside and outside tmux
+- Beautiful OneDark-themed output with progress messages
+
+**Examples:**
+
+Create empty playground:
+```bash
+rustp
+```
+
+Playground with dependencies:
+```bash
+rustp serde tokio           # Playground with serde and tokio
+rustp clap rand             # Playground with clap and rand
+```
+
+**Tmux Layout:**
+```
+┌─────────────────────────┬─────────────────────────┐
+│                         │                         │
+│    Editor (nvim)        │   cargo watch -s        │
+│    src/main.rs          │   'clear && cargo       │
+│                         │    run -q'              │
+│                         │                         │
+└─────────────────────────┴─────────────────────────┘
+```
+
+**How it works:**
+1. Creates temporary cargo project in /tmp
+2. Opens your $EDITOR (default: nvim) in one tmux pane
+3. Runs 'cargo watch' in another pane for auto-recompilation
+4. Each save triggers automatic rebuild and run
+
+**Requirements:**
+- cargo (Rust toolchain)
+- tmux (terminal multiplexer)
+- cargo-watch (install with: `cargo install cargo-watch`)
+- $EDITOR (text editor, default: nvim)
+
+**Tips:**
+- Use Ctrl+B then arrow keys to switch between panes
+- Press Ctrl+B then 'd' to detach from tmux session
+- The playground auto-deletes when tmux session ends
+- All crates are added with latest version ("*")
 
 ---
 
@@ -1592,7 +1669,57 @@ Rust project utility.
 
 **Location:** `~/.local/bin/iperl`
 
-Interactive Perl REPL.
+A simple, delightful Perl REPL (Read-Eval-Print Loop) using rlwrap for readline support and history.
+
+**Usage:**
+```bash
+iperl [OPTIONS]
+```
+
+**Options:**
+- `-h, --help` - Show help message
+
+**Features:**
+- Readline support (arrow keys, history)
+- Command history with Up/Down arrows
+- Automatic expression evaluation
+- Pretty-printed output
+- OneDark color scheme for output
+
+**Examples:**
+
+Start interactive Perl session:
+```bash
+iperl
+```
+
+Try some Perl expressions:
+```perl
+perl> 2 + 2
+4
+perl> "Hello, " . "World!"
+Hello, World!
+perl> [1..10]
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+**Requirements:**
+- perl (Perl interpreter)
+- rlwrap (readline wrapper)
+
+**Installation of rlwrap:**
+```bash
+# macOS
+brew install rlwrap
+
+# Ubuntu/Debian
+sudo apt install rlwrap
+```
+
+**Tips:**
+- Use Ctrl+D or type 'exit' to quit
+- Use Up/Down arrows for command history
+- All Perl expressions are automatically evaluated
 
 ---
 
@@ -1600,7 +1727,62 @@ Interactive Perl REPL.
 
 **Location:** `~/.local/bin/create_hie_yaml`
 
-Creates hie.yaml for Haskell projects (Haskell IDE Engine configuration).
+Creates a hie.yaml configuration file for Haskell IDE Engine (HIE) and Haskell Language Server (HLS). This file tells the language server how to build your Haskell project.
+
+**Usage:**
+```bash
+create_hie_yaml [OPTIONS]
+```
+
+**Options:**
+- `-o, --output FILE` - Output file path (default: ./hie.yaml)
+- `-h, --help` - Show help message
+
+**What is HIE.YAML?**
+
+The hie.yaml file tells Haskell Language Server how to build your project. It's required for proper IDE support in Haskell projects.
+
+This script creates a simple hie.yaml with Stack cradle configuration:
+```yaml
+cradle: { stack: {} }
+```
+
+This tells the language server to use Stack for building your project.
+
+**Examples:**
+
+Create hie.yaml in current directory:
+```bash
+create_hie_yaml
+```
+
+Create in specific location:
+```bash
+create_hie_yaml -o ~/my-project/hie.yaml
+```
+
+**About Haskell Language Server:**
+
+Haskell Language Server (HLS) provides IDE features for Haskell:
+- Code completion and IntelliSense
+- Type information on hover
+- Error checking and diagnostics
+- Go to definition
+- Find references
+- Code formatting
+
+**When to use this:**
+
+Run this in your Haskell project root directory when:
+- Setting up a new Haskell project
+- Your IDE isn't recognizing your Haskell code
+- You get "cradle" errors from HLS
+
+**Tip:** Restart your editor/LSP to pick up the new configuration after running this script.
+
+**Learn more:**
+- Haskell Language Server: https://github.com/haskell/haskell-language-server
+- HIE YAML docs: https://github.com/haskell/hie-bios#explicit-configuration
 
 ---
 
