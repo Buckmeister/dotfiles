@@ -355,7 +355,9 @@ All scripts in `post-install/scripts/` are modular and OS-aware:
 ./post-install/scripts/pip-packages.zsh         # Python packages
 ./post-install/scripts/ruby-gems.zsh            # Ruby gems
 ./post-install/scripts/language-servers.zsh     # LSP servers
-./post-install/scripts/toolchains.zsh           # Development toolchains
+./post-install/scripts/haskell-toolchain.zsh    # Haskell toolchain (GHCup, GHC, Stack)
+./post-install/scripts/rust-toolchain.zsh       # Rust toolchain (rustup, cargo)
+./post-install/scripts/starship-prompt.zsh      # Starship cross-shell prompt
 ./post-install/scripts/fonts.zsh                # Font installation
 ./post-install/scripts/vim-setup.zsh            # Vim/Neovim setup
 ./post-install/scripts/bash-preexec.zsh         # Bash preexec hook
@@ -560,6 +562,58 @@ speak -f README.md
 - Build status updates
 - Timer/reminder notifications
 - Making terminal output more engaging and accessible
+
+### Claude Code Acoustic Hooks (claude-hook-speak)
+
+The `claude-hook-speak` script provides automatic acoustic feedback for Claude Code events using the speak utility:
+
+**Location**: `user/scripts/utilities/claude-hook-speak.symlink_local_bin.zsh`
+**Symlinks to**: `~/.local/bin/claude-hook-speak`
+**Configuration**: `~/.claude/settings.json`
+
+```bash
+# The script receives JSON event data via stdin from Claude Code hooks
+echo '{"eventType":"PostToolUse","tool":"Bash","result":{"success":true}}' | ~/.local/bin/claude-hook-speak
+```
+
+**Supported Events:**
+- **PostToolUse** - Provides feedback after tool usage:
+  - "Done" for successful operations
+  - "Error occurred" for failures
+- **SessionStart** - Announces session start with friendly greeting
+- **SessionEnd** - Announces session completion
+- **UserPromptSubmit** - Confirms prompt processing
+- **Notification** - Context-aware feedback based on level (error/warning/info)
+- **Stop** - Confirms user interruption
+
+**Tool-Specific Feedback:**
+- Bash: "Running command"
+- Read: "Reading file"
+- Edit/Write: "Writing file"
+- Grep/Glob: "Searching"
+- Other tools: Generic "Tool" sound
+
+**Configuration Example** (`~/.claude/settings.json`):
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": ".*",
+      "hooks": [{"type": "command", "command": "~/.local/bin/claude-hook-speak"}]
+    }],
+    "SessionStart": [{
+      "matcher": ".*",
+      "hooks": [{"type": "command", "command": "~/.local/bin/speak --friendly 'Claude Code session started'"}]
+    }]
+  }
+}
+```
+
+**Features:**
+- Non-blocking background execution (uses `&` for parallel audio)
+- Automatic fallback to macOS `say` if speak script unavailable
+- JSON parsing with jq for event data extraction
+- Always returns success (exit 0) to avoid blocking Claude Code
 
 ### Testing and Validation
 

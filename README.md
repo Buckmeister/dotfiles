@@ -520,6 +520,9 @@ speak --celebrate --rate 180 "Setup complete"
 - Build notifications: `cargo build --release && speak "Build ready"`
 - Remote deployments: `./deploy.sh && speak --alert "Check deployment status"`
 
+**Claude Code Integration:**
+The `claude-hook-speak` utility (`~/.local/bin/claude-hook-speak`) provides automatic acoustic feedback for Claude Code events. Configure it in `~/.claude/settings.json` to get audio notifications when tools run, sessions start/end, and more. See [docs/CLAUDE.md](docs/CLAUDE.md#claude-code-acoustic-hooks-claude-hook-speak) for setup details.
+
 **See [MANUAL.md](MANUAL.md#utility-scripts) for complete documentation of all utility scripts.**
 
 ### Universal Package Management
