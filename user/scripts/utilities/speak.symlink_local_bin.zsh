@@ -19,6 +19,29 @@ emulate -LR zsh
 # ============================================================================
 
 # ============================================================================
+# Library Loading (with graceful fallback)
+# ============================================================================
+
+# Detect dotfiles directory (speak will be symlinked to ~/.local/bin)
+DF_DIR="${HOME}/.config/dotfiles"
+
+# Try to load shared libraries
+if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
+    source "$DF_DIR/bin/lib/colors.zsh" 2>/dev/null
+    source "$DF_DIR/bin/lib/ui.zsh" 2>/dev/null
+    source "$DF_DIR/bin/lib/utils.zsh" 2>/dev/null
+    LIBRARIES_LOADED=true
+else
+    # Graceful fallback: define minimal functions if libraries unavailable
+    LIBRARIES_LOADED=false
+    print_error() { echo "Error: $1" >&2; }
+    print_success() { echo "$1"; }
+    print_info() { echo "$1"; }
+    command_exists() { command -v "$1" >/dev/null 2>&1; }
+    DF_OS="$(uname | tr '[:upper:]' '[:lower:]')"
+fi
+
+# ============================================================================
 # Configuration
 # ============================================================================
 
@@ -37,14 +60,14 @@ DEFAULT_VOICE="Serena (Premium)"
 DEFAULT_RATE="175"
 
 # Check if running on macOS
-if [[ "$(uname)" != "Darwin" ]]; then
-    echo "Error: The 'say' command is only available on macOS" >&2
+if [[ "$DF_OS" != "darwin" && "$DF_OS" != "macos" ]]; then
+    print_error "The 'say' command is only available on macOS"
     exit 1
 fi
 
 # Check if 'say' command exists
-if ! command -v say >/dev/null 2>&1; then
-    echo "Error: 'say' command not found. Are you on macOS?" >&2
+if ! command_exists say; then
+    print_error "'say' command not found. Are you on macOS?"
     exit 1
 fi
 
@@ -90,7 +113,7 @@ USAGE:
     echo "text" | speak [options]
 
 OPTIONS:
-    -v, --voice VOICE       Voice to use (default: Samantha)
+    -v, --voice VOICE       Voice to use (default: Serena Premium)
     -r, --rate RATE         Speech rate in WPM (default: 175)
     -f, --file FILE         Read text from file
     --list-voices           List available voices
@@ -151,15 +174,16 @@ EOF
 
 # List available voices
 list_voices() {
-    echo "Available voices on your system:"
+    print_info "Available voices on your system:"
     echo
     say -v '?'
     echo
-    echo "Recommended voices:"
-    echo "  Samantha (default) - Friendly and clear"
-    echo "  Alex               - Professional male voice"
-    echo "  Victoria           - British accent"
-    echo "  Karen              - Australian accent"
+    print_info "Recommended voices:"
+    echo "  Serena (Premium)  - Best quality (default)"
+    echo "  Samantha          - Friendly and clear"
+    echo "  Alex              - Professional male voice"
+    echo "  Victoria          - British accent"
+    echo "  Karen             - Australian accent"
 }
 
 # ============================================================================
@@ -207,8 +231,8 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -*)
-            echo "Error: Unknown option: $1" >&2
-            echo "Use 'speak --help' for usage information" >&2
+            print_error "Unknown option: $1"
+            print_info "Use 'speak --help' for usage information"
             exit 1
             ;;
         *)
@@ -226,7 +250,7 @@ done
 # Priority: file > arguments > stdin
 if [[ -n "$input_file" ]]; then
     if [[ ! -f "$input_file" ]]; then
-        echo "Error: File not found: $input_file" >&2
+        print_error "File not found: $input_file"
         exit 1
     fi
     text=$(cat "$input_file")
@@ -235,8 +259,8 @@ elif [[ -z "$text" ]]; then
     if [[ ! -t 0 ]]; then
         text=$(cat)
     else
-        echo "Error: No text provided to speak" >&2
-        echo "Usage: speak 'text' or echo 'text' | speak" >&2
+        print_error "No text provided to speak"
+        print_info "Usage: speak 'text' or echo 'text' | speak"
         exit 1
     fi
 fi
@@ -246,7 +270,7 @@ text=$(strip_ansi "$text")
 
 # Check if text is empty after stripping
 if [[ -z "$text" ]]; then
-    echo "Error: No text to speak (empty input)" >&2
+    print_error "No text to speak (empty input)"
     exit 1
 fi
 
