@@ -11,6 +11,121 @@
 
 ## Active Projects
 
+### Phase 9: User Directory Restructuring 🎯 PLANNING
+**Goal:** Separate configuration files from user executables into semantic structure
+**Status:** Planning & Design Phase
+**Priority:** High
+**Start Date:** October 17, 2025
+
+#### Context
+
+Currently, `configs/` contains a mix of:
+- **29 configuration files** (*.symlink, *.symlink_config)
+- **11 user executable scripts** (*.symlink_local_bin.*)
+
+This creates semantic confusion - configuration files and user scripts serve different purposes but are grouped together.
+
+#### Proposed Structure
+
+```
+user/                          # All user-facing deployables
+├── configs/                  # Configuration files → ~/.*,  ~/.config/*
+│   ├── shell/               # zsh, bash, fish, aliases, readline
+│   ├── editors/             # nvim, vim, emacs
+│   ├── terminals/           # kitty, alacritty, macos-terminal
+│   ├── multiplexers/        # tmux
+│   ├── prompts/             # starship, p10k
+│   ├── version-control/     # git
+│   ├── development/         # language-specific configs
+│   ├── languages/           # R, ipython, stylua, black
+│   ├── utilities/           # bat, eza, delta, ranger
+│   ├── system/              # karabiner, xcode, xmodmap
+│   └── package-managers/    # brew, apt
+└── scripts/                  # User executables → ~/.local/bin/*
+    ├── shell/               # 2 scripts: shell, shorten_path
+    ├── development/         # 2 scripts: jdt.ls, maven wrapper
+    ├── utilities/           # 4 scripts: battery, iperl, rustp, create_hie_yaml
+    ├── version-control/     # 2 scripts: get_github_url, get_jdtls_url
+    └── package-managers/    # 1 script: generate_brew_install_script
+```
+
+**Benefits:**
+- ✅ Clear semantic separation: configs vs executables
+- ✅ Better organization for future additions
+- ✅ Easier to understand for contributors
+- ✅ Maintains compatibility with link_dotfiles.zsh (find-based)
+- ✅ Scales well for future user-facing categories
+
+#### Tasks
+
+- [x] **Task 9.1:** Analyze current structure (11 scripts across 5 categories) ✅
+
+- [ ] **Task 9.2:** Detailed Migration Mapping
+
+  **Shell Scripts (2):**
+  - `configs/shell/zsh/shell.symlink_local_bin.zsh` → `user/scripts/shell/shell.symlink_local_bin.zsh`
+  - `configs/shell/zsh/shorten_path.symlink_local_bin.zsh` → `user/scripts/shell/shorten_path.symlink_local_bin.zsh`
+
+  **Development Scripts (2):**
+  - `configs/development/jdt.ls/jdt.ls.symlink_local_bin.sh` → `user/scripts/development/jdt.ls.symlink_local_bin.sh`
+  - `configs/development/maven/install_maven_wrapper.symlink_local_bin.sh` → `user/scripts/development/install_maven_wrapper.symlink_local_bin.sh`
+
+  **Utility Scripts (4):**
+  - `configs/utilities/local/battery.symlink_local_bin.sh` → `user/scripts/utilities/battery.symlink_local_bin.sh`
+  - `configs/utilities/local/create_hie_yaml.symlink_local_bin.sh` → `user/scripts/utilities/create_hie_yaml.symlink_local_bin.sh`
+  - `configs/utilities/local/iperl.symlink_local_bin.sh` → `user/scripts/utilities/iperl.symlink_local_bin.sh`
+  - `configs/utilities/local/rustp.symlink_local_bin.sh` → `user/scripts/utilities/rustp.symlink_local_bin.sh`
+
+  **Version Control Scripts (2):**
+  - `configs/version-control/github/get_github_url.symlink_local_bin.zsh` → `user/scripts/version-control/get_github_url.symlink_local_bin.zsh`
+  - `configs/version-control/github/get_jdtls_url.symlink_local_bin.zsh` → `user/scripts/version-control/get_jdtls_url.symlink_local_bin.zsh`
+
+  **Package Manager Scripts (1):**
+  - `configs/package-managers/brew/generate_brew_install_script.symlink_local_bin.zsh` → `user/scripts/package-managers/generate_brew_install_script.symlink_local_bin.zsh`
+
+  **Note:** All configuration files remain in their current structure, just moved under `user/configs/`
+
+- [ ] **Task 9.3:** Create user/ directory structure
+  - user/configs/ (move configs/)
+  - user/scripts/ (extract *.symlink_local_bin.*)
+
+- [ ] **Task 9.4:** Phase 9.1 - Move configs/ → user/configs/
+  - Use git mv to preserve history
+  - Test link_dotfiles.zsh compatibility
+  - Verify symlink creation
+
+- [ ] **Task 9.5:** Phase 9.2 - Extract scripts to user/scripts/
+  - Move shell scripts (2 files)
+  - Move development scripts (2 files)
+  - Move utility scripts (4 files)
+  - Move version-control scripts (2 files)
+  - Move package-manager scripts (1 file)
+
+- [ ] **Task 9.6:** Update documentation
+  - Update CLAUDE.md repository structure diagram
+  - Update README.md references
+  - Update DEVELOPMENT.md contribution guide
+  - Update MANUAL.md file locations
+
+- [ ] **Task 9.7:** Testing & Verification
+  - Test link_dotfiles.zsh discovers all files
+  - Verify all symlinks created correctly
+  - Run test suite (251 tests)
+  - Test Docker installation end-to-end
+  - Verify no broken links
+
+- [ ] **Task 9.8:** Update related systems
+  - Update .gitignore if needed
+  - Update any hardcoded paths in scripts
+  - Update documentation cross-references
+
+**Estimated Time:** 3-4 hours total
+**Risk Level:** Low (similar to Phase 8, well-tested approach)
+
+---
+
+## Active Projects
+
 ### Phase 5: Advanced Testing Infrastructure 🚀 IN PROGRESS
 **Goal:** Flexible, modular, high-speed testing system for Docker and XCP-NG
 **Status:** In Progress
@@ -122,47 +237,31 @@
 
 ---
 
-### Phase 8: Repository Restructuring 🗂️ PLANNING
+### Phase 8: Repository Restructuring 🗂️ COMPLETE
 **Goal:** Reorganize 44+ top-level directories into logical category-based structure
-**Status:** Planning Phase
-**Priority:** Low (requires careful planning)
+**Status:** ✅ Complete (October 13-14, 2025)
+**Completion:** All tasks finished, fully documented
 
-#### Overview
+#### What Was Accomplished
 
-Transform flat directory structure into organized categories:
-- `configs/shell/` - zsh, bash, fish, aliases, readline
-- `configs/editors/` - nvim, vim, emacs
-- `configs/terminals/` - kitty, alacritty, macos-terminal
-- `configs/multiplexers/` - tmux
-- `configs/prompts/` - starship, p10k
-- `configs/version-control/` - git, github
-- `configs/development/` - language-specific configs
-- `configs/utilities/` - bat, eza, delta, fzf, etc.
-- `configs/system/` - karabiner, hammerspoon
+Transformed flat 44+ directory structure into organized `configs/` categories:
+- ✅ `configs/shell/` - zsh, bash, fish, aliases, readline
+- ✅ `configs/editors/` - nvim, vim, emacs
+- ✅ `configs/terminals/` - kitty, alacritty, macos-terminal
+- ✅ `configs/multiplexers/` - tmux
+- ✅ `configs/prompts/` - starship, p10k
+- ✅ `configs/version-control/` - git, github
+- ✅ `configs/development/` - maven, jdt.ls, ghci
+- ✅ `configs/languages/` - R, ipython, stylua, black
+- ✅ `configs/utilities/` - bat, eza, delta, fzf, ranger, neofetch
+- ✅ `configs/system/` - karabiner, xcode, xmodmap, xprofile
+- ✅ `configs/package-managers/` - brew, apt
 
-**Key Constraint:** Must maintain full compatibility with `link_dotfiles.zsh` (uses `find` for pattern discovery)
+**Commits:** e5b8098 through aaafb2a (10 phases)
+**Result:** Professional, scalable structure with full git history preserved
+**Documentation:** README, CLAUDE, DEVELOPMENT, MANUAL, INSTALL all updated
 
-#### Planning Tasks
-
-- [ ] **Task 8.1:** Finalize category structure
-  - Review all 44+ directories
-  - Decide on final category groupings
-  - Document reasoning for each category
-  - Get user approval
-
-- [ ] **Task 8.2:** Create migration plan
-  - Define step-by-step migration phases
-  - Plan git mv commands to preserve history
-  - Identify testing checkpoints
-  - Create rollback procedures
-
-- [ ] **Task 8.3:** Implement dry-run testing
-  - Test link_dotfiles.zsh compatibility
-  - Verify symlink creation works with nested structure
-  - Run full test suite
-  - Test Docker E2E installation
-
-**Estimated Time:** 20-30 hours total (implementation + testing + documentation)
+**See Meetings.md for detailed completion notes**
 
 ---
 
@@ -191,6 +290,13 @@ See **Meetings.md** for archive of:
 - Phase 7.6: Menu System Library Consolidation ✅
 - Phase 7.7: Text-to-Speech Utility (speak) ✅
 - Phase 7.8: Directory Naming Refinement (config → env) ✅
+- Phase 8: Repository Restructuring (configs/ organization) ✅ **(October 13-14, 2025)**
+
+### Recent Completions (October 16, 2025)
+- ✅ Documentation organization (docs/ folder created)
+- ✅ Web installer migration (install/ folder created)
+- ✅ Archive cleanup (local-only enforcement)
+- ✅ Project workflow documentation (CLAUDE.md updated)
 
 ---
 
