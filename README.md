@@ -511,9 +511,14 @@ speak --celebrate --rate 180 "Setup complete"
 ```
 
 **Cross-Platform Support:**
-- **macOS**: Uses built-in `say` command with full voice and rate control
-- **Linux**: Uses `espeak` or `festival` (install via package manager)
+- **macOS**: Uses built-in `say` command with premium neural voices (Serena Premium, Eddy, Flo) and full voice/rate control
+- **Linux**: Auto-detects and uses the best available TTS engine:
+  - **espeak-ng** (preferred) - Enhanced quality with natural voice variants
+  - **espeak** (fallback) - Standard TTS with voice selection
+  - **festival** (fallback) - Classic TTS engine
+  - Install via package manager: `sudo apt install espeak-ng` (Ubuntu/Debian)
 - **WSL/Windows**: Falls back to silent operation with visual feedback
+- **Automatic Detection**: The script intelligently detects your OS and available TTS engines, automatically selecting the best option
 
 **Perfect for:**
 - Long test suite completions: `./tests/run_tests.zsh && speak --celebrate "Tests done"`

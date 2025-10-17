@@ -510,7 +510,7 @@ sync_packages --push --message "Add new tools"    # Custom commit
 
 ### Text-to-Speech (speak)
 
-The `speak` utility provides delightful audio feedback using macOS's `say` command:
+The `speak` utility provides delightful cross-platform audio feedback with automatic TTS engine detection:
 
 ```bash
 # Basic usage
@@ -519,9 +519,10 @@ speak "Hello, friend!"
 # Pipe from commands
 echo "Build complete!" | speak
 
-# Use different voices
+# Use different voices (macOS)
 speak -v Alex "Testing different voice"
 speak -v Daniel "Jolly good show!"  # British accent
+speak -v "Serena (Premium)" "Premium neural voice"  # High-quality neural TTS
 
 # Adjust speech rate (words per minute)
 speak -r 200 "Speaking quickly"
@@ -547,14 +548,28 @@ speak -f README.md
 (sleep 300; speak "Time to take a break!") &
 ```
 
+**Cross-Platform Support:**
+- **macOS**: Uses built-in `say` command with premium neural voices
+  - Serena (Premium) - Best quality British female (default)
+  - Eddy (English (US)) - Natural male voice
+  - Flo (English (US)) - Natural female voice
+  - Full voice and rate control
+- **Linux**: Auto-detects and uses best available TTS engine
+  - **espeak-ng** (preferred) - Enhanced quality with natural voice variants
+  - **espeak** (fallback) - Standard TTS with voice selection
+  - **festival** (fallback) - Classic TTS engine
+  - Install via: `sudo apt install espeak-ng` (Ubuntu/Debian)
+- **Automatic Detection**: Intelligently selects the best available TTS engine for your platform
+
 **Features:**
 - Automatically strips ANSI color codes for clean speech
-- Multiple voice options (Samantha, Alex, Victoria, Daniel, Karen, Moira, Fiona)
-- Rate control for speech speed
+- Cross-platform voice selection (macOS voices, Linux espeak variants)
+- Rate control for speech speed (words per minute)
 - Three personality modes: celebrate, friendly, alert
 - Supports stdin, arguments, or file input
 - Comprehensive help system (`speak --help`)
 - List available voices (`speak --list-voices`)
+- Graceful fallback when no TTS engine available
 
 **Use Cases:**
 - Long-running task completion notifications
@@ -562,6 +577,7 @@ speak -f README.md
 - Build status updates
 - Timer/reminder notifications
 - Making terminal output more engaging and accessible
+- Cross-platform audio feedback for scripts and tools
 
 ### Claude Code Acoustic Hooks (claude-hook-speak)
 
@@ -611,9 +627,11 @@ echo '{"eventType":"PostToolUse","tool":"Bash","result":{"success":true}}' | ~/.
 
 **Features:**
 - Non-blocking background execution (uses `&` for parallel audio)
-- Automatic fallback to macOS `say` if speak script unavailable
+- Cross-platform TTS fallback chain: speak → say → espeak-ng → espeak → silent
+- Automatic TTS engine detection and graceful degradation
 - JSON parsing with jq for event data extraction
 - Always returns success (exit 0) to avoid blocking Claude Code
+- Works seamlessly on macOS and Linux with automatic engine selection
 
 ### Testing and Validation
 
