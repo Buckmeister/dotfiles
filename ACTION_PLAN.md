@@ -75,6 +75,175 @@ user/                          # All user-facing deployables
 
 ## Active Projects
 
+### Phase 10: User Scripts Refactoring 🎨 PLANNING
+**Goal:** Refactor all user-facing scripts to match repository quality standards
+**Status:** Planning → Awaiting Approval
+**Priority:** High
+**Estimated Time:** 8-12 hours total
+
+#### Context
+
+After successfully refactoring the `speak` script with full shared library integration, we identified an opportunity to bring all user-facing scripts in `user/scripts/` up to the same quality standard. This ensures consistency, maintainability, and a delightful user experience across all utilities.
+
+**Current State:**
+- 12 total scripts in `user/scripts/`
+- 1 already perfect (generate_brew_install_script)
+- 1 recently refactored (speak)
+- 4 are simple wrappers (no work needed)
+- 6 need refactoring (varying levels of effort)
+
+#### Scripts Classification
+
+**✅ Already Perfect (Reference Examples)**
+1. `generate_brew_install_script.symlink_local_bin.zsh` - Full shared library usage, beautiful headers, OneDark colors, argument parsing, greetings integration
+
+**🌟 Recently Completed**
+2. `speak.symlink_local_bin.zsh` - Full refactoring complete (October 17, 2025)
+
+**🔄 Simple Wrappers (No Work Needed)**
+3. `shell.symlink_local_bin.zsh` - Exec wrapper to shell.zsh
+4. `shorten_path.symlink_local_bin.zsh` - Exec wrapper to shorten_path.zsh
+5. `install_maven_wrapper.symlink_local_bin.sh` - Exec wrapper to install_maven_wrapper.sh
+6. `jdt.ls.symlink_local_bin.sh` - OS detection wrapper (16 lines)
+
+**🎯 Phase 1: High Priority Refactoring**
+7. `battery.symlink_local_bin.sh` (167 lines) - Convert bash→zsh, full library integration
+8. `get_github_url.symlink_local_bin.zsh` (242 lines) - Upgrade partial library usage to full integration
+9. `get_jdtls_url.symlink_local_bin.zsh` (206 lines) - Upgrade partial library usage to full integration
+
+**📝 Phase 2: Medium Priority**
+10. `rustp.symlink_local_bin.sh` (36 lines) - Add help message, shared libraries, headers
+
+**⭐ Phase 3: Optional Enhancement**
+11. `iperl.symlink_local_bin.sh` (4 lines) - Add --help flag, library integration for consistency
+12. `create_hie_yaml.symlink_local_bin.sh` (5 lines) - Add --help flag, success feedback
+
+#### Refactoring Standards
+
+All refactored scripts should include:
+
+**Required Elements:**
+- ✅ `emulate -LR zsh` (for zsh scripts)
+- ✅ Shared library loading with fallback protection
+- ✅ OneDark color scheme (via colors.zsh)
+- ✅ Standardized UI functions (print_success, print_error, print_info)
+- ✅ Beautiful headers using draw_header() or draw_section_header()
+- ✅ Argument parsing using arguments.zsh patterns or zparseopts
+- ✅ Comprehensive --help messages with examples
+- ✅ command_exists() instead of custom command checking
+- ✅ OS context awareness (DF_OS, DF_PKG_MANAGER where relevant)
+- ✅ Friendly greetings (get_random_friend_greeting() where appropriate)
+
+**Nice-to-Have:**
+- Progress indicators for long operations
+- Dry-run mode where applicable
+- Verbose mode for debugging
+- Error handling with actionable messages
+
+#### Tasks
+
+- [ ] **Task 10.1: Phase 1 - battery refactoring** (~2-3 hours)
+  - Convert from bash to zsh
+  - Add shared library integration (colors, ui, utils)
+  - Replace custom ANSI colors with OneDark scheme
+  - Replace has() with command_exists()
+  - Add draw_header() for script name
+  - Enhance --help with comprehensive documentation
+  - Use arguments.zsh for argument parsing
+  - Add friendly greeting on completion
+  - Test on macOS with pmset and ioreg
+  - Update MANUAL.md with any behavioral changes
+
+- [ ] **Task 10.2: Phase 1 - get_github_url upgrade** (~2-3 hours)
+  - Replace custom print_info() with shared library version
+  - Add draw_header() "GitHub URL Downloader"
+  - Add draw_section_header() for different phases
+  - Migrate zparseopts to arguments.zsh pattern
+  - Use standard --silent flag behavior
+  - Enhance error messages with print_error()
+  - Add success messages with print_success()
+  - Consider adding friendly greeting
+  - Test with various repositories and options
+  - Update documentation
+
+- [ ] **Task 10.3: Phase 1 - get_jdtls_url upgrade** (~2-3 hours)
+  - Mirror improvements from get_github_url
+  - Replace custom print_info() with shared version
+  - Add draw_header() "JDT.LS Download URL Fetcher"
+  - Add draw_section_header() for version resolution, URL checking
+  - Migrate zparseopts to arguments.zsh pattern
+  - Enhance URL checking feedback with progress
+  - Add success/error messages with shared functions
+  - Test with latest and specific versions
+  - Update documentation
+
+- [ ] **Task 10.4: Phase 2 - rustp enhancement** (~1-2 hours)
+  - Keep as bash or convert to zsh (decide based on dependencies)
+  - Add comprehensive --help message with examples
+  - Add shared library integration if converting to zsh
+  - Add header "Rust Playground" with draw_header()
+  - Enhance error messages
+  - Consider adding dry-run mode
+  - Test tmux integration thoroughly
+  - Update documentation
+
+- [ ] **Task 10.5: Phase 3 - iperl enhancement** (~30min-1 hour)
+  - Add --help flag with usage information
+  - Optionally add shared library integration
+  - Add welcome message using print_info()
+  - Document rlwrap dependency
+  - Keep it simple and lightweight
+
+- [ ] **Task 10.6: Phase 3 - create_hie_yaml enhancement** (~30min-1 hour)
+  - Add --help flag with usage information
+  - Add --output flag for custom file location
+  - Add success message "Created hie.yaml for Haskell IDE"
+  - Optionally add shared library integration
+  - Document what HIE is and why this is useful
+
+- [ ] **Task 10.7: Documentation updates** (~1 hour)
+  - Update MANUAL.md with any new features/flags
+  - Update CLAUDE.md if patterns change
+  - Add examples to README.md if appropriate
+  - Document the refactoring pattern for future reference
+
+- [ ] **Task 10.8: Testing and validation** (~1 hour)
+  - Test all refactored scripts individually
+  - Verify symlink creation still works
+  - Run through common use cases
+  - Check for regressions
+  - Verify beautiful output with OneDark colors
+
+#### Success Criteria
+
+- [ ] All Phase 1 scripts (battery, get_github_url, get_jdtls_url) refactored
+- [ ] Consistent UI across all user scripts
+- [ ] OneDark color scheme throughout
+- [ ] Comprehensive --help messages
+- [ ] No functionality regressions
+- [ ] Documentation updated
+- [ ] All tests passing
+
+#### Reference Materials
+
+**Gold Standard Examples:**
+- `bin/generate_brew_install_script.symlink_local_bin.zsh` - Perfect example of full integration
+- `user/scripts/utilities/speak.symlink_local_bin.zsh` - Recently refactored, excellent pattern
+
+**Shared Libraries:**
+- `bin/lib/colors.zsh` - OneDark color constants
+- `bin/lib/ui.zsh` - Headers, progress bars, drawing functions
+- `bin/lib/utils.zsh` - OS detection, command_exists(), helpers
+- `bin/lib/arguments.zsh` - Standardized argument parsing
+- `bin/lib/greetings.zsh` - Friendly messages
+
+**Testing:**
+- All scripts should work when symlinked to `~/.local/bin/`
+- Libraries should be loadable from that context
+- Fallback protection should handle missing libraries gracefully
+
+---
+
 ### Phase 5: Advanced Testing Infrastructure 🚀 IN PROGRESS
 **Goal:** Flexible, modular, high-speed testing system for Docker and XCP-NG
 **Status:** In Progress

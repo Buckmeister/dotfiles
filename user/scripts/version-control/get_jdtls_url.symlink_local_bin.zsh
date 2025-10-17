@@ -1,23 +1,62 @@
 #!/usr/bin/env zsh
 
-# ============================================================================
-# JDT.LS Download URL Fetcher
-# Specialized script for getting JDT.LS download URLs
-# Handles the quirks of eclipse-jdtls/eclipse.jdt.ls repository
-# ============================================================================
-
 emulate -LR zsh
 
 # ============================================================================
-# Load Shared Libraries (for UI_SILENT mode)
+# JDT.LS Download URL Fetcher
+# ============================================================================
+#
+# Specialized script for retrieving Eclipse JDT Language Server download URLs.
+# Handles the quirks of the eclipse-jdtls/eclipse.jdt.ls repository where the
+# 'latest' endpoint often fails, requiring fallback strategies.
+#
+# Features:
+#   - Automatic version resolution (latest or specific version)
+#   - Multiple URL pattern attempts for reliability
+#   - Version-independent fallback URLs
+#   - Silent mode for scripting
+#   - OneDark color scheme
+#
+# Usage:
+#   get_jdtls_url [options]
+#
+# Examples:
+#   get_jdtls_url                 # Get latest version
+#   get_jdtls_url -v 1.49.0       # Get specific version
+#   get_jdtls_url -s              # Silent mode (URL only)
+#
+# ============================================================================
+
+# ============================================================================
+# Load Shared Libraries (with fallback protection)
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DF_DIR="${HOME}/.config/dotfiles"
 
-# Try to load shared libraries (with fallback)
-if [[ -f "$HOME/.config/dotfiles/bin/lib/colors.zsh" ]]; then
-    source "$HOME/.config/dotfiles/bin/lib/colors.zsh" 2>/dev/null || true
-    source "$HOME/.config/dotfiles/bin/lib/ui.zsh" 2>/dev/null || true
+# Try to load shared libraries
+if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
+    source "$DF_DIR/bin/lib/colors.zsh" 2>/dev/null
+    source "$DF_DIR/bin/lib/ui.zsh" 2>/dev/null
+    source "$DF_DIR/bin/lib/utils.zsh" 2>/dev/null
+    LIBRARIES_LOADED=true
+else
+    # Graceful fallback: define minimal functions if libraries unavailable
+    LIBRARIES_LOADED=false
+    print_error() { echo "Error: $1" >&2; }
+    print_success() { echo "$1"; }
+    print_info() { echo "$1"; }
+    command_exists() { command -v "$1" >/dev/null 2>&1; }
+
+    # Basic color definitions for fallback
+    readonly UI_SUCCESS_COLOR='\033[32m'
+    readonly UI_INFO_COLOR='\033[34m'
+    readonly UI_ERROR_COLOR='\033[31m'
+    readonly UI_WARNING_COLOR='\033[33m'
+    readonly UI_ACCENT_COLOR='\033[35m'
+    readonly COLOR_RESET='\033[0m'
+    readonly COLOR_BOLD='\033[1m'
+    readonly COLOR_DIM='\033[2m'
 fi
 
 # ============================================================================
@@ -25,182 +64,246 @@ fi
 # ============================================================================
 
 function print_usage {
-  echo
-  echo "Get JDT.LS (Eclipse Java Language Server) download URL"
-  echo
-  echo "Usage:"
-  echo
-  echo "$(basename $0) [options]"
-  echo
-  echo "Options:"
-  echo "  -v|--version (=)ARG  <=> specific version (e.g. '1.49.0', default: latest)"
-  echo "  -s|--silent          <=> print URL only (no headers)"
-  echo "  -h|--help            <=> print usage information"
-  echo
-  echo "Examples:"
-  echo
-  echo "Get latest JDT.LS download URL:"
-  echo "  $(basename $0)"
-  echo
-  echo "Get specific version:"
-  echo "  $(basename $0) -v 1.49.0"
-  echo
-  echo "Silent mode (URL only):"
-  echo "  $(basename $0) -s"
-  echo
-  exit 1
+    cat <<EOF
+${COLOR_BOLD}${UI_ACCENT_COLOR}JDT.LS Download URL Fetcher${COLOR_RESET}
+
+Get Eclipse JDT Language Server download URLs with intelligent fallback
+handling for the quirky eclipse-jdtls repository.
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}USAGE${COLOR_RESET}
+    $(basename $0) [options]
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}OPTIONS${COLOR_RESET}
+    -v, --version (=)ARG    Specific version (e.g. '1.49.0', default: latest)
+    -s, --silent            Print URL only (no headers)
+    -h, --help              Show this help message
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}EXAMPLES${COLOR_RESET}
+    ${COLOR_DIM}# Get latest JDT.LS download URL${COLOR_RESET}
+    $(basename $0)
+
+    ${COLOR_DIM}# Get specific version${COLOR_RESET}
+    $(basename $0) -v 1.49.0
+
+    ${COLOR_DIM}# Silent mode (URL only)${COLOR_RESET}
+    $(basename $0) -s
+
+    ${COLOR_DIM}# Download latest JDT.LS${COLOR_RESET}
+    curl -L -o jdtls.tar.gz \$($(basename $0) -s)
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}ABOUT JDT.LS${COLOR_RESET}
+    Eclipse JDT Language Server (JDT.LS) is a Java language server
+    implementing the Language Server Protocol. It provides features like
+    auto-completion, code navigation, and refactoring for Java development.
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}WHY THIS SCRIPT?${COLOR_RESET}
+    The eclipse-jdtls repository has quirky release patterns where the
+    'latest' endpoint often fails. This script tries multiple URL patterns
+    and fallback strategies to reliably find working download URLs.
+
+${COLOR_BOLD}${UI_ACCENT_COLOR}FALLBACK STRATEGY${COLOR_RESET}
+    1. Try GitHub tags API for version resolution
+    2. Try multiple GitHub archive URL patterns
+    3. Try Eclipse download server patterns
+    4. Fallback to version-independent FAU mirror
+
+EOF
+    exit 1
 }
 
 zparseopts -D -E \
-  -- \
-  v:=o_version \
-  -version:=o_version \
-  s=o_silent \
-  -silent=o_silent \
-  h=o_help \
-  -help=o_help
+    -- \
+    v:=o_version \
+    -version:=o_version \
+    s=o_silent \
+    -silent=o_silent \
+    h=o_help \
+    -help=o_help
 
 [[ $#o_help > 0 ]] && print_usage
 
-# Set silent mode (use UI_SILENT from shared library if available)
+# Set silent mode
 if [[ $#o_silent > 0 ]]; then
-    UI_SILENT="true"
     IS_SILENT="true"
 fi
 
-# Function to print if not silent (uses shared library if available)
-function print_info() {
-    if [[ "$IS_SILENT" == "true" ]]; then
-        return 0
-    fi
-
-    # Use shared library function if available, otherwise echo
-    if typeset -f print_info >/dev/null 2>&1 && [[ "$UI_SILENT" != "true" ]]; then
-        # Avoid recursion - just echo
-        echo "$@"
-    else
-        echo "$@"
+# Function to print if not silent
+function print_status() {
+    if [[ "$IS_SILENT" != "true" ]]; then
+        print_info "$@"
     fi
 }
 
-# Get version parameter
+# ============================================================================
+# Display Header (if not silent)
+# ============================================================================
+
+if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+    draw_header "JDT.LS Download URL Fetcher" "Eclipse Java Language Server URL retrieval"
+    echo
+fi
+
+# ============================================================================
+# Get Version Parameter
+# ============================================================================
+
 if [[ $#o_version > 0 ]]; then
-  target_version=${o_version[@]: -1}
+    target_version=${o_version[@]: -1}
 else
-  target_version="latest"
+    target_version="latest"
 fi
 
-print_info
-print_info "JDT.LS Download URL Fetcher"
-print_info "Target version: $target_version"
-print_info
+print_status "Target version: ${UI_ACCENT_COLOR}$target_version${COLOR_RESET}"
+[[ "$IS_SILENT" != "true" ]] && echo
 
-# Function to check if URL exists
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+# Check if URL exists
 function url_exists() {
-  local url="$1"
-  curl -s -f -I "$url" >/dev/null 2>&1
+    local url="$1"
+    curl -s -f -I "$url" >/dev/null 2>&1
 }
 
-# Function to get latest version from GitHub API
+# Get latest version from GitHub API
 function get_latest_version() {
-  local api_response
+    local api_response
 
-  print_info "Fetching latest version from GitHub API..."
-
-  # Try to get releases list (not latest endpoint as it fails)
-  api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/releases")
-
-  if echo "$api_response" | jq empty 2>/dev/null; then
-    # Find the most recent release that's not a prerelease
-    local latest_tag=$(echo "$api_response" | jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
-
-    if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
-      # Remove 'v' prefix if present
-      echo "$latest_tag" | sed 's/^v//'
-      return 0
+    if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+        draw_section_header "Resolving Latest Version"
     fi
-  fi
 
-  # Fallback: try to parse from tags endpoint
-  api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/tags")
+    print_status "Fetching version info from GitHub API..."
 
-  if echo "$api_response" | jq empty 2>/dev/null; then
-    local latest_tag=$(echo "$api_response" | jq -r '.[0].name' 2>/dev/null)
+    # Try to get releases list (not latest endpoint as it fails)
+    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/releases")
 
-    if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
-      echo "$latest_tag" | sed 's/^v//'
-      return 0
+    if echo "$api_response" | jq empty 2>/dev/null; then
+        # Find the most recent release that's not a prerelease
+        local latest_tag=$(echo "$api_response" | jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
+
+        if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
+            # Remove 'v' prefix if present
+            echo "$latest_tag" | sed 's/^v//'
+            return 0
+        fi
     fi
-  fi
 
-  return 1
+    # Fallback: try to parse from tags endpoint
+    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/tags")
+
+    if echo "$api_response" | jq empty 2>/dev/null; then
+        local latest_tag=$(echo "$api_response" | jq -r '.[0].name' 2>/dev/null)
+
+        if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
+            echo "$latest_tag" | sed 's/^v//'
+            return 0
+        fi
+    fi
+
+    return 1
 }
 
-# Resolve version
-if [[ "$target_version" == "latest" ]]; then
-  resolved_version=$(get_latest_version)
+# ============================================================================
+# Version Resolution
+# ============================================================================
 
-  if [[ $? -ne 0 || -z "$resolved_version" ]]; then
-    print_info "Warning: Could not determine latest version, falling back to 1.49.0"
-    resolved_version="1.49.0"
-  else
-    print_info "Latest version detected: $resolved_version"
-  fi
+if [[ "$target_version" == "latest" ]]; then
+    resolved_version=$(get_latest_version)
+
+    if [[ $? -ne 0 || -z "$resolved_version" ]]; then
+        print_status "${UI_WARNING_COLOR}Warning: Could not determine latest version, falling back to 1.49.0${COLOR_RESET}"
+        resolved_version="1.49.0"
+    else
+        print_status "Latest version detected: ${UI_SUCCESS_COLOR}$resolved_version${COLOR_RESET}"
+    fi
 else
-  resolved_version="$target_version"
+    resolved_version="$target_version"
 fi
 
-print_info "Using version: $resolved_version"
-print_info
+print_status "Using version: ${UI_ACCENT_COLOR}$resolved_version${COLOR_RESET}"
+[[ "$IS_SILENT" != "true" ]] && echo
+
+# ============================================================================
+# URL Pattern Attempts
+# ============================================================================
 
 # Try different URL patterns for JDT.LS
 urls_to_try=(
-  "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/refs/tags/v${resolved_version}.tar.gz"
-  "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/v${resolved_version}.tar.gz"
-  "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/${resolved_version}.tar.gz"
-  "https://download.eclipse.org/jdtls/snapshots/jdt-language-server-${resolved_version}.tar.gz"
-  "https://download.eclipse.org/jdtls/releases/${resolved_version}/jdt-language-server-${resolved_version}.tar.gz"
+    "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/refs/tags/v${resolved_version}.tar.gz"
+    "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/v${resolved_version}.tar.gz"
+    "https://github.com/eclipse-jdtls/eclipse.jdt.ls/archive/${resolved_version}.tar.gz"
+    "https://download.eclipse.org/jdtls/snapshots/jdt-language-server-${resolved_version}.tar.gz"
+    "https://download.eclipse.org/jdtls/releases/${resolved_version}/jdt-language-server-${resolved_version}.tar.gz"
 )
 
-print_info "Checking URL availability..."
-
-for url in "${urls_to_try[@]}"; do
-  print_info "Trying: $url"
-
-  if url_exists "$url"; then
-    print_info "✓ Found working URL"
-    print_info
-    [[ "$IS_SILENT" != "true" ]] && echo "Download URL:"
-    echo "$url"
-    exit 0
-  fi
-done
-
-# Try version-independent fallback (ftp.fau.de)
-print_info "Version-specific URLs failed, trying version-independent fallback..."
-fallback_url="https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
-
-print_info "Trying: $fallback_url"
-if url_exists "$fallback_url"; then
-  print_info "✓ Found working fallback URL"
-  print_info
-  [[ "$IS_SILENT" != "true" ]] && echo "Download URL (version-independent):"
-  echo "$fallback_url"
-  exit 0
+if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+    draw_section_header "Checking URL Availability"
 fi
 
-# If even the fallback fails, provide manual options
-print_info "All automatic options failed. Providing manual fallback URLs:"
-print_info
+print_status "Testing multiple URL patterns..."
+
+for url in "${urls_to_try[@]}"; do
+    print_status "${COLOR_DIM}Trying: $url${COLOR_RESET}"
+
+    if url_exists "$url"; then
+        if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+            echo
+            draw_section_header "Success"
+        fi
+
+        print_success "✓ Found working URL"
+        [[ "$IS_SILENT" != "true" ]] && echo
+        [[ "$IS_SILENT" != "true" ]] && print_info "Download URL:"
+        echo "$url"
+        exit 0
+    fi
+done
+
+# ============================================================================
+# Version-Independent Fallback
+# ============================================================================
+
+print_status "${UI_WARNING_COLOR}Version-specific URLs failed, trying version-independent fallback...${COLOR_RESET}"
+
+fallback_url="https://ftp.fau.de/eclipse/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+
+print_status "${COLOR_DIM}Trying: $fallback_url${COLOR_RESET}"
+
+if url_exists "$fallback_url"; then
+    if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+        echo
+        draw_section_header "Success (Fallback)"
+    fi
+
+    print_success "✓ Found working fallback URL"
+    [[ "$IS_SILENT" != "true" ]] && echo
+    [[ "$IS_SILENT" != "true" ]] && print_info "Download URL (version-independent):"
+    echo "$fallback_url"
+    exit 0
+fi
+
+# ============================================================================
+# All Options Failed
+# ============================================================================
+
+if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
+    echo
+    draw_section_header "Manual Fallback Required"
+fi
+
+print_error "All automatic options failed"
+[[ "$IS_SILENT" != "true" ]] && echo
 
 if [[ "$IS_SILENT" != "true" ]]; then
-  echo "Manual fallback URLs (verification required):"
-  echo "https://github.com/eclipse-jdtls/eclipse.jdt.ls/releases"
-  echo "https://download.eclipse.org/jdtls/snapshots/"
-  echo "https://ftp.fau.de/eclipse/jdtls/snapshots/"
+    print_info "Manual fallback URLs (verification required):"
+    echo "  https://github.com/eclipse-jdtls/eclipse.jdt.ls/releases"
+    echo "  https://download.eclipse.org/jdtls/snapshots/"
+    echo "  https://ftp.fau.de/eclipse/jdtls/snapshots/"
 else
-  # In silent mode, return the most likely working URL
-  echo "$fallback_url"
+    # In silent mode, return the most likely working URL
+    echo "$fallback_url"
 fi
 
 exit 1
