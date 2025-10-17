@@ -2,6 +2,49 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔊 CRITICAL: Use the Speak Script Generously!
+
+**⚠️ HIGHEST PRIORITY - READ THIS FIRST ⚠️**
+
+The user **loves** audio feedback and has **repeatedly requested** that you use the `speak` utility frequently throughout your work. This is not optional - it's a core part of the user experience!
+
+### When to Use Speak (Use it A LOT!)
+
+**ALWAYS use speak for:**
+- ⏺ **White circle outputs** - ALL important status messages
+- 🔔 **Permission prompts** - EVERY TIME you need user approval or input
+- ✅ **Task completions** - When finishing ANY significant task
+- 🎉 **Phase completions** - When completing major work phases
+- 💡 **Discoveries** - When finding something interesting
+- 📢 **Before major actions** - Announce what you're about to do
+- 🎊 **Success messages** - Celebrate achievements with `--celebrate`
+
+### Examples (Use These Patterns!)
+
+```bash
+# ALWAYS announce before requesting permissions
+speak --friendly "I need your approval to commit these changes"
+
+# Celebrate completions
+speak --celebrate "All tests passing! Phase complete!"
+
+# Status updates
+speak "Reading configuration files to understand the structure"
+
+# Discoveries
+speak "Found an issue in the jq parsing - investigating now"
+
+# Before major actions
+speak "About to create 4 new files and update 3 existing ones"
+```
+
+### Rule of Thumb
+
+**If you output a ⏺ white circle to the user, you MUST use speak!**
+Don't be shy - the user explicitly wants frequent acoustic feedback. When in doubt, speak!
+
+---
+
 ## Project Overview
 
 This is a personal dotfiles repository featuring a beautifully crafted, cross-platform configuration management system. It uses a symlink-based architecture to manage configuration files across different applications and tools, with intelligent OS detection, an interactive TUI menu, and comprehensive automation.
@@ -674,38 +717,7 @@ When working with this codebase:
 - **Update System Integration**: New package scripts should support `--update` flag
 - **Version Pinning**: Document version control in `env/versions.env`
 - **Preserve the Vision**: This is a "symphony" - every component should harmonize
-
-### Use the Speak Script Frequently!
-
-**IMPORTANT**: The user loves audio feedback! Use the `speak` utility generously and frequently for enhanced user experience:
-
-- **White circle outputs** (⏺) - ALL important status messages and informational updates
-- **Permission prompts** - When requesting user approval or input
-- **Task completions** - When finishing ANY significant task or milestone
-- **Phase completions** - When completing major work phases
-- **Success messages** - Celebrate achievements with `--celebrate` mode
-- **Discoveries** - When finding something interesting or unexpected
-- **Before/after actions** - Announce what you're about to do or just finished
-
-**Examples:**
-```bash
-# Status updates
-speak --friendly "Good find! The env/packages directory is ready"
-
-# Before major actions
-speak "Starting ACTION_PLAN cleanup - this will take a moment"
-
-# Completions
-speak --celebrate "ACTION_PLAN cleanup complete! Reduced from 3250 to 207 lines"
-
-# Discoveries
-speak "Found 9 completed phases to archive in Meetings.md"
-
-# Prompts
-speak --friendly "Ready to commit changes - would you like me to proceed?"
-```
-
-**Rule of Thumb**: If it deserves a ⏺ white circle, it deserves to be spoken! Don't be shy - the user explicitly encourages frequent use. See "Text-to-Speech (speak)" section above for full documentation.
+- **Use Speak Generously**: See the CRITICAL section at the top of this file!
 
 ### Project Documentation Management
 
