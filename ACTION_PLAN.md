@@ -246,6 +246,103 @@ All refactored scripts should include:
 
 ---
 
+### Phase 11: Post-Install Script Refactoring 🔄 ACTIVE
+**Goal:** Refactor post-install scripts for better modularity and maintainability
+**Status:** Planning & Analysis Complete (October 17, 2025)
+**Priority:** High
+**Estimated Time:** 6-8 hours total
+
+#### Context
+
+After examining the `post-install/scripts/` directory, we identified opportunities to improve organization and modularity. The primary issue is `toolchains.zsh` (225 lines) which combines unrelated toolchains:
+- Haskell (Stack + GHCup)
+- Rust (rustup)
+- Starship prompt (not even a language toolchain!)
+
+This violates single-responsibility principle and prevents users from installing toolchains independently.
+
+#### Current Post-Install Scripts (15 total)
+
+**Language Package Managers:**
+1. `cargo-packages.zsh` - Rust packages (depends on toolchains.zsh)
+2. `ghcup-packages.zsh` - Haskell packages (depends on toolchains.zsh)
+3. `npm-global-packages.zsh` - Node.js packages
+4. `python-packages.zsh` - Python packages
+5. `ruby-gems.zsh` - Ruby gems
+6. `luarocks-packages.zsh` - Lua packages
+
+**Toolchains & Setup:**
+7. `toolchains.zsh` - **MIXED**: Haskell + Rust + Starship (needs splitting!)
+8. `language-servers.zsh` - LSP servers
+9. `vim-setup.zsh` - Vim/Neovim setup
+
+**Git Configuration:**
+10. `git-settings-general.zsh` - General git config
+11. `git-delta.zsh` - Git delta installation
+12. `git-delta-config.zsh` - Git delta configuration
+
+**Miscellaneous:**
+13. `fonts.zsh` - Font installation
+14. `bash-preexec.zsh` - Bash preexec hook
+15. `lombok.zsh` - Java Lombok
+
+#### Proposed Refactoring
+
+**Split `toolchains.zsh` into 3 focused scripts:**
+
+1. **`haskell-toolchain.zsh`** (~80 lines)
+   - Install Haskell Stack
+   - Install GHCup
+   - OS-aware installation (macOS vs Linux)
+   - **Required by:** `ghcup-packages.zsh`
+   - **Dependencies:** NONE (base toolchain provider)
+
+2. **`rust-toolchain.zsh`** (~60 lines)
+   - Install rustup
+   - Install Rust compiler + cargo
+   - Show version info after installation
+   - **Required by:** `cargo-packages.zsh`
+   - **Dependencies:** NONE (base toolchain provider)
+
+3. **`starship-prompt.zsh`** (~40 lines)
+   - Install Starship prompt (Linux only)
+   - Note: macOS via brew, not a language toolchain
+   - **Required by:** Nobody (standalone shell prompt)
+   - **Dependencies:** NONE
+
+**Benefits:**
+- ✅ Clear single responsibility per script
+- ✅ Independent installation (can install Rust without Haskell)
+- ✅ Better dependency documentation
+- ✅ Easier to maintain and test
+- ✅ Starship properly categorized as shell prompt, not language toolchain
+- ✅ Reduces toolchains.zsh from 225 lines to ~40 lines per script
+
+#### Tasks
+
+- [ ] **Task 11.1:** Create `haskell-toolchain.zsh` (~1.5 hours)
+- [ ] **Task 11.2:** Create `rust-toolchain.zsh` (~1 hour)
+- [ ] **Task 11.3:** Create `starship-prompt.zsh` (~45 minutes)
+- [ ] **Task 11.4:** Delete old `toolchains.zsh` (~5 minutes)
+- [ ] **Task 11.5:** Update dependent scripts (~30 minutes)
+- [ ] **Task 11.6:** Update documentation (~1.5 hours)
+- [ ] **Task 11.7:** Update TUI menu (automatic) (~5 minutes)
+- [ ] **Task 11.8:** Testing & validation (~1.5 hours)
+- [ ] **Task 11.9:** Create git commit (~10 minutes)
+
+#### Success Criteria
+
+- [ ] 3 new focused scripts created (haskell-toolchain, rust-toolchain, starship-prompt)
+- [ ] Old toolchains.zsh removed
+- [ ] All dependent scripts updated
+- [ ] Documentation updated
+- [ ] All tests passing
+- [ ] No functionality regressions
+- [ ] Independent installation works (can install Rust without Haskell)
+- [ ] TUI menu shows all new scripts
+
+---
+
 ### Phase 5: Advanced Testing Infrastructure 🚀 IN PROGRESS
 **Goal:** Flexible, modular, high-speed testing system for Docker and XCP-NG
 **Status:** In Progress

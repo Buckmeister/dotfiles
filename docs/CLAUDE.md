@@ -45,6 +45,94 @@ Don't be shy - the user explicitly wants frequent acoustic feedback. When in dou
 
 ---
 
+## 📋 CRITICAL: Project Documentation Management
+
+**⚠️ HIGHEST PRIORITY - ORGANIZATIONAL FRAMEWORK ⚠️**
+
+These three files work together to track project progress. Understanding this system is essential for effective AI assistance!
+
+### ACTION_PLAN.md - Concise Todo List
+- **Purpose**: Short, scannable todo list of active and pending work
+- **Format**: ~200-300 lines maximum - must stay concise!
+- **Content**: Only active/pending tasks with current priorities
+- **When to Update**:
+  - Mark tasks complete (✅) as you finish them
+  - Add new tasks as they arise
+  - Adjust priorities based on user feedback
+- **What NOT to do**:
+  - Never let it grow beyond ~500 lines
+  - Don't include detailed analysis or documentation
+  - Don't archive completed phases here forever
+
+### Meetings.md - Historical Journal (Local-Only)
+- **Purpose**: Append-only journal of completed milestones and key decisions
+- **Git Status**: In `.gitignore` - NEVER commit!
+- **Content**: Comprehensive archive of completed work
+- **When to Update**:
+  - After completing major phases or milestones
+  - When making important project decisions
+  - When archiving completed phases from ACTION_PLAN.md
+- **Format**: Add dated sections with full details of accomplishments
+- **Example Entry**:
+  ```markdown
+  ## 🎉 Phase 7: Menu System Complete
+  **Date:** October 16, 2025
+  **Delivered:** Hierarchical menu, 3 new libraries, 15 tests
+  **Impact:** Unified interface for all dotfiles management
+  [Full description with technical details...]
+  ```
+
+### CHANGELOG.md - Public Release History
+- **Purpose**: Version-based changelog for public releases
+- **Git Status**: Committed to repository
+- **Format**: Follows Keep a Changelog format
+- **When to Update**:
+  - When making user-facing changes
+  - Before tagging releases
+  - For features, fixes, deprecations, breaking changes
+- **Content**: User-facing changes only (not internal refactoring)
+
+### Workflow for Completing Major Work
+
+1. **During Work**: Mark tasks in ACTION_PLAN.md as complete (✅)
+2. **After Completion**: Create comprehensive entry in Meetings.md with:
+   - Date and phase name
+   - What was delivered (files, lines of code, features)
+   - Impact and results
+   - Technical details and decisions made
+3. **For User-Facing Changes**: Update CHANGELOG.md with version entry
+4. **Cleanup ACTION_PLAN.md**: If it exceeds ~500 lines, move old completed phases to Meetings.md
+5. **Commit**: Only ACTION_PLAN.md and CHANGELOG.md (Meetings.md is local-only)
+
+### Example: After Completing Phase 7
+```markdown
+# In ACTION_PLAN.md (keep it short):
+### Completed ✅
+- [x] Phase 7: Hierarchical Menu System (see Meetings.md 2025-10-16)
+
+### Active Projects
+- [ ] Phase 8: Repository Restructuring (IN PROGRESS)
+...
+
+# In Meetings.md (comprehensive details):
+## 🎉 Phase 7: Hierarchical Menu System Complete
+**Date:** October 16, 2025
+[Full 200+ line detailed entry with all accomplishments]
+
+# In CHANGELOG.md (user-facing changes):
+## [Unreleased]
+### Added
+- Hierarchical menu system with submenus for better organization
+- Profile management integration in main menu
+- Package management interface in TUI menu
+```
+
+### Key Principle: Keep ACTION_PLAN.md Lean
+
+ACTION_PLAN.md is a **todo list**, not a **documentation repository**. When it grows beyond ~500 lines, it's time to archive completed phases to Meetings.md. This ensures it remains scannable and useful as a quick-reference task list.
+
+---
+
 ## Project Overview
 
 This is a personal dotfiles repository featuring a beautifully crafted, cross-platform configuration management system. It uses a symlink-based architecture to manage configuration files across different applications and tools, with intelligent OS detection, an interactive TUI menu, and comprehensive automation.
@@ -718,90 +806,7 @@ When working with this codebase:
 - **Version Pinning**: Document version control in `env/versions.env`
 - **Preserve the Vision**: This is a "symphony" - every component should harmonize
 - **Use Speak Generously**: See the CRITICAL section at the top of this file!
-
-### Project Documentation Management
-
-**CRITICAL**: These three files work together to track project progress:
-
-#### ACTION_PLAN.md - Concise Todo List
-- **Purpose**: Short, scannable todo list of active and pending work
-- **Format**: ~200-300 lines maximum - must stay concise!
-- **Content**: Only active/pending tasks with current priorities
-- **When to Update**:
-  - Mark tasks complete (✅) as you finish them
-  - Add new tasks as they arise
-  - Adjust priorities based on user feedback
-- **What NOT to do**:
-  - Never let it grow beyond ~500 lines
-  - Don't include detailed analysis or documentation
-  - Don't archive completed phases here forever
-
-#### Meetings.md - Historical Journal (Local-Only)
-- **Purpose**: Append-only journal of completed milestones and key decisions
-- **Git Status**: In `.gitignore` - NEVER commit!
-- **Content**: Comprehensive archive of completed work
-- **When to Update**:
-  - After completing major phases or milestones
-  - When making important project decisions
-  - When archiving completed phases from ACTION_PLAN.md
-- **Format**: Add dated sections with full details of accomplishments
-- **Example Entry**:
-  ```markdown
-  ## 🎉 Phase 7: Menu System Complete
-  **Date:** October 16, 2025
-  **Delivered:** Hierarchical menu, 3 new libraries, 15 tests
-  **Impact:** Unified interface for all dotfiles management
-  [Full description with technical details...]
-  ```
-
-#### CHANGELOG.md - Public Release History
-- **Purpose**: Version-based changelog for public releases
-- **Git Status**: Committed to repository
-- **Format**: Follows Keep a Changelog format
-- **When to Update**:
-  - When making user-facing changes
-  - Before tagging releases
-  - For features, fixes, deprecations, breaking changes
-- **Content**: User-facing changes only (not internal refactoring)
-
-#### Workflow for Completing Major Work
-
-1. **During Work**: Mark tasks in ACTION_PLAN.md as complete (✅)
-2. **After Completion**: Create comprehensive entry in Meetings.md with:
-   - Date and phase name
-   - What was delivered (files, lines of code, features)
-   - Impact and results
-   - Technical details and decisions made
-3. **For User-Facing Changes**: Update CHANGELOG.md with version entry
-4. **Cleanup ACTION_PLAN.md**: If it exceeds ~500 lines, move old completed phases to Meetings.md
-5. **Commit**: Only ACTION_PLAN.md and CHANGELOG.md (Meetings.md is local-only)
-
-#### Example: After Completing Phase 7
-```markdown
-# In ACTION_PLAN.md (keep it short):
-### Completed ✅
-- [x] Phase 7: Hierarchical Menu System (see Meetings.md 2025-10-16)
-
-### Active Projects
-- [ ] Phase 8: Repository Restructuring (IN PROGRESS)
-...
-
-# In Meetings.md (comprehensive details):
-## 🎉 Phase 7: Hierarchical Menu System Complete
-**Date:** October 16, 2025
-[Full 200+ line detailed entry with all accomplishments]
-
-# In CHANGELOG.md (user-facing changes):
-## [Unreleased]
-### Added
-- Hierarchical menu system with submenus for better organization
-- Profile management integration in main menu
-- Package management interface in TUI menu
-```
-
-#### Key Principle: Keep ACTION_PLAN.md Lean
-
-ACTION_PLAN.md is a **todo list**, not a **documentation repository**. When it grows beyond ~500 lines, it's time to archive completed phases to Meetings.md. This ensures it remains scannable and useful as a quick-reference task list.
+- **Follow Documentation Framework**: See the Project Documentation Management section at the top!
 
 ### Coding Standards and Style Guidelines
 
