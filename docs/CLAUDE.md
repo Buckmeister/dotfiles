@@ -1373,4 +1373,3 @@ ls -la ~/.config/
 ls -la ~/.local/bin/
 ls -la ~ | grep "^\."
 ```
-- That's perfect .. thank you very much for your great assessment. What do think about an interesting side quest? Do you know about the mac cli tool "say" and do you think it is possible that you create a script to speak your wonderful "white circle outputs" directly to me? 😍
