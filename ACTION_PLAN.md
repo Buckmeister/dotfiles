@@ -142,7 +142,7 @@ All refactored scripts should include:
 
 #### Tasks
 
-- [ ] **Task 10.1: Phase 1 - battery refactoring** (~2-3 hours)
+- [x] **Task 10.1: Phase 1 - battery refactoring** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
   - Convert from bash to zsh
   - Add shared library integration (colors, ui, utils)
   - Replace custom ANSI colors with OneDark scheme
@@ -154,7 +154,7 @@ All refactored scripts should include:
   - Test on macOS with pmset and ioreg
   - Update MANUAL.md with any behavioral changes
 
-- [ ] **Task 10.2: Phase 1 - get_github_url upgrade** (~2-3 hours)
+- [x] **Task 10.2: Phase 1 - get_github_url upgrade** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
   - Replace custom print_info() with shared library version
   - Add draw_header() "GitHub URL Downloader"
   - Add draw_section_header() for different phases
@@ -166,7 +166,7 @@ All refactored scripts should include:
   - Test with various repositories and options
   - Update documentation
 
-- [ ] **Task 10.3: Phase 1 - get_jdtls_url upgrade** (~2-3 hours)
+- [x] **Task 10.3: Phase 1 - get_jdtls_url upgrade** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
   - Mirror improvements from get_github_url
   - Replace custom print_info() with shared version
   - Add draw_header() "JDT.LS Download URL Fetcher"
@@ -216,7 +216,7 @@ All refactored scripts should include:
 
 #### Success Criteria
 
-- [ ] All Phase 1 scripts (battery, get_github_url, get_jdtls_url) refactored
+- [x] All Phase 1 scripts (battery, get_github_url, get_jdtls_url) refactored ✅
 - [ ] Consistent UI across all user scripts
 - [ ] OneDark color scheme throughout
 - [ ] Comprehensive --help messages
