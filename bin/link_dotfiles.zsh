@@ -100,9 +100,8 @@ if [[ -z "$DF_INSTALL_DIR" ]]; then
     export DF_INSTALL_DIR="$HOME"
 fi
 
-if [[ -z "$DF_BACKUP_DIR" ]]; then
-    export DF_BACKUP_DIR="$HOME/.tmp/dotfilesBackup-$(get_timestamp)"
-fi
+# NOTE: DF_BACKUP_DIR is regenerated in create_all_symlinks() for each invocation
+# to ensure unique timestamps when running multiple times from the menu
 
 if [[ -z "$DF_TMP_DIR" ]]; then
     export DF_TMP_DIR="$HOME/.tmp"
@@ -377,6 +376,10 @@ function create_all_symlinks() {
     # Setup
     hide_cursor
     clear_screen
+
+    # CRITICAL: Regenerate timestamp for each invocation
+    # This ensures multiple runs from the menu get unique backup directories
+    export DF_BACKUP_DIR="$HOME/.tmp/dotfilesBackup-$(get_timestamp)"
 
     # Initialize
     count_operations
