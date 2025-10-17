@@ -1052,6 +1052,65 @@ Configurations and tooling for:
 
 ---
 
+## 🌍 Platform Support
+
+This dotfiles system is designed to work seamlessly across multiple platforms with intelligent OS detection and adaptation:
+
+### Fully Supported Platforms
+
+- **macOS** - Primary development platform with Homebrew ecosystem
+  - Native `say` command integration for TTS
+  - Karabiner keyboard remapping
+  - Hammerspoon automation
+  - Full toolchain support
+
+- **Linux (Ubuntu/Debian)** - Comprehensive support with APT package manager
+  - espeak-ng/espeak TTS integration
+  - Full development environment
+  - X11 configurations (xmodmap, xprofile)
+  - All language toolchains
+
+- **WSL2 (Windows Subsystem for Linux)** - Complete WSL experience
+  - Automatic WSL detection via `/proc/version`
+  - Windows interoperability features
+  - Path translation utilities
+  - Clipboard integration
+  - Full Linux toolchain on Windows
+  - **See [docs/WSL.md](docs/WSL.md) for comprehensive WSL installation, setup, and troubleshooting guide**
+
+### Platform Detection
+
+The system automatically detects your platform and adapts:
+- OS context variables (`DF_OS`, `DF_PKG_MANAGER`, `DF_PKG_INSTALL_CMD`)
+- Intelligent package manager detection (brew, apt, dnf, pacman, zypper)
+- Cross-platform symlink creation
+- Platform-specific post-install scripts
+
+### WSL-Specific Features
+
+When running on WSL, the system provides:
+- ✅ **Automatic Detection** - Identifies WSL environment automatically
+- ✅ **Package Manager Support** - Uses apt/dnf based on your Linux distribution
+- ✅ **Performance Guidance** - Best practices for file system usage
+- ✅ **Windows Integration** - Path utilities and clipboard access
+- ✅ **Docker Desktop Support** - Native integration with Windows Docker
+- ✅ **Network Configuration** - Automatic handling of WSL networking
+
+**Quick WSL Installation:**
+```bash
+# From WSL terminal (Ubuntu/Debian)
+curl -fsSL https://buckmeister.github.io/dfsetup | sh
+```
+
+For detailed WSL setup instructions, performance optimization, troubleshooting, and best practices, see the **[WSL Guide](docs/WSL.md)**.
+
+### Coming Soon
+
+- **Windows Native** - PowerShell and cmd.exe support (in progress)
+- **Additional Linux Distros** - Fedora, Arch, openSUSE (partial support available)
+
+---
+
 ## 💝 Personal Touch
 
 This repository is crafted with love and attention to detail. Every error message is friendly, every progress bar is smooth, and every greeting is warm. It's not just about managing configurations—it's about creating an environment that brings joy to your daily work.

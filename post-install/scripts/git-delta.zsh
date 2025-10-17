@@ -110,7 +110,7 @@ case "$DF_OS" in
         fi
         ;;
 
-    linux)
+    linux|wsl)
         print_info "Installing delta via package manager..."
 
         # Detect package manager and install

@@ -433,6 +433,179 @@ Successfully refactored the monolithic `toolchains.zsh` (225 lines) into three f
 
 ## Pending Projects
 
+### Phase 12: Windows WSL Support 🪟 IN PROGRESS
+**Goal:** Complete WSL2 support with proper detection, Windows interop, and documentation
+**Status:** In Progress (Planning Phase - Sandwich Approach)
+**Priority:** Medium-High
+**Methodology:** Using The Sandwich Approach
+
+#### Context
+
+Windows Subsystem for Linux (WSL2) is becoming increasingly popular for development. While our web installers already detect WSL, our core utilities treat it as generic Linux. This phase adds proper WSL detection throughout the system and WSL-specific features.
+
+**Current State Analysis (Phase 1 - Study Complete):**
+
+✅ **What Already Works:**
+- Web installers (dfauto, dfsetup) detect WSL via `/proc/version`
+- PowerShell installers exist (dfauto.ps1, dfsetup.ps1)
+- Basic installation succeeds on WSL
+- Package management (apt) works correctly
+
+❌ **What Needs Enhancement:**
+- Core `utils.zsh` `get_os()` returns "linux" instead of "wsl"
+- Post-install scripts don't know they're running on WSL
+- No WSL-specific handling (Windows interop, path translation)
+- No WSL documentation for users
+- No WSL test coverage
+- Missing WSL-specific utilities and configurations
+
+#### Goals
+
+1. **Consistent WSL Detection** - All scripts properly detect WSL environment
+2. **Windows Interop** - Utilities for WSL/Windows integration
+3. **Documentation** - Complete WSL setup and usage guide
+4. **Testing** - WSL test coverage in Docker and real environments
+5. **User Experience** - Seamless WSL-specific features
+
+#### Implementation Tasks
+
+**Phase 12.1: Core WSL Detection** (~2-3 hours)
+- [x] **Task 12.1.1:** Update `utils.zsh` `get_os()` function ✅
+  - Add WSL detection via `/proc/version` check
+  - Return "wsl" as distinct OS type
+  - Add WSL detection helper function `is_wsl()`
+  - Update `detect_package_manager()` to handle WSL case
+
+- [x] **Task 12.1.2:** Update setup.zsh ✅
+  - Recognize DF_OS="wsl" context variable
+  - Add WSL-specific setup messages
+  - Handle WSL-specific paths if needed
+
+- [ ] **Task 12.1.3:** Test OS detection ⏳ DEFERRED
+  - Deferred to test_xen script for VM-based testing
+  - Will test WSL detection on actual Windows VMs
+  - Verify detection on WSL1 and WSL2
+  - Ensure fallback to "linux" if detection fails
+  - Test DF_OS export across scripts
+
+**Phase 12.2: Documentation** (~2-3 hours)
+- [x] **Task 12.2.1:** Create `docs/WSL.md` guide ✅
+  - WSL2 installation instructions
+  - Setup process for WSL users
+  - Windows interop features
+  - Troubleshooting common WSL issues
+  - Performance tips (Windows Defender exclusions, etc.)
+
+- [x] **Task 12.2.2:** Update README.md ✅
+  - Add WSL to supported platforms
+  - Link to WSL.md guide
+  - Add WSL-specific installation examples
+
+- [x] **Task 12.2.3:** Update CLAUDE.md ✅
+  - Document WSL as supported OS in Platform Support
+  - Add WSL detection patterns
+  - Document DF_OS="wsl" context variable
+  - Note Windows interop considerations
+
+- [x] **Task 12.2.4:** Update INSTALL.md ✅
+  - Add WSL installation section
+  - PowerShell installer instructions
+  - Common WSL gotchas
+
+**Phase 12.3: Windows Interop Utilities** (~3-4 hours) *OPTIONAL*
+- [x] **Task 12.3.1:** Create WSL utility scripts ✅
+  - Cross-platform `open` command (explorer.exe on WSL)
+  - Cross-platform `clip` clipboard integration (clip.exe wrapper)
+  - Updated `speak` utility for WSL support (espeak-ng/espeak/festival)
+  - Windows path translation in open/clip utilities
+
+- [ ] **Task 12.3.2:** WSL-specific configurations ⏳ OPTIONAL
+  - Git credential manager integration
+  - SSH agent forwarding from Windows
+  - Docker Desktop integration notes
+  - VSCode Remote WSL integration
+
+**Phase 12.4: Testing** (~2-3 hours)
+- [ ] **Task 12.4.1:** Add WSL detection unit tests
+  - Unit tests for `get_os()` WSL detection
+  - Unit tests for `is_wsl()` helper
+  - Mock `/proc/version` for testing
+
+- [ ] **Task 12.4.2:** Integration testing ⏳ DEFERRED
+  - Deferred to test_xen script for Windows VM testing
+  - Will test installation on real WSL environment
+  - Verify all scripts see DF_OS="wsl"
+  - Test post-install scripts on WSL
+  - Document WSL test setup in test_xen
+
+- [ ] **Task 12.4.3:** Update test documentation
+  - Add WSL testing instructions to TESTING.md
+  - Document WSL test setup for test_xen
+  - Add note that WSL testing requires Windows VMs
+  - Add WSL test troubleshooting
+
+**Phase 12.5: Post-Install Script Enhancements** (~2-3 hours) *OPTIONAL*
+- [x] **Task 12.5.1:** Review post-install scripts for WSL compatibility ✅
+  - Updated 6 scripts: starship-prompt, fonts, git-delta, haskell-toolchain, language-servers, lombok
+  - Changed `linux)` → `linux|wsl)` pattern (13 changes total)
+  - All post-install scripts now support WSL
+
+- [ ] **Task 12.5.2:** Add WSL-specific post-install scripts *if needed*
+  - Assess if WSL-specific scripts are needed
+  - Windows Terminal configuration (optional)
+  - WSLg GUI app setup (optional)
+  - Docker Desktop integration (optional)
+
+**Phase 12.6: Finalization** (~30 mins)
+- [ ] **Task 12.6.1:** Update CHANGELOG.md
+  - Add WSL support to [Unreleased]
+  - Document all new features
+  - Note DF_OS="wsl" addition
+  - List all updated scripts and utilities
+
+- [ ] **Task 12.6.2:** Update Meetings.md
+  - Archive Phase 12 completion
+  - Document decisions and results
+  - Record metrics and changes made
+  - Note deferred testing (test_xen)
+
+#### Success Criteria
+
+- [x] Phase 1: Study existing WSL support (Complete - ✅)
+- [ ] Core `get_os()` properly detects WSL
+- [ ] `DF_OS="wsl"` exported consistently
+- [ ] Complete WSL documentation (WSL.md)
+- [ ] Updated README, CLAUDE, INSTALL with WSL info
+- [ ] Unit tests for WSL detection
+- [ ] Tested on real WSL2 environment
+- [ ] All existing functionality works on WSL
+- [ ] CHANGELOG and Meetings updated
+
+#### Estimated Time
+
+- **Core Detection:** 2-3 hours
+- **Documentation:** 2-3 hours
+- **Testing:** 2-3 hours
+- **Interop Utilities (Optional):** 3-4 hours
+- **Post-Install Review (Optional):** 2-3 hours
+- **Total Required:** 6-9 hours
+- **Total with Optional:** 11-16 hours
+
+#### Dependencies
+
+- Access to WSL2 environment for testing (or Docker simulation)
+- PowerShell installers already exist ✅
+- Web installers already have WSL detection ✅
+
+#### Notes
+
+- **Sandwich Approach:** This phase follows the proven methodology
+- **Incremental:** Can ship core detection separately from optional utilities
+- **Backward Compatible:** Won't break existing Linux support
+- **Low Risk:** Detection is additive, not destructive
+
+---
+
 ### Phase 4: Future Enhancements ⏳ PENDING
 **Goal:** Advanced features
 **Status:** Pending discussion with Thomas
@@ -440,12 +613,12 @@ Successfully refactored the monolithic `toolchains.zsh` (225 lines) into three f
 
 #### Tasks
 
-- [ ] **Task 4.1:** Windows WSL support enhancements
 - [ ] **Task 4.4:** Automatic update checker and self-update mechanism
 
 **Note:** Tasks 4.2 (user profile system) and 4.3 (interactive wizard) were completed as part of Phase 4.5
+**Note:** Task 4.1 (WSL support) moved to Phase 12 with detailed planning
 
-**Estimated Time:** 36-48 hours total
+**Estimated Time:** 8-12 hours
 
 ---
 

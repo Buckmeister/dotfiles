@@ -94,8 +94,8 @@ case "${DF_OS:-$(get_os)}" in
         print_success "$(get_random_friend_greeting)"
         exit 0
         ;;
-    linux)
-        print_success "Linux detected - proceeding with manual font installation"
+    linux|wsl)
+        print_success "Linux/WSL detected - proceeding with manual font installation"
         ;;
     *)
         print_warning "Unknown OS: ${DF_OS:-unknown}"

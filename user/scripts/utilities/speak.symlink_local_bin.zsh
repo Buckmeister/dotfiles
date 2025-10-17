@@ -75,8 +75,9 @@ if [[ "$DF_OS" == "darwin" || "$DF_OS" == "macos" ]]; then
     if command_exists say; then
         TTS_ENGINE="say"
     fi
-elif [[ "$DF_OS" == "linux" ]]; then
+elif [[ "$DF_OS" == "linux" || "$DF_OS" == "wsl" ]]; then
     # Prefer espeak-ng (enhanced), fall back to espeak, then festival
+    # WSL can use Linux TTS engines (espeak-ng, espeak, festival)
     if command_exists espeak-ng; then
         TTS_ENGINE="espeak-ng"
     elif command_exists espeak; then

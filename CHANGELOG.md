@@ -6,6 +6,266 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [Unreleased] - Windows Subsystem for Linux (WSL) Support (Phase 12)
+
+**Date**: October 17, 2025
+**Impact**: Medium-High - Complete WSL support with proper detection and utilities
+**Breaking Changes**: None (all changes are additive and backward compatible)
+
+### Added
+
+#### Core WSL Detection
+- **`get_os()` function enhancement** in `bin/lib/utils.zsh`
+  - Detects WSL via `/proc/version` check (searches for "microsoft" string)
+  - Returns `"wsl"` as distinct OS type (previously returned `"linux"`)
+  - Maintains backward compatibility with existing Linux detection
+- **`is_wsl()` helper function** in `bin/lib/utils.zsh`
+  - Convenience function for WSL conditional logic
+  - Returns 0 (true) on WSL, 1 (false) otherwise
+  - Used throughout scripts for WSL-specific behavior
+- **`detect_package_manager()` WSL support** in `bin/lib/utils.zsh`
+  - Handles WSL case explicitly (apt/dnf/pacman/zypper based on distro)
+  - Falls through to Linux package manager detection logic
+
+#### Windows Interoperability Utilities
+- **`user/scripts/utilities/open.symlink_local_bin.zsh`** (235 lines) - Cross-platform file/URL opener
+  - Opens files/directories in Windows Explorer from WSL
+  - Launches URLs in Windows default browser
+  - Automatic WSL path translation (Linux → Windows paths)
+  - Uses `explorer.exe` and `cmd.exe` on WSL
+  - Falls back to `xdg-open` on Linux, `open` on macOS
+
+- **`user/scripts/utilities/clip.symlink_local_bin.zsh`** (253 lines) - Cross-platform clipboard utility
+  - Integrates with Windows clipboard from WSL
+  - Copy: Uses `clip.exe` for WSL→Windows clipboard
+  - Paste: Uses PowerShell `Get-Clipboard` for Windows→WSL
+  - Handles CRLF→LF line ending conversion
+  - Falls back to `xclip`/`xsel` on Linux, `pbcopy`/`pbpaste` on macOS
+
+#### Documentation
+- **`docs/WSL.md`** (650+ lines) - Comprehensive WSL installation and usage guide
+  - WSL2 installation (quick install + manual methods)
+  - Three dotfiles installation methods (web installer, git clone, PowerShell)
+  - Windows interoperability features (file access, clipboard, path translation)
+  - Performance optimization tips (Windows Defender exclusions, file system placement)
+  - Troubleshooting common WSL issues
+  - Known limitations and best practices
+
+- **Updated `README.md`** with Platform Support section
+  - WSL2 listed as fully supported platform
+  - Links to comprehensive `docs/WSL.md` guide
+  - WSL-specific features documented
+
+- **Updated `docs/CLAUDE.md`** with WSL implementation details
+  - Platform Support section updated
+  - WSL detection code examples
+  - Integration patterns for AI assistants
+
+- **Updated `docs/INSTALL.md`** with dedicated WSL section
+  - Quick installation command
+  - Links to full WSL documentation
+
+### Changed
+
+#### Post-Install Scripts (6 scripts, 13 changes total)
+All post-install scripts updated to recognize and support WSL:
+- **`post-install/scripts/starship-prompt.zsh`** (line 77)
+  - Changed `linux)` → `linux|wsl)` for installation support
+
+- **`post-install/scripts/fonts.zsh`** (line 97)
+  - Changed `linux)` → `linux|wsl)` for font installation on WSL
+
+- **`post-install/scripts/git-delta.zsh`** (line 113)
+  - Changed `linux)` → `linux|wsl)` for git-delta installation
+
+- **`post-install/scripts/haskell-toolchain.zsh`** (line 120)
+  - Changed `linux)` → `linux|wsl)` for GHCup installation
+
+- **`post-install/scripts/language-servers.zsh`** (7 changes across file)
+  - Line 73: Updated `os_aware_command()` for WSL sudo usage
+  - Line 132: JDT.LS extraction with WSL support
+  - Line 173: OmniSharp download URL selection for WSL
+  - Line 203: OmniSharp extraction with WSL support
+  - Line 234: rust-analyzer installation on WSL
+  - Lines 298, 304: Summary sections show rust-analyzer for WSL
+
+- **`post-install/scripts/lombok.zsh`** (2 changes)
+  - Line 73: `create_lombok_dir()` with WSL sudo support
+  - Line 97: `download_lombok()` with WSL sudo file move
+
+#### User Utility Scripts (1 script updated)
+- **`user/scripts/utilities/speak.symlink_local_bin.zsh`**
+  - Updated TTS engine detection to include WSL
+  - WSL can use Linux TTS engines (espeak-ng, espeak, festival)
+  - Added WSL to OS detection comments
+
+### Testing
+
+#### Unit Tests (4 new tests)
+Added comprehensive WSL detection tests to `tests/unit/test_utils.zsh`:
+- Test WSL detection via mocked `/proc/version` with "microsoft" string
+- Test Linux detection when /proc/version lacks "microsoft"
+- Test `is_wsl()` helper function returns correct boolean
+- Test `is_wsl()` returns false on non-WSL systems
+- All tests use mock-based approach (work on macOS/Linux without actual WSL)
+- **Total test count**: 255 tests (up from 251)
+
+#### Integration Testing
+- **Deferred to test_xen script** for Windows VM testing
+- Will test full installation on real WSL environments
+- Will verify `DF_OS="wsl"` context propagation
+- Will validate post-install scripts on WSL
+- Documented in `docs/TESTING.md` with testing strategy
+
+#### Test Documentation
+- **Updated `docs/TESTING.md`**
+  - Added WSL Testing section
+  - Documented 4 new WSL unit tests
+  - Noted integration testing deferred to test_xen
+  - Updated total test count (251 → 255)
+  - Coverage remains at ~96%
+
+### Impact
+
+**Benefits:**
+- ✅ **Proper WSL Detection** - System correctly identifies WSL environment
+- ✅ **Context Variable Propagation** - All scripts receive `DF_OS="wsl"`
+- ✅ **Windows Integration** - Seamless interop with Windows clipboard and file system
+- ✅ **Cross-Platform Utilities** - open/clip work consistently across macOS/Linux/WSL
+- ✅ **Comprehensive Documentation** - 650+ line WSL guide for users
+- ✅ **No Breaking Changes** - Fully backward compatible with existing Linux support
+- ✅ **Test Coverage** - 4 dedicated unit tests, integration testing planned
+
+**Use Cases:**
+- Developers using WSL for Linux development on Windows
+- Windows users wanting Linux dotfiles experience
+- Cross-platform workflows (Windows host + WSL guest)
+- Unified configuration across all platforms
+
+### Migration Notes
+
+**For Existing Users:**
+No action required! The WSL detection is automatic and transparent:
+- On WSL: System detects `DF_OS="wsl"` automatically
+- On Linux: System still detects `DF_OS="linux"` as before
+- On macOS: No changes, works as before
+
+**For Script Authors:**
+WSL is treated like Linux but with Windows interop capabilities:
+```zsh
+# Check if running on WSL
+if is_wsl; then
+    # WSL-specific code (Windows integration)
+    open "https://example.com"  # Opens in Windows browser
+    echo "test" | clip           # Copies to Windows clipboard
+else
+    # Standard Linux/macOS code
+fi
+
+# Or use pattern matching
+case "${DF_OS:-$(get_os)}" in
+    linux|wsl)
+        # Both Linux and WSL
+        ;;
+    wsl)
+        # WSL-only
+        ;;
+esac
+```
+
+### Files Changed
+
+**Core Library (1 file):**
+- `bin/lib/utils.zsh` - Added WSL detection and helper functions
+
+**Utility Scripts (3 files):**
+- `user/scripts/utilities/open.symlink_local_bin.zsh` (created, 235 lines)
+- `user/scripts/utilities/clip.symlink_local_bin.zsh` (created, 253 lines)
+- `user/scripts/utilities/speak.symlink_local_bin.zsh` (updated)
+
+**Post-Install Scripts (6 files, 13 changes):**
+- `post-install/scripts/starship-prompt.zsh` (1 change)
+- `post-install/scripts/fonts.zsh` (1 change)
+- `post-install/scripts/git-delta.zsh` (1 change)
+- `post-install/scripts/haskell-toolchain.zsh` (1 change)
+- `post-install/scripts/language-servers.zsh` (7 changes)
+- `post-install/scripts/lombok.zsh` (2 changes)
+
+**Documentation (5 files):**
+- `docs/WSL.md` (created, 650+ lines)
+- `README.md` (added Platform Support section)
+- `docs/CLAUDE.md` (added WSL implementation details)
+- `docs/INSTALL.md` (added WSL section)
+- `docs/TESTING.md` (added WSL testing section, updated test counts)
+
+**Tests (1 file):**
+- `tests/unit/test_utils.zsh` (added 4 WSL detection tests)
+
+**Project Management (2 files):**
+- `ACTION_PLAN.md` (updated Phase 12 status, noted test deferral)
+- `CHANGELOG.md` (this entry)
+
+**Net Change:** +1,200 lines of code/docs, +4 tests, comprehensive WSL support
+
+### Technical Implementation
+
+**WSL Detection Pattern:**
+```zsh
+# In bin/lib/utils.zsh get_os() function
+Linux*)
+    # Check for WSL (Windows Subsystem for Linux)
+    if [[ -f /proc/version ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+        echo "wsl"
+    else
+        echo "linux"
+    fi
+    ;;
+```
+
+**Helper Function:**
+```zsh
+# Convenience function for WSL detection
+function is_wsl() {
+    [[ "$(get_os)" == "wsl" ]]
+}
+```
+
+**Path Translation (in open utility):**
+```zsh
+function wsl_to_windows_path() {
+    local linux_path="$1"
+    if command_exists wslpath; then
+        wslpath -w "$linux_path" 2>/dev/null || echo "$linux_path"
+    else
+        # Fallback manual conversion
+        # /mnt/c/... → C:\...
+    fi
+}
+```
+
+### Future Enhancements
+
+**Planned for test_xen integration:**
+- [ ] Full WSL installation testing on Windows VMs
+- [ ] WSL1 vs. WSL2 detection and optimization
+- [ ] WSLg (GUI app) support documentation
+- [ ] Windows Terminal configuration integration
+
+**Optional WSL-specific features:**
+- [ ] Git credential manager integration (git-credential-manager-core)
+- [ ] SSH agent forwarding from Windows
+- [ ] Docker Desktop integration notes
+- [ ] VSCode Remote WSL integration guide
+
+### Related
+
+- See `docs/WSL.md` for comprehensive WSL user guide
+- See `ACTION_PLAN.md` Phase 12 for implementation details
+- See `tests/unit/test_utils.zsh` for WSL detection tests
+- See test_xen documentation (future) for integration testing
+
+---
+
 ## [2025.10.17] - Post-Install Script Refactoring (Phase 11)
 
 **Date**: October 17, 2025

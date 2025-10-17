@@ -67,10 +67,10 @@ OMNISHARP_DIR="/usr/local/share/omnisharp"
 # Helper Functions
 # ============================================================================
 
-# Install with sudo on Linux, without on macOS
+# Install with sudo on Linux/WSL, without on macOS
 function os_aware_command() {
     case "${DF_OS:-$(get_os)}" in
-        linux)
+        linux|wsl)
             sudo "$@"
             ;;
         *)
@@ -129,7 +129,7 @@ function install_jdtls() {
     # Extract archive
     print_info "Extracting JDT.LS..."
     case "${DF_OS:-$(get_os)}" in
-        linux)
+        linux|wsl)
             if sudo tar xzf "$temp_archive" --directory="$JDTLS_DIR" --strip-components=1 2>/dev/null; then
                 print_success "JDT.LS extracted successfully"
             else
@@ -170,7 +170,7 @@ function install_omnisharp() {
             download_url="https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.37.6/omnisharp-osx.tar.gz"
             archive_name="omnisharp-osx.tar.gz"
             ;;
-        linux)
+        linux|wsl)
             download_url="https://github.com/OmniSharp/omnisharp-roslyn/releases/latest/download/omnisharp-linux-x64.tar.gz"
             archive_name="omnisharp-linux.tar.gz"
             ;;
@@ -200,7 +200,7 @@ function install_omnisharp() {
     # Extract archive
     print_info "Extracting OmniSharp..."
     case "${DF_OS:-$(get_os)}" in
-        linux)
+        linux|wsl)
             if sudo tar xzf "$temp_archive" --directory="$OMNISHARP_DIR" 2>/dev/null; then
                 print_success "OmniSharp extracted successfully"
             else
@@ -230,8 +230,8 @@ function install_omnisharp() {
 # ============================================================================
 
 function install_rust_analyzer() {
-    # Only install on Linux (macOS uses brew)
-    if [[ "${DF_OS:-$(get_os)}" != "linux" ]]; then
+    # Only install on Linux/WSL (macOS uses brew)
+    if [[ "${DF_OS:-$(get_os)}" != "linux" && "${DF_OS:-$(get_os)}" != "wsl" ]]; then
         print_info "Skipping rust-analyzer (macOS uses brew installation)"
         return 0
     fi
@@ -295,13 +295,13 @@ print_info "📦 Installed language servers:"
 echo
 echo "   • JDT.LS (Java)"
 echo "   • OmniSharp (C#)"
-[[ "${DF_OS:-$(get_os)}" == "linux" ]] && echo "   • rust-analyzer (Rust)"
+[[ "${DF_OS:-$(get_os)}" == "linux" || "${DF_OS:-$(get_os)}" == "wsl" ]] && echo "   • rust-analyzer (Rust)"
 
 echo
 print_info "📍 Installation locations:"
 echo "   • JDT.LS:        $JDTLS_DIR"
 echo "   • OmniSharp:     $OMNISHARP_DIR"
-[[ "${DF_OS:-$(get_os)}" == "linux" ]] && echo "   • rust-analyzer: $INSTALL_BIN_DIR/rust-analyzer"
+[[ "${DF_OS:-$(get_os)}" == "linux" || "${DF_OS:-$(get_os)}" == "wsl" ]] && echo "   • rust-analyzer: $INSTALL_BIN_DIR/rust-analyzer"
 
 echo
 print_success "$(get_random_friend_greeting)"

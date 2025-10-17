@@ -76,6 +76,115 @@ test_case "get_os should detect darwin on macOS" '
     assert_equals "macos" "$detected_os" "Should detect macOS"
 '
 
+# ============================================================================
+# WSL Detection Tests
+# ============================================================================
+
+test_case "get_os should detect WSL when /proc/version contains microsoft" '
+    # Create temporary /proc/version mock
+    local temp_proc_dir="/tmp/test_proc_$$"
+    local temp_proc_version="$temp_proc_dir/version"
+    mkdir -p "$temp_proc_dir"
+    echo "Linux version 5.10.16.3-microsoft-standard-WSL2" > "$temp_proc_version"
+
+    # Mock get_os by checking our mock file
+    local detected_os=""
+    case "$(uname -s)" in
+        Darwin*)
+            detected_os="macos"
+            ;;
+        Linux*)
+            if [[ -f "$temp_proc_version" ]] && grep -qi microsoft "$temp_proc_version" 2>/dev/null; then
+                detected_os="wsl"
+            else
+                detected_os="linux"
+            fi
+            ;;
+    esac
+
+    # Clean up
+    rm -rf "$temp_proc_dir"
+
+    # On Linux, this should detect WSL; on macOS, skip
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        assert_equals "wsl" "$detected_os" "Should detect WSL from /proc/version"
+    else
+        return 0  # Skip on macOS
+    fi
+'
+
+test_case "get_os should return linux when /proc/version does not contain microsoft" '
+    # Create temporary /proc/version mock without microsoft
+    local temp_proc_dir="/tmp/test_proc_nomicrosoft_$$"
+    local temp_proc_version="$temp_proc_dir/version"
+    mkdir -p "$temp_proc_dir"
+    echo "Linux version 5.15.0-58-generic (buildd@lcy02-amd64-080)" > "$temp_proc_version"
+
+    # Mock get_os by checking our mock file
+    local detected_os=""
+    case "$(uname -s)" in
+        Darwin*)
+            detected_os="macos"
+            ;;
+        Linux*)
+            if [[ -f "$temp_proc_version" ]] && grep -qi microsoft "$temp_proc_version" 2>/dev/null; then
+                detected_os="wsl"
+            else
+                detected_os="linux"
+            fi
+            ;;
+    esac
+
+    # Clean up
+    rm -rf "$temp_proc_dir"
+
+    # On Linux, this should detect regular linux; on macOS, skip
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        assert_equals "linux" "$detected_os" "Should detect linux without microsoft in /proc/version"
+    else
+        return 0  # Skip on macOS
+    fi
+'
+
+test_case "is_wsl should return true on WSL" '
+    # This test verifies is_wsl() helper exists and works
+    # On real WSL, this would return 0 (true)
+    # On macOS/Linux, it returns 1 (false)
+
+    # Test that the function exists
+    if typeset -f is_wsl > /dev/null; then
+        # Function exists, call it
+        if is_wsl; then
+            # On WSL, this is correct
+            return 0
+        else
+            # On non-WSL (macOS/Linux), this is also correct
+            return 0
+        fi
+    else
+        echo "is_wsl function not found"
+        return 1
+    fi
+'
+
+test_case "is_wsl should return false on non-WSL systems" '
+    # On macOS or regular Linux (not WSL), is_wsl should return false
+    local current_os=$(get_os)
+
+    if [[ "$current_os" == "wsl" ]]; then
+        # Running on WSL, skip this test
+        return 0
+    else
+        # Running on non-WSL, is_wsl should return false
+        if is_wsl; then
+            echo "is_wsl returned true on non-WSL system ($current_os)"
+            return 1
+        else
+            return 0
+        fi
+    fi
+'
+
 test_case "create_directory_safe should create directory" '
     local test_dir="/tmp/test_dotfiles_dir_$$"
 

@@ -215,12 +215,33 @@ function path_exists() {
 # Detect operating system
 function get_os() {
     case "$(uname -s)" in
-        Darwin*)  echo "macos" ;;
-        Linux*)   echo "linux" ;;
-        CYGWIN*)  echo "windows" ;;
-        MINGW*)   echo "windows" ;;
-        *)        echo "unknown" ;;
+        Darwin*)
+            echo "macos"
+            ;;
+        Linux*)
+            # Check for WSL (Windows Subsystem for Linux)
+            if [[ -f /proc/version ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+                echo "wsl"
+            else
+                echo "linux"
+            fi
+            ;;
+        CYGWIN*)
+            echo "windows"
+            ;;
+        MINGW*)
+            echo "windows"
+            ;;
+        *)
+            echo "unknown"
+            ;;
     esac
+}
+
+# Check if running on WSL (Windows Subsystem for Linux)
+# Returns: 0 if WSL, 1 if not WSL
+function is_wsl() {
+    [[ "$(get_os)" == "wsl" ]]
 }
 
 # Detect and configure package manager
@@ -235,6 +256,26 @@ function detect_package_manager() {
         macos)
             export DF_PKG_MANAGER="brew"
             export DF_PKG_INSTALL_CMD="brew install"
+            ;;
+        wsl)
+            # WSL typically uses apt (Ubuntu/Debian-based)
+            # But detect the actual package manager for other distros
+            if command_exists apt; then
+                export DF_PKG_MANAGER="apt"
+                export DF_PKG_INSTALL_CMD="sudo apt install"
+            elif command_exists dnf; then
+                export DF_PKG_MANAGER="dnf"
+                export DF_PKG_INSTALL_CMD="sudo dnf install"
+            elif command_exists pacman; then
+                export DF_PKG_MANAGER="pacman"
+                export DF_PKG_INSTALL_CMD="sudo pacman -S"
+            elif command_exists zypper; then
+                export DF_PKG_MANAGER="zypper"
+                export DF_PKG_INSTALL_CMD="sudo zypper install"
+            else
+                export DF_PKG_MANAGER="unknown"
+                export DF_PKG_INSTALL_CMD="echo 'No package manager found'"
+            fi
             ;;
         linux)
             # Detect Linux package manager based on what's available
@@ -577,7 +618,7 @@ function filter_post_install_scripts() {
     typeset -f exit_with_error log_error log_warning
     typeset -f complete_operation init_operations get_progress_percentage update_operation_progress
     typeset -f get_file_size is_writable create_directory_safe expand_path path_exists
-    typeset -f get_os detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir init_dotfiles_paths
+    typeset -f get_os is_wsl detect_package_manager command_exists require_commands get_script_dir get_dotfiles_dir init_dotfiles_paths
     typeset -f get_timestamp generate_timestamped_filename
     typeset -f safe_exec exec_with_output
     typeset -f test_archive_integrity get_archive_file_count

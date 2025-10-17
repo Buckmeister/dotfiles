@@ -1111,10 +1111,54 @@ Installation scripts automatically backup existing configurations to `~/.tmp/dot
 
 ## Platform Support
 
-- **Primary**: macOS (Homebrew ecosystem)
-- **Secondary**: Ubuntu/Debian Linux (apt ecosystem)
-- **Portable**: Cross-platform configs where possible
-- **Planned**: Windows support via WSL
+### Fully Supported Platforms
+
+- **macOS** (Primary) - Homebrew ecosystem, native `say` TTS, Karabiner, Hammerspoon
+- **Ubuntu/Debian Linux** (Secondary) - APT package manager, espeak-ng/espeak TTS, X11 configs
+- **WSL2 (Windows Subsystem for Linux)** (Fully Supported) - Complete WSL experience with:
+  - Automatic WSL detection via `/proc/version` check
+  - Dedicated `is_wsl()` helper function in `bin/lib/utils.zsh`
+  - Windows interoperability features
+  - Performance guidance and best practices
+  - See **[docs/WSL.md](WSL.md)** for comprehensive guide
+
+### Cross-Platform Features
+
+- **Automatic OS Detection**: `get_os()` function returns `macos`, `linux`, `wsl`, or `windows`
+- **Package Manager Detection**: Automatically detects and uses brew, apt, dnf, pacman, zypper
+- **Context Variables**: All scripts receive `DF_OS`, `DF_PKG_MANAGER`, `DF_PKG_INSTALL_CMD`
+- **Portable Configurations**: Shell, editor, and terminal configs work across all platforms
+
+### WSL-Specific Implementation
+
+The system includes dedicated WSL support:
+
+**Detection** (`bin/lib/utils.zsh`):
+```zsh
+# Check if running on WSL
+function is_wsl() {
+    [[ "$(get_os)" == "wsl" ]]
+}
+```
+
+**Usage in Scripts**:
+```zsh
+# Adapt behavior for WSL
+if is_wsl; then
+    # WSL-specific actions (path translation, Windows interop, etc.)
+    export BROWSER="/mnt/c/Program Files/Mozilla Firefox/firefox.exe"
+else
+    # Standard Linux behavior
+    export BROWSER="firefox"
+fi
+```
+
+**Package Management**: WSL uses the same package manager detection as Linux (apt/dnf/pacman/zypper based on distro)
+
+### Coming Soon
+
+- **Windows Native** - PowerShell and cmd.exe support (partial support available via .ps1 installers)
+- **Additional Linux Distros** - Fedora, Arch, openSUSE (partial support via package manager detection)
 
 ## Development Workflow
 

@@ -75,7 +75,7 @@ function install_starship() {
     fi
 
     case "${DF_OS:-$(get_os)}" in
-        linux)
+        linux|wsl)
             print_info "Installing Starship prompt..."
             print_info "Running official install script..."
             echo

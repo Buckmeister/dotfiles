@@ -21,9 +21,9 @@ This document describes the testing infrastructure for the dotfiles repository, 
 
 ## Overview
 
-The dotfiles repository includes a **comprehensive testing infrastructure** with **251 tests** across **15 test suites**, providing ~96% code coverage of critical paths. The test suite includes:
+The dotfiles repository includes a **comprehensive testing infrastructure** with **255 tests** across **15 test suites**, providing ~96% code coverage of critical paths. The test suite includes:
 
-- **Unit Tests** (6 suites, 105 tests): Test individual shared libraries and functions in isolation
+- **Unit Tests** (6 suites, 109 tests): Test individual shared libraries and functions in isolation
 - **Integration Tests** (9 suites, 146 tests): Test complete workflows and script interactions
 - **Test Framework**: Lightweight zsh-based testing framework with beautiful output
 - **Test Runner**: Automated test execution with detailed reporting
@@ -33,9 +33,9 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 
 | Category | Tests | Coverage |
 |----------|-------|----------|
-| **Unit Tests** | 105 | ~95% |
+| **Unit Tests** | 109 | ~95% |
 | **Integration Tests** | 146 | ~94% |
-| **Total** | **251** | **~96%** |
+| **Total** | **255** | **~96%** |
 
 ### Test Suites
 
@@ -43,7 +43,7 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
 - `test_colors.zsh` (7 tests) - OneDark color scheme
 - `test_greetings.zsh` (9 tests) - Multilingual greetings
 - `test_ui.zsh` (27 tests) - UI components and terminal control
-- `test_utils.zsh` (9 tests) - Utility functions
+- `test_utils.zsh` (20 tests) - Utility functions **including 4 WSL detection tests**
 - `test_validators.zsh` (32 tests) - Validation and dependency checking
 - `test_package_managers.zsh` (30 tests) - Package management
 
@@ -64,6 +64,18 @@ The dotfiles repository includes a **comprehensive testing infrastructure** with
   - Tests both dfsetup (interactive) and dfauto (automatic) installation modes
   - Validates installation in isolated environments
   - Ensures cross-distribution compatibility
+
+**WSL (Windows Subsystem for Linux) Testing:**
+- **Unit Tests**: 4 dedicated WSL detection tests in `test_utils.zsh`
+  - Tests WSL detection via `/proc/version` parsing
+  - Tests `is_wsl()` helper function
+  - Mock-based testing (works on macOS/Linux without actual WSL)
+- **Integration Testing**: Deferred to test_xen script for Windows VM testing
+  - Requires actual Windows VMs with WSL installed
+  - Will test full installation on real WSL environments
+  - Will verify DF_OS="wsl" context propagation
+  - Will test post-install scripts on WSL
+- **Coverage**: Core detection fully tested; integration testing planned via test_xen
 
 ### Why Testing Matters
 

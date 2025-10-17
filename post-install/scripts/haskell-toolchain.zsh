@@ -117,7 +117,7 @@ function install_ghcup() {
             fi
             ;;
 
-        linux)
+        linux|wsl)
             print_info "Running GHCup installer..."
             if curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh >/dev/null 2>&1; then
                 # Fix permissions on .ghci if it exists

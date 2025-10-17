@@ -115,6 +115,40 @@ cd ~/.config/dotfiles
 - ✅ **WSL** (Windows Subsystem for Linux) - Recommended for Windows users
 - ✅ **Windows** (via PowerShell with Chocolatey)
 
+### Windows Subsystem for Linux (WSL)
+
+WSL provides the best experience for Windows users, offering a full Linux environment with native Windows integration.
+
+**Why use WSL?**
+- ✅ True Linux kernel and package management (apt, dnf, etc.)
+- ✅ Native filesystem performance for Linux files
+- ✅ Windows interoperability (access Windows files, run Windows apps)
+- ✅ Full compatibility with all dotfiles features
+- ✅ Automatic WSL detection and optimization
+
+**Quick WSL Installation:**
+
+From WSL terminal (Ubuntu/Debian):
+```bash
+curl -fsSL https://buckmeister.github.io/dfsetup | sh
+```
+
+The dotfiles system automatically detects WSL and:
+- Uses appropriate package manager (apt, dnf, pacman, etc.)
+- Optimizes performance for WSL filesystem
+- Provides Windows interoperability features
+- Links to WSL-specific documentation
+
+**For comprehensive WSL setup instructions, performance optimization, troubleshooting, and best practices, see [docs/WSL.md](WSL.md).**
+
+The WSL guide includes:
+- Step-by-step WSL installation (Windows 10/11)
+- Detailed dotfiles installation on WSL
+- Windows interoperability features (file access, clipboard, path translation)
+- Performance optimization tips
+- Common troubleshooting solutions
+- Best practices for WSL development
+
 ## 🔒 Security
 
 The bootstrap script:

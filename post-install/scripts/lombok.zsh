@@ -70,7 +70,7 @@ function create_lombok_dir() {
         macos)
             mkdir -p "$LOMBOK_DIR"
             ;;
-        linux)
+        linux|wsl)
             sudo mkdir -p "$LOMBOK_DIR"
             ;;
         *)
@@ -94,7 +94,7 @@ function download_lombok() {
                 return 0
             fi
             ;;
-        linux)
+        linux|wsl)
             if sudo mv "$temp_file" "$LOMBOK_JAR"; then
                 return 0
             fi
