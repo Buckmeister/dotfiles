@@ -41,8 +41,12 @@ emulate -LR zsh
 # Load Shared Libraries (with graceful fallback)
 # ============================================================================
 
-# Detect dotfiles directory (battery will be symlinked to ~/.local/bin)
-DF_DIR="${HOME}/.config/dotfiles"
+# Resolve symlink to get actual script location
+SCRIPT_PATH="${0:A}"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+# Determine DF_DIR from script location (user/scripts/utilities -> 3 levels up)
+DF_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Try to load shared libraries
 if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
@@ -54,8 +58,8 @@ else
     # Graceful fallback: define minimal functions if libraries unavailable
     LIBRARIES_LOADED=false
     print_error() { echo "Error: $1" >&2; }
-    print_success() { echo "$1"; }
-    print_info() { echo "$1"; }
+    print_success() { echo "$1" >&2; }
+    print_info() { echo "$1" >&2; }
     command_exists() { command -v "$1" >/dev/null 2>&1; }
 
     # Basic color definitions for fallback

@@ -31,8 +31,12 @@ emulate -LR zsh
 # Load Shared Libraries (with fallback protection)
 # ============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DF_DIR="${HOME}/.config/dotfiles"
+# Resolve symlink to get actual script location
+SCRIPT_PATH="${0:A}"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+# Determine DF_DIR from script location (user/scripts/version-control -> 3 levels up)
+DF_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Try to load shared libraries
 if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
@@ -44,9 +48,11 @@ else
     # Graceful fallback: define minimal functions if libraries unavailable
     LIBRARIES_LOADED=false
     print_error() { echo "Error: $1" >&2; }
-    print_success() { echo "$1"; }
-    print_info() { echo "$1"; }
+    print_success() { echo "$1" >&2; }
+    print_info() { echo "$1" >&2; }
     command_exists() { command -v "$1" >/dev/null 2>&1; }
+    draw_header() { echo "$1" >&2; }
+    draw_section_header() { echo "$1" >&2; }
 
     # Basic color definitions for fallback
     readonly UI_SUCCESS_COLOR='\033[32m'
@@ -140,7 +146,7 @@ function print_status() {
 
 if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
     draw_header "JDT.LS Download URL Fetcher" "Eclipse Java Language Server URL retrieval"
-    echo
+    echo >&2
 fi
 
 # ============================================================================
@@ -154,7 +160,7 @@ else
 fi
 
 print_status "Target version: ${UI_ACCENT_COLOR}$target_version${COLOR_RESET}"
-[[ "$IS_SILENT" != "true" ]] && echo
+[[ "$IS_SILENT" != "true" ]] && echo >&2
 
 # ============================================================================
 # Helper Functions
@@ -177,9 +183,10 @@ function get_latest_version() {
     print_status "Fetching version info from GitHub API..."
 
     # Try to get releases list (not latest endpoint as it fails)
-    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/releases")
+    # Delete body field immediately to avoid jq parse errors with control characters
+    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/releases" | jq 'del(.[].body) // .')
 
-    if echo "$api_response" | jq empty 2>/dev/null; then
+    if [[ -n "$api_response" ]]; then
         # Find the most recent release that's not a prerelease
         local latest_tag=$(echo "$api_response" | jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
 
@@ -191,9 +198,10 @@ function get_latest_version() {
     fi
 
     # Fallback: try to parse from tags endpoint
-    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/tags")
+    # Tags don't have body field, but use consistent pattern for robustness
+    api_response=$(curl -s "https://api.github.com/repos/eclipse-jdtls/eclipse.jdt.ls/tags" | jq '. // .')
 
-    if echo "$api_response" | jq empty 2>/dev/null; then
+    if [[ -n "$api_response" ]]; then
         local latest_tag=$(echo "$api_response" | jq -r '.[0].name' 2>/dev/null)
 
         if [[ -n "$latest_tag" && "$latest_tag" != "null" ]]; then
@@ -223,7 +231,7 @@ else
 fi
 
 print_status "Using version: ${UI_ACCENT_COLOR}$resolved_version${COLOR_RESET}"
-[[ "$IS_SILENT" != "true" ]] && echo
+[[ "$IS_SILENT" != "true" ]] && echo >&2
 
 # ============================================================================
 # URL Pattern Attempts
@@ -249,13 +257,15 @@ for url in "${urls_to_try[@]}"; do
 
     if url_exists "$url"; then
         if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-            echo
+            echo >&2
             draw_section_header "Success"
         fi
 
-        print_success "✓ Found working URL"
-        [[ "$IS_SILENT" != "true" ]] && echo
-        [[ "$IS_SILENT" != "true" ]] && print_info "Download URL:"
+        if [[ "$IS_SILENT" != "true" ]]; then
+            print_success "✓ Found working URL"
+            echo >&2
+            print_info "Download URL:"
+        fi
         echo "$url"
         exit 0
     fi
@@ -273,13 +283,15 @@ print_status "${COLOR_DIM}Trying: $fallback_url${COLOR_RESET}"
 
 if url_exists "$fallback_url"; then
     if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-        echo
+        echo >&2
         draw_section_header "Success (Fallback)"
     fi
 
-    print_success "✓ Found working fallback URL"
-    [[ "$IS_SILENT" != "true" ]] && echo
-    [[ "$IS_SILENT" != "true" ]] && print_info "Download URL (version-independent):"
+    if [[ "$IS_SILENT" != "true" ]]; then
+        print_success "✓ Found working fallback URL"
+        echo >&2
+        print_info "Download URL (version-independent):"
+    fi
     echo "$fallback_url"
     exit 0
 fi
@@ -289,18 +301,18 @@ fi
 # ============================================================================
 
 if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-    echo
+    echo >&2
     draw_section_header "Manual Fallback Required"
 fi
 
 print_error "All automatic options failed"
-[[ "$IS_SILENT" != "true" ]] && echo
+[[ "$IS_SILENT" != "true" ]] && echo >&2
 
 if [[ "$IS_SILENT" != "true" ]]; then
     print_info "Manual fallback URLs (verification required):"
-    echo "  https://github.com/eclipse-jdtls/eclipse.jdt.ls/releases"
-    echo "  https://download.eclipse.org/jdtls/snapshots/"
-    echo "  https://ftp.fau.de/eclipse/jdtls/snapshots/"
+    echo "  https://github.com/eclipse-jdtls/eclipse.jdt.ls/releases" >&2
+    echo "  https://download.eclipse.org/jdtls/snapshots/" >&2
+    echo "  https://ftp.fau.de/eclipse/jdtls/snapshots/" >&2
 else
     # In silent mode, return the most likely working URL
     echo "$fallback_url"

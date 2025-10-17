@@ -33,8 +33,12 @@ script_name=${0##*/}
 # Load Shared Libraries (with fallback protection)
 # ============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DF_DIR="${HOME}/.config/dotfiles"
+# Resolve symlink to get actual script location
+SCRIPT_PATH="${0:A}"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+# Determine DF_DIR from script location (user/scripts/version-control -> 3 levels up)
+DF_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Try to load shared libraries
 if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
@@ -46,9 +50,11 @@ else
     # Graceful fallback: define minimal functions if libraries unavailable
     LIBRARIES_LOADED=false
     print_error() { echo "Error: $1" >&2; }
-    print_success() { echo "$1"; }
-    print_info() { echo "$1"; }
+    print_success() { echo "$1" >&2; }
+    print_info() { echo "$1" >&2; }
     command_exists() { command -v "$1" >/dev/null 2>&1; }
+    draw_header() { echo "$1" >&2; }
+    draw_section_header() { echo "$1" >&2; }
 
     # Basic color definitions for fallback
     readonly UI_SUCCESS_COLOR='\033[32m'
@@ -164,7 +170,7 @@ function print_status() {
 
 if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
     draw_header "GitHub URL Downloader" "Retrieve download URLs from GitHub releases and tags"
-    echo
+    echo >&2
 fi
 
 # ============================================================================
@@ -202,7 +208,7 @@ print_status "Repository: ${UI_ACCENT_COLOR}${arg_repository}${COLOR_RESET}"
     print_status "Limit results: ${UI_ACCENT_COLOR}${result_count}${COLOR_RESET}"
 }
 
-[[ "$IS_SILENT" != "true" ]] && echo
+[[ "$IS_SILENT" != "true" ]] && echo >&2
 
 # ============================================================================
 # Determine Lookup Mode
@@ -228,23 +234,27 @@ function fetch_github_data() {
     local response
 
     if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-        draw_section_header "Fetching Data"
+        draw_section_header "Fetching Data" >&2
     fi
 
-    print_status "API URL: ${COLOR_DIM}${url}${COLOR_RESET}"
+    print_status "API URL: ${COLOR_DIM}${url}${COLOR_RESET}" >&2
 
-    response=$(curl -s "$url")
+    # Fetch and immediately delete body field to avoid jq parse errors with control chars
+    # The body field often contains release notes with unescaped control characters
+    response=$(curl -s "$url" | jq 'del(.body) // .')
 
-    # Check if response is valid JSON and not an error
-    if ! echo "$response" | jq empty 2>/dev/null; then
-        print_error "Invalid JSON response from GitHub API"
+    # Basic validation: check if response is empty
+    if [[ -z "$response" ]]; then
+        print_error "Empty response from GitHub API" >&2
         return 1
     fi
 
-    # Check for GitHub API errors
-    local error_message=$(echo "$response" | jq -r '.message // empty' 2>/dev/null)
-    if [[ -n "$error_message" && "$error_message" != "null" ]]; then
-        print_error "GitHub API Error: $error_message"
+    # Check for GitHub API error messages
+    local error_message=$(echo "$response" | jq -r '.message // empty')
+
+    # If we got an error message from GitHub, report it
+    if [[ -n "$error_message" && "$error_message" != "null" && "$error_message" != "empty" ]]; then
+        print_error "GitHub API Error: $error_message" >&2
         return 1
     fi
 
@@ -264,13 +274,14 @@ if [[ "$lookup_mode" = "tag" ]]; then
     [[ $? -ne 0 ]] && exit 1
 
     if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-        echo
-        draw_section_header "Results"
+        echo >&2
+        draw_section_header "Results" >&2
     fi
 
     [[ "$IS_SILENT" != "true" ]] && print_success "Retrieved URL(s):"
 
-    echo "$api_response" | jq -r ".[] | select(.name == \"$arg_tag\") | .tarball_url"
+    # Extract tarball URL (body field already deleted during fetch)
+    echo "$api_response" | jq -r '.[] | select(.name == "'"$arg_tag"'") | .tarball_url'
 
 # ============================================================================
 # Release Lookup
@@ -291,28 +302,28 @@ elif [[ "$lookup_mode" = "release" ]]; then
         api_response=$(fetch_github_data "$github_url")
         [[ $? -ne 0 ]] && exit 1
 
-        # Get the first (most recent) non-prerelease release
+        # Get the first (most recent) non-prerelease release (body already deleted)
         api_response=$(echo "$api_response" | jq '.[0]')
     fi
 
     [[ $? -ne 0 ]] && exit 1
 
-    # Extract tag name
+    # Extract tag name (body field already deleted during fetch)
     tag_name=$(echo "$api_response" | jq -r '.tag_name // empty')
-    [[ -n "$tag_name" ]] && print_status "Release version tag: ${UI_ACCENT_COLOR}$tag_name${COLOR_RESET}"
+    [[ -n "$tag_name" ]] && print_status "Release version tag: ${UI_ACCENT_COLOR}$tag_name${COLOR_RESET}" >&2
 
     if [[ "$IS_SILENT" != "true" ]] && [[ "$LIBRARIES_LOADED" == "true" ]]; then
-        echo
-        draw_section_header "Results"
+        echo >&2
+        draw_section_header "Results" >&2
     fi
 
     [[ "$IS_SILENT" != "true" ]] && print_success "Retrieved URL(s):"
 
-    # Filter by pattern if provided
+    # Filter by pattern if provided (body field already deleted during fetch)
     if [[ -n "$arg_pattern" ]]; then
-        urls=$(echo "$api_response" | jq -r ".assets[] | select(.name | test(\"$arg_pattern\")) | .browser_download_url")
+        urls=$(echo "$api_response" | jq -r '.assets[] | select(.name | test("'"$arg_pattern"'")) | .browser_download_url')
     else
-        urls=$(echo "$api_response" | jq -r ".assets[] | .browser_download_url")
+        urls=$(echo "$api_response" | jq -r '.assets[] | .browser_download_url')
     fi
 
     # Limit results if count specified

@@ -22,8 +22,12 @@ emulate -LR zsh
 # Library Loading (with graceful fallback)
 # ============================================================================
 
-# Detect dotfiles directory (speak will be symlinked to ~/.local/bin)
-DF_DIR="${HOME}/.config/dotfiles"
+# Resolve symlink to get actual script location
+SCRIPT_PATH="${0:A}"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
+# Determine DF_DIR from script location (user/scripts/utilities -> 3 levels up)
+DF_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Try to load shared libraries
 if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
@@ -31,6 +35,8 @@ if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
     source "$DF_DIR/bin/lib/ui.zsh" 2>/dev/null
     source "$DF_DIR/bin/lib/utils.zsh" 2>/dev/null
     LIBRARIES_LOADED=true
+    # Get OS from shared library
+    DF_OS=$(get_os 2>/dev/null || echo "darwin")
 else
     # Graceful fallback: define minimal functions if libraries unavailable
     LIBRARIES_LOADED=false
@@ -38,6 +44,7 @@ else
     print_success() { echo "$1"; }
     print_info() { echo "$1"; }
     command_exists() { command -v "$1" >/dev/null 2>&1; }
+    # Detect OS manually in fallback mode
     DF_OS="$(uname | tr '[:upper:]' '[:lower:]')"
 fi
 

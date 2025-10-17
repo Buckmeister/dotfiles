@@ -307,8 +307,14 @@ function get_dotfiles_dir() {
 # Usage: Call this once at the top of your script after sourcing utils.zsh
 # Sets: DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR
 function init_dotfiles_paths() {
-    # Get the calling script's directory
+    # Get the calling script's path (resolve symlinks for user scripts in ~/.local/bin)
     local caller_script="${(%):-%x}"
+
+    # Resolve symlink if this is a symlinked script
+    if [[ -L "$caller_script" ]]; then
+        caller_script="$(readlink "$caller_script")"
+    fi
+
     export DF_SCRIPT_DIR="$(cd "$(dirname "$caller_script")" && pwd)"
 
     # Determine dotfiles root based on script location
@@ -324,6 +330,9 @@ function init_dotfiles_paths() {
     elif [[ "$DF_SCRIPT_DIR" == */tests/* ]]; then
         # Script is in tests/unit or tests/integration
         export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
+    elif [[ "$DF_SCRIPT_DIR" == */user/scripts/* ]]; then
+        # Script is in user/scripts/utilities, user/scripts/version-control, etc.
+        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../../.." && pwd)"
     else
         # Fallback: assume one level up
         export DF_DIR="$(cd "$DF_SCRIPT_DIR/.." && pwd)"
