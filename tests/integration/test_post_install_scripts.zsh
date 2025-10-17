@@ -237,8 +237,40 @@ test_case "ruby-gems.zsh should exist and be executable" '
     return 0
 '
 
-test_case "toolchains.zsh should exist and be executable" '
-    local script="$POST_INSTALL_DIR/toolchains.zsh"
+test_case "haskell-toolchain.zsh should exist and be executable" '
+    local script="$POST_INSTALL_DIR/haskell-toolchain.zsh"
+
+    if [[ ! -f "$script" ]]; then
+        echo "Script not found: $script"
+        return 1
+    fi
+
+    if [[ ! -x "$script" ]]; then
+        echo "Script is not executable: $script"
+        return 1
+    fi
+
+    return 0
+'
+
+test_case "rust-toolchain.zsh should exist and be executable" '
+    local script="$POST_INSTALL_DIR/rust-toolchain.zsh"
+
+    if [[ ! -f "$script" ]]; then
+        echo "Script not found: $script"
+        return 1
+    fi
+
+    if [[ ! -x "$script" ]]; then
+        echo "Script is not executable: $script"
+        return 1
+    fi
+
+    return 0
+'
+
+test_case "starship-prompt.zsh should exist and be executable" '
+    local script="$POST_INSTALL_DIR/starship-prompt.zsh"
 
     if [[ ! -f "$script" ]]; then
         echo "Script not found: $script"
