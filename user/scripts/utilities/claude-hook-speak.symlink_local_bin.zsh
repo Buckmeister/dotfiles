@@ -22,13 +22,22 @@ event_type=$(echo "$input" | jq -r '.eventType // "unknown"')
 tool_name=$(echo "$input" | jq -r '.tool // "unknown"')
 session_id=$(echo "$input" | jq -r '.sessionId // "unknown"')
 
-# Speak script location
+# Speak script location (cross-platform TTS wrapper)
 SPEAK="${HOME}/.local/bin/speak"
 
-# Check if speak is available
+# Check if speak wrapper is available, otherwise try direct TTS
 if [[ ! -x "$SPEAK" ]]; then
-    # Fallback to macOS say
-    SPEAK="/usr/bin/say"
+    # Fallback: try to find system TTS directly
+    if command -v say >/dev/null 2>&1; then
+        SPEAK="say"
+    elif command -v espeak-ng >/dev/null 2>&1; then
+        SPEAK="espeak-ng"
+    elif command -v espeak >/dev/null 2>&1; then
+        SPEAK="espeak"
+    else
+        # No TTS available, exit silently (don't block Claude Code)
+        exit 0
+    fi
 fi
 
 # Generate feedback based on event type

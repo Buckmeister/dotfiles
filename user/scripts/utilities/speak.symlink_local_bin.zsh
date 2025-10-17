@@ -3,12 +3,13 @@
 emulate -LR zsh
 
 # ============================================================================
-# speak - Text-to-Speech Utility for macOS
+# speak - Cross-Platform Text-to-Speech Utility
 # ============================================================================
 #
-# A delightful wrapper around macOS's 'say' command that makes your dotfiles
-# system speak to you! Perfect for status updates, celebrations, and making
-# long-running tasks more engaging.
+# A delightful TTS wrapper that makes your dotfiles system speak to you!
+# Supports macOS (say), Linux (espeak-ng/espeak/festival).
+# Perfect for status updates, celebrations, and making long-running tasks
+# more engaging.
 #
 # Usage:
 #   speak "Hello, friend!"
@@ -68,15 +69,30 @@ DEFAULT_VOICE="Serena (Premium)"
 # Default speech rate (words per minute, 175 is natural)
 DEFAULT_RATE="175"
 
-# Check if running on macOS
-if [[ "$DF_OS" != "darwin" && "$DF_OS" != "macos" ]]; then
-    print_error "The 'say' command is only available on macOS"
-    exit 1
+# Detect available TTS engine based on OS and installed commands
+TTS_ENGINE=""
+if [[ "$DF_OS" == "darwin" || "$DF_OS" == "macos" ]]; then
+    if command_exists say; then
+        TTS_ENGINE="say"
+    fi
+elif [[ "$DF_OS" == "linux" ]]; then
+    # Prefer espeak-ng (enhanced), fall back to espeak, then festival
+    if command_exists espeak-ng; then
+        TTS_ENGINE="espeak-ng"
+    elif command_exists espeak; then
+        TTS_ENGINE="espeak"
+    elif command_exists festival; then
+        TTS_ENGINE="festival"
+    fi
 fi
 
-# Check if 'say' command exists
-if ! command_exists say; then
-    print_error "'say' command not found. Are you on macOS?"
+# Exit if no TTS engine available
+if [[ -z "$TTS_ENGINE" ]]; then
+    print_error "No text-to-speech engine found"
+    print_info "Install one of: espeak-ng, espeak (Linux) or use macOS"
+    print_info "  Ubuntu/Debian: sudo apt install espeak-ng"
+    print_info "  Fedora/RHEL:   sudo dnf install espeak-ng"
+    print_info "  Arch:          sudo pacman -S espeak-ng"
     exit 1
 fi
 
@@ -113,9 +129,9 @@ select_best_voice() {
 # Show help message
 show_help() {
     cat <<'EOF'
-speak - Text-to-Speech Utility for macOS
+speak - Cross-Platform Text-to-Speech Utility
 
-A delightful wrapper around macOS's 'say' command.
+A delightful TTS wrapper supporting macOS (say) and Linux (espeak-ng/espeak/festival).
 
 USAGE:
     speak [options] "text to speak"
@@ -185,14 +201,33 @@ EOF
 list_voices() {
     print_info "Available voices on your system:"
     echo
-    say -v '?'
-    echo
-    print_info "Recommended voices:"
-    echo "  Serena (Premium)  - Best quality (default)"
-    echo "  Samantha          - Friendly and clear"
-    echo "  Alex              - Professional male voice"
-    echo "  Victoria          - British accent"
-    echo "  Karen             - Australian accent"
+
+    case "$TTS_ENGINE" in
+        say)
+            say -v '?'
+            echo
+            print_info "Recommended voices:"
+            echo "  Serena (Premium)  - Best quality (default)"
+            echo "  Samantha          - Friendly and clear"
+            echo "  Alex              - Professional male voice"
+            echo "  Victoria          - British accent"
+            echo "  Karen             - Australian accent"
+            ;;
+        espeak-ng|espeak)
+            "$TTS_ENGINE" --voices
+            echo
+            print_info "Common voice variants:"
+            echo "  en-us+f2  - US female (default)"
+            echo "  en-us+f3  - US female variant"
+            echo "  en-us+m3  - US male"
+            echo "  en-gb+f1  - British female"
+            echo "  en-gb+m1  - British male"
+            ;;
+        festival)
+            print_info "Festival uses system default voice"
+            echo "  Configure in /etc/festival.scm or ~/.festivalrc"
+            ;;
+    esac
 }
 
 # ============================================================================
@@ -312,7 +347,44 @@ esac
 # Speak the Text
 # ============================================================================
 
-# Use the 'say' command with specified options
-say -v "$voice" -r "$rate" "$text"
+case "$TTS_ENGINE" in
+    say)
+        # macOS: Use 'say' with specified voice and rate
+        say -v "$voice" -r "$rate" "$text"
+        ;;
+
+    espeak-ng|espeak)
+        # Linux espeak: Map parameters
+        # espeak uses -s for speed (words per minute, same as say)
+        # espeak voices are different (e.g., en, en-us, en-gb)
+
+        # Map mode to espeak voice variants
+        case "$mode" in
+            friendly|celebrate)
+                espeak_voice="en-us+f3"  # Female voice, variant 3
+                ;;
+            alert)
+                espeak_voice="en-us+m3"  # Male voice, variant 3
+                ;;
+            *)
+                espeak_voice="en-us+f2"  # Default female voice
+                ;;
+        esac
+
+        # espeak-ng has better quality than espeak
+        "$TTS_ENGINE" -v "$espeak_voice" -s "$rate" "$text"
+        ;;
+
+    festival)
+        # Festival: Uses different syntax
+        # Create temp file with text (festival reads from file or stdin)
+        echo "$text" | festival --tts
+        ;;
+
+    *)
+        print_error "Unknown TTS engine: $TTS_ENGINE"
+        exit 1
+        ;;
+esac
 
 exit 0
