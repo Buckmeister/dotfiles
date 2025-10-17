@@ -1,9 +1,9 @@
-[submodule "ranger/ranger.symlink_config/plugins/ranger_devicons"]
-	path = ranger/ranger.symlink_config/plugins/ranger_devicons
+[submodule "user/configs/utilities/ranger/ranger.symlink_config/plugins/ranger_devicons"]
+	path = user/configs/utilities/ranger/ranger.symlink_config/plugins/ranger_devicons
 	url = https://github.com/alexanderjeurissen/ranger_devicons
-[submodule "osx-terminal/themes"]
-	path = macos-terminal/colorschemes
+[submodule "user/configs/terminals/macos-terminal/colorschemes"]
+	path = user/configs/terminals/macos-terminal/colorschemes
 	url = https://github.com/lysyi3m/macos-terminal-themes.git
-[submodule "nvim/nvim.symlink_config"]
-	path = configs/editors/nvim/nvim.symlink_config
+[submodule "user/configs/editors/nvim/nvim.symlink_config"]
+	path = user/configs/editors/nvim/nvim.symlink_config
 	url = https://github.com/Buckmeister/lualoves.nvim.git
