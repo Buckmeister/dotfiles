@@ -150,16 +150,15 @@ function create_directory() {
 
     update_status_display "Setup" "$operation_name"
 
-    if create_directory_safe "$dir" "$dir"; then
+    # Check if directory already exists BEFORE attempting creation
+    if [[ -d "$dir" ]]; then
+        operation_results+=("ℹ️  Directory already exists: $dir")
+    elif create_directory_safe "$dir" "$dir"; then
         operation_results+=("✅ Created directory: $dir")
         ((success_count++))
     else
-        if [[ -d "$dir" ]]; then
-            operation_results+=("ℹ️  Directory already exists: $dir")
-        else
-            operation_results+=("❌ Failed to create directory: $dir")
-            ((error_count++))
-        fi
+        operation_results+=("❌ Failed to create directory: $dir")
+        ((error_count++))
     fi
 
     ((completed_operations++))
