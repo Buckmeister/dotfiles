@@ -99,13 +99,15 @@ The post-install system follows these principles:
 | **git-delta.zsh** | Install git-delta (syntax highlighter) | git |
 | **git-delta-config.zsh** | Configure git-delta | git, delta |
 | **git-settings-general.zsh** | Configure git settings | git |
+| **haskell-toolchain.zsh** | Install Haskell toolchain (Stack, GHCup) | none |
 | **language-servers.zsh** | Install LSP servers (JDT.LS, OmniSharp, rust-analyzer) | varies |
 | **lombok.zsh** | Install Java Lombok | java |
 | **luarocks-packages.zsh** | Install Lua packages via LuaRocks | luarocks |
 | **npm-global-packages.zsh** | Install Node.js global packages | npm |
 | **python-packages.zsh** | Install Python tools (pipx, HTTPie, Neovim support) | python3, pipx |
 | **ruby-gems.zsh** | Install Ruby gems | ruby, gem |
-| **toolchains.zsh** | Install development toolchains (Rust, Go, Node, etc.) | varies |
+| **rust-toolchain.zsh** | Install Rust toolchain (rustup, cargo, rustc) | none |
+| **starship-prompt.zsh** | Install Starship cross-shell prompt | none |
 | **vim-setup.zsh** | Setup vim-plug and plugins | vim or nvim |
 
 ### Categories
@@ -118,7 +120,8 @@ The post-install system follows these principles:
 - `ghcup-packages.zsh` - Haskell tools
 
 **Development Toolchains:**
-- `toolchains.zsh` - Rust, Go, Node.js, Python runtimes
+- `haskell-toolchain.zsh` - Haskell Stack and GHCup
+- `rust-toolchain.zsh` - Rust (rustup, cargo, rustc)
 - `language-servers.zsh` - LSP servers for editors
 
 **Configuration & Setup:**
@@ -127,6 +130,7 @@ The post-install system follows these principles:
 - `git-delta-config.zsh` - Git delta configuration
 - `git-settings-general.zsh` - Git global configuration
 - `bash-preexec.zsh` - Bash hook system
+- `starship-prompt.zsh` - Starship cross-shell prompt
 - `lombok.zsh` - Java Lombok
 
 **System Utilities:**

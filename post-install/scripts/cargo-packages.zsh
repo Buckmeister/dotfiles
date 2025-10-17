@@ -8,8 +8,8 @@
 # Uses shared libraries for package management, validation, and UI.
 #
 # Dependencies:
-#   - cargo (Rust package manager) → provided by toolchains.zsh
-#   - rustc (Rust compiler) → provided by toolchains.zsh
+#   - cargo (Rust package manager) → provided by rust-toolchain.zsh
+#   - rustc (Rust compiler) → provided by rust-toolchain.zsh
 #
 # Package list: env/packages/cargo-packages.list
 # ============================================================================
@@ -97,8 +97,8 @@ validate_no_unknown_args "$@" || exit 1
 # Dependency Declaration
 # ============================================================================
 
-declare_dependency_command "cargo" "Rust package manager" "toolchains.zsh"
-declare_dependency_command "rustc" "Rust compiler" "toolchains.zsh"
+declare_dependency_command "cargo" "Rust package manager" "rust-toolchain.zsh"
+declare_dependency_command "rustc" "Rust compiler" "rust-toolchain.zsh"
 
 # ============================================================================
 # Main Execution

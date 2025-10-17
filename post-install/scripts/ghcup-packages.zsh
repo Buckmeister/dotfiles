@@ -8,7 +8,7 @@
 # Uses shared libraries for consistent UI and validation.
 #
 # Dependencies:
-#   - ghcup (Haskell toolchain manager) → toolchains.zsh
+#   - ghcup (Haskell toolchain manager) → haskell-toolchain.zsh
 #
 # GHCup is the Haskell toolchain installer.
 # ============================================================================
@@ -54,7 +54,7 @@ source "$CONFIG_DIR/versions.env"
 # Dependency Declaration
 # ============================================================================
 
-declare_dependency_command "ghcup" "Haskell toolchain manager" "toolchains.zsh"
+declare_dependency_command "ghcup" "Haskell toolchain manager" "haskell-toolchain.zsh"
 
 # ============================================================================
 # Main Execution

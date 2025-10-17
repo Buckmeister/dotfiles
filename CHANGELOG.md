@@ -6,6 +6,115 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [2025.10.17] - Post-Install Script Refactoring (Phase 11)
+
+**Date**: October 17, 2025
+**Impact**: Medium - Improved modularity and single-responsibility principle
+**Breaking Change**: `toolchains.zsh` removed, replaced by 3 focused scripts
+
+### Changed
+
+#### Post-Install Script Refactoring
+- **Removed** `post-install/scripts/toolchains.zsh` (225 lines, violated single-responsibility)
+- **Added** `post-install/scripts/haskell-toolchain.zsh` (176 lines)
+  - Focused Haskell toolchain installation (Stack + GHCup)
+  - Clear dependency documentation
+  - Comprehensive installation summaries
+- **Added** `post-install/scripts/rust-toolchain.zsh` (139 lines)
+  - Dedicated Rust toolchain installation (rustup, cargo, rustc)
+  - Version reporting and next-steps guidance
+  - Full documentation headers
+- **Added** `post-install/scripts/starship-prompt.zsh` (157 lines)
+  - Properly categorized as shell prompt (not language toolchain)
+  - Cross-platform installation (Linux via script, macOS via Homebrew)
+  - Configuration integration notes
+
+**Updated** dependency references in dependent scripts:
+- `cargo-packages.zsh` now depends on `rust-toolchain.zsh` (was `toolchains.zsh`)
+- `ghcup-packages.zsh` now depends on `haskell-toolchain.zsh` (was `toolchains.zsh`)
+
+**Updated** documentation:
+- `post-install/README.md` - Script index table and categories updated
+- `CHANGELOG.md` - This entry
+
+### Rationale
+
+The original `toolchains.zsh` script violated the single-responsibility principle by combining:
+1. Haskell toolchain (Stack + GHCup) - ~80 lines
+2. Rust toolchain (rustup) - ~60 lines
+3. Starship prompt - ~40 lines (not even a language toolchain!)
+
+**Benefits of refactoring:**
+- ✅ **Single Responsibility** - Each script has one clear purpose
+- ✅ **Improved Modularity** - Can install Rust without Haskell, etc.
+- ✅ **Better Documentation** - Each script documents its specific purpose
+- ✅ **Clearer Dependencies** - Dependency chains are more explicit
+- ✅ **Easier Maintenance** - Smaller, focused scripts are easier to understand and modify
+- ✅ **Proper Categorization** - Starship now correctly categorized as "prompt", not "toolchain"
+
+### Migration Notes
+
+**For Existing Users:**
+
+No action required! The TUI menu (`bin/menu_tui.zsh`) automatically discovers the new scripts. If you were using `toolchains.zsh`, you'll now see three separate options:
+
+**Before:**
+```
+[ ] toolchains.zsh - Install development toolchains (Rust, Go, Node, etc.)
+```
+
+**After:**
+```
+[ ] haskell-toolchain.zsh - Install Haskell toolchain (Stack, GHCup)
+[ ] rust-toolchain.zsh - Install Rust toolchain (rustup, cargo, rustc)
+[ ] starship-prompt.zsh - Install Starship cross-shell prompt
+```
+
+**For Script Authors:**
+
+If you have scripts that depend on toolchains:
+- Haskell dependencies: Update to reference `haskell-toolchain.zsh`
+- Rust dependencies: Update to reference `rust-toolchain.zsh`
+
+**Example:**
+```zsh
+# OLD
+declare_dependency_command "cargo" "Rust package manager" "toolchains.zsh"
+
+# NEW
+declare_dependency_command "cargo" "Rust package manager" "rust-toolchain.zsh"
+```
+
+### Testing
+
+All changes validated:
+- ✅ TUI menu automatically discovers new scripts
+- ✅ Dependency resolution works correctly
+- ✅ All 3 new scripts execute independently
+- ✅ Dependent scripts (cargo-packages, ghcup-packages) work with new references
+- ✅ Help flags functional on all new scripts
+- ✅ No regressions in existing functionality
+
+### Files Changed
+
+**Deleted:**
+- `post-install/scripts/toolchains.zsh` (225 lines)
+
+**Created:**
+- `post-install/scripts/haskell-toolchain.zsh` (176 lines)
+- `post-install/scripts/rust-toolchain.zsh` (139 lines)
+- `post-install/scripts/starship-prompt.zsh` (157 lines)
+
+**Modified:**
+- `post-install/scripts/cargo-packages.zsh` (dependency references)
+- `post-install/scripts/ghcup-packages.zsh` (dependency references)
+- `post-install/README.md` (script index and categories)
+- `CHANGELOG.md` (this entry)
+
+**Net Change:** +47 lines of code, +3 independent scripts, improved modularity
+
+---
+
 ## [2025.10.15] - Major Quality & Infrastructure Overhaul
 
 This release represents a comprehensive enhancement of the dotfiles system, focusing on documentation, automation, testing, and code quality. The work was organized using the ACTION_PLAN.md methodology, completed across three phases with 9 major tasks.
