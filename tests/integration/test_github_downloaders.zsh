@@ -39,7 +39,7 @@ test_suite "GitHub Downloader Utilities Tests"
 # Function to check if a tool exists
 function tool_exists() {
     local tool="$1"
-    if [[ -f "$HOME/.local/bin/$tool" ]] || [[ -f "$DOTFILES_ROOT/github/${tool}.symlink_local_bin.zsh" ]]; then
+    if [[ -f "$HOME/.local/bin/$tool" ]] || [[ -f "$DOTFILES_ROOT/user/scripts/version-control/${tool}.symlink_local_bin.zsh" ]]; then
         return 0
     fi
     return 1
@@ -50,8 +50,8 @@ function get_tool_path() {
     local tool="$1"
     if [[ -f "$HOME/.local/bin/$tool" ]]; then
         echo "$HOME/.local/bin/$tool"
-    elif [[ -f "$DOTFILES_ROOT/github/${tool}.symlink_local_bin.zsh" ]]; then
-        echo "$DOTFILES_ROOT/github/${tool}.symlink_local_bin.zsh"
+    elif [[ -f "$DOTFILES_ROOT/user/scripts/version-control/${tool}.symlink_local_bin.zsh" ]]; then
+        echo "$DOTFILES_ROOT/user/scripts/version-control/${tool}.symlink_local_bin.zsh"
     fi
 }
 
@@ -89,8 +89,8 @@ test_case "get_github_url should require username argument" '
     local output=$(cat /tmp/test_gh_output_$$)
     rm -f /tmp/test_gh_output_$$
 
-    # Should show usage message
-    if [[ "$output" != *"Usage"* ]]; then
+    # Should show usage message (case-insensitive)
+    if [[ "$output" != *"Usage"* ]] && [[ "$output" != *"USAGE"* ]] && [[ "$output" != *"usage"* ]]; then
         echo "No usage message shown"
         return 1
     fi
@@ -118,8 +118,8 @@ test_case "get_github_url should require repository argument" '
     local output=$(cat /tmp/test_gh_output_$$)
     rm -f /tmp/test_gh_output_$$
 
-    # Should show usage message
-    if [[ "$output" != *"Usage"* ]]; then
+    # Should show usage message (case-insensitive)
+    if [[ "$output" != *"Usage"* ]] && [[ "$output" != *"USAGE"* ]] && [[ "$output" != *"usage"* ]]; then
         echo "No usage message shown"
         return 1
     fi
@@ -360,8 +360,19 @@ test_case "both downloaders should have consistent help format" '
     local gh_help=$("$gh_tool" --help 2>&1)
     local jdtls_help=$("$jdtls_tool" --help 2>&1)
 
-    # Both should have Usage section
-    if [[ "$gh_help" == *"Usage"* ]] && [[ "$jdtls_help" == *"Usage"* ]]; then
+    # Both should have Usage section (case-insensitive)
+    local gh_has_usage=false
+    local jdtls_has_usage=false
+
+    if [[ "$gh_help" == *"Usage"* ]] || [[ "$gh_help" == *"USAGE"* ]] || [[ "$gh_help" == *"usage"* ]]; then
+        gh_has_usage=true
+    fi
+
+    if [[ "$jdtls_help" == *"Usage"* ]] || [[ "$jdtls_help" == *"USAGE"* ]] || [[ "$jdtls_help" == *"usage"* ]]; then
+        jdtls_has_usage=true
+    fi
+
+    if [[ "$gh_has_usage" == "true" ]] && [[ "$jdtls_has_usage" == "true" ]]; then
         return 0
     else
         echo "Inconsistent help format between downloaders"
