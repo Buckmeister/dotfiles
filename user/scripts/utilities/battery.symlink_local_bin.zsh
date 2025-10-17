@@ -49,7 +49,6 @@ if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
     source "$DF_DIR/bin/lib/colors.zsh" 2>/dev/null
     source "$DF_DIR/bin/lib/ui.zsh" 2>/dev/null
     source "$DF_DIR/bin/lib/utils.zsh" 2>/dev/null
-    source "$DF_DIR/bin/lib/arguments.zsh" 2>/dev/null
     LIBRARIES_LOADED=true
 else
     # Graceful fallback: define minimal functions if libraries unavailable
