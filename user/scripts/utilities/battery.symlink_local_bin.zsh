@@ -38,31 +38,31 @@ emulate -LR zsh
 # ============================================================================
 
 # ============================================================================
-# Load Shared Libraries (with graceful fallback)
+# Bootstrap: Load Shared Libraries
 # ============================================================================
 
-# Resolve symlink to get actual script location
+# Resolve script path and load bootstrap library
 SCRIPT_PATH="${0:A}"
-SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+BOOTSTRAP_LIB="${SCRIPT_PATH%/user/scripts/*}/user/scripts/lib/functions.zsh"
 
-# Determine DF_DIR from script location (user/scripts/utilities -> 3 levels up)
-DF_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-
-# Try to load shared libraries
-if [[ -f "$DF_DIR/bin/lib/colors.zsh" ]]; then
-    source "$DF_DIR/bin/lib/colors.zsh" 2>/dev/null
-    source "$DF_DIR/bin/lib/ui.zsh" 2>/dev/null
-    source "$DF_DIR/bin/lib/utils.zsh" 2>/dev/null
-    LIBRARIES_LOADED=true
+if [[ -f "$BOOTSTRAP_LIB" ]]; then
+    source "$BOOTSTRAP_LIB"
+    DF_DIR=$(detect_df_dir)
+    if load_shared_libs "$DF_DIR"; then
+        LIBRARIES_LOADED=true
+    else
+        LIBRARIES_LOADED=false
+    fi
 else
-    # Graceful fallback: define minimal functions if libraries unavailable
+    # Ultra-minimal fallback if bootstrap library missing
     LIBRARIES_LOADED=false
+    DF_DIR="${HOME}/.config/dotfiles"
     print_error() { echo "Error: $1" >&2; }
     print_success() { echo "$1" >&2; }
     print_info() { echo "$1" >&2; }
     command_exists() { command -v "$1" >/dev/null 2>&1; }
 
-    # Basic color definitions for fallback
+    # Basic color definitions
     readonly UI_SUCCESS_COLOR='\033[32m'
     readonly UI_INFO_COLOR='\033[34m'
     readonly UI_ERROR_COLOR='\033[31m'

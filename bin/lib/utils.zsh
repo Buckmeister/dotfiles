@@ -317,25 +317,23 @@ function init_dotfiles_paths() {
 
     export DF_SCRIPT_DIR="$(cd "$(dirname "$caller_script")" && pwd)"
 
-    # Determine dotfiles root based on script location
-    if [[ "$DF_SCRIPT_DIR" == */bin ]]; then
-        # Script is in bin/
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/.." && pwd)"
-    elif [[ "$DF_SCRIPT_DIR" == */bin/lib ]]; then
-        # Script is in bin/lib/
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
-    elif [[ "$DF_SCRIPT_DIR" == */post-install/scripts ]]; then
-        # Script is in post-install/scripts/
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
+    # Determine dotfiles root using pattern matching (robust to any directory depth)
+    # This approach removes the pattern and everything after it, giving us the repo root
+    if [[ "$DF_SCRIPT_DIR" == */user/scripts/* ]]; then
+        # Script is anywhere under user/scripts/ (e.g., user/scripts/utilities/system/foo.zsh)
+        export DF_DIR="${DF_SCRIPT_DIR%%/user/scripts/*}"
+    elif [[ "$DF_SCRIPT_DIR" == */bin/* ]]; then
+        # Script is anywhere under bin/ (e.g., bin/lib/utils.zsh)
+        export DF_DIR="${DF_SCRIPT_DIR%%/bin/*}"
+    elif [[ "$DF_SCRIPT_DIR" == */post-install/* ]]; then
+        # Script is anywhere under post-install/ (e.g., post-install/scripts/foo.zsh)
+        export DF_DIR="${DF_SCRIPT_DIR%%/post-install/*}"
     elif [[ "$DF_SCRIPT_DIR" == */tests/* ]]; then
-        # Script is in tests/unit or tests/integration
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../.." && pwd)"
-    elif [[ "$DF_SCRIPT_DIR" == */user/scripts/* ]]; then
-        # Script is in user/scripts/utilities, user/scripts/version-control, etc.
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/../../.." && pwd)"
+        # Script is anywhere under tests/ (e.g., tests/unit/integration/foo.zsh)
+        export DF_DIR="${DF_SCRIPT_DIR%%/tests/*}"
     else
-        # Fallback: assume one level up
-        export DF_DIR="$(cd "$DF_SCRIPT_DIR/.." && pwd)"
+        # Fallback: assume script is at repo root
+        export DF_DIR="$DF_SCRIPT_DIR"
     fi
 
     # Set library directory
