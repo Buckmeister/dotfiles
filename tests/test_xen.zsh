@@ -100,7 +100,7 @@ ALL_LINUX_DISTROS=(
 )
 
 ALL_WINDOWS_DISTROS=(
-    "w11"
+    "w11cb"
 )
 
 ALL_DISTROS=("${ALL_LINUX_DISTROS[@]}" "${ALL_WINDOWS_DISTROS[@]}")
@@ -187,7 +187,7 @@ ${COLOR_BOLD}EXAMPLES:${COLOR_RESET}
 
 ${COLOR_BOLD}AVAILABLE DISTRIBUTIONS:${COLOR_RESET}
   Linux:   ${ALL_LINUX_DISTROS[@]}
-  Windows: ${ALL_WINDOWS_DISTROS[@]}
+  Windows: ${ALL_WINDOWS_DISTROS[@]} (w11cb = Windows 11 Pro with cloudbase-init)
 
 ${COLOR_BOLD}PREREQUISITES:${COLOR_RESET}
   • SSH key: ~/.ssh/aria_xen_key
@@ -319,7 +319,7 @@ fi
 is_windows() {
     local distro="$1"
     case "$distro" in
-        w11|win11|windows11|win10|windows10|win2022|win2019|ws2022|ws2019)
+        w11cb|w11|win11|windows11|win10|windows10|win2022|win2019|ws2022|ws2019)
             return 0
             ;;
         *)
