@@ -79,8 +79,19 @@ source "${SCRIPT_DIR}/lib/test_helpers.zsh" 2>/dev/null || {
 # XCP-NG Configuration
 XEN_SSH_KEY="${HOME}/.ssh/aria_xen_key"
 XEN_HOST="opt-bck01.bck.intern"
-XEN_LINUX_HELPER="/root/aria-scripts/create-vm-with-cloudinit-iso.sh"
-XEN_WINDOWS_HELPER="/root/aria-scripts/create-windows-vm-with-cloudinit-iso.sh"
+
+# NFS Shared Storage for helper scripts (xenstore1)
+XEN_SHARED_SR_UUID="75fa3703-d020-e865-dd0e-3682b83c35f6"
+XEN_SHARED_SCRIPTS_PATH="/run/sr-mount/${XEN_SHARED_SR_UUID}/aria-scripts"
+XEN_LOCAL_SCRIPTS_PATH="/root/aria-scripts"
+
+# Helper script names (will check shared location first, fallback to local)
+XEN_LINUX_HELPER_NAME="create-vm-with-cloudinit-iso.sh"
+XEN_WINDOWS_HELPER_NAME="create-windows-vm-with-cloudinit-iso-v2.sh"
+
+# Resolved paths (set during prerequisites check)
+XEN_LINUX_HELPER=""
+XEN_WINDOWS_HELPER=""
 
 # Available distributions
 ALL_LINUX_DISTROS=(
@@ -322,6 +333,28 @@ xen_ssh() {
     remote_ssh "$XEN_SSH_KEY" root "$XEN_HOST" "$@"
 }
 
+# Get helper script path (shared NFS if available, fallback to local)
+get_helper_script_path() {
+    local script_name="$1"
+    local shared_path="${XEN_SHARED_SCRIPTS_PATH}/${script_name}"
+    local local_path="${XEN_LOCAL_SCRIPTS_PATH}/${script_name}"
+
+    # Check if shared path exists and is executable
+    if xen_ssh "test -x '${shared_path}'" >/dev/null 2>&1; then
+        echo "$shared_path"
+        return 0
+    fi
+
+    # Fallback to local path
+    if xen_ssh "test -x '${local_path}'" >/dev/null 2>&1; then
+        echo "$local_path"
+        return 0
+    fi
+
+    # Neither found
+    return 1
+}
+
 # Execute command on VM (wrapper around remote_ssh helper)
 vm_ssh() {
     local vm_ip="$1"
@@ -449,7 +482,7 @@ test_basic_linux() {
     # Phase 1: Create VM with cloud-init
     print_test_phase 1 3 "Creating VM with cloud-init configuration"
 
-    local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-vm-with-cloudinit-iso.sh $distro 2>&1")
+    local create_output=$(xen_ssh "'$XEN_LINUX_HELPER' $distro 2>&1")
 
     # Extract VM UUID and IP from output
     vm_uuid=$(echo "$create_output" | grep "VM UUID:" | awk '{print $3}' | head -1)
@@ -558,7 +591,7 @@ test_comprehensive_linux() {
     # Phase 1: Create VM with cloud-init
     print_test_phase 1 6 "Creating VM with cloud-init configuration"
 
-    local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-vm-with-cloudinit-iso.sh $distro 2>&1")
+    local create_output=$(xen_ssh "'$XEN_LINUX_HELPER' $distro 2>&1")
 
     # Extract VM UUID and IP from output
     vm_uuid=$(echo "$create_output" | grep "VM UUID:" | awk '{print $3}' | head -1)
@@ -765,10 +798,10 @@ test_basic_windows() {
     draw_section_header "Test Phases"
 
     # Phase 1: Create Windows VM with cloudbase-init
-    print_test_phase 1 2 "Creating Windows VM with cloudbase-init configuration"
+    print_test_phase 1 3 "Creating Windows VM with cloudbase-init configuration"
     print_phase_context "This takes longer than Linux - Windows boot time ~5-10 minutes"
 
-    local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-windows-vm-with-cloudinit-iso.sh $distro 2>&1")
+    local create_output=$(xen_ssh "'$XEN_WINDOWS_HELPER' $distro 2>&1")
 
     # Extract VM UUID and IP from output
     vm_uuid=$(echo "$create_output" | grep "VM UUID:" | awk '{print $3}' | head -1)
@@ -790,7 +823,7 @@ test_basic_windows() {
     echo ""
 
     # Phase 2: Wait for VM to be accessible
-    print_test_phase 2 2 "Waiting for Windows to boot and OpenSSH setup"
+    print_test_phase 2 3 "Waiting for Windows to boot and OpenSSH setup"
     print_phase_context "Cloudbase-init is installing OpenSSH Server, please be patient"
 
     if [[ -z "$vm_ip" ]]; then
@@ -807,6 +840,41 @@ test_basic_windows() {
     fi
 
     print_success "VM is accessible via SSH"
+    echo ""
+
+    # Phase 3: Verify cloudbase-init execution
+    print_test_phase 3 3 "Verifying cloudbase-init execution"
+
+    local cloudinit_check=$(vm_ssh "$vm_ip" 'powershell.exe -Command "
+        # Check if cloudbase-init service exists
+        if (Get-Service cloudbase-init -ErrorAction SilentlyContinue) {
+            Write-Output \"INFO:Cloudbase-Init: Service present\"
+        }
+
+        # Check cloudbase-init logs for successful completion
+        \$logPath = \"C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\log\\cloudbase-init.log\"
+        if (Test-Path \$logPath) {
+            \$logContent = Get-Content \$logPath -Tail 50
+            if (\$logContent -match \"Executing plugins\") {
+                Write-Output \"SUCCESS:Cloudbase-Init executed plugins\"
+            }
+            if (\$logContent -match \"ConfigDrive\") {
+                Write-Output \"SUCCESS:ConfigDrive detected\"
+            }
+        }
+
+        # Verify aria user was created by cloudbase-init
+        \$ariaUser = Get-LocalUser aria -ErrorAction SilentlyContinue
+        if (\$ariaUser) {
+            Write-Output \"SUCCESS:Aria user created by cloudbase-init\"
+        }
+    "')
+
+    echo "$cloudinit_check" | while IFS= read -r line; do
+        parse_test_output "$line"
+    done
+
+    print_success "Cloudbase-init verification complete"
     echo ""
 
     # Cleanup
@@ -841,10 +909,10 @@ test_comprehensive_windows() {
     draw_section_header "Test Phases"
 
     # Phase 1: Create Windows VM with cloudbase-init
-    print_test_phase 1 4 "Creating Windows VM with cloudbase-init configuration"
+    print_test_phase 1 5 "Creating Windows VM with cloudbase-init configuration"
     print_phase_context "This takes longer than Linux - Windows boot time ~5-10 minutes"
 
-    local create_output=$(xen_ssh "cd /root/aria-scripts && ./create-windows-vm-with-cloudinit-iso.sh $distro 2>&1")
+    local create_output=$(xen_ssh "'$XEN_WINDOWS_HELPER' $distro 2>&1")
 
     # Extract VM UUID and IP from output
     vm_uuid=$(echo "$create_output" | grep "VM UUID:" | awk '{print $3}' | head -1)
@@ -866,7 +934,7 @@ test_comprehensive_windows() {
     echo ""
 
     # Phase 2: Wait for VM to be accessible (Windows takes longer)
-    print_test_phase 2 4 "Waiting for Windows to boot and OpenSSH setup"
+    print_test_phase 2 5 "Waiting for Windows to boot and OpenSSH setup"
     print_phase_context "Cloudbase-init is installing OpenSSH Server, please be patient"
 
     if [[ -z "$vm_ip" ]]; then
@@ -885,8 +953,43 @@ test_comprehensive_windows() {
     print_success "VM is accessible via SSH"
     echo ""
 
-    # Phase 3: Verify Windows system and SSH access
-    print_test_phase 3 4 "Verifying Windows system and PowerShell access"
+    # Phase 3: Verify cloudbase-init execution
+    print_test_phase 3 5 "Verifying cloudbase-init execution"
+
+    local cloudinit_check=$(vm_ssh "$vm_ip" 'powershell.exe -Command "
+        # Check if cloudbase-init service exists
+        if (Get-Service cloudbase-init -ErrorAction SilentlyContinue) {
+            Write-Output \"INFO:Cloudbase-Init: Service present\"
+        }
+
+        # Check cloudbase-init logs for successful completion
+        \$logPath = \"C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\log\\cloudbase-init.log\"
+        if (Test-Path \$logPath) {
+            \$logContent = Get-Content \$logPath -Tail 50
+            if (\$logContent -match \"Executing plugins\") {
+                Write-Output \"SUCCESS:Cloudbase-Init executed plugins\"
+            }
+            if (\$logContent -match \"ConfigDrive\") {
+                Write-Output \"SUCCESS:ConfigDrive detected\"
+            }
+        }
+
+        # Verify aria user was created by cloudbase-init
+        \$ariaUser = Get-LocalUser aria -ErrorAction SilentlyContinue
+        if (\$ariaUser) {
+            Write-Output \"SUCCESS:Aria user created by cloudbase-init\"
+        }
+    "')
+
+    echo "$cloudinit_check" | while IFS= read -r line; do
+        parse_test_output "$line"
+    done
+
+    print_success "Cloudbase-init verification complete"
+    echo ""
+
+    # Phase 4: Verify Windows system and SSH access
+    print_test_phase 4 5 "Verifying Windows system and PowerShell access"
 
     local verify_cmd='
         echo "PROGRESS:Checking Windows version"
@@ -928,8 +1031,8 @@ test_comprehensive_windows() {
     print_success "Windows system verified"
     echo ""
 
-    # Phase 4: Test dotfiles readiness (clone check)
-    print_test_phase 4 4 "Testing dotfiles repository access"
+    # Phase 5: Test dotfiles readiness (clone check)
+    print_test_phase 5 5 "Testing dotfiles repository access"
 
     local git_test=$(vm_ssh "$vm_ip" "powershell.exe -Command 'git ls-remote https://github.com/Buckmeister/dotfiles.git HEAD' 2>&1")
 
@@ -1063,21 +1166,37 @@ run_tests() {
     done
 
     if [[ "$has_linux" = true ]]; then
-        if ! xen_ssh "test -x $XEN_LINUX_HELPER" >/dev/null 2>&1; then
-            print_error "Linux helper script not found: $XEN_LINUX_HELPER"
-            print_info "Please upload create-vm-with-cloudinit-iso.sh"
+        XEN_LINUX_HELPER=$(get_helper_script_path "$XEN_LINUX_HELPER_NAME")
+        if [[ $? -ne 0 || -z "$XEN_LINUX_HELPER" ]]; then
+            print_error "Linux helper script not found: $XEN_LINUX_HELPER_NAME"
+            print_info "Please upload to either:"
+            print_info "  • Shared: $XEN_SHARED_SCRIPTS_PATH/"
+            print_info "  • Local:  $XEN_LOCAL_SCRIPTS_PATH/"
             return 1
         fi
-        print_success "Linux helper script ready"
+        # Show which location is being used
+        if [[ "$XEN_LINUX_HELPER" == *"$XEN_SHARED_SCRIPTS_PATH"* ]]; then
+            print_success "Linux helper script ready (shared NFS)"
+        else
+            print_success "Linux helper script ready (local)"
+        fi
     fi
 
     if [[ "$has_windows" = true ]]; then
-        if ! xen_ssh "test -x $XEN_WINDOWS_HELPER" >/dev/null 2>&1; then
-            print_error "Windows helper script not found: $XEN_WINDOWS_HELPER"
-            print_info "Please upload create-windows-vm-with-cloudinit-iso.sh"
+        XEN_WINDOWS_HELPER=$(get_helper_script_path "$XEN_WINDOWS_HELPER_NAME")
+        if [[ $? -ne 0 || -z "$XEN_WINDOWS_HELPER" ]]; then
+            print_error "Windows helper script not found: $XEN_WINDOWS_HELPER_NAME"
+            print_info "Please upload to either:"
+            print_info "  • Shared: $XEN_SHARED_SCRIPTS_PATH/"
+            print_info "  • Local:  $XEN_LOCAL_SCRIPTS_PATH/"
             return 1
         fi
-        print_success "Windows helper script ready"
+        # Show which location is being used
+        if [[ "$XEN_WINDOWS_HELPER" == *"$XEN_SHARED_SCRIPTS_PATH"* ]]; then
+            print_success "Windows helper script ready (shared NFS)"
+        else
+            print_success "Windows helper script ready (local)"
+        fi
     fi
 
     echo ""

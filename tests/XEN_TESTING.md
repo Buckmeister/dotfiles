@@ -477,8 +477,39 @@ ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
 powershell.exe -Command "Get-Service sshd"
 
 # Check cloudbase-init logs
-powershell.exe -Command "Get-Content C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\cloudbase-init.log -Tail 50"
+powershell.exe -Command "Get-Content 'C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\cloudbase-init.log' -Tail 50"
 ```
+
+### Windows CloudBase-Init Troubleshooting
+
+For comprehensive Windows cloudbase-init troubleshooting, including common issues, diagnostic commands, and solutions, see:
+
+**📚 [Windows CloudBase-Init Troubleshooting Guide](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)**
+
+**Quick Diagnostic Commands:**
+
+```powershell
+# Check ConfigDrive detection
+Get-Content 'C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\cloudbase-init.log' |
+    Select-String -Pattern "ConfigDrive|config-2|openstack"
+
+# Check ISO structure
+Get-ChildItem D:\ -Recurse | Select-Object FullName
+
+# Verify aria user created
+Get-LocalUser aria
+
+# Check network profile (should be Private for SSH access)
+Get-NetConnectionProfile
+```
+
+**Common Issues:**
+- ISO volume label must be `config-2` (not `CIDATA`)
+- ISO structure must be OpenStack format: `D:\openstack\latest\meta_data.json`
+- Template must be in OOBE state (sysprepped)
+- Network profile must be Private (not Public) for SSH access
+
+See the full troubleshooting guide for detailed solutions to all 7 identified issues.
 
 ---
 
@@ -585,13 +616,25 @@ ssh-keygen -t ed25519 -f ~/.ssh/aria_xen_key -C "aria-xen-automation"
 - Customize with `--host` flag
 
 **Helper Scripts on XCP-NG**:
-- Linux: `/root/aria-scripts/create-vm-with-cloudinit-iso.sh`
-- Windows: `/root/aria-scripts/create-windows-vm-with-cloudinit-iso.sh`
+- Linux: `create-vm-with-cloudinit-iso.sh`
+- Windows: `create-windows-vm-with-cloudinit-iso-v2.sh` (v2 includes OpenStack ISO structure fix)
+
+**Helper Script Locations** (automatic detection with fallback):
+1. **Shared NFS** (preferred): `/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/`
+   - Accessible by all XCP-NG hosts (opt-bck01/02/03, lat-bck04)
+   - Single source of truth for script updates
+   - Enables multi-host testing
+2. **Local** (fallback): `/root/aria-scripts/`
+   - Per-host installation
+   - Used if shared storage unavailable
+
+The test script automatically checks shared location first, then falls back to local.
 
 **Cloud-init Templates**: Hub templates or custom cloud-init capable images
 
 **Windows Requirements** (for Windows testing):
-- Windows templates with cloudbase-init
+- Windows templates with cloudbase-init pre-installed
+- Template must be sysprepped (OOBE state) - e.g., `w11cb` template
 - OpenSSH Server installation via cloudbase-init
 - Guest tools for IP reporting
 
