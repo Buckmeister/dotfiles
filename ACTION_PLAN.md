@@ -11,333 +11,6 @@
 
 ## Active Projects
 
-### Phase 9: User Directory Restructuring ✅ COMPLETE
-**Goal:** Separate configuration files from user executables into semantic structure
-**Status:** ✅ Complete (October 17, 2025)
-**Priority:** High
-**Completion:** All tasks finished, fully tested, documented
-
-#### What Was Accomplished
-
-Successfully restructured repository to separate configurations from executables:
-
-**New Structure Implemented:**
-```
-user/                          # All user-facing deployables
-├── configs/                  # Configuration files → ~/.*,  ~/.config/*  (29 files)
-│   ├── shell/               # zsh, bash, fish, aliases, readline
-│   ├── editors/             # nvim, vim, emacs
-│   ├── terminals/           # kitty, alacritty, macos-terminal
-│   ├── multiplexers/        # tmux
-│   ├── prompts/             # starship, p10k
-│   ├── version-control/     # git, github
-│   ├── development/         # maven, jdt.ls, ghci
-│   ├── languages/           # R, ipython, stylua, black
-│   ├── utilities/           # bat, eza, delta, ranger, fzf
-│   ├── system/              # karabiner, xcode, xmodmap, xprofile
-│   └── package-managers/    # brew, apt
-└── scripts/                  # User executables → ~/.local/bin/*  (11 files)
-    ├── shell/               # shell, shorten_path (2 scripts)
-    ├── development/         # jdt.ls, install_maven_wrapper (2 scripts)
-    ├── utilities/           # battery, iperl, rustp, create_hie_yaml (4 scripts)
-    ├── version-control/     # get_github_url, get_jdtls_url (2 scripts)
-    └── package-managers/    # generate_brew_install_script (1 script)
-```
-
-**Benefits Realized:**
-- ✅ Clear semantic separation: configs vs executables
-- ✅ Better organization for future additions
-- ✅ Easier to understand for contributors
-- ✅ Full compatibility with link_dotfiles.zsh (find-based discovery)
-- ✅ Scales well for future user-facing categories
-
-#### Completed Tasks
-
-- [x] **Task 9.1:** Analyze current structure ✅
-- [x] **Task 9.2:** Detailed migration mapping (11 scripts across 5 categories) ✅
-- [x] **Task 9.3:** Create user/ directory structure ✅
-- [x] **Task 9.4:** Move configs/ → user/configs/ (used git mv, preserved history) ✅
-- [x] **Task 9.5:** Extract scripts to user/scripts/ (all 11 scripts migrated) ✅
-- [x] **Task 9.6:** Update documentation (README, CLAUDE, DEVELOPMENT, MANUAL) ✅
-- [x] **Task 9.7:** Testing & verification (link_dotfiles.zsh, symlinks, 0 errors) ✅
-- [x] **Task 9.8:** Update related systems (no hardcoded paths found, .gitmodules updated) ✅
-
-**Commits:**
-- c0ebcd0: Phase 9.1 & 9.2: Implement user/ directory structure (120 files moved)
-- 7eae589: Task 9.6: Update documentation for user/ directory structure
-
-**Result:** Clean, professional structure with full git history preserved and 100% test compatibility
-
-**Time Spent:** ~3 hours (as estimated)
-**Risk Level:** Low (no issues encountered)
-
----
-
-## Active Projects
-
-### Phase 10: User Scripts Refactoring 🎨 MOSTLY COMPLETE
-**Goal:** Refactor all user-facing scripts to match repository quality standards
-**Status:** Core Refactoring Complete (October 17, 2025) → Documentation Remaining
-**Priority:** High
-**Time Spent:** ~8 hours (as estimated)
-
-#### Context
-
-After successfully refactoring the `speak` script with full shared library integration, we identified an opportunity to bring all user-facing scripts in `user/scripts/` up to the same quality standard. This ensures consistency, maintainability, and a delightful user experience across all utilities.
-
-**Current State:**
-- 12 total scripts in `user/scripts/`
-- 1 already perfect (generate_brew_install_script)
-- 1 recently refactored (speak)
-- 4 are simple wrappers (no work needed)
-- 6 need refactoring (varying levels of effort)
-
-#### Scripts Classification
-
-**✅ Already Perfect (Reference Examples)**
-1. `generate_brew_install_script.symlink_local_bin.zsh` - Full shared library usage, beautiful headers, OneDark colors, argument parsing, greetings integration
-
-**🌟 Recently Completed**
-2. `speak.symlink_local_bin.zsh` - Full refactoring complete (October 17, 2025)
-
-**🔄 Simple Wrappers (No Work Needed)**
-3. `shell.symlink_local_bin.zsh` - Exec wrapper to shell.zsh
-4. `shorten_path.symlink_local_bin.zsh` - Exec wrapper to shorten_path.zsh
-5. `install_maven_wrapper.symlink_local_bin.sh` - Exec wrapper to install_maven_wrapper.sh
-6. `jdt.ls.symlink_local_bin.sh` - OS detection wrapper (16 lines)
-
-**🎯 Phase 1: High Priority Refactoring**
-7. `battery.symlink_local_bin.sh` (167 lines) - Convert bash→zsh, full library integration
-8. `get_github_url.symlink_local_bin.zsh` (242 lines) - Upgrade partial library usage to full integration
-9. `get_jdtls_url.symlink_local_bin.zsh` (206 lines) - Upgrade partial library usage to full integration
-
-**📝 Phase 2: Medium Priority**
-10. `rustp.symlink_local_bin.sh` (36 lines) - Add help message, shared libraries, headers
-
-**⭐ Phase 3: Optional Enhancement**
-11. `iperl.symlink_local_bin.sh` (4 lines) - Add --help flag, library integration for consistency
-12. `create_hie_yaml.symlink_local_bin.sh` (5 lines) - Add --help flag, success feedback
-
-#### Refactoring Standards
-
-All refactored scripts should include:
-
-**Required Elements:**
-- ✅ `emulate -LR zsh` (for zsh scripts)
-- ✅ Shared library loading with fallback protection
-- ✅ OneDark color scheme (via colors.zsh)
-- ✅ Standardized UI functions (print_success, print_error, print_info)
-- ✅ Beautiful headers using draw_header() or draw_section_header()
-- ✅ Argument parsing using arguments.zsh patterns or zparseopts
-- ✅ Comprehensive --help messages with examples
-- ✅ command_exists() instead of custom command checking
-- ✅ OS context awareness (DF_OS, DF_PKG_MANAGER where relevant)
-- ✅ Friendly greetings (get_random_friend_greeting() where appropriate)
-
-**Nice-to-Have:**
-- Progress indicators for long operations
-- Dry-run mode where applicable
-- Verbose mode for debugging
-- Error handling with actionable messages
-
-#### Tasks
-
-- [x] **Task 10.1: Phase 1 - battery refactoring** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
-  - Convert from bash to zsh
-  - Add shared library integration (colors, ui, utils)
-  - Replace custom ANSI colors with OneDark scheme
-  - Replace has() with command_exists()
-  - Add draw_header() for script name
-  - Enhance --help with comprehensive documentation
-  - Use arguments.zsh for argument parsing
-  - Add friendly greeting on completion
-  - Test on macOS with pmset and ioreg
-  - Update MANUAL.md with any behavioral changes
-
-- [x] **Task 10.2: Phase 1 - get_github_url upgrade** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
-  - Replace custom print_info() with shared library version
-  - Add draw_header() "GitHub URL Downloader"
-  - Add draw_section_header() for different phases
-  - Migrate zparseopts to arguments.zsh pattern
-  - Use standard --silent flag behavior
-  - Enhance error messages with print_error()
-  - Add success messages with print_success()
-  - Consider adding friendly greeting
-  - Test with various repositories and options
-  - Update documentation
-
-- [x] **Task 10.3: Phase 1 - get_jdtls_url upgrade** (~2-3 hours) ✅ COMPLETE (October 17, 2025)
-  - Mirror improvements from get_github_url
-  - Replace custom print_info() with shared version
-  - Add draw_header() "JDT.LS Download URL Fetcher"
-  - Add draw_section_header() for version resolution, URL checking
-  - Migrate zparseopts to arguments.zsh pattern
-  - Enhance URL checking feedback with progress
-  - Add success/error messages with shared functions
-  - Test with latest and specific versions
-  - Update documentation
-
-- [x] **Task 10.4: Phase 2 - rustp enhancement** (~1-2 hours) ✅ COMPLETE (October 17, 2025)
-  - Keep as bash or convert to zsh (decide based on dependencies)
-  - Add comprehensive --help message with examples
-  - Add shared library integration if converting to zsh
-  - Add header "Rust Playground" with draw_header()
-  - Enhance error messages
-  - Consider adding dry-run mode
-  - Test tmux integration thoroughly
-  - Update documentation
-
-- [x] **Task 10.5: Phase 3 - iperl enhancement** (~30min-1 hour) ✅ COMPLETE (October 17, 2025)
-  - Add --help flag with usage information
-  - Optionally add shared library integration
-  - Add welcome message using print_info()
-  - Document rlwrap dependency
-  - Keep it simple and lightweight
-
-- [x] **Task 10.6: Phase 3 - create_hie_yaml enhancement** (~30min-1 hour) ✅ COMPLETE (October 17, 2025)
-  - Add --help flag with usage information
-  - Add --output flag for custom file location
-  - Add success message "Created hie.yaml for Haskell IDE"
-  - Optionally add shared library integration
-  - Document what HIE is and why this is useful
-
-- [ ] **Task 10.7: Documentation updates** (~1 hour)
-  - Update MANUAL.md with any new features/flags
-  - Update CLAUDE.md if patterns change
-  - Add examples to README.md if appropriate
-  - Document the refactoring pattern for future reference
-
-- [ ] **Task 10.8: Testing and validation** (~1 hour)
-  - Test all refactored scripts individually
-  - Verify symlink creation still works
-  - Run through common use cases
-  - Check for regressions
-  - Verify beautiful output with OneDark colors
-
-#### Success Criteria
-
-- [x] All Phase 1 scripts (battery, get_github_url, get_jdtls_url) refactored ✅
-- [x] All Phase 2 scripts (rustp) refactored ✅
-- [x] All Phase 3 scripts (iperl, create_hie_yaml) refactored ✅
-- [x] Consistent UI across all user scripts ✅
-- [x] OneDark color scheme throughout ✅
-- [x] Comprehensive --help messages ✅
-- [x] No functionality regressions ✅
-- [ ] Documentation updated (Task 10.7 - optional)
-- [ ] All tests passing (Task 10.8 - optional)
-
-#### Reference Materials
-
-**Gold Standard Examples:**
-- `bin/generate_brew_install_script.symlink_local_bin.zsh` - Perfect example of full integration
-- `user/scripts/utilities/speak.symlink_local_bin.zsh` - Recently refactored, excellent pattern
-
-**Shared Libraries:**
-- `bin/lib/colors.zsh` - OneDark color constants
-- `bin/lib/ui.zsh` - Headers, progress bars, drawing functions
-- `bin/lib/utils.zsh` - OS detection, command_exists(), helpers
-- `bin/lib/arguments.zsh` - Standardized argument parsing
-- `bin/lib/greetings.zsh` - Friendly messages
-
-**Testing:**
-- All scripts should work when symlinked to `~/.local/bin/`
-- Libraries should be loadable from that context
-- Fallback protection should handle missing libraries gracefully
-
----
-
-### Phase 11: Post-Install Script Refactoring ✅ COMPLETE
-**Goal:** Refactor post-install scripts for better modularity and maintainability
-**Status:** ✅ Complete (October 17, 2025)
-**Priority:** High
-**Time Spent:** ~6 hours (as estimated)
-
-#### What Was Accomplished
-
-Successfully refactored the monolithic `toolchains.zsh` (225 lines) into three focused, single-responsibility scripts:
-
-**New Scripts Created:**
-1. **`haskell-toolchain.zsh`** (176 lines)
-   - Installs Haskell Stack build tool
-   - Installs GHCup (Haskell toolchain manager)
-   - OS-aware installation (macOS via brew, Linux via official scripts)
-   - **Required by:** `ghcup-packages.zsh`
-   - **Dependencies:** NONE (base toolchain provider)
-
-2. **`rust-toolchain.zsh`** (139 lines)
-   - Installs rustup (Rust toolchain installer)
-   - Installs Rust compiler (rustc) + Cargo package manager
-   - Shows version information after installation
-   - **Required by:** `cargo-packages.zsh`
-   - **Dependencies:** NONE (base toolchain provider)
-
-3. **`starship-prompt.zsh`** (157 lines)
-   - Installs Starship cross-shell prompt
-   - Properly categorized as shell prompt utility (not language toolchain)
-   - Linux: official installer, macOS: via Homebrew
-   - **Required by:** Nobody (standalone enhancement)
-   - **Dependencies:** NONE
-
-**Files Modified:**
-- **Deleted:** `post-install/scripts/toolchains.zsh` (225 lines)
-- **Updated:** `cargo-packages.zsh` - dependency references changed from `toolchains.zsh` to `rust-toolchain.zsh`
-- **Updated:** `ghcup-packages.zsh` - dependency references changed from `toolchains.zsh` to `haskell-toolchain.zsh`
-- **Updated:** `post-install/README.md` - script index table and categories updated
-- **Updated:** `CHANGELOG.md` - comprehensive Phase 11 entry added
-- **Updated:** `tests/integration/test_post_install_scripts.zsh` - replaced 1 test with 3 new tests
-
-**Benefits Realized:**
-- ✅ Single Responsibility - Each script has one clear purpose
-- ✅ Improved Modularity - Can install Rust without Haskell, etc.
-- ✅ Better Documentation - Each script documents its specific purpose and dependencies
-- ✅ Clearer Dependencies - Dependency chains are explicit and traceable
-- ✅ Proper Categorization - Starship is a shell prompt, not a language toolchain
-- ✅ Independent Installation - Users can select only what they need
-- ✅ Test Coverage - All new scripts validated (24/24 integration tests passing)
-- ✅ TUI Menu Integration - All scripts auto-discovered and available
-
-**Net Change:** +47 lines of code, -1 monolithic script, +3 focused scripts
-
-#### Completed Tasks
-
-- [x] **Task 11.1:** Create `haskell-toolchain.zsh` ✅
-- [x] **Task 11.2:** Create `rust-toolchain.zsh` ✅
-- [x] **Task 11.3:** Create `starship-prompt.zsh` ✅
-- [x] **Task 11.4:** Delete old `toolchains.zsh` ✅
-- [x] **Task 11.5:** Update dependent scripts ✅
-- [x] **Task 11.6:** Update documentation ✅
-- [x] **Task 11.7:** Verify TUI menu integration ✅
-- [x] **Task 11.8:** Testing & validation ✅
-- [x] **Task 11.9:** Create git commits ✅
-
-#### Git Commits
-
-- `b58b72f` - Refactor post-install scripts: Split toolchains.zsh into focused modules
-- `53541d2` - Update test suite for post-install script refactoring
-
-#### Test Results
-
-- **Integration Tests:** 24/24 passing ✅
-- **New Tests Added:** 3 (haskell-toolchain, rust-toolchain, starship-prompt)
-- **Old Tests Removed:** 1 (toolchains)
-- **TUI Menu:** All scripts discovered and executable ✅
-- **Help Flags:** All scripts respond correctly to `--help` ✅
-
-#### Success Criteria
-
-- [x] 3 new focused scripts created (haskell-toolchain, rust-toolchain, starship-prompt) ✅
-- [x] Old toolchains.zsh removed ✅
-- [x] All dependent scripts updated ✅
-- [x] Documentation updated (README, CHANGELOG) ✅
-- [x] All tests passing (24/24) ✅
-- [x] No functionality regressions ✅
-- [x] Independent installation works ✅
-- [x] TUI menu shows all new scripts ✅
-
-**Result:** Clean, modular structure with improved maintainability and user experience
-
----
-
 ### Phase 5: Advanced Testing Infrastructure 🚀 IN PROGRESS
 **Goal:** Flexible, modular, high-speed testing system for Docker and XCP-NG
 **Status:** In Progress
@@ -392,217 +65,109 @@ Successfully refactored the monolithic `toolchains.zsh` (225 lines) into three f
 
 ---
 
-### Phase 6: Documentation Excellence 📚 IN PROGRESS
-**Goal:** Comprehensive documentation audit and improvement
-**Status:** In Progress
-**Priority:** Medium-High
-
-#### Completed Tasks ✅
-- [x] **Task 6.1:** Update TESTING.md with Phase 5 Infrastructure (October 16, 2025)
-- [x] **Task 6.2:** Update tests/README.md with Phase 5 Content (October 16, 2025)
-
-#### Remaining Tasks
-
-- [ ] **Task 6.3:** Create bin/lib/README.md
-  - Overview of each library (colors.zsh, ui.zsh, utils.zsh, etc.)
-  - API reference for key functions
-  - Usage examples
-  - Dependencies between libraries
-  - Loading patterns
-
-- [ ] **Task 6.4:** Update CHANGELOG.md
-  - Document Phase 7 menu system (October 16, 2025)
-  - Document Phase 7.5 emulate cleanup (October 16, 2025)
-  - Document Phase 7.6 library consolidation (October 16, 2025)
-  - Document Phase 7.7 speak utility (October 16, 2025)
-  - Document Phase 7.8 env/ migration (October 16, 2025)
-
-- [ ] **Task 6.5:** Update post-install/README.md
-  - Document .ignored/.disabled filtering mechanism
-  - Add section on OS context variables (DF_OS, DF_PKG_MANAGER, etc.)
-  - Include examples of writing new post-install scripts
-
-- [ ] **Task 6.6:** Cross-Reference Audit
-  - Ensure all documentation cross-references are current
-  - Verify all file paths in documentation are accurate
-  - Update any outdated examples
-
-**Estimated Time:** 4-6 hours total
-
----
 
 ## Pending Projects
 
-### Phase 12: Windows WSL Support 🪟 IN PROGRESS
-**Goal:** Complete WSL2 support with proper detection, Windows interop, and documentation
-**Status:** In Progress (Planning Phase - Sandwich Approach)
+### Phase 14: Windows/WSL Testing Infrastructure 🪟 IN PROGRESS
+**Goal:** Fix cloudbase-init issues and improve Windows/WSL testing automation
+**Status:** In Progress (October 18, 2025)
 **Priority:** Medium-High
 **Methodology:** Using The Sandwich Approach
 
 #### Context
 
-Windows Subsystem for Linux (WSL2) is becoming increasingly popular for development. While our web installers already detect WSL, our core utilities treat it as generic Linux. This phase adds proper WSL detection throughout the system and WSL-specific features.
+The dotfiles repository has comprehensive Windows testing infrastructure in `tests/test_xen.zsh` with support for Windows VM provisioning via XCP-NG hypervisor and cloudbase-init. However, **cloudbase-init is not working yet** during Windows VM setup.
 
-**Current State Analysis (Phase 1 - Study Complete):**
+**Current Infrastructure:**
+- ✅ `tests/test_xen.zsh` (1214 lines) - Main testing script with Windows support
+- ✅ `tests/lib/xen_cluster.zsh` (499 lines) - Multi-host cluster management
+- ✅ `tests/test_config.yaml` (591 lines) - Windows template configuration (w11)
+- ✅ `docs/XEN_TESTING.md` (817 lines) - Comprehensive testing documentation
+- ✅ `docs/WSL.md` (619 lines) - WSL user guide and troubleshooting
 
-✅ **What Already Works:**
-- Web installers (dfauto, dfsetup) detect WSL via `/proc/version`
-- PowerShell installers exist (dfauto.ps1, dfsetup.ps1)
-- Basic installation succeeds on WSL
-- Package management (apt) works correctly
-
-❌ **What Needs Enhancement:**
-- Core `utils.zsh` `get_os()` returns "linux" instead of "wsl"
-- Post-install scripts don't know they're running on WSL
-- No WSL-specific handling (Windows interop, path translation)
-- No WSL documentation for users
-- No WSL test coverage
-- Missing WSL-specific utilities and configurations
+**Helper Scripts (on XCP-NG host):**
+- `/root/aria-scripts/create-vm-with-cloudinit-iso.sh` (Linux VMs)
+- `/root/aria-scripts/create-windows-vm-with-cloudinit-iso.sh` (Windows VMs)
 
 #### Goals
 
-1. **Consistent WSL Detection** - All scripts properly detect WSL environment
-2. **Windows Interop** - Utilities for WSL/Windows integration
-3. **Documentation** - Complete WSL setup and usage guide
-4. **Testing** - WSL test coverage in Docker and real environments
-5. **User Experience** - Seamless WSL-specific features
+1. **Diagnose cloudbase-init issues** - Identify why cloudbase-init is not working in Windows VMs
+2. **Fix Windows VM provisioning** - Ensure automated setup works correctly
+3. **Verify XEN guest tools** - Check if guest tools are installed in Windows template
+4. **Test OpenSSH Server** - Ensure SSH access works via cloudbase-init
+5. **Document troubleshooting** - Create comprehensive debugging guide
+6. **Improve WSL testing** - Enhance WSL-specific test coverage
 
 #### Implementation Tasks
 
-**Phase 12.1: Core WSL Detection** (~2-3 hours)
-- [x] **Task 12.1.1:** Update `utils.zsh` `get_os()` function ✅
-  - Add WSL detection via `/proc/version` check
-  - Return "wsl" as distinct OS type
-  - Add WSL detection helper function `is_wsl()`
-  - Update `detect_package_manager()` to handle WSL case
+**Phase 14.1: Investigation & Diagnosis** (~1.5 hours)
+- [x] Test actual Windows VM creation to identify cloudbase-init failure points ✅
+- [x] Examine cloudbase-init logs on failed VM ✅
+- [x] Inspect helper script on XCP-NG host ✅
+- [x] Check XEN guest tools in Windows template ✅
 
-- [x] **Task 12.1.2:** Update setup.zsh ✅
-  - Recognize DF_OS="wsl" context variable
-  - Add WSL-specific setup messages
-  - Handle WSL-specific paths if needed
+**Phase 14.2: Fixing Cloudbase-init Issues** (~2 hours)
+- [x] Fix Issue #1: ISO Volume Label (changed to `config-2`) ✅
+- [x] Fix Issue #2: Template State (created pristine w11cb template) ✅
+- [x] Fix Issue #3: Network Profile (force Private profile via PowerShell) ✅
+- [x] Fix Issue #4: ISO Storage Repository (use isostore1 for ISOs) ✅
+- [x] Fix Issue #5: ISO Upload Method (direct copy + sr-scan for ISO SRs) ✅
+- [ ] Fix Issue #6: Multiple CD-ROM drives conflict (in progress)
 
-- [ ] **Task 12.1.3:** Test OS detection ⏳ DEFERRED
-  - Deferred to test_xen script for VM-based testing
-  - Will test WSL detection on actual Windows VMs
-  - Verify detection on WSL1 and WSL2
-  - Ensure fallback to "linux" if detection fails
-  - Test DF_OS export across scripts
+**Phase 14.3: WSL-Specific Testing** (~1 hour) *OPTIONAL*
+- [ ] Add WSL detection tests to test_utils.zsh
+- [ ] Create test_wsl_install.zsh for WSL validation
+- [ ] Document WSL testing in XEN_TESTING.md
 
-**Phase 12.2: Documentation** (~2-3 hours)
-- [x] **Task 12.2.1:** Create `docs/WSL.md` guide ✅
-  - WSL2 installation instructions
-  - Setup process for WSL users
-  - Windows interop features
-  - Troubleshooting common WSL issues
-  - Performance tips (Windows Defender exclusions, etc.)
+**Phase 14.4: Testing & Validation** (~1 hour)
+- [ ] Smoke test Windows VM provisioning after fixes
+- [ ] Test comprehensive Windows validation
+- [ ] Test Windows-only test mode
+- [ ] Manual cloudbase-init verification
 
-- [x] **Task 12.2.2:** Update README.md ✅
-  - Add WSL to supported platforms
-  - Link to WSL.md guide
-  - Add WSL-specific installation examples
+**Phase 14.5: Documentation Updates** (~1 hour)
+- [ ] Update XEN_TESTING.md with troubleshooting section
+- [ ] Update WSL.md with testing information
+- [ ] Create TROUBLESHOOTING_WINDOWS.md guide
 
-- [x] **Task 12.2.3:** Update CLAUDE.md ✅
-  - Document WSL as supported OS in Platform Support
-  - Add WSL detection patterns
-  - Document DF_OS="wsl" context variable
-  - Note Windows interop considerations
-
-- [x] **Task 12.2.4:** Update INSTALL.md ✅
-  - Add WSL installation section
-  - PowerShell installer instructions
-  - Common WSL gotchas
-
-**Phase 12.3: Windows Interop Utilities** (~3-4 hours) *OPTIONAL*
-- [x] **Task 12.3.1:** Create WSL utility scripts ✅
-  - Cross-platform `open` command (explorer.exe on WSL)
-  - Cross-platform `clip` clipboard integration (clip.exe wrapper)
-  - Updated `speak` utility for WSL support (espeak-ng/espeak/festival)
-  - Windows path translation in open/clip utilities
-
-- [ ] **Task 12.3.2:** WSL-specific configurations ⏳ OPTIONAL
-  - Git credential manager integration
-  - SSH agent forwarding from Windows
-  - Docker Desktop integration notes
-  - VSCode Remote WSL integration
-
-**Phase 12.4: Testing** (~2-3 hours)
-- [ ] **Task 12.4.1:** Add WSL detection unit tests
-  - Unit tests for `get_os()` WSL detection
-  - Unit tests for `is_wsl()` helper
-  - Mock `/proc/version` for testing
-
-- [ ] **Task 12.4.2:** Integration testing ⏳ DEFERRED
-  - Deferred to test_xen script for Windows VM testing
-  - Will test installation on real WSL environment
-  - Verify all scripts see DF_OS="wsl"
-  - Test post-install scripts on WSL
-  - Document WSL test setup in test_xen
-
-- [ ] **Task 12.4.3:** Update test documentation
-  - Add WSL testing instructions to TESTING.md
-  - Document WSL test setup for test_xen
-  - Add note that WSL testing requires Windows VMs
-  - Add WSL test troubleshooting
-
-**Phase 12.5: Post-Install Script Enhancements** (~2-3 hours) *OPTIONAL*
-- [x] **Task 12.5.1:** Review post-install scripts for WSL compatibility ✅
-  - Updated 6 scripts: starship-prompt, fonts, git-delta, haskell-toolchain, language-servers, lombok
-  - Changed `linux)` → `linux|wsl)` pattern (13 changes total)
-  - All post-install scripts now support WSL
-
-- [ ] **Task 12.5.2:** Add WSL-specific post-install scripts *if needed*
-  - Assess if WSL-specific scripts are needed
-  - Windows Terminal configuration (optional)
-  - WSLg GUI app setup (optional)
-  - Docker Desktop integration (optional)
-
-**Phase 12.6: Finalization** (~30 mins)
-- [ ] **Task 12.6.1:** Update CHANGELOG.md
-  - Add WSL support to [Unreleased]
-  - Document all new features
-  - Note DF_OS="wsl" addition
-  - List all updated scripts and utilities
-
-- [ ] **Task 12.6.2:** Update Meetings.md
-  - Archive Phase 12 completion
-  - Document decisions and results
-  - Record metrics and changes made
-  - Note deferred testing (test_xen)
+**Phase 14.6: Final Verification & Commit** (~30 mins)
+- [ ] Complete Windows VM test cycle
+- [ ] Run full test suite
+- [ ] Update MEETINGS.md with Phase 14 completion
+- [ ] Commit and push changes
 
 #### Success Criteria
 
-- [x] Phase 1: Study existing WSL support (Complete - ✅)
-- [ ] Core `get_os()` properly detects WSL
-- [ ] `DF_OS="wsl"` exported consistently
-- [ ] Complete WSL documentation (WSL.md)
-- [ ] Updated README, CLAUDE, INSTALL with WSL info
-- [ ] Unit tests for WSL detection
-- [ ] Tested on real WSL2 environment
-- [ ] All existing functionality works on WSL
-- [ ] CHANGELOG and Meetings updated
+- [x] 5/6 cloudbase-init issues fixed (Issues 1-5) ✅
+- [ ] Issue #6 resolved (multiple CD-ROM drives)
+- [ ] Windows VM (w11) provisions successfully with cloudbase-init
+- [ ] OpenSSH Server installs and starts automatically
+- [ ] SSH access works to Windows VM
+- [ ] XEN guest tools report VM IP correctly
+- [ ] `./tests/test_xen.zsh --basic --distro w11` passes completely
+- [ ] WSL detection works correctly in dotfiles setup
+- [ ] Documentation updated with troubleshooting steps
 
 #### Estimated Time
 
-- **Core Detection:** 2-3 hours
-- **Documentation:** 2-3 hours
-- **Testing:** 2-3 hours
-- **Interop Utilities (Optional):** 3-4 hours
-- **Post-Install Review (Optional):** 2-3 hours
-- **Total Required:** 6-9 hours
-- **Total with Optional:** 11-16 hours
+- **Core Issues (14.1-14.2):** 3-4 hours (mostly complete)
+- **WSL Testing (14.3):** 1 hour (optional)
+- **Testing & Docs (14.4-14.5):** 2 hours
+- **Total Required:** 5-6 hours
+- **Total with Optional:** 6-7 hours
 
-#### Dependencies
+#### Current Status
 
-- Access to WSL2 environment for testing (or Docker simulation)
-- PowerShell installers already exist ✅
-- Web installers already have WSL detection ✅
+**Progress:** 5/6 issues fixed, Issue #6 (multiple CD-ROM drives) in progress
 
-#### Notes
+**Working Documentation:**
+- See `tests/WINDOWS_AUTOMATION_COMPLETE_GUIDE.md` for detailed issue tracking and solutions
+- Active work log with VM details, commands, and verification procedures
 
-- **Sandwich Approach:** This phase follows the proven methodology
-- **Incremental:** Can ship core detection separately from optional utilities
-- **Backward Compatible:** Won't break existing Linux support
-- **Low Risk:** Detection is additive, not destructive
+**Next Steps:**
+1. Resolve CD-ROM drive conflict (detach template's empty drive or use its position)
+2. Test complete automation with Issue #6 fix
+3. Document working solution and create handover documentation
 
 ---
 
@@ -622,33 +187,6 @@ Windows Subsystem for Linux (WSL2) is becoming increasingly popular for developm
 
 ---
 
-### Phase 8: Repository Restructuring 🗂️ COMPLETE
-**Goal:** Reorganize 44+ top-level directories into logical category-based structure
-**Status:** ✅ Complete (October 13-14, 2025)
-**Completion:** All tasks finished, fully documented
-
-#### What Was Accomplished
-
-Transformed flat 44+ directory structure into organized `configs/` categories:
-- ✅ `configs/shell/` - zsh, bash, fish, aliases, readline
-- ✅ `configs/editors/` - nvim, vim, emacs
-- ✅ `configs/terminals/` - kitty, alacritty, macos-terminal
-- ✅ `configs/multiplexers/` - tmux
-- ✅ `configs/prompts/` - starship, p10k
-- ✅ `configs/version-control/` - git, github
-- ✅ `configs/development/` - maven, jdt.ls, ghci
-- ✅ `configs/languages/` - R, ipython, stylua, black
-- ✅ `configs/utilities/` - bat, eza, delta, fzf, ranger, neofetch
-- ✅ `configs/system/` - karabiner, xcode, xmodmap, xprofile
-- ✅ `configs/package-managers/` - brew, apt
-
-**Commits:** e5b8098 through aaafb2a (10 phases)
-**Result:** Professional, scalable structure with full git history preserved
-**Documentation:** README, CLAUDE, DEVELOPMENT, MANUAL, INSTALL all updated
-
-**See Meetings.md for detailed completion notes**
-
----
 
 ## Quick Reference
 
@@ -665,23 +203,41 @@ Transformed flat 44+ directory structure into organized `configs/` categories:
 - **Phase 8:** 20-30 hours
 
 ### Completed Work
-See **Meetings.md** for archive of:
+See **Meetings.md** for detailed archive of completed phases:
+
+**2025 Completions:**
 - Phase 1: Documentation Enhancement ✅
 - Phase 2: Consistency & Quality ✅
 - Phase 3: Testing & Validation ✅
 - Phase 4.5: Profile & Package Management Integration ✅
+- Phase 6: Documentation Excellence ✅ **(October 16, 2025)**
 - Phase 7: Hierarchical Menu System ✅
 - Phase 7.5: Emulate -LR zsh Cleanup ✅
 - Phase 7.6: Menu System Library Consolidation ✅
 - Phase 7.7: Text-to-Speech Utility (speak) ✅
 - Phase 7.8: Directory Naming Refinement (config → env) ✅
 - Phase 8: Repository Restructuring (configs/ organization) ✅ **(October 13-14, 2025)**
+- Phase 9: User Directory Restructuring ✅ **(October 17, 2025)**
+- Phase 10: User Scripts Refactoring ✅ **(October 17, 2025)**
+- Phase 11: Post-Install Script Refactoring ✅ **(October 17, 2025)**
+- Phase 12: Windows WSL Support ✅ **(October 17, 2025)**
+- Phase 13: Hierarchical Menu Integration ✅ **(October 17, 2025)**
 
-### Recent Completions (October 16, 2025)
+**Recent Completions (October 15-18, 2025):**
 - ✅ Documentation organization (docs/ folder created)
 - ✅ Web installer migration (install/ folder created)
 - ✅ Archive cleanup (local-only enforcement)
 - ✅ Project workflow documentation (CLAUDE.md updated)
+- ✅ Documentation Excellence - comprehensive cross-references and polish (Phase 6)
+- ✅ User directory semantic restructuring (user/configs + user/scripts)
+- ✅ All user scripts refactored with shared libraries and OneDark theme
+- ✅ Post-install toolchains split into focused modules
+- ✅ Complete Windows Subsystem for Linux (WSL) support (Phase 12)
+  - WSL detection in get_os() function
+  - Cross-platform utilities (open, clip)
+  - Comprehensive WSL.md documentation (619 lines)
+  - WSL-compatible post-install scripts
+- ✅ Hierarchical menu integration (Phase 13)
 
 ---
 
