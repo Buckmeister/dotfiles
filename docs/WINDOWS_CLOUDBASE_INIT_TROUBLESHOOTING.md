@@ -312,6 +312,89 @@ powershell.exe -Command "Get-ChildItem D:\ -Recurse | Select-Object FullName"
 
 ---
 
+### ✅ Issue #8: SSH Keys for Administrator Group Members
+
+**Problem:** SSH key authentication fails even though:
+- SSH keys are deployed to `C:\Users\aria\.ssh\authorized_keys`
+- File ownership and permissions are correct
+- The aria user is in the Administrators group
+
+**Impact:** Cannot connect via SSH using keys, only password authentication works
+
+**Root Cause:**
+Windows OpenSSH has a **special security feature** for users in the Administrators group:
+- Normal users: SSH keys read from `~/.ssh/authorized_keys`
+- Administrator users: SSH keys **MUST** be in `C:\ProgramData\ssh\administrators_authorized_keys`
+- The user's `~/.ssh/authorized_keys` is completely ignored for Administrator group members
+- This is documented Windows OpenSSH behavior to prevent privilege escalation
+
+**Evidence:**
+```powershell
+# Check if user is in Administrators group
+Get-LocalGroupMember -Group "Administrators"
+# Shows: aria is a member
+
+# User's authorized_keys exists but is ignored
+Test-Path C:\Users\aria\.ssh\authorized_keys  # Returns True
+# But SSH key auth still fails!
+
+# administrators_authorized_keys doesn't exist
+Test-Path C:\ProgramData\ssh\administrators_authorized_keys  # Returns False
+```
+
+**Fix:** Copy SSH keys to administrators_authorized_keys with correct permissions
+
+**Manual Fix (for testing):**
+```powershell
+# Copy authorized_keys to administrators location
+Copy-Item C:\Users\aria\.ssh\authorized_keys C:\ProgramData\ssh\administrators_authorized_keys
+
+# Set correct permissions (only SYSTEM and Administrators)
+icacls C:\ProgramData\ssh\administrators_authorized_keys /inheritance:r
+icacls C:\ProgramData\ssh\administrators_authorized_keys /grant "NT AUTHORITY\SYSTEM:(F)"
+icacls C:\ProgramData\ssh\administrators_authorized_keys /grant "BUILTIN\Administrators:(F)"
+
+# Restart sshd to pick up changes
+Restart-Service sshd
+```
+
+**Automated Fix in Helper Script:**
+The v2 helper script now includes `setup-admin-ssh-keys.ps1` which automatically:
+1. Checks if aria user is in Administrators group
+2. If yes, copies `~/.ssh/authorized_keys` to `C:\ProgramData\ssh\administrators_authorized_keys`
+3. Sets correct permissions (only SYSTEM and Administrators have access)
+4. Restarts sshd service
+
+**Location:** Helper script `setup-admin-ssh-keys.ps1` (lines 292-373)
+
+**Verification:**
+```powershell
+# Check that administrators_authorized_keys exists
+Get-Content C:\ProgramData\ssh\administrators_authorized_keys
+
+# Check permissions (should show only SYSTEM and Administrators)
+Get-Acl C:\ProgramData\ssh\administrators_authorized_keys | Format-List
+
+# Test SSH key authentication
+# From remote machine:
+ssh -i ~/.ssh/aria_xen_key aria@<VM_IP> 'echo "SSH key auth works!"'
+```
+
+**Alternative Fix (if you don't want aria in Administrators group):**
+Remove aria from Administrators and keep it in Users group only. Then the regular `~/.ssh/authorized_keys` will work:
+```powershell
+Remove-LocalGroupMember -Group "Administrators" -Member "aria"
+# Now ~/.ssh/authorized_keys will be used instead
+```
+
+**Status:** ✅ RESOLVED in create-windows-vm-with-cloudinit-iso-v2.sh (October 18, 2025)
+
+**References:**
+- [Windows OpenSSH Key Management](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement)
+- [OpenSSH Server Configuration for Windows](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_server_configuration)
+
+---
+
 ## 🔍 How Cloudbase-Init Works
 
 ### ConfigDrive Detection Flow
@@ -436,7 +519,8 @@ When automation is complete, running the helper script should result in:
 
 **Windows VMs:** `/root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh`
 - v2 includes OpenStack ISO structure fix (Issue #7)
-- v2 includes all 6 issue fixes
+- v2 includes administrators_authorized_keys fix (Issue #8)
+- v2 includes all 7 issue fixes
 - Recommended location: NFS shared storage on xenstore1
 
 ### Deployment to Shared Storage
@@ -487,4 +571,4 @@ chmod +x /run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/*.sh
 
 ---
 
-**This guide represents 6 issues discovered and resolved over multiple debugging sessions. Keep it updated as new issues are discovered!**
+**This guide represents 7 issues discovered and resolved over multiple debugging sessions. Keep it updated as new issues are discovered!**
