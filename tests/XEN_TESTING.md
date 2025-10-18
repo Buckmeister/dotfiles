@@ -1,45 +1,50 @@
-# XCP-NG VM Testing Guide
+# XEN/XCP-NG Testing Guide
 
-Flexible and comprehensive testing framework for dotfiles installation validation using real XCP-NG virtual machines (Linux & Windows).
+Comprehensive and flexible testing framework for dotfiles installation validation on real XCP-NG virtual machines.
 
 ## 📋 Overview
 
-The enhanced XCP-NG test script (`test_xen.zsh`) provides a powerful, flexible testing framework that validates dotfiles installation on fresh VMs. It supports multiple test modes, post-install script filtering, Windows testing, and comprehensive debugging options.
+The unified XEN test script (`test_xen.zsh`) provides a powerful, flexible testing framework that validates dotfiles installation on freshly provisioned VMs in an XCP-NG hypervisor environment. It supports multiple test modes, post-install script filtering, Windows/Linux testing, and integrated helper script deployment.
 
-**Key Advantages over Docker:**
-- Real VMs with full OS environments
-- Windows testing support
-- Realistic hardware and networking conditions
-- Testing VM provisioning and cloud-init/cloudbase-init
+**Key Advantages Over Docker Testing:**
+- ✅ Tests on real VMs (not containers) - full OS experience
+- ✅ Tests actual cloud-init provisioning (production-like)
+- ✅ Supports Windows testing via cloudbase-init
+- ✅ Multi-host cluster support with automatic failover
+- ✅ Integrated NFS helper script deployment
 
 ## 🚀 Quick Start
 
 ```bash
 cd ~/.config/dotfiles
 
-# Fast smoke test (2-3 minutes)
+# Fast smoke test on Linux (30 seconds)
+./tests/test_xen.zsh --basic --quick --skip-pi
+
+# Basic Linux test
 ./tests/test_xen.zsh --basic --quick
 
-# Full installation test
+# Windows test (takes longer - ~5-10 min)
+./tests/test_xen.zsh --basic --windows-only
+
+# Deploy helper scripts to NFS
+./tests/test_xen.zsh --deploy-helpers
+
+# Full validation
 ./tests/test_xen.zsh --comprehensive --quick
-
-# Test git configs only on real VM
-./tests/test_xen.zsh --enable-pi "git-*" --quick
-
-# Debug failed test (keeps VM for inspection)
-./tests/test_xen.zsh --quick --keep-vm --vm-name debug
 ```
 
 ## 🎯 Test Script: `test_xen.zsh`
 
 ### Key Features
 
-1. **Multiple Test Modes**: Choose between basic validation, comprehensive testing, or full coverage
+1. **Multiple Test Modes**: Choose between basic, comprehensive, or full validation
 2. **PI Script Filtering**: Control which post-install scripts run during testing
-3. **Windows Support**: Test both Linux and Windows VMs
-4. **Development Options**: Debug with --keep-vm, custom VM names, skip librarian
-5. **Flexible Distribution Selection**: Test specific distros, Linux-only, or Windows-only
-6. **Beautiful Output**: Progress tracking, phase indicators, and detailed test results
+3. **Windows & Linux Support**: Test both OS families on real VMs
+4. **Integrated Deployment**: Deploy helper scripts to NFS shared storage
+5. **Flexible Distribution Selection**: Test specific distros or all of them
+6. **Cloud-Init Testing**: Validates actual cloud provisioning workflows
+7. **Beautiful Output**: Progress tracking and detailed test results with OneDark theme
 
 ---
 
@@ -47,72 +52,59 @@ cd ~/.config/dotfiles
 
 ### Basic Mode
 
-**Purpose**: VM provisioning and SSH validation only
-**Duration**: ~2-3 minutes per Linux VM, ~10-12 minutes per Windows VM
+**Purpose**: Quick validation of VM provisioning and SSH access
+**Duration**: ~2-3 minutes per Linux VM, ~5-10 minutes per Windows VM
 
 **Tests**:
-- ✅ VM created successfully with cloud-init/cloudbase-init
-- ✅ VM receives IP address from DHCP
-- ✅ SSH access functional
-- ✅ Basic system information retrieved
+- ✅ VM provisions successfully from template
+- ✅ Cloud-init/Cloudbase-init executes correctly
+- ✅ SSH access works with deployed key
+- ✅ Aria user created automatically
+- ✅ Network configuration correct
+- ✅ VM accessible via network
 
 **Usage**:
 ```bash
 ./tests/test_xen.zsh --basic --quick
 ```
 
-**When to Use**:
-- Testing VM creation scripts
-- Validating cloud-init configurations
-- Debugging networking issues
-- Quick smoke tests of infrastructure
-
 ### Comprehensive Mode (Default)
 
-**Purpose**: Full dotfiles installation validation
-**Duration**: ~5-7 minutes per Linux VM
+**Purpose**: Full validation of dotfiles installation on real VM
+**Duration**: ~5-7 minutes per Linux VM, ~10-15 minutes per Windows VM
 
 **Tests Everything in Basic Mode, Plus**:
-- ✅ Prerequisites installed (zsh, git, build-essential)
-- ✅ Repository cloned from GitHub
-- ✅ Setup script runs successfully
-- ✅ Git configuration applied
-- ✅ Librarian health check passes
+- ✅ Dotfiles repository clones with submodules
+- ✅ Setup script executes successfully
 - ✅ Symlinks created correctly
+- ✅ Librarian health check passes (no errors)
+- ✅ Post-install scripts execute (configurable)
+- ✅ Shell environment loads correctly
+- ✅ Configuration files in place
 
 **Usage**:
 ```bash
 ./tests/test_xen.zsh --comprehensive --quick
-# or simply
-./tests/test_xen.zsh --quick
 ```
-
-**When to Use**:
-- Validating full installation workflow
-- Testing post-install scripts on real VMs
-- Verifying everything works end-to-end
-- Before releasing new versions
 
 ### Full Mode
 
 **Purpose**: Maximum coverage - runs both basic AND comprehensive tests
-**Duration**: ~7-10 minutes per Linux VM
+**Duration**: ~7-10 minutes per Linux VM, ~15-20 minutes per Windows VM
 
 **Usage**:
 ```bash
 ./tests/test_xen.zsh --full --quick
 ```
 
-**When to Use**:
-- Complete regression testing
-- Validating major changes
-- Pre-release testing
-
 ---
 
 ## 🎛️ Post-Install Script Control
 
-One of the most powerful features is the ability to control which post-install scripts run during testing. This is **ESPECIALLY valuable for Xen** since real VMs boot slower than containers.
+One of the most powerful features is the ability to control which post-install scripts run during testing. This enables:
+- **Faster iteration** when testing specific features
+- **Isolated testing** of individual PI scripts
+- **Reduced test time** by skipping slow package installations
 
 ### Skip All PI Scripts (Fastest)
 
@@ -122,16 +114,12 @@ Perfect for testing installation mechanics without waiting for package installat
 ./tests/test_xen.zsh --skip-pi --quick
 ```
 
-**Benefits**:
-- ~2 minutes faster per test
-- Focus on VM provisioning and cloning
-- Test installation framework without package overhead
-
 **Use Cases**:
 - Testing symlink creation
 - Validating directory structure
-- Testing cloud-init configurations
-- Quick iteration during development
+- Testing cloud-init provisioning
+- Quick smoke tests after making changes
+- VM provisioning verification
 
 ### Disable Specific PI Scripts
 
@@ -141,7 +129,7 @@ Disable scripts matching a glob pattern:
 # Disable all package installation scripts
 ./tests/test_xen.zsh --disable-pi "*packages*" --quick
 
-# Disable language servers (slow to install)
+# Disable language servers
 ./tests/test_xen.zsh --disable-pi "language-servers" --quick
 
 # Disable cargo-related scripts
@@ -153,7 +141,7 @@ Disable scripts matching a glob pattern:
 Enable ONLY scripts matching a pattern (all others disabled):
 
 ```bash
-# Test only git configuration on real VM
+# Test only git configuration
 ./tests/test_xen.zsh --enable-pi "git-*" --quick
 
 # Test only cargo packages
@@ -163,10 +151,10 @@ Enable ONLY scripts matching a pattern (all others disabled):
 ./tests/test_xen.zsh --enable-pi "ruby-*" --quick
 ```
 
-**Why This Is HUGE for Xen**:
-- Real VMs take 2-3 minutes just to boot
-- Package installations on VMs are slower than containers
-- Testing specific PI scripts in realistic environment
+**Use Cases**:
+- Validating a specific PI script works correctly
+- Testing new PI script in isolation
+- Debugging PI script issues
 - Faster iteration when developing new scripts
 
 ---
@@ -175,7 +163,7 @@ Enable ONLY scripts matching a pattern (all others disabled):
 
 ### Quick Mode (Ubuntu only)
 
-Fastest option - tests only Ubuntu:
+Fastest option - tests only Ubuntu (recommended for iteration):
 
 ```bash
 ./tests/test_xen.zsh --quick
@@ -183,82 +171,211 @@ Fastest option - tests only Ubuntu:
 
 ### Specific Distribution
 
-Test a specific distribution:
+Test a specific Linux distribution:
 
 ```bash
 ./tests/test_xen.zsh --distro ubuntu
 ./tests/test_xen.zsh --distro debian
-./tests/test_xen.zsh --distro w11       # Windows 11
 ```
 
 ### Linux Only
 
-Test all Linux distributions (skip slow Windows VMs):
+Tests all supported Linux distributions:
 
 ```bash
 ./tests/test_xen.zsh --linux-only
 ```
 
-**Saves**: ~10-15 minutes per Windows VM
+**Supported Linux Distributions:**
+- Ubuntu (Cloud Images template)
+- Debian (Cloud Images template)
 
 ### Windows Only
 
-Test only Windows distributions:
+Tests Windows distributions with cloudbase-init:
 
 ```bash
 ./tests/test_xen.zsh --windows-only
 ```
 
-### All Distributions (Default without --quick)
+**Supported Windows Distributions:**
+- w11cb (Windows 11 Pro with cloudbase-init pre-installed)
 
-Tests all supported distributions:
-- Linux: ubuntu, debian
-- Windows: w11
-
-```bash
-./tests/test_xen.zsh
-```
+**Note**: Windows testing requires properly sysprepped templates with cloudbase-init. See **[Windows CloudBase-Init Troubleshooting Guide](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)** for setup details.
 
 ---
 
-## 🐛 Development & Debugging Options
+## 🪟 Windows Testing
 
-### Keep VMs After Testing
+Windows testing on XCP-NG uses **cloudbase-init** (the Windows equivalent of cloud-init) to automate VM provisioning.
 
-Don't destroy VMs when tests complete (for manual debugging):
+### Windows Test Requirements
+
+1. **✅ Sysprepped Template**: Windows template must be in OOBE state
+2. **✅ CloudBase-Init Installed**: Pre-installed in template
+3. **✅ Helper Script v2**: Uses `create-windows-vm-with-cloudinit-iso-v2.sh`
+4. **✅ OpenStack ISO Format**: ConfigDrive uses `openstack/latest/` structure
+
+### Windows Test Process
+
+```bash
+# Basic Windows test (fastest)
+./tests/test_xen.zsh --basic --windows-only
+
+# Comprehensive Windows test
+./tests/test_xen.zsh --comprehensive --windows-only
+```
+
+**What Gets Tested:**
+1. VM provisions from w11cb template
+2. CloudBase-Init detects ConfigDrive ISO
+3. Aria user created automatically
+4. OpenSSH Server installs and starts
+5. Network profile set to Private (SSH accessible)
+6. SSH key deployed correctly
+7. SSH access works without password
+
+### Windows Test Phases
+
+**Phase 1: VM Creation**
+- Provisions Windows VM from template
+- Attaches cloudbase-init ISO (OpenStack format)
+- Waits for Windows boot and cloudbase-init completion
+- Duration: ~5-10 minutes (Windows boot time)
+
+**Phase 2: SSH Connection**
+- Waits for OpenSSH Server to start
+- Tests SSH key authentication
+- Verifies aria user access
+- Duration: ~1-2 minutes
+
+**Phase 3: CloudBase-Init Verification**
+- Checks cloudbase-init service present
+- Verifies plugin execution in logs
+- Confirms ConfigDrive detection
+- Validates aria user creation
+- Duration: ~30 seconds
+
+### Troubleshooting Windows Tests
+
+If Windows tests fail, consult the comprehensive troubleshooting guide:
+
+**📚 [Windows CloudBase-Init Troubleshooting Guide](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)**
+
+**Common Issues:**
+- ISO volume label must be `config-2` (not `CIDATA`)
+- Template must be sysprepped (OOBE state)
+- Network profile must be Private (for SSH access)
+- ISO structure must be OpenStack format (`openstack/latest/`)
+
+---
+
+## 📦 Helper Script Deployment
+
+The test script includes integrated helper script deployment to NFS shared storage, making scripts accessible from all cluster hosts automatically.
+
+### Deployment Commands
+
+```bash
+# Deploy all helper scripts to NFS
+./tests/test_xen.zsh --deploy-helpers
+
+# List scripts on NFS share
+./tests/test_xen.zsh --list-helpers
+
+# Verify NFS access across all hosts
+./tests/test_xen.zsh --verify-helpers
+
+# Migrate existing scripts from /root/aria-scripts
+./tests/test_xen.zsh --migrate-helpers
+
+# Show cluster status
+./tests/test_xen.zsh --cluster-status
+```
+
+### Helper Scripts Deployed
+
+**Linux VM Provisioning:**
+- `create-vm-with-cloudinit-iso.sh` - Provisions Linux VMs with cloud-init
+
+**Windows VM Provisioning:**
+- `create-windows-vm-with-cloudinit-iso-v2.sh` - Provisions Windows VMs with cloudbase-init
+- Includes all fixes for cloudbase-init issues
+
+**Management Scripts:**
+- `cleanup-test-vms.sh` - Cleans up test VMs
+- `list-test-vms.sh` - Lists current test VMs
+
+### NFS Shared Storage
+
+**Location:** `/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/`
+**SR:** xenstore1 (NFS shared storage)
+**Benefits:**
+- Single source of truth for helper scripts
+- All XCP-NG hosts access same scripts
+- Automatic shared/local failover
+- No per-host script management
+
+### Deployment Workflow
+
+1. **Deploy scripts** to NFS shared storage:
+   ```bash
+   ./tests/test_xen.zsh --deploy-helpers
+   ```
+
+2. **Verify** all hosts can access:
+   ```bash
+   ./tests/test_xen.zsh --verify-helpers
+   ```
+
+3. **Run tests** - scripts are auto-detected:
+   ```bash
+   ./tests/test_xen.zsh --basic --quick
+   ```
+
+The test script automatically detects helper scripts from NFS shared storage with fallback to local `/root/aria-scripts/` if needed.
+
+---
+
+## 🔧 Development & Debugging
+
+### Keep VM After Testing
+
+Don't destroy VMs after testing (for manual inspection):
 
 ```bash
 ./tests/test_xen.zsh --quick --keep-vm
 ```
 
-**Provides**:
-- SSH access to failed VMs
-- Manual inspection of installation
-- Debugging post-install script issues
-- Iterative testing without recreating VMs
+**Use Cases:**
+- Debugging failed tests
+- Inspecting VM state manually
+- Testing manual fixes
+- Examining log files
 
-**Cleanup**: Manually destroy VMs later:
+**Cleanup:**
 ```bash
-# List VMs
-xe vm-list name-label='aria-test-*'
+# List kept VMs
+xe vm-list name-label=aria-test-*
 
-# Destroy specific VM
+# Manually destroy when done
 xe vm-shutdown uuid=<UUID> force=true
 xe vm-destroy uuid=<UUID>
 ```
 
 ### Custom VM Name Prefix
 
-Use custom VM name prefix (default: `aria-test`):
+Use custom VM name for parallel testing or debugging:
 
 ```bash
 ./tests/test_xen.zsh --quick --vm-name debug
+./tests/test_xen.zsh --quick --vm-name test2
 ```
 
-**Use Cases**:
-- Multiple test runs in parallel
-- Different test scenarios
-- Organized VM naming
+**Benefits:**
+- Run multiple tests in parallel
+- Easier identification in XCP-NG
+- Keep different test iterations
 
 ### Skip Librarian Check
 
@@ -268,592 +385,263 @@ Skip librarian health check for faster iteration:
 ./tests/test_xen.zsh --quick --no-librarian
 ```
 
-**Saves**: ~10-15 seconds per test
+**Use When:**
+- Testing installation mechanics only
+- Rapid iteration on setup script
+- Known librarian issues to investigate separately
 
-**When to Use**:
-- Testing VM provisioning only
-- Rapid iteration during development
-- Focus on installation mechanics
+### Specific Host Selection
 
-### Custom XCP-NG Host
-
-Use a different XCP-NG host:
+Use a specific XCP-NG host (default: opt-bck01.bck.intern):
 
 ```bash
-./tests/test_xen.zsh --quick --host my-xen-host.local
+./tests/test_xen.zsh --quick --host opt-bck02.bck.intern
 ```
+
+**Available Hosts:**
+- opt-bck01.bck.intern (192.168.188.11) - Primary
+- opt-bck02.bck.intern (192.168.188.12) - Failover
+- opt-bck03.bck.intern (192.168.188.13) - Failover
+- lat-bck04.bck.intern (192.168.188.19) - Failover
 
 ---
 
-## 💡 Common Usage Patterns
+## 💡 Examples
 
-### Fast Smoke Test (2-3 min)
-Quick validation after making changes:
-```bash
-./tests/test_xen.zsh --basic --skip-pi --quick
-```
+### Development Workflows
 
-### Test Git Configuration Only (4-5 min)
-Validate git-related PI scripts on real VM:
 ```bash
+# Fast iteration on setup script (30 seconds)
+./tests/test_xen.zsh --basic --quick --skip-pi
+
+# Test git configuration only (real VM)
 ./tests/test_xen.zsh --enable-pi "git-*" --quick
-```
 
-### Test VM Provisioning Without Installation (2-3 min)
-Validate cloud-init and VM creation:
-```bash
-./tests/test_xen.zsh --basic --quick
-```
-
-### Debug Failed Installation (keeps VM)
-Debug issues by keeping VM accessible:
-```bash
+# Debug failed test (keep VM for inspection)
 ./tests/test_xen.zsh --quick --keep-vm --vm-name debug
-```
 
-### Test Full Installation Without PI Overhead (3-4 min)
-Validate installation mechanics without packages:
-```bash
+# Test without PI overhead
 ./tests/test_xen.zsh --comprehensive --skip-pi --quick
+
+# Test specific PI script in isolation
+./tests/test_xen.zsh --enable-pi "cargo-packages" --distro ubuntu
 ```
 
-### Test Linux Only (Skip Slow Windows)
-Test all Linux distros, skip Windows:
+### Deployment Workflows
+
 ```bash
-./tests/test_xen.zsh --linux-only
+# Initial deployment to cluster
+./tests/test_xen.zsh --deploy-helpers
+
+# Verify deployment across all hosts
+./tests/test_xen.zsh --verify-helpers
+
+# Check what's deployed
+./tests/test_xen.zsh --list-helpers
+
+# Migrate from old location
+./tests/test_xen.zsh --migrate-helpers
 ```
 
-### Full Regression Test (SLOW but Thorough)
-Complete validation before releasing:
-```bash
-./tests/test_xen.zsh --full --linux-only
-```
+### Windows Testing Workflows
 
-### Test Windows VM Provisioning
-Quick Windows VM validation:
 ```bash
+# Basic Windows test
 ./tests/test_xen.zsh --basic --windows-only
+
+# Comprehensive Windows validation
+./tests/test_xen.zsh --comprehensive --windows-only
+
+# Windows + Linux full regression
+./tests/test_xen.zsh --full
+```
+
+### Full Regression Testing
+
+```bash
+# Test all Linux distros thoroughly
+./tests/test_xen.zsh --full --linux-only
+
+# Test everything (SLOW but comprehensive)
+./tests/test_xen.zsh --full
+
+# All distros, basic mode only (faster)
+./tests/test_xen.zsh --basic --linux-only
 ```
 
 ---
 
-## 📊 Test Matrix Examples
+## 🏗️ Test Infrastructure
 
-| Command | VMs | Mode | PI Scripts | Time | Purpose |
-|---------|-----|------|------------|------|---------|
-| `--basic --quick` | 1 | Basic | N/A | 2-3m | VM provisioning test |
-| `--quick` | 1 | Comprehensive | All | 5-7m | Quick validation |
-| `--skip-pi --quick` | 1 | Comprehensive | None | 3-4m | Installation mechanics |
-| `--enable-pi "git-*" --quick` | 1 | Comprehensive | Git only | 4-5m | Test git configs |
-| `--linux-only` | 2 | Comprehensive | All | 10-14m | All Linux distros |
-| `--windows-only` | 1 | Comprehensive | N/A | 10-15m | Windows validation |
-| `--full --linux-only` | 2 | Full | All | 14-20m | Full regression |
+### XCP-NG Cluster
 
----
+**Primary Host:** opt-bck01.bck.intern (192.168.188.11)
+**Failover Hosts:**
+- opt-bck02.bck.intern (192.168.188.12)
+- opt-bck03.bck.intern (192.168.188.13)
+- lat-bck04.bck.intern (192.168.188.19)
 
-## 🔍 What Gets Tested
+### Storage Repositories
 
-### Phase 1: VM Creation
-- XCP-NG VM provisioned via helper script
-- Cloud-init ISO attached (Linux) or Cloudbase-init (Windows)
-- VM receives UUID and VDI UUID
-- VM boots successfully
+**ISO Storage (isostore1):**
+- UUID: 8521cd2e-af19-987e-966b-e68e4435f475
+- Type: iso
+- Purpose: Cloud-init/cloudbase-init ISO storage
 
-### Phase 2: Network & SSH
-- VM receives IP address via DHCP
-- Guest tools report IP to hypervisor
-- SSH service starts and accepts connections
-- Authentication works with deployed key
+**NFS Shared Storage (xenstore1):**
+- UUID: 75fa3703-d020-e865-dd0e-3682b83c35f6
+- Type: nfs
+- Purpose: Helper scripts and shared data
+- Mount: `/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/`
 
-### Phase 3: Prerequisites (Comprehensive Mode)
-- Package manager functional (apt, dnf, etc.)
-- Essential packages installed (zsh, git, build-essential)
-- Prerequisites installed successfully
+### Templates Required
 
-### Phase 4: Repository & PI Filtering (Comprehensive Mode)
-- GitHub repository accessible
-- Repository clones with submodules
-- PI scripts filtered based on options
-- Disabled scripts renamed to .disabled
+**Linux Templates:**
+- Ubuntu (Cloud Images from cloud-init Hub)
+- Debian (Cloud Images from cloud-init Hub)
 
-### Phase 5: Installation (Comprehensive Mode)
-- Setup script executes successfully
-- All enabled PI scripts run
-- Git configuration applied
-- Symlinks created
+**Windows Templates:**
+- w11cb (Windows 11 Pro, sysprepped, cloudbase-init installed)
 
-### Phase 6: Librarian Health Check (Comprehensive Mode)
-- Librarian executes without errors
-- Output scanned for ERROR markers
-- Warnings logged but non-fatal
-- Installation quality validated
+### SSH Access
 
-### Phase 7: Verification (Comprehensive Mode)
-- System information retrieved
-- Git config validated
-- Symlink count verified
-- Installation results confirmed
-
-### Windows-Specific Testing
-- OpenSSH Server installation
-- PowerShell access verification
-- Windows version detection
-- Git repository accessibility check
+**SSH Key:** `~/.ssh/aria_xen_key`
+**Deployment:** Must be deployed to XCP-NG hosts before testing
+**User:** `root` on XCP-NG, `aria` on provisioned VMs
 
 ---
 
-## 🐛 Debugging Failed Tests
+## 🔍 Troubleshooting
 
-### View Live VM
+### Test Failures
 
-When using `--keep-vm`, the script provides SSH access:
+**Linux VM Provisioning Fails:**
+1. Check template availability: `xe template-list name-label=~Cloud`
+2. Verify network configuration on host
+3. Check helper script exists and is executable
+4. Review cloud-init logs in VM: `/var/log/cloud-init.log`
 
+**Windows VM Provisioning Fails:**
+1. Verify template is properly sysprepped (OOBE state)
+2. Check cloudbase-init installed in template
+3. Verify helper script v2 deployed
+4. See [Windows CloudBase-Init Troubleshooting Guide](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)
+
+**SSH Timeout:**
+1. Check VM has IP address: `xe vm-list name-label=aria-test-* params=networks`
+2. Verify SSH key deployed correctly
+3. For Windows: Check network profile (must be Private, not Public)
+4. Check OpenSSH service running (Windows)
+
+### Helper Script Issues
+
+**Scripts Not Found:**
 ```bash
-# After test completes
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
+# Check NFS mount
+xe sr-list uuid=75fa3703-d020-e865-dd0e-3682b83c35f6
 
-# Or access via XCP-NG console
-xe console uuid=<VM_UUID>
+# Verify scripts exist
+ssh root@opt-bck01.bck.intern "ls -la /run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/"
+
+# Deploy if missing
+./tests/test_xen.zsh --deploy-helpers
 ```
 
-### Manual VM Testing
-
+**NFS Access Issues:**
 ```bash
-# Connect to XCP-NG host
-ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern
+# Verify NFS access
+./tests/test_xen.zsh --verify-helpers
 
-# Create test VM manually
-cd /root/aria-scripts
-./create-vm-with-cloudinit-iso.sh ubuntu
-
-# Get VM IP
-xe vm-list name-label='aria-test-*' params=networks
-
-# SSH to VM
-ssh -i ~/.ssh/aria_xen_key aria@<IP>
-
-# Test installation manually
-git clone https://github.com/Buckmeister/dotfiles.git ~/.config/dotfiles
-cd ~/.config/dotfiles
-./bin/setup.zsh --all-modules
-./bin/librarian.zsh
+# Check SR mount on host
+ssh root@opt-bck01.bck.intern "mount | grep 75fa3703"
 ```
 
-### Test Specific PI Script in Isolation
+### Common Issues
 
-```bash
-# Test only the script you're debugging
-./tests/test_xen.zsh --enable-pi "your-script-name" --quick --keep-vm
+**"SSH key not found":**
+- Deploy SSH key to XCP-NG host first
+- Ensure `~/.ssh/aria_xen_key` exists and has correct permissions
 
-# SSH to kept VM and inspect
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
-cd ~/.config/dotfiles
-ls -la post-install/scripts/
-cat post-install/scripts/your-script-name.log
-```
+**"Cannot connect to XCP-NG host":**
+- Verify host is reachable: `ping opt-bck01.bck.intern`
+- Check SSH key is deployed
+- Verify you have permissions to run `xe` commands
 
-### Check Librarian Output
-
-```bash
-# Run with --keep-vm to access VM
-./tests/test_xen.zsh --quick --keep-vm
-
-# SSH to VM and run librarian manually
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
-cd ~/.config/dotfiles
-./bin/librarian.zsh
-```
-
-### Windows Debugging
-
-```bash
-# Keep Windows VM for debugging
-./tests/test_xen.zsh --distro w11 --keep-vm
-
-# SSH to Windows VM
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
-
-# Check OpenSSH status
-powershell.exe -Command "Get-Service sshd"
-
-# Check cloudbase-init logs
-powershell.exe -Command "Get-Content 'C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\cloudbase-init.log' -Tail 50"
-```
-
-### Windows CloudBase-Init Troubleshooting
-
-For comprehensive Windows cloudbase-init troubleshooting, including common issues, diagnostic commands, and solutions, see:
-
-**📚 [Windows CloudBase-Init Troubleshooting Guide](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)**
-
-**Quick Diagnostic Commands:**
-
-```powershell
-# Check ConfigDrive detection
-Get-Content 'C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\cloudbase-init.log' |
-    Select-String -Pattern "ConfigDrive|config-2|openstack"
-
-# Check ISO structure
-Get-ChildItem D:\ -Recurse | Select-Object FullName
-
-# Verify aria user created
-Get-LocalUser aria
-
-# Check network profile (should be Private for SSH access)
-Get-NetConnectionProfile
-```
-
-**Common Issues:**
-- ISO volume label must be `config-2` (not `CIDATA`)
-- ISO structure must be OpenStack format: `D:\openstack\latest\meta_data.json`
-- Template must be in OOBE state (sysprepped)
-- Network profile must be Private (not Public) for SSH access
-
-See the full troubleshooting guide for detailed solutions to all 7 identified issues.
+**"No available hosts found":**
+- Initialize cluster: Import `tests/lib/xen_cluster.zsh`
+- Check network connectivity to all hosts
+- Verify SSH access to cluster hosts
 
 ---
 
-## 📈 Expected Output
+## 📊 Performance
 
-### Successful Comprehensive Test
+### Test Duration Estimates
 
-```
-╔════════════════════════════════════════════════════════════════════════════╗
-║                     XCP-NG VM Testing - Enhanced                           ║
-║                  Flexible and comprehensive validation                     ║
-╚════════════════════════════════════════════════════════════════════════════╝
+**Basic Mode:**
+- Linux VM: ~2-3 minutes
+- Windows VM: ~5-10 minutes (Windows boot time)
 
-═══ Test Configuration ═══
-ℹ️  Test mode: comprehensive
-ℹ️  XCP-NG Host: opt-bck01.bck.intern
-ℹ️  Distributions: 1
-   • Ubuntu
-ℹ️  Total tests to run: 1
+**Comprehensive Mode:**
+- Linux VM: ~5-7 minutes
+- Windows VM: ~10-15 minutes
 
-   ⏱️  Estimated time: ~5-7 minutes
+**Full Mode:**
+- Linux VM: ~7-10 minutes
+- Windows VM: ~15-20 minutes
 
-═══ Prerequisites Check ═══
-✅ SSH key found
-✅ XCP-NG host accessible: opt-bck01.bck.intern
-✅ Linux helper script ready
+**With `--skip-pi`:**
+- Reduces test time by 40-60%
+- Linux: ~30-60 seconds (basic)
+- Windows: ~5-7 minutes (basic)
 
-╔════════════════════════════════════════════════════════════════════════════╗
-║                       XCP-NG VM Test: Ubuntu                               ║
-║                     Testing dotfiles installation                          ║
-╚════════════════════════════════════════════════════════════════════════════╝
+### Optimization Tips
 
-ℹ️  XCP-NG Host: opt-bck01.bck.intern
-ℹ️  Distribution: Ubuntu
-ℹ️  Test mode: Comprehensive (Full installation)
-ℹ️  Post-install scripts: ALL ENABLED
-
-═══ Test Phases ═══
-ℹ️  Phase 1/6: Creating VM with cloud-init configuration...
-✅ VM created: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-   IP address: 192.168.1.100
-
-ℹ️  Phase 2/6: Waiting for VM to boot and cloud-init to complete...
-✅ VM is accessible via SSH
-
-ℹ️  Phase 3/6: Installing prerequisites...
-✅ Prerequisites installed
-
-ℹ️  Phase 4/6: Cloning repository and configuring PI scripts...
-   → Cloning repository
-✅ Repository cloned
-
-ℹ️  Phase 5/6: Running dotfiles installation...
-   → Running setup
-✅ Git repository initialized
-✅ Setup script found
-✅ Git configuration applied
-   → Running librarian health check
-✅ Librarian health check passed
-   → Complete
-
-✅ Dotfiles installation complete
-
-ℹ️  Phase 6/6: Verifying installation results...
-   Distribution: Ubuntu 24.04 LTS
-   Git User: Aria
-   Git Email: aria@example.com
-   Dotfiles: /home/aria/.config/dotfiles
-   Symlinks: 45 files
-✅ Installation verified
-
-═══ Cleanup ═══
-ℹ️  Removing test VM and cloud-init ISO...
-✅ Cleanup complete
-
-✅ Test passed: Ubuntu ✨
-
-═══ Test Results Summary ═══
-ℹ️  📊 Test Statistics:
-   Total tests:  1
-   Passed:       1
-   Failed:       0
-
-✅ All tests passed! 🎉
-```
+1. **Use `--skip-pi`** for testing installation mechanics
+2. **Use `--quick`** to test only Ubuntu
+3. **Use `--basic`** when you don't need librarian validation
+4. **Use `--enable-pi "specific-*"`** to test one script at a time
+5. **Use `--linux-only`** to skip slow Windows VMs during iteration
 
 ---
 
-## 🔧 Prerequisites
+## 🚦 Best Practices
 
-### Required
+### Pre-Test Checklist
 
-**SSH Key**: `~/.ssh/aria_xen_key`
-```bash
-# Generate key if needed
-ssh-keygen -t ed25519 -f ~/.ssh/aria_xen_key -C "aria-xen-automation"
+- [ ] SSH key deployed to XCP-NG host
+- [ ] Helper scripts deployed to NFS (`--deploy-helpers`)
+- [ ] Templates available in XCP-NG
+- [ ] Sufficient storage in SR
+- [ ] Network connectivity verified
 
-# Deploy to XCP-NG host
-~/.config/xen/deploy-aria-key.sh
-```
+### During Development
 
-**XCP-NG Host**: Accessible via SSH with `xe` commands
-- Default: `opt-bck01.bck.intern`
-- Customize with `--host` flag
+1. Start with `--basic --quick --skip-pi` (fastest feedback)
+2. Add specific PI scripts with `--enable-pi` as you develop
+3. Test comprehensive mode before committing
+4. Use `--keep-vm` when debugging failures
+5. Clean up test VMs regularly
 
-**Helper Scripts on XCP-NG**:
-- Linux: `create-vm-with-cloudinit-iso.sh`
-- Windows: `create-windows-vm-with-cloudinit-iso-v2.sh` (v2 includes OpenStack ISO structure fix)
+### Before Release
 
-**Helper Script Locations** (automatic detection with fallback):
-1. **Shared NFS** (preferred): `/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/`
-   - Accessible by all XCP-NG hosts (opt-bck01/02/03, lat-bck04)
-   - Single source of truth for script updates
-   - Enables multi-host testing
-2. **Local** (fallback): `/root/aria-scripts/`
-   - Per-host installation
-   - Used if shared storage unavailable
-
-The test script automatically checks shared location first, then falls back to local.
-
-**Cloud-init Templates**: Hub templates or custom cloud-init capable images
-
-**Windows Requirements** (for Windows testing):
-- Windows templates with cloudbase-init pre-installed
-- Template must be sysprepped (OOBE state) - e.g., `w11cb` template
-- OpenSSH Server installation via cloudbase-init
-- Guest tools for IP reporting
-
-### Verify Prerequisites
-
-```bash
-# Check SSH key
-ls -la ~/.ssh/aria_xen_key
-
-# Check XCP-NG connectivity
-ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern "xe host-list"
-
-# Check helper scripts
-ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern "ls -la /root/aria-scripts/*.sh"
-```
-
----
-
-## 📝 Help and Options
-
-View all available options:
-
-```bash
-./tests/test_xen.zsh --help
-```
-
-This shows the complete help screen with all test modes, PI control options, distribution selection, debugging options, and usage examples.
-
----
-
-## 🎯 CI/CD Integration
-
-### GitHub Actions Example
-
-```yaml
-name: XCP-NG VM Tests
-
-on: [push, pull_request]
-
-jobs:
-  xen-smoke-test:
-    runs-on: self-hosted  # Needs XCP-NG access
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install zsh
-        run: sudo apt-get update && sudo apt-get install -y zsh
-
-      - name: Deploy SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.ARIA_XEN_KEY }}" > ~/.ssh/aria_xen_key
-          chmod 600 ~/.ssh/aria_xen_key
-
-      - name: Quick smoke test
-        run: |
-          chmod +x tests/test_xen.zsh
-          ./tests/test_xen.zsh --basic --skip-pi --quick
-
-  xen-full-test:
-    runs-on: self-hosted  # Needs XCP-NG access
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup environment
-        run: |
-          sudo apt-get update && sudo apt-get install -y zsh
-          mkdir -p ~/.ssh
-          echo "${{ secrets.ARIA_XEN_KEY }}" > ~/.ssh/aria_xen_key
-          chmod 600 ~/.ssh/aria_xen_key
-
-      - name: Comprehensive validation
-        run: |
-          chmod +x tests/test_xen.zsh
-          ./tests/test_xen.zsh --comprehensive --linux-only
-```
-
-**Note**: XCP-NG tests require self-hosted runners with network access to the XCP-NG host.
-
----
-
-## 🚧 Test Development
-
-### Adding New Tests
-
-When adding new features to dotfiles, update the test script if needed:
-
-```bash
-# Add to comprehensive test validation
-# In test_comprehensive_linux() function, phase 6:
-
-local verify_output=$(vm_ssh "$vm_ip" "
-    echo 'INFO:Distribution:' \$(cat /etc/os-release | grep PRETTY_NAME | cut -d'=' -f2 | tr -d '\"')
-    # Add your new verification here:
-    echo 'INFO:New feature:' \$(test -f ~/.config/new-feature && echo 'Present' || echo 'Missing')
-")
-```
-
-Test locally:
-```bash
-./tests/test_xen.zsh --comprehensive --quick --keep-vm
-```
+1. Run full test suite: `--full --linux-only`
+2. Test Windows if applicable: `--full --windows-only`
+3. Verify helper scripts deployed: `--verify-helpers`
+4. Check test VMs cleaned up properly
+5. Document any new requirements
 
 ---
 
 ## 📚 Related Documentation
 
-- [Main README](../README.md) - Repository overview
-- [Docker Testing](DOCKER_TESTING.md) - Docker-based testing
-- [Testing README](README.md) - General testing guidelines
-- [Profiles README](../profiles/README.md) - Profile system
-- [Packages README](../packages/README.md) - Package management
+- **[Docker Testing Guide](DOCKER_TESTING.md)** - Container-based testing
+- **[Windows CloudBase-Init Troubleshooting](../docs/WINDOWS_CLOUDBASE_INIT_TROUBLESHOOTING.md)** - Windows VM troubleshooting
+- **[WSL Guide](../docs/WSL.md)** - Windows Subsystem for Linux support
+- **[Test Framework](lib/test_framework.zsh)** - Testing library API
 
 ---
 
-## 🤝 Contributing
+**Happy Testing!** 🎉
 
-When adding features or fixing bugs:
-
-1. Test your changes with XCP-NG tests:
-   ```bash
-   ./tests/test_xen.zsh --quick
-   ```
-
-2. Use PI filtering for faster iteration:
-   ```bash
-   ./tests/test_xen.zsh --enable-pi "your-new-script" --quick
-   ```
-
-3. Debug with kept VMs:
-   ```bash
-   ./tests/test_xen.zsh --quick --keep-vm --vm-name dev
-   ```
-
-4. Run full test suite before committing:
-   ```bash
-   ./tests/test_xen.zsh --comprehensive --linux-only
-   ```
-
-5. Update this documentation if adding new test modes
-
----
-
-## 💡 Pro Tips
-
-1. **Use `--skip-pi` during development** - Test VM provisioning and installation mechanics without package overhead
-
-2. **Use `--enable-pi` for targeted testing** - Debug individual PI scripts in realistic VM environment
-
-3. **Use `--keep-vm` for debugging** - SSH into failed VMs to inspect issues manually
-
-4. **Test Linux only during iteration** - Skip slow Windows VMs during development (`--linux-only`)
-
-5. **Use `--basic` for infrastructure changes** - Quick validation of VM creation and cloud-init
-
-6. **Combine options for powerful testing**:
-   ```bash
-   # Example: Test git configs on real VM, keep it for inspection
-   ./tests/test_xen.zsh --enable-pi "git-*" --quick --keep-vm --vm-name git-test
-   ```
-
-7. **Clean up kept VMs** - Remember to destroy VMs after debugging:
-   ```bash
-   ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern \
-     "xe vm-list name-label='aria-test-*' --minimal | xargs -I {} xe vm-destroy uuid={} force=true"
-   ```
-
----
-
-## 🆚 XCP-NG vs Docker Testing
-
-### When to Use XCP-NG Tests
-
-- Testing on real hardware/VMs
-- Validating cloud-init configurations
-- Windows dotfiles development
-- Testing performance-sensitive scripts
-- Validating full OS integration
-
-### When to Use Docker Tests
-
-- Fast iteration (containers boot faster)
-- Testing multiple Linux distributions quickly
-- CI/CD pipelines (easier to set up)
-- No hypervisor access available
-- Quick smoke tests
-
-### Best Practice
-
-Use both! Docker for fast iteration, XCP-NG for realistic validation:
-
-```bash
-# Quick validation with Docker
-./tests/test_docker.zsh --quick
-
-# Realistic validation with XCP-NG
-./tests/test_xen.zsh --quick
-
-# Full regression: Both platforms
-./tests/test_docker.zsh --comprehensive --all-distros
-./tests/test_xen.zsh --comprehensive --linux-only
-```
-
----
-
-## 🔄 Migration from Old Script
-
-The old `test_xen_install.zsh` has been archived but remains available:
-- Location: `tests/archive/test_xen_install.zsh`
-- Functionality: Preserved in new script's `--comprehensive` mode
-
-The new unified script (`test_xen.zsh`) replaces it with enhanced functionality:
-- Multiple test modes
-- PI script filtering
-- Development options
-- Better debugging support
-- Improved output formatting
-
----
-
-*Real VMs, real testing, real confidence!* 🚀✨
+For issues or questions about XCP-NG testing, consult the troubleshooting guides or check the helper script logs on the XCP-NG host.

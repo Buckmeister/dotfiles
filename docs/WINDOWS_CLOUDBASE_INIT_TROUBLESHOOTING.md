@@ -441,6 +441,20 @@ When automation is complete, running the helper script should result in:
 
 ### Deployment to Shared Storage
 
+**Recommended Method (Integrated):**
+```bash
+# Use the test script's integrated deployment
+cd ~/.config/dotfiles
+./tests/test_xen.zsh --deploy-helpers
+
+# Verify deployment
+./tests/test_xen.zsh --verify-helpers
+
+# List deployed scripts
+./tests/test_xen.zsh --list-helpers
+```
+
+**Manual Method (Advanced):**
 ```bash
 # Connect to XCP-NG host
 ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern
@@ -452,6 +466,12 @@ cp /root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh \
 # Make executable
 chmod +x /run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/*.sh
 ```
+
+**Benefits of Integrated Deployment:**
+- ✅ Automatic deployment to all cluster hosts
+- ✅ Verification across cluster
+- ✅ Consistent with test workflow
+- ✅ Single command deployment
 
 ---
 

@@ -76,6 +76,12 @@ source "${SCRIPT_DIR}/lib/test_helpers.zsh" 2>/dev/null || {
     exit 1
 }
 
+# Source deployment library (for --deploy-helpers and related commands)
+source "${SCRIPT_DIR}/lib/xen_deploy.zsh" 2>/dev/null || {
+    # Deployment library not available - deployment commands will be disabled
+    XEN_DEPLOY_AVAILABLE=false
+}
+
 # XCP-NG Configuration
 XEN_SSH_KEY="${HOME}/.ssh/aria_xen_key"
 XEN_HOST="opt-bck01.bck.intern"
@@ -119,6 +125,10 @@ SINGLE_DISTRO=""
 LINUX_ONLY=false
 WINDOWS_ONLY=false
 
+# Deployment mode variables
+DEPLOYMENT_MODE=""           # deploy-helpers, list-helpers, verify-helpers, migrate-helpers, status
+DEPLOYMENT_ONLY=false        # true = exit after deployment, false = deploy then test
+
 # Track VMs created during testing for cleanup
 declare -a CREATED_VMS
 declare -a CREATED_VDIS
@@ -159,6 +169,13 @@ ${COLOR_BOLD}DEVELOPMENT & DEBUGGING:${COLOR_RESET}
   ${COLOR_CYAN}--no-librarian${COLOR_RESET}       Skip librarian health check (faster iteration)
   ${COLOR_CYAN}--host HOSTNAME${COLOR_RESET}      Use specific XCP-NG host
 
+${COLOR_BOLD}HELPER SCRIPT DEPLOYMENT:${COLOR_RESET}
+  ${COLOR_CYAN}--deploy-helpers${COLOR_RESET}     Deploy all helper scripts to NFS shared storage
+  ${COLOR_CYAN}--list-helpers${COLOR_RESET}       List helper scripts on NFS share
+  ${COLOR_CYAN}--verify-helpers${COLOR_RESET}     Verify NFS access across all cluster hosts
+  ${COLOR_CYAN}--migrate-helpers${COLOR_RESET}    Migrate scripts from /root/aria-scripts to NFS
+  ${COLOR_CYAN}--cluster-status${COLOR_RESET}     Show cluster status and host availability
+
 ${COLOR_BOLD}GENERAL:${COLOR_RESET}
   ${COLOR_CYAN}-h, --help${COLOR_RESET}           Show this help message
 
@@ -184,6 +201,15 @@ ${COLOR_BOLD}EXAMPLES:${COLOR_RESET}
 
   ${COLOR_COMMENT}# Full regression test (SLOW but thorough)${COLOR_RESET}
   $0 --full --linux-only
+
+  ${COLOR_COMMENT}# Deploy helper scripts before testing${COLOR_RESET}
+  $0 --deploy-helpers
+
+  ${COLOR_COMMENT}# Verify NFS access across cluster${COLOR_RESET}
+  $0 --verify-helpers
+
+  ${COLOR_COMMENT}# List deployed helper scripts${COLOR_RESET}
+  $0 --list-helpers
 
 ${COLOR_BOLD}AVAILABLE DISTRIBUTIONS:${COLOR_RESET}
   Linux:   ${ALL_LINUX_DISTROS[@]}
@@ -273,6 +299,33 @@ while [[ $# -gt 0 ]]; do
         --host)
             XEN_HOST="$2"
             shift 2
+            ;;
+
+        # Deployment commands
+        --deploy-helpers)
+            DEPLOYMENT_MODE="deploy"
+            DEPLOYMENT_ONLY=true
+            shift
+            ;;
+        --list-helpers)
+            DEPLOYMENT_MODE="list"
+            DEPLOYMENT_ONLY=true
+            shift
+            ;;
+        --verify-helpers)
+            DEPLOYMENT_MODE="verify"
+            DEPLOYMENT_ONLY=true
+            shift
+            ;;
+        --migrate-helpers)
+            DEPLOYMENT_MODE="migrate"
+            DEPLOYMENT_ONLY=true
+            shift
+            ;;
+        --cluster-status)
+            DEPLOYMENT_MODE="status"
+            DEPLOYMENT_ONLY=true
+            shift
             ;;
 
         # Help
@@ -1329,5 +1382,57 @@ fi
 print_success "XCP-NG host is accessible"
 echo ""
 
-# Run the test suite
+# ============================================================================
+# Deployment Mode Execution
+# ============================================================================
+
+if [[ -n "$DEPLOYMENT_MODE" ]]; then
+    # Initialize cluster for deployment operations
+    xen_cluster_init || {
+        print_error "Failed to initialize cluster connection"
+        exit 1
+    }
+
+    # Execute deployment command
+    case "$DEPLOYMENT_MODE" in
+        deploy)
+            xen_deploy_all_scripts "$XEN_HOST"
+            exit_code=$?
+            ;;
+        list)
+            xen_deploy_list_scripts "$XEN_HOST"
+            exit_code=$?
+            ;;
+        verify)
+            xen_deploy_verify_access
+            exit_code=$?
+            ;;
+        migrate)
+            xen_deploy_migrate_scripts "$XEN_HOST"
+            exit_code=$?
+            ;;
+        status)
+            xen_deploy_cluster_status
+            exit_code=$?
+            ;;
+        *)
+            print_error "Unknown deployment mode: $DEPLOYMENT_MODE"
+            exit 1
+            ;;
+    esac
+
+    # Exit after deployment if DEPLOYMENT_ONLY is true
+    if [[ "$DEPLOYMENT_ONLY" = true ]]; then
+        exit $exit_code
+    fi
+
+    echo ""
+    print_success "Deployment complete! Proceeding with tests..."
+    echo ""
+fi
+
+# ============================================================================
+# Run Test Suite
+# ============================================================================
+
 run_tests
