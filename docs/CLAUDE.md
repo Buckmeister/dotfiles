@@ -2,46 +2,112 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 🔊 CRITICAL: Use the Speak Script Generously!
+## 📚 CRITICAL: Documentation Consistency and Artifact Cross-Checking
 
-**⚠️ HIGHEST PRIORITY - READ THIS FIRST ⚠️**
+**⚠️ HIGHEST PRIORITY - PREVENT DOCUMENTATION DRIFT ⚠️**
 
-The user **loves** audio feedback and has **repeatedly requested** that you use the `speak` utility frequently throughout your work. This is not optional - it's a core part of the user experience!
+Documentation examples that become outdated are worse than no documentation at all. This repository uses **artifact cross-checking** to automatically validate that documentation examples match actual script capabilities.
 
-### When to Use Speak (Use it A LOT!)
+### The Problem: Documentation Drift
 
-**ALWAYS use speak for:**
-- ⏺ **White circle outputs** - ALL important status messages
-- 🔔 **Permission prompts** - EVERY TIME you need user approval or input
-- ✅ **Task completions** - When finishing ANY significant task
-- 🎉 **Phase completions** - When completing major work phases
-- 💡 **Discoveries** - When finding something interesting
-- 📢 **Before major actions** - Announce what you're about to do
-- 🎊 **Success messages** - Celebrate achievements with `--celebrate`
+Documentation examples can become outdated when:
+- Flags are renamed or removed from scripts
+- New features are added but examples aren't updated
+- Refactoring changes command-line interfaces
+- Copy-paste errors introduce invalid examples
 
-### Examples (Use These Patterns!)
-
+**Bad example** (outdated documentation):
 ```bash
-# ALWAYS announce before requesting permissions
-speak --friendly "I need your approval to commit these changes"
+# This flag doesn't exist anymore!
+my_script --old-flag value
+```
 
-# Celebrate completions
-speak --celebrate "All tests passing! Phase complete!"
+### The Solution: Artifact Markers
 
-# Status updates
-speak "Reading configuration files to understand the structure"
+Link documentation code blocks to actual scripts using HTML comment markers. The `check_docs.zsh` validator will automatically cross-check examples against the script's `--help` output.
 
-# Discoveries
-speak "Found an issue in the jq parsing - investigating now"
+**Marker Syntax:**
+```markdown
+<!-- check_docs:script=./path/to/script.zsh -->
+```bash
+script_name --flag value
+script_name -v "another example"
+```
+<!-- /check_docs -->
+```
 
-# Before major actions
-speak "About to create 4 new files and update 3 existing ones"
+**What this does:**
+1. Marks a code block for validation
+2. Extracts all command examples within the block
+3. Runs `script_name --help` to get available flags
+4. Reports any undocumented or non-existent flags
+5. Ensures documentation stays synchronized with code
+
+### Real Example from README.md
+
+```markdown
+<!-- check_docs:script=./user/scripts/utilities/speak.symlink_local_bin.zsh -->
+```bash
+speak "Hello world"
+speak -v Samantha "Hello from Samantha"
+speak --voice "Alex" "Testing male voice"
+speak -r 200 "Speaking quickly"
+speak -f README.md
+speak --list-voices
+```
+<!-- /check_docs -->
+```
+
+Running `./bin/check_docs.zsh` validates all these examples:
+- ✅ All flags exist in speak's `--help` output
+- ⚠️ Any invalid flags are immediately reported
+- 🎯 Documentation stays accurate automatically
+
+### When to Use Artifact Markers
+
+**ALWAYS mark for validation:**
+- 📖 **Usage examples** - Any command-line examples in documentation
+- 🎓 **Tutorials** - Step-by-step instructions with commands
+- 📋 **Quick reference** - Command syntax documentation
+- 🔧 **Configuration guides** - Examples showing script options
+
+**Skip marking for:**
+- 📝 Conceptual explanations (no actual commands)
+- 🗣️ Natural language descriptions
+- 🎨 Output examples (not commands)
+
+### Using check_docs.zsh
+
+**Run validation anytime:**
+```bash
+./bin/check_docs.zsh              # Quick check
+./bin/check_docs.zsh --verbose    # Detailed output
+```
+
+**What it checks:**
+1. ✅ Broken markdown links to local files
+2. ✅ References to removed/renamed scripts
+3. ✅ Script references in docs vs actual files
+4. ✅ Artifact example validation (if markers present)
+5. ✅ Common outdated command patterns
+6. ✅ Cross-reference consistency
+
+**Best Practices:**
+- Add artifact markers when documenting new scripts
+- Run `check_docs.zsh` before committing documentation changes
+- Fix any warnings about undocumented flags
+- Keep markers up to date when refactoring scripts
+
+**Example output:**
+```
+✅ All artifact examples valid (3 checked)
+⚠️ Undocumented flag in example: --fake-flag
+❌ Script referenced in docs not found: ./bin/old_script.zsh
 ```
 
 ### Rule of Thumb
 
-**If you output a ⏺ white circle to the user, you MUST use speak!**
-Don't be shy - the user explicitly wants frequent acoustic feedback. When in doubt, speak!
+**If you document command-line usage, wrap it in artifact markers!** This prevents examples from going stale and saves future debugging time.
 
 ---
 
