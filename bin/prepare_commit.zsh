@@ -56,8 +56,10 @@ source "$LIB_DIR/greetings.zsh"
 ACTION_PLAN="${DF_DIR}/ACTION_PLAN.md"
 MEETINGS="${DF_DIR}/Meetings.md"
 CHANGELOG="${DF_DIR}/CHANGELOG.md"
+CHECK_DOCS_SCRIPT="${DF_DIR}/bin/check_docs.zsh"
 AUTO_MODE=false
 DRY_RUN=false
+SKIP_DOCS_CHECK=false
 
 # ============================================================================
 # Help Message
@@ -73,18 +75,21 @@ USAGE:
 OPTIONS:
     --auto           Run automatically without prompts (for git hooks)
     --dry-run, -n    Show what would be done without making changes
+    --skip-docs      Skip documentation consistency check
     -h, --help       Show this help message
 
 DESCRIPTION:
     Prepares the repository for commit by automatically managing
-    completed work and project documentation.
+    completed work, validating documentation consistency, and
+    ensuring project documentation is up to date.
 
     ${COLOR_BOLD}${UI_ACCENT_COLOR}Workflow:${COLOR_RESET}
 
     1. ${UI_SUCCESS_COLOR}Detect${COLOR_RESET} completed phases in ACTION_PLAN.md (marked with ✅)
     2. ${UI_SUCCESS_COLOR}Archive${COLOR_RESET} them to Meetings.md (local-only file)
     3. ${UI_SUCCESS_COLOR}Check${COLOR_RESET} CHANGELOG.md for recent updates
-    4. ${UI_SUCCESS_COLOR}Stage${COLOR_RESET} Meetings.md for git commit
+    4. ${UI_SUCCESS_COLOR}Validate${COLOR_RESET} documentation consistency (check_docs.zsh)
+    5. ${UI_SUCCESS_COLOR}Stage${COLOR_RESET} Meetings.md for git commit
 
     ${COLOR_BOLD}${UI_ACCENT_COLOR}Benefits:${COLOR_RESET}
 
@@ -137,6 +142,10 @@ function parse_args() {
         case "$1" in
             --auto)
                 AUTO_MODE=true
+                shift
+                ;;
+            --skip-docs)
+                SKIP_DOCS_CHECK=true
                 shift
                 ;;
             # Skip flags already handled by library
@@ -265,6 +274,66 @@ function update_changelog() {
     fi
 }
 
+# Check documentation consistency
+function check_documentation() {
+    local dry_run=$1
+
+    # Skip if flag is set
+    if $SKIP_DOCS_CHECK; then
+        if $AUTO_MODE; then
+            # Silent in auto mode
+            return 0
+        else
+            print_info "Skipping documentation consistency check (--skip-docs)"
+            return 0
+        fi
+    fi
+
+    draw_section_header "Checking Documentation Consistency"
+
+    # Check if check_docs script exists
+    if [[ ! -x "$CHECK_DOCS_SCRIPT" ]]; then
+        print_warning "check_docs.zsh not found or not executable"
+        print_info "Skipping documentation validation"
+        return 0
+    fi
+
+    if $dry_run; then
+        print_info "Would run: $CHECK_DOCS_SCRIPT"
+        return 0
+    fi
+
+    # Run check_docs.zsh and capture output
+    local output
+    local exit_code
+    output=$("$CHECK_DOCS_SCRIPT" 2>&1)
+    exit_code=$?
+
+    # Parse output for summary
+    local issues_found=$(echo "$output" | grep -o "Found [0-9]* potential issue" | head -1)
+
+    if [[ $exit_code -eq 0 ]]; then
+        print_success "No documentation issues found"
+    else
+        # Show warning but don't block commit
+        print_warning "Documentation consistency issues detected"
+
+        if [[ -n "$issues_found" ]]; then
+            print_info "$issues_found"
+        fi
+
+        if ! $AUTO_MODE; then
+            echo
+            print_info "Run ${COLOR_BOLD}./bin/check_docs.zsh --verbose${COLOR_RESET} for details"
+            echo
+            print_info "These are warnings only - commit will proceed"
+        fi
+    fi
+
+    # Always return 0 (non-blocking)
+    return 0
+}
+
 # Stage files for commit
 function stage_files() {
     local dry_run=$1
@@ -332,7 +401,10 @@ function main() {
         print_info "This will:"
         echo "  ${UI_ACCENT_COLOR}1.${COLOR_RESET} Archive completed phases to Meetings.md"
         echo "  ${UI_ACCENT_COLOR}2.${COLOR_RESET} Check CHANGELOG.md for updates"
-        echo "  ${UI_ACCENT_COLOR}3.${COLOR_RESET} Stage Meetings.md for commit"
+        if ! $SKIP_DOCS_CHECK; then
+            echo "  ${UI_ACCENT_COLOR}3.${COLOR_RESET} Validate documentation consistency"
+        fi
+        echo "  ${UI_ACCENT_COLOR}4.${COLOR_RESET} Stage Meetings.md for commit"
         echo
 
         read "response?${COLOR_BOLD}Proceed?${COLOR_RESET} [y/N] "
@@ -347,6 +419,8 @@ function main() {
     archive_to_meetings $DRY_RUN
     echo
     update_changelog $DRY_RUN
+    echo
+    check_documentation $DRY_RUN
     echo
 
     if ! $DRY_RUN; then
