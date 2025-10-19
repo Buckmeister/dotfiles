@@ -526,20 +526,33 @@ The `speak` utility provides audio feedback and notifications for long-running o
 # Basic usage
 speak "Build completed successfully"
 
+# Pipe from commands
+echo "Tests complete!" | speak
+
 # Celebrate success
 speak --celebrate "All tests passed"
 
-# Alert on errors (louder, more urgent)
+# Alert on errors
 speak --alert "Deployment failed - check logs"
 
-# Custom voice (macOS)
-speak --voice "Samantha" "Hello from Samantha"
+# Friendly greeting
+speak --friendly "Welcome back!"
+
+# Custom voice (short and long forms)
+speak -v Samantha "Hello from Samantha"
+speak --voice "Alex" "Testing male voice"
 
 # Adjust speech rate (words per minute)
-speak --rate 200 "Speaking quickly"
+speak -r 200 "Speaking quickly"
+
+# Read from file
+speak -f README.md
+
+# List available voices
+speak --list-voices
 
 # Combine options
-speak --celebrate --rate 180 "Setup complete"
+speak --celebrate -r 180 "Setup complete"
 ```
 
 **Cross-Platform Support:**
