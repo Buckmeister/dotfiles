@@ -1,85 +1,88 @@
 #!/usr/bin/env zsh
 
 # ============================================================================
-# check_docs.zsh - Quick Documentation Consistency Checker
+# check_docs.zsh - Documentation Consistency Quick-Check
 # ============================================================================
 #
 # A "best efforts" approach to finding common documentation inconsistencies.
 # Not perfect, but catches low-hanging fruit!
 #
+# Features:
+#   - Broken markdown links detection
+#   - Removed file reference checking
+#   - Script reference validation
+#   - Outdated pattern detection
+#   - Cross-reference consistency
+#   - Artifact example validation (opt-in with markers)
+#
 # Usage:
 #   ./bin/check_docs.zsh
 #   ./bin/check_docs.zsh --verbose
+#   ./bin/check_docs.zsh --help
 #
 # ============================================================================
 
 emulate -LR zsh
 setopt EXTENDED_GLOB
 
-# Resolve paths
-SCRIPT_DIR="${0:A:h}"
-DOTFILES_ROOT="${SCRIPT_DIR:h}"
+# ============================================================================
+# Load Shared Libraries (with fallback protection)
+# ============================================================================
 
-# Load shared libraries for pretty output
-source "$SCRIPT_DIR/lib/colors.zsh" 2>/dev/null || {
-    # Fallback colors
+# Initialize paths using shared utility
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/utils.zsh" 2>/dev/null || {
+    echo "Error: Could not load utils.zsh" >&2
+    exit 1
+}
+
+# Initialize dotfiles paths (sets DF_DIR, DF_SCRIPT_DIR, DF_LIB_DIR)
+init_dotfiles_paths
+
+# Load shared libraries with fallback protection
+source "$DF_LIB_DIR/colors.zsh" 2>/dev/null || {
+    # Fallback: basic color definitions
     COLOR_INFO="\033[0;36m"
     COLOR_SUCCESS="\033[0;32m"
     COLOR_WARN="\033[0;33m"
     COLOR_ERROR="\033[0;31m"
     COLOR_RESET="\033[0m"
 }
-source "$SCRIPT_DIR/lib/ui.zsh" 2>/dev/null || {
-    # Fallback UI functions
+
+source "$DF_LIB_DIR/ui.zsh" 2>/dev/null || {
+    # Fallback: basic UI functions
     print_info() { echo "${COLOR_INFO}ℹ️ $1${COLOR_RESET}"; }
     print_success() { echo "${COLOR_SUCCESS}✅ $1${COLOR_RESET}"; }
-    print_warn() { echo "${COLOR_WARN}⚠️ $1${COLOR_RESET}"; }
+    print_warning() { echo "${COLOR_WARN}⚠️ $1${COLOR_RESET}"; }
     print_error() { echo "${COLOR_ERROR}❌ $1${COLOR_RESET}"; }
     draw_section_header() { echo "\n${COLOR_INFO}=== $1 ===${COLOR_RESET}\n"; }
 }
 
-# Ensure functions exist (in case of partial library load)
-command -v print_warn >/dev/null || print_warn() { echo "${COLOR_WARN}⚠️ $1${COLOR_RESET}"; }
+source "$DF_LIB_DIR/arguments.zsh" 2>/dev/null || {
+    # Fallback: basic argument parsing
+    parse_simple_flags() {
+        for arg in "$@"; do
+            case "$arg" in
+                -v|--verbose) ARG_VERBOSE="true" ;;
+                -h|--help) ARG_HELP="true" ;;
+            esac
+        done
+    }
+    is_help_requested() { [[ "$ARG_HELP" == "true" ]]; }
+    is_verbose() { [[ "$ARG_VERBOSE" == "true" ]]; }
+}
 
+# ============================================================================
 # Configuration
-VERBOSE=false
+# ============================================================================
+
 ISSUES_FOUND=0
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        -v|--verbose) VERBOSE=true ;;
-        -h|--help)
-            cat <<EOF
-${COLOR_BOLD}check_docs.zsh${COLOR_RESET} - Quick Documentation Consistency Checker
+# ============================================================================
+# Helper Functions
+# ============================================================================
 
-${COLOR_BOLD}USAGE:${COLOR_RESET}
-    ./bin/check_docs.zsh [OPTIONS]
-
-${COLOR_BOLD}OPTIONS:${COLOR_RESET}
-    -v, --verbose    Show detailed output
-    -h, --help       Show this help
-
-${COLOR_BOLD}CHECKS PERFORMED:${COLOR_RESET}
-    1. Broken markdown links to local files
-    2. References to removed/renamed scripts
-    3. Common outdated command patterns
-    4. Script references in docs vs actual files
-    5. Cross-reference consistency
-    6. Artifact example validation (if markers present)
-
-${COLOR_BOLD}EXAMPLES:${COLOR_RESET}
-    ./bin/check_docs.zsh              # Run quick checks
-    ./bin/check_docs.zsh --verbose    # Show all details
-EOF
-            exit 0
-            ;;
-        *) echo "Unknown option: $1"; exit 1 ;;
-    esac
-    shift
-done
-
-# Helper function to report issues
+# Report an issue (warn or error)
 report_issue() {
     local severity="$1"  # warn or error
     local message="$2"
@@ -90,17 +93,19 @@ report_issue() {
     if [[ "$severity" == "error" ]]; then
         print_error "$message"
     else
-        print_warn "$message"
+        print_warning "$message"
     fi
 
-    if [[ -n "$details" && "$VERBOSE" == "true" ]]; then
+    if [[ -n "$details" && "$(is_verbose && echo true)" == "true" ]]; then
         echo "  ${COLOR_INFO}Details: $details${COLOR_RESET}"
     fi
 }
 
 # ============================================================================
-# Check 1: Broken Markdown Links
+# Check Functions
 # ============================================================================
+
+# Check 1: Broken Markdown Links
 check_broken_links() {
     draw_section_header "Checking Markdown Links"
 
@@ -108,7 +113,7 @@ check_broken_links() {
     local broken_links=0
 
     # Find all markdown files
-    for doc in "$DOTFILES_ROOT"/**/*.md(N); do
+    for doc in "$DF_DIR"/**/*.md(N); do
         ((docs_found++))
 
         # Extract markdown links: [text](path)
@@ -131,7 +136,7 @@ check_broken_links() {
             local target_path="$doc_dir/$file_path"
 
             # Check if target exists
-            if [[ ! -e "$target_path" && ! -e "$DOTFILES_ROOT/$file_path" ]]; then
+            if [[ ! -e "$target_path" && ! -e "$DF_DIR/$file_path" ]]; then
                 ((broken_links++))
                 report_issue "error" "Broken link in ${doc:t}: $link_path" "Referenced from: $doc"
             fi
@@ -141,13 +146,11 @@ check_broken_links() {
     if [[ $broken_links -eq 0 ]]; then
         print_success "No broken markdown links found ($docs_found files checked)"
     else
-        print_warn "Found $broken_links potentially broken link(s)"
+        print_warning "Found $broken_links potentially broken link(s)"
     fi
 }
 
-# ============================================================================
 # Check 2: References to Removed Files
-# ============================================================================
 check_removed_files() {
     draw_section_header "Checking for References to Removed Files"
 
@@ -165,55 +168,55 @@ check_removed_files() {
             --include="*.md" \
             --exclude-dir=".git" \
             --exclude-dir="archive" \
-            "$DOTFILES_ROOT" 2>/dev/null | wc -l)
+            "$DF_DIR" 2>/dev/null | wc -l)
 
         if [[ $refs -gt 0 ]]; then
             # Check if file actually exists
-            if ! find "$DOTFILES_ROOT" -name "$removed_file" -type f 2>/dev/null | grep -q .; then
+            if ! find "$DF_DIR" -name "$removed_file" -type f 2>/dev/null | grep -q .; then
                 report_issue "warn" "Found $refs reference(s) to possibly removed file: $removed_file"
 
-                if [[ "$VERBOSE" == "true" ]]; then
+                if is_verbose; then
                     grep -rn "$removed_file" \
                         --include="*.md" \
                         --exclude-dir=".git" \
                         --exclude-dir="archive" \
-                        "$DOTFILES_ROOT" 2>/dev/null || true
+                        "$DF_DIR" 2>/dev/null || true
                 fi
             fi
         fi
     done
 }
 
-# ============================================================================
 # Check 3: Script References vs Actual Files
-# ============================================================================
 check_script_references() {
     draw_section_header "Checking Script References"
 
     # Find all script references in documentation (./bin/script.zsh or ./tests/script.zsh)
     local -a doc_scripts=($(grep -roh '\./\(bin\|tests\)/[a-zA-Z0-9_-]*\.zsh' \
         --include="*.md" \
-        "$DOTFILES_ROOT" 2>/dev/null | sort -u))
+        "$DF_DIR" 2>/dev/null | sort -u))
 
     local missing_count=0
 
     for script_ref in "${doc_scripts[@]}"; do
-        local script_path="$DOTFILES_ROOT/${script_ref#./}"
+        local script_path="$DF_DIR/${script_ref#./}"
 
         if [[ ! -f "$script_path" ]]; then
             ((missing_count++))
             report_issue "error" "Script referenced in docs not found: $script_ref"
 
             # Try to suggest alternatives
-            local script_name="${script_ref:t}"
-            local alternatives=$(find "$DOTFILES_ROOT/bin" "$DOTFILES_ROOT/tests" \
-                -name "*${script_name%.*}*" -type f 2>/dev/null | head -3)
+            if is_verbose; then
+                local script_name="${script_ref:t}"
+                local alternatives=$(find "$DF_DIR/bin" "$DF_DIR/tests" \
+                    -name "*${script_name%.*}*" -type f 2>/dev/null | head -3)
 
-            if [[ -n "$alternatives" && "$VERBOSE" == "true" ]]; then
-                echo "  ${COLOR_INFO}Possible alternatives:${COLOR_RESET}"
-                echo "$alternatives" | while read alt; do
-                    echo "    ${alt#$DOTFILES_ROOT/}"
-                done
+                if [[ -n "$alternatives" ]]; then
+                    echo "  ${COLOR_INFO}Possible alternatives:${COLOR_RESET}"
+                    echo "$alternatives" | while read alt; do
+                        echo "    ${alt#$DF_DIR/}"
+                    done
+                fi
             fi
         fi
     done
@@ -223,9 +226,7 @@ check_script_references() {
     fi
 }
 
-# ============================================================================
 # Check 4: Common Outdated Patterns
-# ============================================================================
 check_outdated_patterns() {
     draw_section_header "Checking for Outdated Patterns"
 
@@ -241,7 +242,7 @@ check_outdated_patterns() {
             --include="*.md" \
             --exclude="CHANGELOG.md" \
             --exclude-dir=".git" \
-            "$DOTFILES_ROOT" 2>/dev/null | wc -l)
+            "$DF_DIR" 2>/dev/null | wc -l)
 
         if [[ $count -gt 0 ]]; then
             report_issue "warn" "Found $count instance(s) of pattern '$pattern'" "$desc"
@@ -249,23 +250,21 @@ check_outdated_patterns() {
     done
 }
 
-# ============================================================================
 # Check 5: Cross-Reference Consistency
-# ============================================================================
 check_cross_references() {
     draw_section_header "Checking Cross-Reference Consistency"
 
     # Check if major documentation files reference each other properly
     local -a major_docs=(
         "README.md"
-        "INSTALL.md"
+        "docs/INSTALL.md"
         "docs/CLAUDE.md"
         "docs/TESTING.md"
-        "MANUAL.md"
+        "docs/MANUAL.md"
     )
 
     for doc in "${major_docs[@]}"; do
-        local doc_path="$DOTFILES_ROOT/$doc"
+        local doc_path="$DF_DIR/$doc"
 
         if [[ ! -f "$doc_path" ]]; then
             report_issue "error" "Major documentation file missing: $doc"
@@ -274,18 +273,16 @@ check_cross_references() {
 
         # Check if README references other major docs
         if [[ "$doc" == "README.md" ]]; then
-            for other_doc in "INSTALL.md" "MANUAL.md" "docs/CLAUDE.md"; do
-                if ! grep -q "$other_doc" "$doc_path"; then
-                    report_issue "warn" "README.md doesn't reference $other_doc"
+            for other_doc in "docs/INSTALL.md" "docs/MANUAL.md" "docs/CLAUDE.md"; do
+                if ! grep -q "${other_doc#docs/}" "$doc_path"; then
+                    report_issue "warn" "README.md doesn't reference ${other_doc#docs/}"
                 fi
             done
         fi
     done
 }
 
-# ============================================================================
 # Check 6: Artifact Documentation Validation
-# ============================================================================
 check_artifact_examples() {
     draw_section_header "Checking Artifact Documentation"
 
@@ -294,7 +291,7 @@ check_artifact_examples() {
 
     # Find all artifact markers in markdown files
     # Format: <!-- check_docs:script=./bin/speak.zsh -->
-    for doc in "$DOTFILES_ROOT"/**/*.md(N); do
+    for doc in "$DF_DIR"/**/*.md(N); do
         local in_artifact_block=false
         local artifact_path=""
         local -a examples=()
@@ -342,7 +339,7 @@ check_artifact_examples() {
     elif [[ $validation_issues -eq 0 ]]; then
         print_success "All artifact examples valid ($artifacts_found checked)"
     else
-        print_warn "Found issues in $validation_issues artifact example(s)"
+        print_warning "Found issues in $validation_issues artifact example(s)"
     fi
 }
 
@@ -353,7 +350,7 @@ validate_artifact_examples() {
     shift 2
     local -a examples=("$@")
 
-    local full_path="$DOTFILES_ROOT/${artifact_path#./}"
+    local full_path="$DF_DIR/${artifact_path#./}"
 
     # Check if artifact exists
     if [[ ! -f "$full_path" ]]; then
@@ -369,7 +366,7 @@ validate_artifact_examples() {
 
     # If no help text, skip validation
     if [[ -z "$help_text" ]]; then
-        [[ "$VERBOSE" == "true" ]] && print_info "Skipping $artifact_path (no --help available)"
+        is_verbose && print_info "Skipping $artifact_path (no --help available)"
         return 0
     fi
 
@@ -421,40 +418,91 @@ validate_artifact_examples() {
 }
 
 # ============================================================================
+# Help Function
+# ============================================================================
+
+show_help() {
+    cat <<EOF
+${COLOR_BOLD}check_docs.zsh${COLOR_RESET} - Documentation Consistency Quick-Check
+
+${COLOR_BOLD}USAGE:${COLOR_RESET}
+    ./bin/check_docs.zsh [OPTIONS]
+
+${COLOR_BOLD}OPTIONS:${COLOR_RESET}
+    -v, --verbose    Show detailed output
+    -h, --help       Show this help
+
+${COLOR_BOLD}CHECKS PERFORMED:${COLOR_RESET}
+    1. Broken markdown links to local files
+    2. References to removed/renamed scripts
+    3. Common outdated command patterns
+    4. Script references in docs vs actual files
+    5. Cross-reference consistency
+    6. Artifact example validation (if markers present)
+
+${COLOR_BOLD}EXAMPLES:${COLOR_RESET}
+    ./bin/check_docs.zsh              # Run quick checks
+    ./bin/check_docs.zsh --verbose    # Show all details
+
+${COLOR_BOLD}ARTIFACT MARKERS:${COLOR_RESET}
+    Add to documentation to validate examples against actual scripts:
+
+    <!-- check_docs:script=./bin/my_script.zsh -->
+    \`\`\`bash
+    my_script --flag value
+    \`\`\`
+    <!-- /check_docs -->
+
+EOF
+}
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
-cd "$DOTFILES_ROOT" || exit 1
+main() {
+    # Parse arguments
+    parse_simple_flags "$@"
+    is_help_requested && { show_help; exit 0; }
 
-echo "${COLOR_INFO}${COLOR_BOLD}"
-echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║     📚 Documentation Consistency Quick-Check              ║"
-echo "╚═══════════════════════════════════════════════════════════╝"
-echo "${COLOR_RESET}"
+    cd "$DF_DIR" || exit 1
 
-print_info "Running best-efforts documentation checks..."
-echo
+    # Beautiful header
+    echo "${COLOR_INFO}${COLOR_BOLD}"
+    echo "╔═══════════════════════════════════════════════════════════╗"
+    echo "║     📚 Documentation Consistency Quick-Check              ║"
+    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo "${COLOR_RESET}"
 
-# Run all checks
-check_broken_links
-check_removed_files
-check_script_references
-check_outdated_patterns
-check_cross_references
-check_artifact_examples
-
-# Summary
-echo
-draw_section_header "Summary"
-
-if [[ $ISSUES_FOUND -eq 0 ]]; then
-    print_success "No issues found! Documentation appears consistent."
-    exit 0
-else
-    print_warn "Found $ISSUES_FOUND potential issue(s)"
+    print_info "Running best-efforts documentation checks..."
     echo
-    print_info "Run with --verbose for more details"
+
+    # Run all checks
+    check_broken_links
+    check_removed_files
+    check_script_references
+    check_outdated_patterns
+    check_cross_references
+    check_artifact_examples
+
+    # Summary
     echo
-    print_info "These are 'best efforts' checks - some may be false positives!"
-    exit 1
+    draw_section_header "Summary"
+
+    if [[ $ISSUES_FOUND -eq 0 ]]; then
+        print_success "No issues found! Documentation appears consistent."
+        exit 0
+    else
+        print_warning "Found $ISSUES_FOUND potential issue(s)"
+        echo
+        print_info "Run with --verbose for more details"
+        echo
+        print_info "These are 'best efforts' checks - some may be false positives!"
+        exit 1
+    fi
+}
+
+# Run main if executed directly
+if [[ "${(%):-%x}" == "${0}" ]]; then
+    main "$@"
 fi
