@@ -8,6 +8,7 @@ The unified Docker test script (`test_docker.zsh`) provides a powerful, flexible
 
 ## 🚀 Quick Start
 
+<!-- check_docs:script=./tests/test_docker.zsh -->
 ```bash
 cd ~/.config/dotfiles
 
@@ -23,6 +24,7 @@ cd ~/.config/dotfiles
 # Test specific PI script
 ./tests/test_docker.zsh --enable-pi "git-*" --quick
 ```
+<!-- /check_docs -->
 
 ## 🎯 Test Script: `test_docker.zsh`
 

@@ -2731,9 +2731,11 @@ deploy
 - [lualoves.nvim README](https://github.com/Buckmeister/lualoves.nvim/blob/main/README.md) - Neovim manual
 
 **For System Health:**
+<!-- check_docs:script=./bin/librarian.zsh -->
 ```bash
 ./bin/librarian.zsh    # Comprehensive system status check
 ```
+<!-- /check_docs -->
 
 **For Testing:**
 ```bash

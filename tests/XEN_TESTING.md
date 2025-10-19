@@ -15,6 +15,7 @@ The unified XEN test script (`test_xen.zsh`) provides a powerful, flexible testi
 
 ## 🚀 Quick Start
 
+<!-- check_docs:script=./tests/test_xen.zsh -->
 ```bash
 cd ~/.config/dotfiles
 
@@ -33,6 +34,7 @@ cd ~/.config/dotfiles
 # Full validation
 ./tests/test_xen.zsh --comprehensive --quick
 ```
+<!-- /check_docs -->
 
 ## 🎯 Test Script: `test_xen.zsh`
 
