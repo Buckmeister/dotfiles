@@ -1,11 +1,10 @@
 # Dotfiles Action Plan
 
-> **A concise todo list for active and pending tasks**
+> **A lean todo list for active, pending, and recently completed work**
 >
-> **Last Updated:** October 16, 2025
+> **Last Updated:** October 19, 2025
 > **Status:** Living document - update as work progresses
->
-> **Note:** Completed phases are archived in Meetings.md
+> **Target Size:** 200-300 lines (currently within target)
 
 ---
 
@@ -272,4 +271,4 @@ See **Meetings.md** for detailed archive of completed phases:
 
 ---
 
-*This is a living document. Update it as work progresses and archive completed phases in Meetings.md.*
+*This is a living document. Update it as work progresses. Keep it lean (200-300 lines) by removing very old completed phases - they're preserved in git history and commit messages.*

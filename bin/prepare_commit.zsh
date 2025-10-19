@@ -1,23 +1,23 @@
 #!/usr/bin/env zsh
 
 # ============================================================================
-# Pre-Commit Preparation - Clean and Archive Before Committing
+# Pre-Commit Preparation - Quality Checks Before Committing
 # ============================================================================
 #
-# Automates repository cleanup before git commits by archiving completed
-# work from ACTION_PLAN.md to Meetings.md and validating CHANGELOG.md.
+# Automates quality checks before git commits by validating documentation
+# consistency and reminding about CHANGELOG.md updates.
 #
 # Features:
-#   - Detects completed phases in ACTION_PLAN.md (marked with ✅)
-#   - Archives them to Meetings.md (local-only file)
+#   - Validates documentation consistency (check_docs.zsh)
 #   - Checks CHANGELOG.md for recent work documentation
-#   - Stages Meetings.md for commit
+#   - Reminds to update ACTION_PLAN.md with completed work
 #   - Can run manually or via git pre-commit hook
 #
 # Usage:
 #   prepare_commit.zsh                     # Interactive mode with prompts
 #   prepare_commit.zsh --auto              # Automatic (for git hooks)
 #   prepare_commit.zsh --dry-run           # Preview without changes
+#   prepare_commit.zsh --skip-docs         # Skip documentation check
 #
 # Integration:
 #   Use setup_git_hooks.zsh to install as a pre-commit hook
@@ -54,7 +54,6 @@ source "$LIB_DIR/greetings.zsh"
 # ============================================================================
 
 ACTION_PLAN="${DF_DIR}/ACTION_PLAN.md"
-MEETINGS="${DF_DIR}/Meetings.md"
 CHANGELOG="${DF_DIR}/CHANGELOG.md"
 CHECK_DOCS_SCRIPT="${DF_DIR}/bin/check_docs.zsh"
 AUTO_MODE=false
@@ -67,7 +66,7 @@ SKIP_DOCS_CHECK=false
 
 function show_help() {
     cat <<EOF
-$(draw_header "Prepare Commit" "Archive completed work before committing")
+$(draw_header "Prepare Commit" "Quality checks before committing")
 
 USAGE:
     prepare_commit.zsh [OPTIONS]
@@ -79,24 +78,21 @@ OPTIONS:
     -h, --help       Show this help message
 
 DESCRIPTION:
-    Prepares the repository for commit by automatically managing
-    completed work, validating documentation consistency, and
-    ensuring project documentation is up to date.
+    Prepares the repository for commit by running quality checks and
+    reminding about documentation updates.
 
     ${COLOR_BOLD}${UI_ACCENT_COLOR}Workflow:${COLOR_RESET}
 
-    1. ${UI_SUCCESS_COLOR}Detect${COLOR_RESET} completed phases in ACTION_PLAN.md (marked with ✅)
-    2. ${UI_SUCCESS_COLOR}Archive${COLOR_RESET} them to Meetings.md (local-only file)
-    3. ${UI_SUCCESS_COLOR}Check${COLOR_RESET} CHANGELOG.md for recent updates
-    4. ${UI_SUCCESS_COLOR}Validate${COLOR_RESET} documentation consistency (check_docs.zsh)
-    5. ${UI_SUCCESS_COLOR}Stage${COLOR_RESET} Meetings.md for git commit
+    1. ${UI_SUCCESS_COLOR}Validate${COLOR_RESET} documentation consistency (check_docs.zsh)
+    2. ${UI_SUCCESS_COLOR}Check${COLOR_RESET} CHANGELOG.md for recent updates
+    3. ${UI_SUCCESS_COLOR}Remind${COLOR_RESET} to update ACTION_PLAN.md with completed work
 
     ${COLOR_BOLD}${UI_ACCENT_COLOR}Benefits:${COLOR_RESET}
 
-    • ACTION_PLAN.md stays focused on active work
-    • Historical context preserved in Meetings.md
-    • CHANGELOG.md reminder ensures documentation
-    • Automated via git pre-commit hook
+    • Documentation examples stay synchronized with code
+    • CHANGELOG.md reminder ensures public documentation
+    • ACTION_PLAN.md reminder keeps todo list current
+    • Automated quality enforcement via git pre-commit hook
 
 EXAMPLES:
     ${UI_INFO_COLOR}# Manual run with review${COLOR_RESET}
@@ -118,9 +114,8 @@ INTEGRATION:
     ${UI_INFO_COLOR}./bin/setup_git_hooks.zsh${COLOR_RESET}
 
 FILES:
-    ACTION_PLAN.md  - Active project todo list
-    Meetings.md     - Project history archive (local-only)
-    CHANGELOG.md    - Public changelog
+    ACTION_PLAN.md  - Active, pending, and recently completed work
+    CHANGELOG.md    - Public-facing release history and changes
 
 EOF
 }
@@ -165,85 +160,7 @@ function parse_args() {
 # Core Functions
 # ============================================================================
 
-# Extract completed phases from ACTION_PLAN.md
-function extract_completed_phases() {
-    local action_plan="$1"
-    local temp_file=$(mktemp)
-
-    # Look for completed phases in "Completed Work" section
-    # Format: "- Phase N: Name ✅ **(Date)**"
-    grep -E "^- Phase [0-9]+.*✅.*\*\*.*\*\*" "$action_plan" > "$temp_file" 2>/dev/null
-
-    if [[ -s "$temp_file" ]]; then
-        cat "$temp_file"
-        rm "$temp_file"
-        return 0
-    else
-        rm "$temp_file"
-        return 1
-    fi
-}
-
-# Check if there's anything to archive
-function check_for_work() {
-    draw_section_header "Scanning for Completed Work"
-
-    local completed_count=$(extract_completed_phases "$ACTION_PLAN" | wc -l)
-
-    if [[ $completed_count -eq 0 ]]; then
-        print_info "No completed phases found - nothing to archive"
-        return 1
-    fi
-
-    print_success "Found $completed_count completed phase(s) to process"
-
-    if ! $AUTO_MODE && ! $DRY_RUN; then
-        echo
-        print_info "Completed phases:"
-        extract_completed_phases "$ACTION_PLAN" | while read -r line; do
-            echo "  ${UI_ACCENT_COLOR}•${COLOR_RESET} $line"
-        done
-        echo
-    fi
-
-    return 0
-}
-
-# Archive completed phases to Meetings.md
-function archive_to_meetings() {
-    local dry_run=$1
-
-    draw_section_header "Archiving to Meetings.md"
-
-    if $dry_run; then
-        print_info "Would append to Meetings.md:"
-        echo
-        echo "  ${UI_INFO_COLOR}---${COLOR_RESET}"
-        echo
-        echo "  ${UI_ACCENT_COLOR}## Archived Completed Phases - $(date +%Y-%m-%d)${COLOR_RESET}"
-        echo
-        extract_completed_phases "$ACTION_PLAN" | while read -r line; do
-            echo "  ${UI_INFO_COLOR}$line${COLOR_RESET}"
-        done
-        echo
-        return 0
-    fi
-
-    # Append to Meetings.md
-    {
-        echo
-        echo "---"
-        echo
-        echo "## Archived Completed Phases - $(date +%Y-%m-%d)"
-        echo
-        extract_completed_phases "$ACTION_PLAN"
-        echo
-    } >> "$MEETINGS"
-
-    print_success "Archived to Meetings.md"
-}
-
-# Update CHANGELOG.md
+# Check CHANGELOG.md for recent updates
 function update_changelog() {
     local dry_run=$1
 
@@ -334,26 +251,6 @@ function check_documentation() {
     return 0
 }
 
-# Stage files for commit
-function stage_files() {
-    local dry_run=$1
-
-    draw_section_header "Staging Files"
-
-    if $dry_run; then
-        print_info "Would stage: Meetings.md"
-        return 0
-    fi
-
-    # Only stage Meetings.md (it's local-only)
-    # ACTION_PLAN.md and CHANGELOG.md are already tracked
-    if git add "$MEETINGS" 2>/dev/null; then
-        print_success "Staged Meetings.md"
-    else
-        print_warning "Could not stage Meetings.md (may not have changes)"
-    fi
-}
-
 # ============================================================================
 # Main Workflow
 # ============================================================================
@@ -369,7 +266,7 @@ function main() {
     fi
 
     # Check required files exist
-    for file in "$ACTION_PLAN" "$MEETINGS" "$CHANGELOG"; do
+    for file in "$ACTION_PLAN" "$CHANGELOG"; do
         if [[ ! -f "$file" ]]; then
             print_error "Required file not found: $file"
             exit 1
@@ -378,63 +275,27 @@ function main() {
 
     # Show header in non-auto mode
     if ! $AUTO_MODE; then
-        draw_header "Prepare Commit" "Archive completed work before committing"
-        echo
-    fi
-
-    # Check if there's work to do
-    if ! check_for_work; then
-        if ! $AUTO_MODE; then
-            echo
-            print_success "Repository is ready for commit!"
-            echo
-            get_random_friend_greeting
-        fi
-        exit 0
-    fi
-
-    # Prompt for confirmation in manual mode
-    if ! $AUTO_MODE && ! $DRY_RUN; then
-        echo
-        draw_separator
-        echo
-        print_info "This will:"
-        echo "  ${UI_ACCENT_COLOR}1.${COLOR_RESET} Archive completed phases to Meetings.md"
-        echo "  ${UI_ACCENT_COLOR}2.${COLOR_RESET} Check CHANGELOG.md for updates"
-        if ! $SKIP_DOCS_CHECK; then
-            echo "  ${UI_ACCENT_COLOR}3.${COLOR_RESET} Validate documentation consistency"
-        fi
-        echo "  ${UI_ACCENT_COLOR}4.${COLOR_RESET} Stage Meetings.md for commit"
-        echo
-
-        read "response?${COLOR_BOLD}Proceed?${COLOR_RESET} [y/N] "
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            print_info "Cancelled by user"
-            exit 0
-        fi
+        draw_header "Prepare Commit" "Quality checks before committing"
         echo
     fi
 
     # Execute workflow
-    archive_to_meetings $DRY_RUN
-    echo
-    update_changelog $DRY_RUN
-    echo
     check_documentation $DRY_RUN
     echo
+    update_changelog $DRY_RUN
 
-    if ! $DRY_RUN; then
-        stage_files false
-
-        if ! $AUTO_MODE; then
-            echo
-            draw_separator
-            echo
-            print_success "Repository prepared for commit!"
-            print_info "You can now commit with: ${COLOR_BOLD}git commit${COLOR_RESET}"
-            echo
-            get_random_friend_greeting
-        fi
+    # Show completion message in non-auto mode
+    if ! $AUTO_MODE && ! $DRY_RUN; then
+        echo
+        draw_separator
+        echo
+        print_success "Pre-commit checks complete!"
+        echo
+        print_info "Remember to:"
+        echo "  ${UI_ACCENT_COLOR}•${COLOR_RESET} Update ${COLOR_BOLD}ACTION_PLAN.md${COLOR_RESET} with completed/pending work"
+        echo "  ${UI_ACCENT_COLOR}•${COLOR_RESET} Add entries to ${COLOR_BOLD}CHANGELOG.md${COLOR_RESET} for significant changes"
+        echo
+        get_random_friend_greeting
     fi
 }
 

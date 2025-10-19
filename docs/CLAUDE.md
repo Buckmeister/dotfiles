@@ -130,23 +130,10 @@ These three files work together to track project progress. Understanding this sy
   - Don't include detailed analysis or documentation
   - Don't archive completed phases here forever
 
-### Meetings.md - Historical Journal (Local-Only)
-- **Purpose**: Append-only journal of completed milestones and key decisions
+### Meetings.md - Historical Archive (Deprecated)
+- **Status**: NO LONGER PART OF WORKFLOW - kept for sentimental/historical reasons only
 - **Git Status**: In `.gitignore` - NEVER commit!
-- **Content**: Comprehensive archive of completed work
-- **When to Update**:
-  - After completing major phases or milestones
-  - When making important project decisions
-  - When archiving completed phases from ACTION_PLAN.md
-- **Format**: Add dated sections with full details of accomplishments
-- **Example Entry**:
-  ```markdown
-  ## 🎉 Phase 7: Menu System Complete
-  **Date:** October 16, 2025
-  **Delivered:** Hierarchical menu, 3 new libraries, 15 tests
-  **Impact:** Unified interface for all dotfiles management
-  [Full description with technical details...]
-  ```
+- **Note**: Commit messages provide comprehensive documentation; Meetings.md archiving removed to reduce overhead
 
 ### CHANGELOG.md - Public Release History
 - **Purpose**: Version-based changelog for public releases
@@ -161,29 +148,26 @@ These three files work together to track project progress. Understanding this sy
 ### Workflow for Completing Major Work
 
 1. **During Work**: Mark tasks in ACTION_PLAN.md as complete (✅)
-2. **After Completion**: Create comprehensive entry in Meetings.md with:
-   - Date and phase name
-   - What was delivered (files, lines of code, features)
+2. **After Completion**: Write comprehensive commit message with:
+   - Summary and phase name
+   - What was delivered (files, features, changes)
    - Impact and results
    - Technical details and decisions made
-3. **For User-Facing Changes**: Update CHANGELOG.md with version entry
-4. **Cleanup ACTION_PLAN.md**: If it exceeds ~500 lines, move old completed phases to Meetings.md
-5. **Commit**: Only ACTION_PLAN.md and CHANGELOG.md (Meetings.md is local-only)
+3. **For User-Facing Changes**: Update CHANGELOG.md [Unreleased] section
+4. **Cleanup ACTION_PLAN.md**: Keep it lean (~200-300 lines max)
+   - Move recently completed phases to "Recently Completed" section
+   - Archive very old completed work (delete from ACTION_PLAN.md - it's in git history)
+5. **Commit**: ACTION_PLAN.md and CHANGELOG.md together
 
 ### Example: After Completing Phase 7
 ```markdown
 # In ACTION_PLAN.md (keep it short):
-### Completed ✅
-- [x] Phase 7: Hierarchical Menu System (see Meetings.md 2025-10-16)
+### Recently Completed (Last 30 Days) ✅
+- Phase 7: Hierarchical Menu System (October 16, 2025)
 
 ### Active Projects
-- [ ] Phase 8: Repository Restructuring (IN PROGRESS)
+- Phase 8: Repository Restructuring (IN PROGRESS)
 ...
-
-# In Meetings.md (comprehensive details):
-## 🎉 Phase 7: Hierarchical Menu System Complete
-**Date:** October 16, 2025
-[Full 200+ line detailed entry with all accomplishments]
 
 # In CHANGELOG.md (user-facing changes):
 ## [Unreleased]
@@ -191,11 +175,30 @@ These three files work together to track project progress. Understanding this sy
 - Hierarchical menu system with submenus for better organization
 - Profile management integration in main menu
 - Package management interface in TUI menu
+
+# In git commit message (comprehensive details):
+Complete Phase 7: Hierarchical Menu System
+
+Delivered: Hierarchical menu, 3 new libraries, 15 tests
+Impact: Unified interface for all dotfiles management
+[Full technical details and implementation notes...]
 ```
 
 ### Key Principle: Keep ACTION_PLAN.md Lean
 
-ACTION_PLAN.md is a **todo list**, not a **documentation repository**. When it grows beyond ~500 lines, it's time to archive completed phases to Meetings.md. This ensures it remains scannable and useful as a quick-reference task list.
+ACTION_PLAN.md is a **todo list**, not a **documentation repository**. Keep it focused on:
+- **Active work** (currently in progress)
+- **Pending tasks** (upcoming work)
+- **Recently completed** (last 30 days)
+
+**Target size**: 200-300 lines maximum
+
+When it grows beyond this:
+- Delete very old completed phases (they're in git history and commit messages)
+- Move active work to the top for visibility
+- Ensure every item is actionable or recently relevant
+
+This ensures ACTION_PLAN.md remains scannable, survives context switches, and serves as a useful quick-reference task list.
 
 ---
 
