@@ -14,23 +14,20 @@ Common helper scripts include:
 
 ## Deployment
 
-Use the deployment tool to manage helper scripts:
+Use the integrated test_xen.zsh flags to manage helper scripts:
 
 ```bash
 # Migrate existing scripts from /root/aria-scripts to NFS
-./tests/deploy_xen_helpers.zsh --migrate
+./tests/test_xen.zsh --migrate-helpers
 
 # Deploy all helper scripts to NFS
-./tests/deploy_xen_helpers.zsh --deploy-all
+./tests/test_xen.zsh --deploy-helpers
 
 # List scripts on NFS
-./tests/deploy_xen_helpers.zsh --list
+./tests/test_xen.zsh --list-helpers
 
 # Verify NFS access across all hosts
-./tests/deploy_xen_helpers.zsh --verify
-
-# Check cluster status
-./tests/deploy_xen_helpers.zsh --status
+./tests/test_xen.zsh --verify-helpers
 ```
 
 ## NFS Location

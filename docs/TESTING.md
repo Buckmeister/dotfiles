@@ -313,13 +313,13 @@ The `tests/run_suite.zsh` script (605 lines) orchestrates test execution:
 
 ```bash
 # Deploy helper scripts to NFS storage
-./tests/deploy_xen_helpers.zsh
+./tests/test_xen.zsh --deploy-helpers
 
 # Verify deployment
-./tests/deploy_xen_helpers.zsh --verify
+./tests/test_xen.zsh --verify-helpers
 
-# Update existing scripts
-./tests/deploy_xen_helpers.zsh --update
+# List deployed scripts
+./tests/test_xen.zsh --list-helpers
 ```
 
 **XEN Cluster Management Library:**
@@ -345,29 +345,17 @@ The `tests/lib/xen_cluster.zsh` library (470+ lines) provides:
 ./tests/run_suite.zsh --suite comprehensive  # Uses all hosts
 ```
 
-**Real-World Testing Example (October 16, 2025):**
+**Real-World Testing Example:**
 
 ```bash
-# Check cluster status
-./tests/deploy_xen_helpers.zsh --status
+# Verify NFS accessibility across cluster
+./tests/test_xen.zsh --verify-helpers
 
-# Output:
-# ✓ opt-bck01.bck.intern (192.168.188.11)
-#   Role: primary | Priority: 1 | Load: 13 VMs
-# ✓ opt-bck02.bck.intern (192.168.188.12)
-#   Role: failover | Priority: 2 | Load: 13 VMs
-# ✓ opt-bck03.bck.intern (192.168.188.13)
-#   Role: failover | Priority: 3 | Load: 13 VMs
-# ✓ lat-bck04.bck.intern (192.168.188.19)
-#   Role: failover | Priority: 4 | Load: 13 VMs
-#
-# ✓ Cluster initialized with 4 available host(s)
-# Total cluster capacity: 52 VMs running
-
-# Verify NFS accessibility
-./tests/deploy_xen_helpers.zsh --verify
+# Output shows verification across all hosts:
 # ✓ All hosts can access NFS share at:
 #   /var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/dotfiles-test-helpers/
+#
+# ✓ Helper scripts verified on all hosts
 ```
 
 #### Test Result Reporting

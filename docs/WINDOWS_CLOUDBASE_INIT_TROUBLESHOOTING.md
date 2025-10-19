@@ -1,15 +1,44 @@
 # Windows CloudBase-Init Troubleshooting Guide
 
-**Last Updated:** October 18, 2025
 **Purpose:** Comprehensive debugging guide for cloudbase-init issues on Windows VMs in XCP-NG
 
 ---
 
 ## 📋 Overview
 
-This guide documents common cloudbase-init issues encountered during Windows VM provisioning in XCP-NG environments, along with their root causes, diagnostic procedures, and solutions. These issues were discovered and resolved during the development of automated Windows VM testing infrastructure.
+This guide documents common cloudbase-init issues encountered during Windows VM provisioning in XCP-NG environments, along with their root causes, diagnostic procedures, and solutions. These issues apply to any XCP-NG setup using Windows templates with CloudBase-Init.
 
 **Key Learning:** CloudBase-Init uses the **OpenStack ConfigDrive** format, not the simple flat-file structure used by Linux cloud-init!
+
+---
+
+## 🔧 Your Environment Configuration
+
+Before following this guide, identify your environment details:
+
+**XCP-NG Hosts:**
+- Primary host: `{your-xcp-host.example.com}`
+- Pool coordinator IP: `{192.168.x.x}`
+
+**Storage Repositories:**
+- **ISO SR Name:** `{your-iso-sr-name}` (e.g., `isostore1`)
+  - UUID: `{ISO-SR-UUID}`
+  - Type: iso
+  - Content-Type: iso
+  - Mount: `/run/sr-mount/{ISO-SR-UUID}`
+
+- **NFS/User SR Name:** `{your-nfs-sr-name}` (e.g., `xenstore1`, `nfsstore1`)
+  - UUID: `{NFS-SR-UUID}`
+  - Type: nfs
+  - Content-Type: user
+
+**Helper Scripts Location:**
+- Recommended: `/run/sr-mount/{NFS-SR-UUID}/scripts/` (shared across hosts)
+- Alternative: `/root/scripts/` (local to each host)
+
+**SSH Access:**
+- SSH Key: `~/.ssh/{your_key_name}` (e.g., `~/.ssh/xen_key`)
+- Test User: `{your-test-user}` (e.g., `aria`, `testuser`)
 
 ---
 
@@ -28,12 +57,12 @@ This guide documents common cloudbase-init issues encountered during Windows VM 
 
 **Fix:** Change `genisoimage -volid config-2` in helper script
 
-**Location:** `/root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh:329`
+**Location:** Helper script (e.g., `create-windows-vm-with-cloudinit-iso.sh`)
 
 **Verification:**
 ```powershell
 # SSH to Windows VM
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
+ssh -i ~/.ssh/{your_key} {your-user}@<VM_IP>
 
 # Check CD-ROM volume label
 powershell.exe -Command "Get-Volume | Where-Object {$_.DriveType -eq 'CD-ROM'}"
@@ -113,14 +142,14 @@ Get-NetConnectionProfile
 
 ### ✅ Issue #4: ISO Storage Repository
 
-**Problem:** Script selected wrong SR type (xenstore1 for user data instead of isostore1 for ISOs)
+**Problem:** Script selected wrong SR type (user/NFS SR instead of ISO SR)
 
 **Impact:** ISOs might not be properly accessible to VMs
 
 **Root Cause:**
 - XCP-NG has multiple SR types: user, iso, lvm, etc.
 - Helper script was using `xe sr-list shared=true` without filtering by content-type
-- First match was xenstore1 (content-type=user), not isostore1 (content-type=iso)
+- First match might be a user/NFS SR (content-type=user), not an ISO SR (content-type=iso)
 
 **Fix:** Changed SR selection to prefer ISO SR (`content-type=iso`)
 
@@ -137,14 +166,16 @@ DEFAULT_SR=$(xe sr-list content-type=iso shared=true params=uuid --minimal | cut
 xe sr-list uuid=<SR_UUID> params=content-type,name-label
 ```
 
-**Storage Repository Types:**
-- **isostore1** (UUID: 8521cd2e-af19-987e-966b-e68e4435f475)
+**Storage Repository Types (Example):**
+- **ISO SR** (e.g., `isostore1`)
+  - UUID: `{ISO-SR-UUID}`
   - Type: iso
   - Content-Type: iso
-  - Mount: `/run/sr-mount/8521cd2e-af19-987e-966b-e68e4435f475`
+  - Mount: `/run/sr-mount/{ISO-SR-UUID}`
   - Upload Method: Direct file copy + `xe sr-scan`
 
-- **xenstore1** (UUID: 75fa3703-d020-e865-dd0e-3682b83c35f6)
+- **NFS/User SR** (e.g., `xenstore1`, `nfsstore1`)
+  - UUID: `{NFS-SR-UUID}`
   - Type: nfs
   - Content-Type: user
   - Upload Method: `xe vdi-create` + `xe vdi-import`
@@ -185,7 +216,7 @@ fi
 **Verification:**
 ```bash
 # Check ISO in SR
-xe vdi-list sr-uuid=8521cd2e-af19-987e-966b-e68e4435f475 params=name-label,uuid,virtual-size
+xe vdi-list sr-uuid={ISO-SR-UUID} params=name-label,uuid,virtual-size
 
 # Should show correct file size (not 2MB)
 ```
@@ -246,7 +277,7 @@ D:\
 
 **Fix:** Update helper script to create ISO with OpenStack directory structure
 
-**Location:** `/root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh`
+**Location:** Helper script (e.g., `/root/scripts/create-windows-vm-with-cloudinit-iso.sh`)
 
 **Fixed Code:**
 ```bash
@@ -266,7 +297,7 @@ EOF
 cat > iso-staging/openstack/latest/user_data <<'EOF'
 #cloud-config
 users:
-  - name: aria
+  - name: {username}
     groups: Administrators
     ssh_authorized_keys:
       - <SSH_PUBLIC_KEY>
@@ -296,7 +327,7 @@ rm -rf iso-staging
 **Verification:**
 ```powershell
 # SSH to Windows VM
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
+ssh -i ~/.ssh/{your_key} {your-user}@<VM_IP>
 
 # Check ISO structure
 powershell.exe -Command "Get-ChildItem D:\ -Recurse | Select-Object FullName"
@@ -308,16 +339,16 @@ powershell.exe -Command "Get-ChildItem D:\ -Recurse | Select-Object FullName"
 # D:\openstack\latest\user_data
 ```
 
-**Status:** ✅ RESOLVED in create-windows-vm-with-cloudinit-iso-v2.sh (October 18, 2025)
+**Status:** ✅ RESOLVED (requires OpenStack directory structure in ISO)
 
 ---
 
 ### ✅ Issue #8: SSH Keys for Administrator Group Members
 
 **Problem:** SSH key authentication fails even though:
-- SSH keys are deployed to `C:\Users\aria\.ssh\authorized_keys`
+- SSH keys are deployed to `C:\Users\{username}\.ssh\authorized_keys`
 - File ownership and permissions are correct
-- The aria user is in the Administrators group
+- The user is in the Administrators group
 
 **Impact:** Cannot connect via SSH using keys, only password authentication works
 
@@ -332,10 +363,10 @@ Windows OpenSSH has a **special security feature** for users in the Administrato
 ```powershell
 # Check if user is in Administrators group
 Get-LocalGroupMember -Group "Administrators"
-# Shows: aria is a member
+# Shows: {username} is a member
 
 # User's authorized_keys exists but is ignored
-Test-Path C:\Users\aria\.ssh\authorized_keys  # Returns True
+Test-Path C:\Users\{username}\.ssh\authorized_keys  # Returns True
 # But SSH key auth still fails!
 
 # administrators_authorized_keys doesn't exist
@@ -347,7 +378,7 @@ Test-Path C:\ProgramData\ssh\administrators_authorized_keys  # Returns False
 **Manual Fix (for testing):**
 ```powershell
 # Copy authorized_keys to administrators location
-Copy-Item C:\Users\aria\.ssh\authorized_keys C:\ProgramData\ssh\administrators_authorized_keys
+Copy-Item C:\Users\{username}\.ssh\authorized_keys C:\ProgramData\ssh\administrators_authorized_keys
 
 # Set correct permissions (only SYSTEM and Administrators)
 icacls C:\ProgramData\ssh\administrators_authorized_keys /inheritance:r
@@ -359,13 +390,13 @@ Restart-Service sshd
 ```
 
 **Automated Fix in Helper Script:**
-The v2 helper script now includes `setup-admin-ssh-keys.ps1` which automatically:
-1. Checks if aria user is in Administrators group
+The helper script can include a PowerShell script (e.g., `setup-admin-ssh-keys.ps1`) which automatically:
+1. Checks if user is in Administrators group
 2. If yes, copies `~/.ssh/authorized_keys` to `C:\ProgramData\ssh\administrators_authorized_keys`
 3. Sets correct permissions (only SYSTEM and Administrators have access)
 4. Restarts sshd service
 
-**Location:** Helper script `setup-admin-ssh-keys.ps1` (lines 292-373)
+**Location:** Add to helper script as a PowerShell write_files entry
 
 **Verification:**
 ```powershell
@@ -377,17 +408,17 @@ Get-Acl C:\ProgramData\ssh\administrators_authorized_keys | Format-List
 
 # Test SSH key authentication
 # From remote machine:
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP> 'echo "SSH key auth works!"'
+ssh -i ~/.ssh/{your_key} {your-user}@<VM_IP> 'echo "SSH key auth works!"'
 ```
 
-**Alternative Fix (if you don't want aria in Administrators group):**
-Remove aria from Administrators and keep it in Users group only. Then the regular `~/.ssh/authorized_keys` will work:
+**Alternative Fix (if you don't want user in Administrators group):**
+Remove user from Administrators and keep in Users group only. Then the regular `~/.ssh/authorized_keys` will work:
 ```powershell
-Remove-LocalGroupMember -Group "Administrators" -Member "aria"
+Remove-LocalGroupMember -Group "Administrators" -Member "{username}"
 # Now ~/.ssh/authorized_keys will be used instead
 ```
 
-**Status:** ✅ RESOLVED in create-windows-vm-with-cloudinit-iso-v2.sh (October 18, 2025)
+**Status:** ✅ RESOLVED (requires administrators_authorized_keys for Administrator group members)
 
 **References:**
 - [Windows OpenSSH Key Management](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement)
@@ -433,7 +464,7 @@ cloud-init-{timestamp}.iso (label: CIDATA)
 
 ```bash
 # Find VM by name
-xe vm-list name-label='aria-test-*' params=name-label,uuid,power-state,networks
+xe vm-list name-label='your-test-vm-*' params=name-label,uuid,power-state,networks
 
 # Check attached ISOs
 xe vbd-list vm-uuid=<VM-UUID> type=CD
@@ -441,8 +472,8 @@ xe vbd-list vm-uuid=<VM-UUID> type=CD
 # Check VDI details
 xe vdi-list uuid=<VDI-UUID> params=name-label,virtual-size,physical-utilisation,sr-name-label
 
-# List ISOs in isostore1
-xe vdi-list sr-uuid=8521cd2e-af19-987e-966b-e68e4435f475 params=name-label,uuid,virtual-size
+# List ISOs in ISO SR
+xe vdi-list sr-uuid={ISO-SR-UUID} params=name-label,uuid,virtual-size
 ```
 
 ### Check VM Status (from Windows)
@@ -476,10 +507,11 @@ Get-ChildItem D:\ -Recurse | Select-Object FullName
 
 ```bash
 # With key (ultimate success test)
-ssh -i ~/.ssh/aria_xen_key aria@<VM_IP>
+ssh -i ~/.ssh/{your_key} {your-user}@<VM_IP>
 
-# With password (if aria user exists but key setup failed)
-sshpass -p 'YouAreAwesome' ssh Admin@<VM_IP>
+# With password (if user exists but key setup failed)
+ssh {your-user}@<VM_IP>
+# Enter password when prompted
 ```
 
 ---
@@ -488,17 +520,17 @@ sshpass -p 'YouAreAwesome' ssh Admin@<VM_IP>
 
 When automation is complete, running the helper script should result in:
 
-1. ✅ VM created from w11cb template
+1. ✅ VM created from Windows template (properly sysprepped with cloudbase-init)
 2. ✅ ISO created with `config-2` label
-3. ✅ ISO uploaded to isostore1 (correct size, readable)
+3. ✅ ISO uploaded to ISO SR (correct size, readable)
 4. ✅ ISO visible and mounted in Windows
 5. ✅ ISO has correct OpenStack directory structure
 6. ✅ Cloudbase-init detects ConfigDrive
-7. ✅ Aria user created automatically
+7. ✅ Test user created automatically
 8. ✅ OpenSSH installed and running
 9. ✅ Network profile set to Private
-10. ✅ SSH key deployed to aria user
-11. ✅ SSH access works without password: `ssh -i ~/.ssh/aria_xen_key aria@<NEW_VM_IP>`
+10. ✅ SSH key deployed to test user
+11. ✅ SSH access works without password: `ssh -i ~/.ssh/{your_key} {your-user}@<NEW_VM_IP>`
 
 ---
 
@@ -513,19 +545,23 @@ When automation is complete, running the helper script should result in:
 
 ## 🔧 Helper Scripts
 
-### Current Helper Scripts
+### Helper Script Locations
 
-**Linux VMs:** `/root/aria-scripts/create-vm-with-cloudinit-iso.sh`
+**Linux VMs:** `create-vm-with-cloudinit-iso.sh`
+- Standard cloud-init with flat file structure
 
-**Windows VMs:** `/root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh`
+**Windows VMs:** `create-windows-vm-with-cloudinit-iso-v2.sh`
 - v2 includes OpenStack ISO structure fix (Issue #7)
 - v2 includes administrators_authorized_keys fix (Issue #8)
 - v2 includes all 7 issue fixes
-- Recommended location: NFS shared storage on xenstore1
+
+**Recommended Locations:**
+- **Shared NFS Storage:** `/run/sr-mount/{NFS-SR-UUID}/scripts/` (accessible by all XCP-NG hosts)
+- **Local Storage:** `/root/scripts/` (host-specific, requires manual sync)
 
 ### Deployment to Shared Storage
 
-**Recommended Method (Integrated):**
+**Recommended Method (Integrated - if using dotfiles test system):**
 ```bash
 # Use the test script's integrated deployment
 cd ~/.config/dotfiles
@@ -538,24 +574,24 @@ cd ~/.config/dotfiles
 ./tests/test_xen.zsh --list-helpers
 ```
 
-**Manual Method (Advanced):**
+**Manual Method (Universal):**
 ```bash
 # Connect to XCP-NG host
-ssh -i ~/.ssh/aria_xen_key root@opt-bck01.bck.intern
+ssh -i ~/.ssh/{your_key} root@{your-xcp-host.example.com}
 
-# Copy to shared NFS storage (accessible by all hosts)
-cp /root/aria-scripts/create-windows-vm-with-cloudinit-iso-v2.sh \
-   /run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/
+# Copy to shared NFS storage (accessible by all hosts in pool)
+cp /root/scripts/create-windows-vm-with-cloudinit-iso-v2.sh \
+   /run/sr-mount/{NFS-SR-UUID}/scripts/
 
 # Make executable
-chmod +x /run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/aria-scripts/*.sh
+chmod +x /run/sr-mount/{NFS-SR-UUID}/scripts/*.sh
 ```
 
-**Benefits of Integrated Deployment:**
-- ✅ Automatic deployment to all cluster hosts
-- ✅ Verification across cluster
-- ✅ Consistent with test workflow
-- ✅ Single command deployment
+**Benefits of Shared Storage Deployment:**
+- ✅ Single source of truth for all XCP-NG hosts
+- ✅ Automatic availability across entire pool
+- ✅ No need to sync scripts manually to each host
+- ✅ Version control made simple
 
 ---
 

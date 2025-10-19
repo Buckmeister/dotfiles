@@ -320,19 +320,19 @@ suites:
 - SR UUID: `75fa3703-d020-e865-dd0e-3682b83c35f6`
 - Mount path: `/var/run/sr-mount/75fa3703-d020-e865-dd0e-3682b83c35f6/`
 - Scripts directory: `.../dotfiles-test-helpers/`
-- Deployment tool: `./tests/deploy_xen_helpers.zsh`
+- Deployment: Integrated into `test_xen.zsh`
 
 **Helper Script Deployment:**
 
 ```bash
 # Deploy helpers to NFS (all hosts have access)
-./tests/deploy_xen_helpers.zsh
+./tests/test_xen.zsh --deploy-helpers
 
 # Verify deployment
-./tests/deploy_xen_helpers.zsh --verify
+./tests/test_xen.zsh --verify-helpers
 
-# Update existing scripts
-./tests/deploy_xen_helpers.zsh --update
+# List deployed scripts
+./tests/test_xen.zsh --list-helpers
 ```
 
 ## Test Structure
@@ -382,8 +382,7 @@ tests/
 ├── run_suite.zsh                           # Modular test runner (Phase 5)
 ├── run_tests.zsh                           # Main test runner
 ├── test_docker_install.zsh                 # Docker E2E tests
-├── test_xen.zsh                    # XCP-NG VM E2E tests
-├── deploy_xen_helpers.zsh                  # XEN helper deployment (Phase 5)
+├── test_xen.zsh                    # XCP-NG VM E2E tests (includes helper deployment)
 │
 ├── REFACTORING_PLAN.md                     # Detailed refactoring documentation
 └── README.md                               # This file
