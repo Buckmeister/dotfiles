@@ -16,6 +16,7 @@ This isn't just another dotfiles repository. It's a **complete configuration man
 - 🔗 **Symlink Architecture** - Clean, organized file structure with automatic linking
 - 🎯 **Modular Post-Install** - Individual scripts for languages, tools, and configurations
 - 🧪 **Comprehensive Testing** - 251 tests across 15 suites with ~96% code coverage
+- 📝 **Documentation Quality Assurance** - Automatic validation ensures examples stay synchronized with code
 - 📦 **Universal Package Management** - One YAML manifest installs packages across any platform (brew, apt, cargo, npm, and more)
 - 💙 **Crafted with Care** - Every detail considered, every message friendly
 
@@ -484,6 +485,46 @@ The repository includes **251 comprehensive tests** across **15 test suites** wi
 The test suite includes configuration-driven testing, modular test runners (smoke/standard/comprehensive), Docker-based validation, and XEN cluster testing for multi-host scenarios.
 
 **See [TESTING.md](docs/TESTING.md) for complete testing documentation including guidelines, infrastructure, and writing new tests.**
+
+### Documentation Consistency Validation
+
+The repository includes **automatic documentation consistency checking** to ensure that all command-line examples in documentation stay synchronized with actual script capabilities.
+
+**How it works:**
+- 📝 Documentation examples are marked with special HTML comment markers
+- ✅ Pre-commit hook automatically validates examples before every commit
+- 🎯 Examples are checked against actual script `--help` output
+- ⚠️ Warnings shown for outdated/invalid flags (never blocks commits)
+- 🚀 Prevents documentation drift and outdated examples
+
+**Run validation manually:**
+```bash
+# Quick consistency check
+./bin/check_docs.zsh
+
+# Detailed output with all findings
+./bin/check_docs.zsh --verbose
+```
+
+**What it checks:**
+- ✅ Broken markdown links to local files
+- ✅ References to removed or renamed scripts
+- ✅ Script references vs actual files
+- ✅ Artifact examples vs script capabilities
+- ✅ Common outdated command patterns
+- ✅ Cross-reference consistency between major docs
+
+**Example output:**
+```
+═══ Checking Documentation Consistency ═══
+✅ All artifact examples valid (3 checked)
+⚠️ Found 2 potentially broken link(s)
+ℹ️ Run with --verbose for details
+```
+
+**Automatic validation:** The pre-commit hook runs this check automatically on every commit. You'll see warnings if documentation needs updating, but commits always proceed.
+
+**For contributors:** See [CLAUDE.md](docs/CLAUDE.md) for details on using artifact markers in documentation and the complete validation system architecture.
 
 ### Managing the Neovim Submodule
 

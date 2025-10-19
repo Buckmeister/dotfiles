@@ -14,6 +14,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+#### Documentation Consistency System
+- **Automatic validation** - Pre-commit hook runs documentation checks before every commit
+  - Validates command-line examples against actual script capabilities
+  - Checks for broken links, removed files, and outdated patterns
+  - Non-blocking warnings (never prevents commits)
+  - Provides clear guidance for fixing issues
+
+- **Artifact markers** - HTML comment markers link documentation examples to actual scripts
+  - `<!-- check_docs:script=./path/to/script.zsh -->` markers wrap code examples
+  - Examples automatically validated against script's `--help` output
+  - Detects invalid flags, renamed options, or missing features
+  - Prevents documentation drift
+
+- **Manual validation tool** - `bin/check_docs.zsh` for on-demand documentation checking
+  - Checks broken markdown links to local files
+  - Validates script references vs actual files
+  - Detects common outdated command patterns
+  - Cross-reference consistency between major docs
+  - 509 lines with full shared library integration
+  - `--verbose` flag for detailed output
+
+- **Comprehensive test suite** - `tests/test_check_docs.zsh` with 25 tests (100% pass rate)
+  - Integration testing approach
+  - Validates all functionality including artifact cross-checking
+  - 372 lines of professional test code
+
+- **Complete documentation**
+  - README.md: User-facing "Documentation Consistency Validation" section
+  - CLAUDE.md: First CRITICAL section for AI assistants with examples and best practices
+  - Pre-commit hook integration with `--skip-docs` flag
+
 #### Hierarchical Menu System
 - **Hierarchical menu as default** - `bin/menu_hierarchical.zsh` now launches by default when running `./setup`
   - Multi-level navigation with 5 organized categories
