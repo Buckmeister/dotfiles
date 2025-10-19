@@ -522,6 +522,7 @@ git commit -m "Update Neovim submodule reference"
 
 The `speak` utility provides audio feedback and notifications for long-running operations:
 
+<!-- check_docs:script=./user/scripts/utilities/speak.symlink_local_bin.zsh -->
 ```bash
 # Basic usage
 speak "Build completed successfully"
@@ -554,6 +555,7 @@ speak --list-voices
 # Combine options
 speak --celebrate -r 180 "Setup complete"
 ```
+<!-- /check_docs -->
 
 **Cross-Platform Support:**
 - **macOS**: Uses built-in `say` command with premium neural voices (Serena Premium, Eddy, Flo) and full voice/rate control

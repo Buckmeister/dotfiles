@@ -66,6 +66,7 @@ ${COLOR_BOLD}CHECKS PERFORMED:${COLOR_RESET}
     3. Common outdated command patterns
     4. Script references in docs vs actual files
     5. Cross-reference consistency
+    6. Artifact example validation (if markers present)
 
 ${COLOR_BOLD}EXAMPLES:${COLOR_RESET}
     ./bin/check_docs.zsh              # Run quick checks
@@ -283,6 +284,143 @@ check_cross_references() {
 }
 
 # ============================================================================
+# Check 6: Artifact Documentation Validation
+# ============================================================================
+check_artifact_examples() {
+    draw_section_header "Checking Artifact Documentation"
+
+    local artifacts_found=0
+    local validation_issues=0
+
+    # Find all artifact markers in markdown files
+    # Format: <!-- check_docs:script=./bin/speak.zsh -->
+    for doc in "$DOTFILES_ROOT"/**/*.md(N); do
+        local in_artifact_block=false
+        local artifact_path=""
+        local -a examples=()
+
+        while IFS= read -r line; do
+            # Start of artifact block
+            if [[ "$line" =~ "<!--[[:space:]]*check_docs:script=([^[:space:]]+)" ]]; then
+                artifact_path="${match[1]}"
+                in_artifact_block=true
+                examples=()
+                ((artifacts_found++))
+                continue
+            fi
+
+            # End of artifact block
+            if [[ "$line" =~ "<!--[[:space:]]*/check_docs[[:space:]]*-->" ]]; then
+                if [[ "$in_artifact_block" == "true" && -n "$artifact_path" ]]; then
+                    # Validate this artifact
+                    validate_artifact_examples "$doc" "$artifact_path" "${examples[@]}"
+                    [[ $? -ne 0 ]] && ((validation_issues++))
+                fi
+                in_artifact_block=false
+                artifact_path=""
+                examples=()
+                continue
+            fi
+
+            # Collect examples within block
+            if [[ "$in_artifact_block" == "true" ]]; then
+                # Extract command lines (simple heuristic: starts with script name)
+                local script_name="${artifact_path:t}"
+                # Remove all symlink suffixes and .zsh extension
+                script_name="${script_name%.symlink_local_bin.zsh}"
+                script_name="${script_name%.symlink.zsh}"
+                script_name="${script_name%.zsh}"
+                if [[ "$line" =~ ^[[:space:]]*${script_name}[[:space:]] ]]; then
+                    examples+=("$line")
+                fi
+            fi
+        done < "$doc"
+    done
+
+    if [[ $artifacts_found -eq 0 ]]; then
+        print_info "No artifact markers found (use <!-- check_docs:script=path --> to enable)"
+    elif [[ $validation_issues -eq 0 ]]; then
+        print_success "All artifact examples valid ($artifacts_found checked)"
+    else
+        print_warn "Found issues in $validation_issues artifact example(s)"
+    fi
+}
+
+# Validate that examples match actual script capabilities
+validate_artifact_examples() {
+    local doc="$1"
+    local artifact_path="$2"
+    shift 2
+    local -a examples=("$@")
+
+    local full_path="$DOTFILES_ROOT/${artifact_path#./}"
+
+    # Check if artifact exists
+    if [[ ! -f "$full_path" ]]; then
+        report_issue "error" "Artifact not found: $artifact_path" "Referenced in: ${doc:t}"
+        return 1
+    fi
+
+    # Try to get help text to extract available flags
+    local help_text=""
+    if [[ -x "$full_path" ]]; then
+        help_text=$("$full_path" --help 2>/dev/null || "$full_path" -h 2>/dev/null || true)
+    fi
+
+    # If no help text, skip validation
+    if [[ -z "$help_text" ]]; then
+        [[ "$VERBOSE" == "true" ]] && print_info "Skipping $artifact_path (no --help available)"
+        return 0
+    fi
+
+    # Extract flags from help text (lines with -x or --xxx)
+    local -a available_flags=()
+    while IFS= read -r line; do
+        # Match ALL flags in line: -v, --verbose, -r RATE, etc.
+        # Extract all short flags (-x)
+        local short_flags=(${(M)${(z)line}:#-[a-zA-Z]})
+        available_flags+=("${short_flags[@]}")
+
+        # Extract all long flags (--xxx)
+        while [[ "$line" =~ --([-a-z]+) ]]; do
+            available_flags+=("--${match[1]}")
+            # Remove matched flag to find next one
+            line="${line#*--${match[1]}}"
+        done
+    done < <(echo "$help_text")
+
+    # Check each example against available flags
+    local has_issues=false
+    for example in "${examples[@]}"; do
+        # Extract flags from example (anything starting with - or --)
+        local -a used_flags=(${(M)${(z)example}:#-*})
+
+        for flag in "${used_flags[@]}"; do
+            # Clean flag (remove = and values)
+            local clean_flag="${flag%%=*}"
+
+            # Check if this flag is in available flags
+            local flag_found=false
+            for available in "${available_flags[@]}"; do
+                if [[ "$clean_flag" == "$available" ]]; then
+                    flag_found=true
+                    break
+                fi
+            done
+
+            if [[ "$flag_found" == "false" ]]; then
+                report_issue "warn" "Undocumented flag in example: $clean_flag" \
+                    "File: ${doc:t}, Script: $artifact_path, Example: ${example:0:60}..."
+                has_issues=true
+            fi
+        done
+    done
+
+    [[ "$has_issues" == "true" ]] && return 1
+    return 0
+}
+
+# ============================================================================
 # Main Execution
 # ============================================================================
 
@@ -303,6 +441,7 @@ check_removed_files
 check_script_references
 check_outdated_patterns
 check_cross_references
+check_artifact_examples
 
 # Summary
 echo
