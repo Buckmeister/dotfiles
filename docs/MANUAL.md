@@ -1163,6 +1163,12 @@ GHCi REPL configuration for Haskell development.
 
 ---
 
+## TUI Testing and Debugging
+
+For comprehensive menu testing documentation including the interactive test driver, debug mode, integration tests, and testing workflows, see **[MENU_TESTING.md](MENU_TESTING.md)**.
+
+---
+
 ## Utility Scripts
 
 All utility scripts are installed to `~/.local/bin/` and are available in your PATH.
@@ -1194,25 +1200,24 @@ get_github_url -u username -r repository [options]
 
 **Examples:**
 
-Get latest Neovim stable release URLs:
+<!-- check_docs:script=./user/scripts/version-control/get_github_url.symlink_local_bin.zsh -->
 ```bash
+# Get latest Neovim stable release URLs
 get_github_url -u neovim -r neovim
-```
 
-Get latest Neovim nightly for macOS:
-```bash
+# Get latest Neovim nightly for macOS
 get_github_url -u neovim -r neovim -l nightly -p 'macos.*\.tar\.gz$'
-```
 
-Get source for specific tag:
-```bash
+# Get source for specific tag
 get_github_url -u neovim -r neovim -t v0.6.0
-```
 
-Get most recent release (for projects where 'latest' doesn't work):
-```bash
+# Get most recent release (for projects where 'latest' doesn't work)
 get_github_url -u eclipse-jdtls -r eclipse.jdt.ls -f -p 'jdt-language-server.*\.tar\.gz$'
+
+# Show help
+get_github_url -h
 ```
+<!-- /check_docs -->
 
 **Features:**
 - Supports both releases and tags
@@ -1254,20 +1259,21 @@ JDT.LS has a non-standard release naming scheme that doesn't work with GitHub's 
 
 **Examples:**
 
-Get latest JDT.LS:
+<!-- check_docs:script=./user/scripts/version-control/get_jdtls_url.symlink_local_bin.zsh -->
 ```bash
+# Get latest JDT.LS
 get_jdtls_url
-```
 
-Get specific version:
-```bash
+# Get specific version
 get_jdtls_url --version 1.9.0
-```
 
-Silent mode for scripting:
-```bash
+# Silent mode for scripting
 jdtls_url=$(get_jdtls_url --silent)
+
+# Show help
+get_jdtls_url -h
 ```
+<!-- /check_docs -->
 
 ---
 
@@ -1294,23 +1300,30 @@ battery [OPTIONS]
 
 **Output Formats:**
 
-Terminal (ANSI colors):
+<!-- check_docs:script=./user/scripts/utilities/battery.symlink_local_bin.zsh -->
 ```bash
+# Terminal (ANSI colors)
 battery --ansi
 # → 85%  (blue if > 20%, red if ≤ 20%, green if charging)
-```
 
-Tmux status bar:
-```bash
+# Tmux status bar
 battery --tmux
 # → #[fg=blue]󰂑 85%#[default]
-```
 
-Kitty status:
-```bash
+# Kitty status
 battery --kitty
 # → 󰂑 85%
+
+# Show time remaining
+battery --remain
+
+# Numeric output only
+battery --numeric
+
+# Show help
+battery -h
 ```
+<!-- /check_docs -->
 
 **Features:**
 - Battery icons change based on level and charging status
@@ -1333,18 +1346,21 @@ battery --kitty
 Intelligently shortens directory paths by finding unique prefixes.
 
 **Usage:**
-```bash
-shorten_path /path/to/directory
-```
 
-**Examples:**
+<!-- check_docs:script=./user/scripts/shell/shorten_path.symlink_local_bin.zsh -->
 ```bash
+# Shorten a path
+shorten_path /path/to/directory
+
+# Example: system path
 shorten_path /usr/local/share
 # → /u/l/share
 
+# Example: home directory path
 shorten_path ~/Development/projects/myapp
 # → ~/D/p/myapp
 ```
+<!-- /check_docs -->
 
 **How it works:**
 - Finds the shortest unique prefix for each directory component
@@ -1374,6 +1390,8 @@ Generates a **Brewfile** from your current Homebrew installation using the offic
 - Shows statistics (tap/formula/cask/mas counts)
 
 **Usage:**
+
+<!-- check_docs:script=./user/scripts/package-managers/generate_brew_install_script.symlink_local_bin.zsh -->
 ```bash
 # Generate Brewfile in default location
 generate_brew_install_script
@@ -1383,7 +1401,11 @@ generate_brew_install_script -o ~/Desktop/Brewfile
 
 # Force overwrite existing file
 generate_brew_install_script -f
+
+# Show help
+generate_brew_install_script -h
 ```
+<!-- /check_docs -->
 
 **Options:**
 - `-o, --output PATH` - Output file path (default: `~/.local/share/Brewfile`)
