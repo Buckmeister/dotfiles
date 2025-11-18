@@ -19,7 +19,7 @@ emulate -LR zsh
 # Navigation:
 # - ↑/↓ or k/j: Navigate up/down
 # - Enter: Select/drill down into submenu
-# - ESC/h: Go back to parent menu
+# - ESC/h/Backspace: Go back to parent menu (vim-style!)
 # - Space: Toggle selection (multi-select menus)
 # - q: Quit
 # ============================================================================
@@ -60,6 +60,11 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
 }
 
 # Load menu system libraries
+source "$LIB_DIR/menu_common.zsh" || {
+    echo "❌ Error: menu_common.zsh not found" >&2
+    exit 1
+}
+
 source "$LIB_DIR/menu_engine.zsh" || {
     echo "❌ Error: menu_engine.zsh not found" >&2
     exit 1
@@ -159,53 +164,20 @@ function build_post_install_menu() {
         'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/link_dotfiles.zsh"' \
         "🔗"
 
-    # Find and add post-install scripts
+    # Find and add post-install scripts using shared discovery function
     local post_install_dir="$DF_DIR/post-install/scripts"
-    local all_scripts=()
+    local enabled_scripts=($(discover_pi_scripts "$post_install_dir"))
 
-    if [[ -d "$post_install_dir" ]]; then
-        all_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
+    for script in "${enabled_scripts[@]}"; do
+        local script_name="$(basename "$script" .zsh)"
+        local script_desc="$(get_pi_script_description "$script_name")"
 
-        for script in "${all_scripts[@]}"; do
-            # Check if script is enabled
-            if ! is_post_install_script_enabled "$script"; then
-                continue
-            fi
-
-            if [[ -x "$script" ]]; then
-                local script_name="$(basename "$script" .zsh)"
-                local script_desc="Install and configure $script_name"
-
-                # Friendly descriptions
-                case "$script_name" in
-                    *package*|*brew*|*apt*)
-                        script_desc="Install system packages via $script_name"
-                        ;;
-                    *npm*|*node*)
-                        script_desc="Install Node.js packages and tools"
-                        ;;
-                    *python*|*pip*)
-                        script_desc="Install Python packages and tools"
-                        ;;
-                    *cargo*|*rust*)
-                        script_desc="Install Rust packages and tools"
-                        ;;
-                    *gem*|*ruby*)
-                        script_desc="Install Ruby gems and tools"
-                        ;;
-                    *)
-                        script_desc="Configure $script_name environment"
-                        ;;
-                esac
-
-                menu_engine_add_item \
-                    "$script_name" \
-                    "$script_desc" \
-                    "$MENU_TYPE_MULTI_SELECT" \
-                    'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "'$script'"'
-            fi
-        done
-    fi
+        menu_engine_add_item \
+            "$script_name" \
+            "$script_desc" \
+            "$MENU_TYPE_MULTI_SELECT" \
+            'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "'$script'"'
+    done
 
     # Add control items
     menu_engine_add_item \
@@ -518,7 +490,7 @@ function show_menu_help() {
     printf "  ${UI_ACCENT_COLOR}↑ / k${COLOR_RESET}      Move up\n"
     printf "  ${UI_ACCENT_COLOR}↓ / j${COLOR_RESET}      Move down\n"
     printf "  ${UI_ACCENT_COLOR}Enter${COLOR_RESET}      Select/drill down into submenu\n"
-    printf "  ${UI_ACCENT_COLOR}ESC / h${COLOR_RESET}    Go back to parent menu\n"
+    printf "  ${UI_ACCENT_COLOR}ESC / h / ←${COLOR_RESET} Go back to parent menu (vim-style!)\n"
     printf "  ${UI_ACCENT_COLOR}Space${COLOR_RESET}      Toggle selection (multi-select menus)\n"
     printf "  ${UI_ACCENT_COLOR}q${COLOR_RESET}          Quit menu system\n\n"
 
@@ -537,6 +509,50 @@ function show_menu_help() {
     hide_cursor
 }
 
+# Execute the update_all.zsh script
+function execute_update_all() {
+    clear_screen
+    show_cursor
+
+    printf "${COLOR_BOLD}${UI_SUCCESS_COLOR}🔄 Update All${COLOR_RESET}\n\n"
+    printf "${UI_INFO_COLOR}Updating system packages, toolchains, and language packages...${COLOR_RESET}\n\n"
+
+    # Execute the update_all script
+    "$DF_DIR/bin/update_all.zsh"
+
+    printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+    read -k1
+    hide_cursor
+}
+
+# Execute the librarian status and diagnostics report
+function execute_librarian_diagnostics() {
+    clear_screen
+    show_cursor
+
+    # Execute the librarian with --status to show full verbose report
+    local librarian_cmd='DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/librarian.zsh" --status'
+    eval "$librarian_cmd"
+
+    hide_cursor
+}
+
+# Execute the backup repository operation
+function execute_backup_repo() {
+    clear_screen
+    show_cursor
+
+    printf "${COLOR_BOLD}${UI_SUCCESS_COLOR}💾 Repository Backup${COLOR_RESET}\n\n"
+    printf "${UI_INFO_COLOR}📁 Using default location: ${COLOR_BOLD}~/Downloads/dotfiles_repo_backups/${COLOR_RESET}\n\n"
+
+    # Execute the backup script with default location
+    "$DF_DIR/bin/backup_dotfiles_repo.zsh"
+
+    printf "\n${UI_HEADER_COLOR}Press any key to return to menu...${COLOR_RESET}"
+    read -k1
+    hide_cursor
+}
+
 # ============================================================================
 # Main Menu Loop
 # ============================================================================
@@ -545,6 +561,7 @@ function run_hierarchical_menu() {
     # Initialize menu state with main menu
     menu_state_init "main_menu" "Main Menu"
     build_main_menu
+    menu_engine_init_cursor
 
     # Setup terminal
     hide_cursor
@@ -583,6 +600,7 @@ function run_hierarchical_menu() {
                 if nav_enter_submenu; then
                     local new_menu_id=$(menu_state_get_current_id)
                     build_menu_by_id "$new_menu_id"
+                    menu_engine_init_cursor
 
                     # Redraw with new breadcrumb
                     breadcrumb=$(menu_state_get_breadcrumb)
@@ -596,6 +614,7 @@ function run_hierarchical_menu() {
                 if nav_return_to_parent; then
                     local parent_menu_id=$(menu_state_get_current_id)
                     build_menu_by_id "$parent_menu_id"
+                    menu_engine_init_cursor
 
                     # Redraw with updated breadcrumb
                     breadcrumb=$(menu_state_get_breadcrumb)
@@ -633,21 +652,21 @@ function run_hierarchical_menu() {
                 ;;
 
             $NAV_RUN_LIBRARIAN)
-                execute_action_item 0  # Placeholder - will be improved
+                execute_librarian_diagnostics
                 breadcrumb=$(menu_state_get_breadcrumb)
                 menu_engine_draw_complete_menu "Dotfiles Management System" "$breadcrumb"
                 nav_reset_display_state
                 ;;
 
             $NAV_RUN_BACKUP)
-                execute_action_item 0  # Placeholder - will be improved
+                execute_backup_repo
                 breadcrumb=$(menu_state_get_breadcrumb)
                 menu_engine_draw_complete_menu "Dotfiles Management System" "$breadcrumb"
                 nav_reset_display_state
                 ;;
 
             $NAV_RUN_UPDATE_ALL)
-                execute_action_item 0  # Placeholder - will be improved
+                execute_update_all
                 breadcrumb=$(menu_state_get_breadcrumb)
                 menu_engine_draw_complete_menu "Dotfiles Management System" "$breadcrumb"
                 nav_reset_display_state

@@ -145,7 +145,7 @@ check_command() {
 install_git() {
     print_info "Git is required but not installed"
     printf "Would you like to install git? [Y/n] "
-    read -r response
+    read -r response </dev/tty
     response=${response:-Y}
 
     case "$response" in
@@ -199,7 +199,7 @@ install_git() {
 install_zsh() {
     print_info "Zsh is required but not installed"
     printf "Would you like to install zsh? [Y/n] "
-    read -r response
+    read -r response </dev/tty
     response=${response:-Y}
 
     case "$response" in
@@ -287,7 +287,7 @@ main() {
     if [ -d "$DOTFILES_DIR" ]; then
         print_warning "Dotfiles directory already exists: $DOTFILES_DIR"
         printf "Would you like to update it? [Y/n] "
-        read -r response
+        read -r response </dev/tty
         response=${response:-Y}
 
         case "$response" in

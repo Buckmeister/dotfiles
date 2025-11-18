@@ -18,18 +18,18 @@
 # Navigation Return Codes
 # ============================================================================
 
-readonly NAV_CONTINUE=0           # Continue menu loop
-readonly NAV_QUIT=1               # Quit menu system
-readonly NAV_EXECUTE_SELECTED=2   # Execute all selected items
-readonly NAV_EXECUTE_CURRENT=3    # Execute current item only
-readonly NAV_NAVIGATE_SUBMENU=4   # Navigate into submenu
-readonly NAV_NAVIGATE_BACK=5      # Navigate back to parent menu
-readonly NAV_UPDATE_DONE=6        # Update already done (no further action needed)
-readonly NAV_FULL_REDRAW=7        # Full screen redraw needed
-readonly NAV_SHOW_HELP=8          # Show help screen
-readonly NAV_RUN_LIBRARIAN=9      # Run librarian diagnostics
-readonly NAV_RUN_BACKUP=10        # Run backup operation
-readonly NAV_RUN_UPDATE_ALL=11    # Run update all
+typeset -gri NAV_CONTINUE=0           # Continue menu loop
+typeset -gri NAV_QUIT=1               # Quit menu system
+typeset -gri NAV_EXECUTE_SELECTED=2   # Execute all selected items
+typeset -gri NAV_EXECUTE_CURRENT=3    # Execute current item only
+typeset -gri NAV_NAVIGATE_SUBMENU=4   # Navigate into submenu
+typeset -gri NAV_NAVIGATE_BACK=5      # Navigate back to parent menu
+typeset -gri NAV_UPDATE_DONE=6        # Update already done (no further action needed)
+typeset -gri NAV_FULL_REDRAW=7        # Full screen redraw needed
+typeset -gri NAV_SHOW_HELP=8          # Show help screen
+typeset -gri NAV_RUN_LIBRARIAN=9      # Run librarian diagnostics
+typeset -gri NAV_RUN_BACKUP=10        # Run backup operation
+typeset -gri NAV_RUN_UPDATE_ALL=11    # Run update all
 
 # ============================================================================
 # Display Update State (Anti-Flicker)
@@ -50,23 +50,28 @@ typeset -gi NAV_PREVIOUS_SELECTED_COUNT=0  # Previous selection count
 # Update only the changed menu items (anti-flicker technique)
 # This is called after cursor movement to update only what changed
 function nav_update_display() {
-    local menu_start_row=9  # First menu item starts at row 10 (header is 8 lines)
+    local menu_start_row=9  # First menu item is at row 9 (8 lines of header before it)
 
     # Only update if current item actually changed
     if [[ $MENU_CURRENT_ITEM -ne $NAV_PREVIOUS_ITEM ]]; then
         # Clear and redraw previous item (unhighlight)
         if [[ $NAV_PREVIOUS_ITEM -ge 0 && $NAV_PREVIOUS_ITEM -lt $MENU_TOTAL_ITEMS ]]; then
-            local prev_row=$((menu_start_row + NAV_PREVIOUS_ITEM + 1))
+            # Calculate row: menu_start_row + item_index (no +1 needed!)
+            local prev_row=$((menu_start_row + NAV_PREVIOUS_ITEM))
+            local prev_item_index=$((NAV_PREVIOUS_ITEM + 1))
+
             move_cursor_to $prev_row 1
             clear_line
-            menu_engine_draw_item $((NAV_PREVIOUS_ITEM + 1)) 0
+            menu_engine_draw_item $prev_item_index 0
         fi
 
         # Clear and redraw current item (highlight)
-        local curr_row=$((menu_start_row + MENU_CURRENT_ITEM + 1))
+        local curr_row=$((menu_start_row + MENU_CURRENT_ITEM))
+        local curr_item_index=$((MENU_CURRENT_ITEM + 1))
+
         move_cursor_to $curr_row 1
         clear_line
-        menu_engine_draw_item $((MENU_CURRENT_ITEM + 1)) 1
+        menu_engine_draw_item $curr_item_index 1
 
         NAV_PREVIOUS_ITEM=$MENU_CURRENT_ITEM
     fi
@@ -156,7 +161,7 @@ function nav_handle_keypress() {
             ;;
 
         # ═══ Navigation ═══
-        $'\n'|$'\r')  # Enter - execute or drill down
+        $'\n'|$'\r'|'')  # Enter - execute or drill down (empty string on some terminals)
             local current_type=$(menu_engine_get_current_type)
 
             if menu_engine_is_navigable "$current_type"; then
@@ -173,7 +178,7 @@ function nav_handle_keypress() {
             return $NAV_CONTINUE
             ;;
 
-        $'\033'|h|H)  # Escape or h - navigate back
+        $'\033'|h|H|$'\177'|$'\b')  # Escape, h, or Backspace - navigate back
             # Only navigate back if not at root
             if ! menu_state_is_root; then
                 return $NAV_NAVIGATE_BACK
@@ -244,6 +249,26 @@ function nav_handle_keypress() {
                 menu_state_debug_print_stack
                 return $NAV_FULL_REDRAW
             fi
+            return $NAV_CONTINUE
+            ;;
+
+        # ═══ Catchall for debugging ═══
+        *)
+            # Log unhandled keys for debugging
+            {
+                echo "=== UNHANDLED KEY ==="
+                echo "Key: [$key]"
+                echo -n "Hex: "
+                echo -n "$key" | od -A n -t x1
+                echo ""
+                if [[ "$key" == $'\n' ]]; then
+                    echo "This IS a newline!"
+                elif [[ "$key" == $'\r' ]]; then
+                    echo "This IS a carriage return!"
+                else
+                    echo "This is NOT Enter"
+                fi
+            } >> /tmp/menu_debug.log
             return $NAV_CONTINUE
             ;;
     esac

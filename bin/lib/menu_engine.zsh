@@ -44,14 +44,40 @@
 # Menu Type Constants
 # ============================================================================
 
-readonly MENU_TYPE_CATEGORY="category"      # Top-level category (navigable)
-readonly MENU_TYPE_SUBMENU="submenu"        # Submenu (navigable)
-readonly MENU_TYPE_ACTION="action"          # Executable action item
-readonly MENU_TYPE_MULTI_SELECT="multi"     # Multi-selectable action
-readonly MENU_TYPE_BUTTON="button"          # Action button (non-selectable)
-readonly MENU_TYPE_CONTROL="control"        # Control button (non-selectable)
-readonly MENU_TYPE_SEPARATOR="separator"    # Visual separator
-readonly MENU_TYPE_BACK="back"              # Back/return to parent menu
+typeset -gr MENU_TYPE_CATEGORY="category"      # Top-level category (navigable)
+typeset -gr MENU_TYPE_SUBMENU="submenu"        # Submenu (navigable)
+typeset -gr MENU_TYPE_ACTION="action"          # Executable action item
+typeset -gr MENU_TYPE_MULTI_SELECT="multi"     # Multi-selectable action
+
+# ============================================================================
+# Debug Logging System
+# ============================================================================
+
+# Debug mode can be enabled by setting MENU_DEBUG_MODE=true
+# Debug output goes to MENU_DEBUG_LOG (default: /tmp/menu_debug.log)
+MENU_DEBUG_MODE="${MENU_DEBUG_MODE:-false}"
+MENU_DEBUG_LOG="${MENU_DEBUG_LOG:-/tmp/menu_debug.log}"
+
+# Initialize debug log (clear on first use)
+if [[ "$MENU_DEBUG_MODE" == "true" && ! -f "${MENU_DEBUG_LOG}.initialized" ]]; then
+    > "$MENU_DEBUG_LOG"
+    touch "${MENU_DEBUG_LOG}.initialized"
+fi
+
+# Debug logging function
+function debug_log() {
+    [[ "$MENU_DEBUG_MODE" != "true" ]] && return 0
+
+    local timestamp=$(date '+%H:%M:%S.%3N' 2>/dev/null || date '+%H:%M:%S')
+    local func_name="${funcstack[2]:-unknown}"
+    local message="$1"
+
+    echo "[$timestamp] ${func_name}: $message" >> "$MENU_DEBUG_LOG"
+}
+typeset -gr MENU_TYPE_BUTTON="button"          # Action button (non-selectable)
+typeset -gr MENU_TYPE_CONTROL="control"        # Control button (non-selectable)
+typeset -gr MENU_TYPE_SEPARATOR="separator"    # Visual separator
+typeset -gr MENU_TYPE_BACK="back"              # Back/return to parent menu
 
 # ============================================================================
 # Menu Item Arrays (Parallel Array Architecture)
@@ -85,14 +111,16 @@ function menu_engine_add_item() {
     local icon="${5:-}"
     local id="${6:-}"
 
-    # Input validation
-    if [[ -z "$title" ]]; then
-        print_error "menu_engine_add_item: title cannot be empty"
-        return 1
-    fi
-    if [[ -z "$description" ]]; then
-        print_error "menu_engine_add_item: description cannot be empty"
-        return 1
+    # Input validation (separators are exempt from title/description requirements)
+    if [[ "$type" != "$MENU_TYPE_SEPARATOR" ]]; then
+        if [[ -z "$title" ]]; then
+            print_error "menu_engine_add_item: title cannot be empty"
+            return 1
+        fi
+        if [[ -z "$description" ]]; then
+            print_error "menu_engine_add_item: description cannot be empty"
+            return 1
+        fi
     fi
     if [[ -z "$type" ]]; then
         print_error "menu_engine_add_item: type cannot be empty"
@@ -123,6 +151,32 @@ function menu_engine_clear_items() {
     MENU_SELECTED=()
     MENU_CURRENT_ITEM=0
     MENU_TOTAL_ITEMS=0
+}
+
+# Initialize cursor to first non-separator item
+# Call this after building a menu to ensure cursor starts on a valid item
+function menu_engine_init_cursor() {
+    debug_log "START total_items=$MENU_TOTAL_ITEMS"
+    MENU_CURRENT_ITEM=0
+
+    # Find first non-separator item
+    local i
+    for ((i=0; i<MENU_TOTAL_ITEMS; i++)); do
+        local index=$((i + 1))
+        local type="${MENU_TYPES[$index]}"
+
+        if [[ "$type" != "$MENU_TYPE_SEPARATOR" ]]; then
+            MENU_CURRENT_ITEM=$i
+            local item_title="${MENU_ITEMS[$index]}"
+            debug_log "END cursor=$MENU_CURRENT_ITEM item='$item_title'"
+            return 0
+        fi
+    done
+
+    # Fallback: if all items are separators (shouldn't happen), stay at 0
+    MENU_CURRENT_ITEM=0
+    debug_log "END cursor=0 (all items are separators - shouldn't happen)"
+    return 1
 }
 
 # Validate menu item index
@@ -325,7 +379,7 @@ function menu_engine_draw_complete_menu() {
     clear_screen
     draw_header "$menu_title" "$menu_subtitle"
 
-    printf "${UI_INFO_COLOR}Navigation: ↑/↓ or j/k = up/down  Space = select  Enter = execute  ESC/h = back  q = quit${COLOR_RESET}\n"
+    printf "${UI_INFO_COLOR}Navigation: ↑/↓ or j/k = up/down  Space = select  Enter = execute  ESC/h/← = back  q = quit${COLOR_RESET}\n"
     printf "${UI_ACCENT_COLOR}Shortcuts:  l = librarian  b = backup  a = (de)select all  x = execute  ? = help${COLOR_RESET}\n"
     printf "\n"
 
@@ -354,16 +408,60 @@ function menu_engine_draw_complete_menu() {
 # Menu Engine Functions - Navigation Helpers
 # ============================================================================
 
-# Move cursor up in menu
+# Move cursor up in menu (skipping separators)
 function menu_engine_move_up() {
-    ((MENU_CURRENT_ITEM--))
-    [[ $MENU_CURRENT_ITEM -lt 0 ]] && MENU_CURRENT_ITEM=$((MENU_TOTAL_ITEMS - 1))
+    local start_cursor=$MENU_CURRENT_ITEM
+    local attempts=0
+    local max_attempts=$MENU_TOTAL_ITEMS
+
+    debug_log "START cursor=$start_cursor total=$MENU_TOTAL_ITEMS"
+
+    while [[ $attempts -lt $max_attempts ]]; do
+        ((MENU_CURRENT_ITEM--))
+        [[ $MENU_CURRENT_ITEM -lt 0 ]] && MENU_CURRENT_ITEM=$((MENU_TOTAL_ITEMS - 1))
+
+        # Check if current item is a separator
+        local index=$((MENU_CURRENT_ITEM + 1))
+        local type="${MENU_TYPES[$index]}"
+
+        # If not a separator, we're done
+        if [[ "$type" != "$MENU_TYPE_SEPARATOR" ]]; then
+            local item_title="${MENU_ITEMS[$index]}"
+            debug_log "END cursor=$MENU_CURRENT_ITEM (moved from $start_cursor) item='$item_title' attempts=$attempts"
+            break
+        fi
+
+        debug_log "SKIP cursor=$MENU_CURRENT_ITEM (separator) attempt=$attempts"
+        ((attempts++))
+    done
 }
 
-# Move cursor down in menu
+# Move cursor down in menu (skipping separators)
 function menu_engine_move_down() {
-    ((MENU_CURRENT_ITEM++))
-    [[ $MENU_CURRENT_ITEM -ge $MENU_TOTAL_ITEMS ]] && MENU_CURRENT_ITEM=0
+    local start_cursor=$MENU_CURRENT_ITEM
+    local attempts=0
+    local max_attempts=$MENU_TOTAL_ITEMS
+
+    debug_log "START cursor=$start_cursor total=$MENU_TOTAL_ITEMS"
+
+    while [[ $attempts -lt $max_attempts ]]; do
+        ((MENU_CURRENT_ITEM++))
+        [[ $MENU_CURRENT_ITEM -ge $MENU_TOTAL_ITEMS ]] && MENU_CURRENT_ITEM=0
+
+        # Check if current item is a separator
+        local index=$((MENU_CURRENT_ITEM + 1))
+        local type="${MENU_TYPES[$index]}"
+
+        # If not a separator, we're done
+        if [[ "$type" != "$MENU_TYPE_SEPARATOR" ]]; then
+            local item_title="${MENU_ITEMS[$index]}"
+            debug_log "END cursor=$MENU_CURRENT_ITEM (moved from $start_cursor) item='$item_title' attempts=$attempts"
+            break
+        fi
+
+        debug_log "SKIP cursor=$MENU_CURRENT_ITEM (separator) attempt=$attempts"
+        ((attempts++))
+    done
 }
 
 # Get current item's type

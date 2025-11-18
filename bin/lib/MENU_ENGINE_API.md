@@ -2,6 +2,10 @@
 
 The hierarchical menu system provides a sophisticated, multi-level navigation interface for organizing dotfiles operations into intuitive categories with breadcrumb trails and state management.
 
+**Related Documentation:**
+- **[README.md - Menu Systems](../../README.md#menu-systems)** - Overview of both hierarchical and flat menu interfaces
+- **[MENU_TESTING.md](../../docs/MENU_TESTING.md)** - Comprehensive testing guide (programmatic and interactive)
+
 ## Architecture Overview
 
 The menu system consists of three core modules:
@@ -403,7 +407,7 @@ nav_handle_keypress <key>
 - `↑/k` - Move up
 - `↓/j` - Move down
 - `Enter` - Select/drill down/execute
-- `ESC/h` - Go back
+- `ESC/h/Backspace` - Go back (vim-style!)
 - `Space` - Toggle selection
 - `q` - Quit
 - `a` - Toggle select all

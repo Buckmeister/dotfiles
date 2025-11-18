@@ -73,6 +73,12 @@ source "$LIB_DIR/greetings.zsh" 2>/dev/null || {
     }
 }
 
+# Load menu common library
+source "$LIB_DIR/menu_common.zsh" 2>/dev/null || {
+    echo "❌ Error: menu_common.zsh not found" >&2
+    exit 1
+}
+
 # ============================================================================
 # Menu-Specific Color Assignments (using shared OneDark theme)
 # ============================================================================
@@ -925,50 +931,18 @@ function initialize_menu() {
     add_menu_item "$MENU_LINK_DOTFILES" "Create symlinks for all dotfiles" \
                   'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "$DF_DIR/bin/link_dotfiles.zsh"'
 
-    # Find and add post-install scripts from the post-install/scripts directory
+    # Find and add post-install scripts using shared discovery function
     local post_install_dir="$DF_DIR/post-install/scripts"
-    local all_scripts=()
 
     if [[ -d "$post_install_dir" ]]; then
-        # Find all post-install scripts
-        all_scripts=(${(0)"$(find "$post_install_dir" -name "*.zsh" -print0 2>/dev/null)"})
+        local enabled_scripts=($(discover_pi_scripts "$post_install_dir"))
 
-        # Filter out disabled/ignored scripts and add enabled ones to menu
-        for script in "${all_scripts[@]}"; do
-            # Check if script is enabled (not disabled/ignored)
-            if ! is_post_install_script_enabled "$script"; then
-                continue  # Skip disabled/ignored scripts
-            fi
+        for script in "${enabled_scripts[@]}"; do
+            local script_name="$(basename "$script" .zsh)"
+            local script_desc="$(get_pi_script_description "$script_name")"
 
-            if [[ -x "$script" ]]; then
-                local script_name="$(basename "$script" .zsh)"
-                local script_desc="Install and configure $script_name"
-
-                # Make script descriptions more user-friendly
-                case "$script_name" in
-                    *package*|*brew*|*apt*)
-                        script_desc="Install system packages via $script_name"
-                        ;;
-                    *npm*|*node*)
-                        script_desc="Install Node.js packages and tools"
-                        ;;
-                    *python*|*pip*)
-                        script_desc="Install Python packages and tools"
-                        ;;
-                    *cargo*|*rust*)
-                        script_desc="Install Rust packages and tools"
-                        ;;
-                    *gem*|*ruby*)
-                        script_desc="Install Ruby gems and tools"
-                        ;;
-                    *)
-                        script_desc="Configure $script_name environment"
-                        ;;
-                esac
-
-                add_menu_item "$script_name" "$script_desc" \
-                              'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "'$script'"'
-            fi
+            add_menu_item "$script_name" "$script_desc" \
+                          'DF_OS="$DF_OS" DF_PKG_MANAGER="$DF_PKG_MANAGER" DF_PKG_INSTALL_CMD="$DF_PKG_INSTALL_CMD" "'$script'"'
         done
     else
         echo "Note: No post-install scripts directory found at $post_install_dir"

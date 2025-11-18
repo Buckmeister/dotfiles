@@ -6,13 +6,79 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [Unreleased] - Hierarchical Menu System Integration (Phase 13)
+## [Unreleased] - CLI Audio Recorder & Programmatic Menu Testing
 
-**Date**: October 17, 2025
-**Impact**: High - Improved user experience with organized, multi-level menu navigation
+**Date**: November 18, 2025
+**Impact**: High - New voice recording utility + Independent menu testing framework
 **Breaking Changes**: None (backward compatible with `--flat-menu` flag)
 
 ### Added
+
+#### Programmatic Menu Testing Framework
+- **New `menu_render_test.zsh`** - Programmatic interface to hierarchical menu system
+  - Render any menu without TUI interaction (text, JSON, tree structure formats)
+  - Validate all menus can build successfully (`--validate-all`)
+  - List available menu IDs (`--list-menus`)
+  - Test-friendly output for CI/CD pipelines
+  - Works in any environment (local, Docker, headless)
+  - Enables independent testing and iteration
+
+- **Comprehensive integration tests** - `tests/integration/test_menu_rendering.zsh`
+  - 18 test cases covering all 6 menus (18/18 passing ✓)
+  - Content integrity validation (all items, descriptions, icons)
+  - Navigation consistency checks (Back buttons, menu IDs)
+  - Visual consistency verification (headers, separators)
+  - Output format validation (text, JSON, structure)
+  - Error handling tests (invalid IDs, formats)
+
+- **Complete documentation** - `docs/MENU_TESTING.md`
+  - Usage guide with examples for all formats
+  - Integration with Docker testing infrastructure
+  - Common use cases and troubleshooting
+  - Implementation details and architecture
+  - Performance metrics and future enhancements
+
+- **Test mode infrastructure** - `MENU_TEST_MODE` environment variable
+  - Prevents main loop execution when testing
+  - Allows sourcing menu_hierarchical.zsh safely
+  - Enables programmatic access to all menu builder functions
+  - Zero modification to existing menu code required
+
+**Benefits:**
+- AI can test and validate menus independently
+- No manual TUI interaction needed for verification
+- Automated validation in CI/CD pipelines
+- Quick debugging and inspection during development
+- Confidence in menu changes before deployment
+
+#### CLI Audio Recorder Utility
+- **New `record` command** - Simple, elegant voice recording from the terminal
+  - Cross-platform support (macOS with ffmpeg/AVFoundation, Linux with ffmpeg/arecord)
+  - Configurable duration, sample rate, and channels (mono/stereo)
+  - Default: 30 seconds, 44100 Hz, mono, saved to `~/.aria/recordings/`
+  - Interactive post-recording menu:
+    - Play recording (afplay/aplay/ffplay)
+    - Transcribe (coming soon via Whisper)
+    - Share with Aria (copy path to clipboard)
+    - Delete recording
+  - WAV format (PCM 16-bit) for maximum compatibility
+  - Comprehensive help with examples: `record --help`
+  - Professional integration with dotfiles shared libraries
+  - Bootstrap pattern with graceful fallbacks
+  - OneDark themed UI matching dotfiles aesthetic
+
+- **Documentation** - Complete README.md section with artifact markers for automatic validation
+  - Usage examples covering all features
+  - Cross-platform support details
+  - Integration examples with `speak` utility
+  - Future features roadmap (Whisper transcription, Aria integration)
+
+- **Perfect for:**
+  - Voice notes and daily thoughts
+  - Meeting recordings
+  - Message preparation for transcription
+  - Audio documentation without switching apps
+  - Preparing questions/messages for Aria
 
 #### Documentation Consistency System
 - **Automatic validation** - Pre-commit hook runs documentation checks before every commit
@@ -66,6 +132,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Automatic fallback if hierarchical menu unavailable
 
 ### Changed
+
+#### Menu System Improvements
+- **New `menu_common.zsh` shared library** - Extracted common menu functionality
+  - `get_pi_script_description()` - Generates friendly descriptions for post-install scripts
+  - `discover_pi_scripts()` - Discovers and filters enabled scripts
+  - `count_pi_scripts()` - Counts total and disabled scripts
+  - 175 lines of well-documented, reusable code
+  - Eliminates ~80 lines of duplication between menu systems
+
+- **Both menu systems updated** to use new shared library
+  - `menu_hierarchical.zsh` - Now uses menu_common.zsh functions
+  - `menu_tui.zsh` - Now uses menu_common.zsh functions
+  - Consistent behavior and descriptions across both interfaces
+  - Reduced code duplication and maintenance burden
+  - All tests passing (18/18 integration tests ✓)
+
+- **Documentation enhancements**
+  - README.md: New "Menu Systems" section explaining both interfaces
+    - Clear comparison of hierarchical vs. flat menu
+    - Feature lists for both systems
+    - Usage instructions and keyboard shortcuts
+    - Emphasizes they use the same shared libraries
+  - Cross-references added between documentation files:
+    - MENU_ENGINE_API.md ↔ README.md ↔ MENU_TESTING.md
+    - Complete documentation network for menu system
+
+- **Improved back navigation** - Added Backspace key support
+  - `menu_navigation.zsh` now accepts ESC, h, H, or Backspace to go back
+  - Vim-style navigation: h (left) and Backspace both navigate backward
+  - Updated all documentation and help screens
+  - Footer message shows: "ESC/h/← = back" for clarity
+  - More intuitive for users coming from different editors
+
+- **Fixed web installer prompts on Linux** - Dependency installation now waits for user input
+  - `install/dfsetup` prompts now redirect from `/dev/tty` instead of stdin
+  - Fixes issue where `curl | sh` prevented reading user responses
+  - All three prompts fixed: git installation, zsh installation, repository update
+  - PowerShell version (`dfsetup.ps1`) not affected (uses `Read-Host` which works correctly)
+  - Classic piped script issue: stdin is HTTP stream, not terminal
+
+**Benefits:**
+- DRY principle applied to menu code
+- Easier to add new menu features (single implementation)
+- Consistent user experience across both menu systems
+- Better documentation with clear navigation paths
+- Reduced maintenance burden for future changes
+- More accessible navigation with multiple back key options
 
 #### Setup Integration
 - **`bin/setup.zsh`** (3 changes)

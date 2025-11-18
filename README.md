@@ -295,7 +295,7 @@ The breadcrumb trail shows your current location and lets you navigate back up t
 **Keyboard Shortcuts**:
 - `↑`/`↓` or `j`/`k` - Move through options
 - `Enter` - Execute action or enter submenu
-- `ESC` or `h` - Return to parent menu
+- `ESC`, `h`, or `Backspace` - Return to parent menu (vim-style!)
 - `Space` - Select/deselect items (multi-select menus)
 - `a` - Select all (multi-select menus)
 - `q` - Quit from any menu level
@@ -306,16 +306,42 @@ The breadcrumb trail shows your current location and lets you navigate back up t
 - `b` - Create backup
 - `u` - Update all packages
 
-**Legacy Flat Menu**:
-Prefer the original single-level menu? Use `./setup --flat-menu` to access the legacy interface.
+### Menu Systems
 
-The menu system features a modern architecture with:
-- **Three-layer engine**: menu_engine.zsh (rendering), menu_state.zsh (navigation stack), menu_navigation.zsh (input handling)
+The dotfiles include **two menu interfaces** to suit different preferences:
+
+#### Hierarchical Menu (Default)
+The modern multi-level navigation system with breadcrumb trails and organized categories. Features:
+- **Three-layer architecture**: menu_engine.zsh (rendering), menu_state.zsh (navigation stack), menu_navigation.zsh (input handling)
+- **Breadcrumb navigation**: Always know where you are in the menu hierarchy
 - **Cursor memory**: Remembers your position when navigating between menus
 - **State management**: Clean hierarchical navigation with proper back-stack
+- **Organized categories**: Related functionality grouped logically
 - **Beautiful UI**: OneDark theme with progress indicators and status messages
 
-**See [bin/lib/MENU_ENGINE_API.md](bin/lib/MENU_ENGINE_API.md) for complete menu architecture and API reference.**
+**Documentation**: [bin/lib/MENU_ENGINE_API.md](bin/lib/MENU_ENGINE_API.md) - Complete API reference
+**Testing**: [docs/MENU_TESTING.md](docs/MENU_TESTING.md) - Programmatic and interactive testing guide
+
+#### Flat Menu (Legacy)
+The proven single-level interface, kept for users who prefer simplicity. Access with:
+```bash
+./setup --flat-menu
+```
+
+Features:
+- **Single-level navigation**: All options visible at once
+- **Same shared libraries**: Consistent UI and behavior with hierarchical menu
+- **Proven reliability**: Battle-tested original interface
+- **Full feature parity**: Access all post-install scripts and tools
+
+**Both menu systems**:
+- ✅ Use the same shared libraries (colors.zsh, ui.zsh, utils.zsh, greetings.zsh)
+- ✅ Provide identical functionality
+- ✅ Support the same keyboard shortcuts (j/k, Space, Enter, q)
+- ✅ Integrate seamlessly with the dotfiles ecosystem
+- ✅ Feature beautiful OneDark theming throughout
+
+Choose the interface that best fits your workflow!
 
 ---
 
@@ -615,6 +641,64 @@ speak --celebrate -r 180 "Setup complete"
 
 **Claude Code Integration:**
 The `claude-hook-speak` utility (`~/.local/bin/claude-hook-speak`) provides automatic acoustic feedback for Claude Code events. Configure it in `~/.claude/settings.json` to get audio notifications when tools run, sessions start/end, and more. See [docs/CLAUDE.md](docs/CLAUDE.md#claude-code-acoustic-hooks-claude-hook-speak) for setup details.
+
+### CLI Audio Recorder
+
+The `record` utility provides simple, elegant voice recording from your terminal - perfect for creating voice notes, documenting thoughts, or preparing messages for transcription:
+
+<!-- check_docs:script=./user/scripts/utilities/record.symlink_local_bin.zsh -->
+```bash
+# Record 30 seconds (default)
+record
+
+# Record 60 seconds
+record 60
+
+# Record with custom filename
+record 45 meeting-notes
+
+# Record in stereo for music
+record 120 song-idea --stereo
+
+# Specify custom directory
+record --dir ~/Documents/recordings
+
+# Adjust sample rate
+record -r 48000 60
+
+# Show help
+record --help
+```
+<!-- /check_docs -->
+
+**Cross-Platform Support:**
+- **macOS**: Uses ffmpeg with AVFoundation for high-quality audio capture
+- **Linux**: Uses ffmpeg with ALSA or fallback to arecord
+- **Recording Format**: WAV files (PCM 16-bit) for maximum compatibility and quality
+- **Default Settings**: 44100 Hz sample rate, mono recording, 30 second duration
+
+**Interactive Post-Recording Menu:**
+After each recording completes, you'll get an interactive menu to:
+- `[p]` Play recording - Preview what you just recorded
+- `[t]` Transcribe - Automatic transcription (coming soon via Whisper)
+- `[s]` Share with Aria - Copy path to clipboard for easy sharing with Claude Code
+- `[d]` Delete - Remove recording if you don't need it
+- `[q]` Quit - Save and exit
+
+**Perfect for:**
+- Voice notes and thoughts: `record 60 daily-standup-notes`
+- Meeting recordings: `record 300 team-meeting`
+- Message preparation: `record 45 aria-question && speak "Recording ready"`
+- Audio documentation: Quick capture without switching apps
+
+**Future Features:**
+- Automatic transcription via Whisper model on GPU infrastructure
+- Direct sharing integration with Aria
+- Voice command detection
+- Background noise reduction
+- Batch processing support
+
+**Recordings Location:** All recordings are saved to `~/.aria/recordings/` with timestamped filenames for easy organization.
 
 **See [MANUAL.md](MANUAL.md#utility-scripts) for complete documentation of all utility scripts.**
 
