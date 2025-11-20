@@ -58,7 +58,7 @@ source "$DF_LIB_DIR/ui.zsh" 2>/dev/null || {
     draw_section_header() { echo "\n${COLOR_INFO}=== $1 ===${COLOR_RESET}\n"; }
 }
 
-source "$DF_LIB_DIR/arguments.zsh" 2>/dev/null || {
+source "$DF_LIB_DIR/arguments.zsh" &>/dev/null || {
     # Fallback: basic argument parsing
     parse_simple_flags() {
         for arg in "$@"; do

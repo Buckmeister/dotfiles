@@ -217,3 +217,5 @@ eval $(echo /usr/bin/env neofetch $NEOFETCH_ARGS)
 source $HOME/Development/ZSH-VI-Mode-Cursor/Repo/zsh-vi-mode-cursor.zsh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+alias claude="/Users/Thomas/.claude/local/claude"

@@ -35,6 +35,7 @@ XEN_CLUSTER_HOSTS=(
     [opt-bck02.bck.intern]="192.168.188.12:2:failover"
     [opt-bck03.bck.intern]="192.168.188.13:3:failover"
     [lat-bck04.bck.intern]="192.168.188.19:4:failover"
+    [xcp-ng-z440]="192.168.188.18:5:failover"
 )
 
 # Host status tracking
