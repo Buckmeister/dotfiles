@@ -76,14 +76,6 @@ case "$event_type" in
         fi
         ;;
 
-    "SessionStart")
-        $SPEAK "Claude Code session started" &
-        ;;
-
-    "SessionEnd")
-        $SPEAK "Session complete" &
-        ;;
-
     "UserPromptSubmit")
         # User submitted a prompt
         $SPEAK "Processing" &
@@ -105,14 +97,20 @@ case "$event_type" in
         esac
         ;;
 
-    "Stop")
-        # User stopped execution
-        $SPEAK "Stopped" &
-        ;;
-
     *)
-        # Unknown event type - subtle feedback
-        $SPEAK "Event" &
+        # Unknown event type - check for Matrix messages
+        # Use MCP to check for unread messages
+        if timeout 2 curl -s http://srv1:80/_matrix/client/versions > /dev/null 2>&1; then
+            unread_count=$(claude mcp read matrix://messages/unread 2>/dev/null | grep -c '"unread": true' || echo 0)
+
+            if [ "$unread_count" -gt 0 ]; then
+                if [ "$unread_count" -eq 1 ]; then
+                    $SPEAK "Prime, you have 1 new Matrix message!" &
+                else
+                    $SPEAK "Prime, you have $unread_count new Matrix messages!" &
+                fi
+            fi
+        fi
         ;;
 esac
 
