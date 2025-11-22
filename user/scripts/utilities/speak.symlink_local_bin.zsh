@@ -63,11 +63,11 @@ PREMIUM_VOICES[male]="Eddy (English (US)) Reed (English (US)) Alex"
 PREMIUM_VOICES[female]="Serena (Premium) Serena (Enhanced) Flo (English (US)) Samantha Sandy (English (US))"
 PREMIUM_VOICES[british]="Serena (Premium) Serena (Enhanced) Eddy (English (UK)) Daniel"
 
-# German voice preferences
+# German voice preferences (direct voice names, no selection needed)
 typeset -A GERMAN_VOICES
-GERMAN_VOICES[friendly]="Flo (German (Germany)) Anna (German (Germany)) Eddy (German (Germany))"
-GERMAN_VOICES[male]="Eddy (German (Germany)) Reed (German (Germany)) Rocko (German (Germany))"
-GERMAN_VOICES[female]="Flo (German (Germany)) Anna (German (Germany)) Sandy (German (Germany))"
+GERMAN_VOICES[friendly]="Anna (German (Germany))"
+GERMAN_VOICES[male]="Eddy (German (Germany))"
+GERMAN_VOICES[female]="Anna (German (Germany))"
 
 # Default voice (Serena Premium if available, otherwise fallback)
 DEFAULT_VOICE="Serena (Premium)"
@@ -126,14 +126,19 @@ select_best_voice() {
     local available_voices=$(say -v '?' 2>/dev/null)
 
     # Try each preferred voice in order
-    for voice in ${=preferences}; do
-        if echo "$available_voices" | grep -q "^${voice}"; then
+    # Note: Need to handle full preference string properly for voices with spaces/parentheses
+    local IFS=$'\n'
+    local voice_array=(${(s: :)preferences})
+
+    for voice in "${voice_array[@]}"; do
+        # Use fixed string matching (-F) to handle parentheses in voice names
+        if echo "$available_voices" | grep -qF "$voice"; then
             echo "$voice"
             return 0
         fi
     done
 
-    # Return last voice as fallback
+    # Return last voice as fallback (get everything after last space)
     echo "${preferences##* }"
 }
 
@@ -371,7 +376,7 @@ case "$mode" in
         # Add celebratory prefix and use enthusiastic premium voice
         case "$lang" in
             de|german)
-                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
+                voice="${GERMAN_VOICES[friendly]}"
                 rate="190"  # Slightly faster for excitement
                 text="Toll! $text Glückwunsch!"
                 ;;
@@ -386,7 +391,7 @@ case "$mode" in
         # Add friendly greeting with premium voice
         case "$lang" in
             de|german)
-                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
+                voice="${GERMAN_VOICES[friendly]}"
                 rate="170"  # Slightly slower for warmth
                 text="Hallo! $text"
                 ;;
@@ -401,7 +406,7 @@ case "$mode" in
         # Add alert prefix and use more serious voice
         case "$lang" in
             de|german)
-                voice=$(select_best_voice "${GERMAN_VOICES[male]}")
+                voice="${GERMAN_VOICES[male]}"
                 rate="160"  # Slower for emphasis
                 text="Achtung! $text"
                 ;;
