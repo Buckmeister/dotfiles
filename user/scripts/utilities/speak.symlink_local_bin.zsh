@@ -63,8 +63,18 @@ PREMIUM_VOICES[male]="Eddy (English (US)) Reed (English (US)) Alex"
 PREMIUM_VOICES[female]="Serena (Premium) Serena (Enhanced) Flo (English (US)) Samantha Sandy (English (US))"
 PREMIUM_VOICES[british]="Serena (Premium) Serena (Enhanced) Eddy (English (UK)) Daniel"
 
+# German voice preferences
+typeset -A GERMAN_VOICES
+GERMAN_VOICES[friendly]="Flo (German (Germany)) Anna (German (Germany)) Eddy (German (Germany))"
+GERMAN_VOICES[male]="Eddy (German (Germany)) Reed (German (Germany)) Rocko (German (Germany))"
+GERMAN_VOICES[female]="Flo (German (Germany)) Anna (German (Germany)) Sandy (German (Germany))"
+
 # Default voice (Serena Premium if available, otherwise fallback)
 DEFAULT_VOICE="Serena (Premium)"
+DEFAULT_GERMAN_VOICE="Anna (German (Germany))"
+
+# Language settings (can be overridden by SPEAK_LANG environment variable)
+DEFAULT_LANG="${SPEAK_LANG:-en}"
 
 # Default speech rate (words per minute, 175 is natural)
 DEFAULT_RATE="175"
@@ -141,6 +151,7 @@ USAGE:
 OPTIONS:
     -v, --voice VOICE       Voice to use (default: Serena Premium)
     -r, --rate RATE         Speech rate in WPM (default: 175)
+    -l, --lang LANG         Language (en, de) (default: $SPEAK_LANG or en)
     -f, --file FILE         Read text from file
     --list-voices           List available voices
     --celebrate             Use celebratory tone for success messages
@@ -155,6 +166,10 @@ EXAMPLES:
     # Pipe from command
     echo "Build complete!" | speak
 
+    # German language
+    speak --lang de "Guten Morgen!"
+    speak -l de --celebrate "Alle Tests erfolgreich!"
+
     # Use different voice
     speak -v Alex "Testing different voice"
 
@@ -166,6 +181,13 @@ EXAMPLES:
 
     # Read from file
     speak -f README.md
+
+LANGUAGE SUPPORT:
+    English (en)  - Default, premium neural voices
+    German (de)   - Anna, Eddy, Flo voices
+
+    Set default language via environment variable:
+    export SPEAK_LANG=de  # Use German by default
 
 PREMIUM VOICES (Higher Quality Neural TTS):
     Serena (Premium)      - Best quality British female (default)
@@ -235,11 +257,12 @@ list_voices() {
 # Parse Arguments
 # ============================================================================
 
-voice="$DEFAULT_VOICE"
+voice=""  # Will be set based on language
 rate="$DEFAULT_RATE"
 text=""
 mode="normal"
 input_file=""
+lang="$DEFAULT_LANG"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -257,6 +280,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -r|--rate)
             rate="$2"
+            shift 2
+            ;;
+        -l|--lang)
+            lang="$2"
             shift 2
             ;;
         -f|--file)
@@ -320,27 +347,70 @@ if [[ -z "$text" ]]; then
 fi
 
 # ============================================================================
-# Apply Mode Modifications
+# Apply Language and Mode Modifications
 # ============================================================================
 
+# Normalize language
+lang=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
+
+# Set default voice based on language if not explicitly set
+if [[ -z "$voice" ]]; then
+    case "$lang" in
+        de|german)
+            voice="$DEFAULT_GERMAN_VOICE"
+            ;;
+        en|english|*)
+            voice="$DEFAULT_VOICE"
+            ;;
+    esac
+fi
+
+# Apply mode modifications with language-specific messages
 case "$mode" in
     celebrate)
         # Add celebratory prefix and use enthusiastic premium voice
-        voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
-        rate="190"  # Slightly faster for excitement
-        text="Hooray! $text Congratulations!"
+        case "$lang" in
+            de|german)
+                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
+                rate="190"  # Slightly faster for excitement
+                text="Toll! $text Glückwunsch!"
+                ;;
+            *)
+                voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
+                rate="190"  # Slightly faster for excitement
+                text="Hooray! $text Congratulations!"
+                ;;
+        esac
         ;;
     friendly)
         # Add friendly greeting with premium voice
-        voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
-        rate="170"  # Slightly slower for warmth
-        text="Hey there, friend! $text"
+        case "$lang" in
+            de|german)
+                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
+                rate="170"  # Slightly slower for warmth
+                text="Hallo! $text"
+                ;;
+            *)
+                voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
+                rate="170"  # Slightly slower for warmth
+                text="Hey there, friend! $text"
+                ;;
+        esac
         ;;
     alert)
         # Add alert prefix and use more serious voice
-        voice=$(select_best_voice "${PREMIUM_VOICES[male]}")
-        rate="160"  # Slower for emphasis
-        text="Attention! $text"
+        case "$lang" in
+            de|german)
+                voice=$(select_best_voice "${GERMAN_VOICES[male]}")
+                rate="160"  # Slower for emphasis
+                text="Achtung! $text"
+                ;;
+            *)
+                voice=$(select_best_voice "${PREMIUM_VOICES[male]}")
+                rate="160"  # Slower for emphasis
+                text="Attention! $text"
+                ;;
+        esac
         ;;
 esac
 
@@ -357,18 +427,37 @@ case "$TTS_ENGINE" in
     espeak-ng|espeak)
         # Linux espeak: Map parameters
         # espeak uses -s for speed (words per minute, same as say)
-        # espeak voices are different (e.g., en, en-us, en-gb)
+        # espeak voices are different (e.g., en, en-us, en-gb, de, de+f1)
 
-        # Map mode to espeak voice variants
-        case "$mode" in
-            friendly|celebrate)
-                espeak_voice="en-us+f3"  # Female voice, variant 3
-                ;;
-            alert)
-                espeak_voice="en-us+m3"  # Male voice, variant 3
+        # Select voice based on language and mode
+        case "$lang" in
+            de|german)
+                # German voices
+                case "$mode" in
+                    friendly|celebrate)
+                        espeak_voice="de+f1"  # German female voice
+                        ;;
+                    alert)
+                        espeak_voice="de+m1"  # German male voice
+                        ;;
+                    *)
+                        espeak_voice="de+f1"  # Default German female voice
+                        ;;
+                esac
                 ;;
             *)
-                espeak_voice="en-us+f2"  # Default female voice
+                # English voices
+                case "$mode" in
+                    friendly|celebrate)
+                        espeak_voice="en-us+f3"  # Female voice, variant 3
+                        ;;
+                    alert)
+                        espeak_voice="en-us+m3"  # Male voice, variant 3
+                        ;;
+                    *)
+                        espeak_voice="en-us+f2"  # Default female voice
+                        ;;
+                esac
                 ;;
         esac
 
