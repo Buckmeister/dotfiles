@@ -384,7 +384,6 @@ tests/
 ├── test_docker_install.zsh                 # Docker E2E tests
 ├── test_xen.zsh                    # XCP-NG VM E2E tests (includes helper deployment)
 │
-├── REFACTORING_PLAN.md                     # Detailed refactoring documentation
 └── README.md                               # This file
 ```
 
@@ -681,7 +680,6 @@ When adding new tests:
 
 - **[CLAUDE.md](../CLAUDE.md)** - Project philosophy, architecture, and AI assistant guidance
 - **[ACTION_PLAN.md](../ACTION_PLAN.md)** - Project roadmap, Phase 5 testing infrastructure details
-- **[tests/REFACTORING_PLAN.md](REFACTORING_PLAN.md)** - Test suite refactoring documentation
 
 ### Related Systems
 

@@ -928,7 +928,7 @@ A: Commit your custom profile YAML and manifest to your dotfiles repo, then your
 ### Phase 5-7 Features (Recent)
 - **Configuration-Driven Testing:** [`../tests/test_config.yaml`](../tests/test_config.yaml) - Centralized test configuration
 - **Test Suites:** [`../tests/run_suite.zsh`](../tests/run_suite.zsh) - Modular test runner (smoke/standard/comprehensive)
-- **Menu System Documentation:** [`../bin/menu_tui.md`](../bin/menu_tui.md) - TUI menu architecture guide
+- **Menu System Documentation:** [`../bin/lib/MENU_ENGINE_API.md`](../bin/lib/MENU_ENGINE_API.md) - Menu engine API documentation
 - **Text-to-Speech Utility:** [`../bin/speak.symlink_local_bin.zsh`](../bin/speak.symlink_local_bin.zsh) - Audio notifications
 
 ### Project Philosophy

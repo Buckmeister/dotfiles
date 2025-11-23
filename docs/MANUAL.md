@@ -1492,70 +1492,51 @@ echo "text" | speak [options]
 
 **Examples:**
 
-Basic usage:
+<!-- check_docs:script=./user/scripts/utilities/speak.symlink_local_bin.zsh -->
 ```bash
+# Basic usage
 speak "Hello, friend!"
-```
 
-Pipe from commands:
-```bash
+# Pipe from commands
 echo "Build complete!" | speak
-```
 
-Different voices:
-```bash
+# Different voices
 speak -v Alex "Testing different voice"
-speak -v Daniel "Jolly good show, old chap!"  # British accent
-```
+speak -v Daniel "Jolly good show, old chap!"
 
-Adjust speed:
-```bash
+# Adjust speed
 speak -r 200 "Speaking quickly"
 speak -r 150 "Speaking slowly"
-```
 
-Celebration mode:
-```bash
+# Celebration mode
 speak --celebrate "All tests passing!"
 speak --celebrate "Menu system refactoring complete!"
-```
 
-Friendly greeting:
-```bash
+# Friendly greeting
 speak --friendly "Welcome to your dotfiles"
-```
 
-Alert mode:
-```bash
+# Alert mode
 speak --alert "Tests failed!"
-```
 
-Read from file:
-```bash
+# Read from file
 speak -f README.md
-```
 
-**Integration Examples:**
-
-Task completion:
-```bash
+# Task completion
 ./setup && speak --celebrate "Dotfiles setup complete!"
-```
 
-Test notifications:
-```bash
+# Test notifications
 ./tests/run_tests.zsh && speak "Tests passing!" || speak --alert "Tests failed!"
-```
 
-Background reminders:
-```bash
+# Background reminders
 (sleep 300; speak "Time to take a break!") &
-```
 
-Build notifications:
-```bash
+# Build notifications
 cargo build --release && speak --celebrate "Build succeeded!" || speak --alert "Build failed"
+
+# List available voices
+speak --list-voices
 ```
+<!-- /check_docs -->
 
 **Popular Voices:**
 - **Samantha** - Friendly female voice (default, warm and clear)
@@ -1645,16 +1626,19 @@ rustp [OPTIONS] [crate1] [crate2] ...
 
 **Examples:**
 
-Create empty playground:
+<!-- check_docs:script=./user/scripts/utilities/rustp.symlink_local_bin.sh -->
 ```bash
+# Create empty playground
 rustp
-```
 
-Playground with dependencies:
-```bash
+# Playground with dependencies
 rustp serde tokio           # Playground with serde and tokio
 rustp clap rand             # Playground with clap and rand
+
+# Show help
+rustp --help
 ```
+<!-- /check_docs -->
 
 **Tmux Layout:**
 ```
@@ -1710,10 +1694,15 @@ iperl [OPTIONS]
 
 **Examples:**
 
-Start interactive Perl session:
+<!-- check_docs:script=./user/scripts/utilities/iperl.symlink_local_bin.sh -->
 ```bash
+# Start interactive Perl session
 iperl
+
+# Show help
+iperl --help
 ```
+<!-- /check_docs -->
 
 Try some Perl expressions:
 ```perl
