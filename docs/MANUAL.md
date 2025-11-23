@@ -1474,8 +1474,9 @@ echo "text" | speak [options]
 ```
 
 **Options:**
-- `-v, --voice VOICE` - Select voice (default: Samantha)
+- `-v, --voice VOICE` - Select voice (default: Serena Premium)
 - `-r, --rate RATE` - Speech rate in WPM (default: 175)
+- `-l, --lang LANG` - Language: en (English), de (German) (default: $SPEAK_LANG or en)
 - `-f, --file FILE` - Read text from file
 - `--celebrate` - Celebratory tone for success messages
 - `--friendly` - Extra friendly greeting tone
@@ -1484,11 +1485,13 @@ echo "text" | speak [options]
 - `-h, --help` - Show help message
 
 **Features:**
+- **Internationalization:** Support for English and German with native voices
 - **ANSI Stripping:** Automatically removes color codes for clean speech
-- **Multiple Voices:** Samantha (default), Alex, Victoria (British), Daniel (British), Karen (Australian), Moira (Irish), Fiona (Scottish)
+- **Multiple Voices:** Premium neural voices (Serena, Anna, Eddy, Flo, Alex)
 - **Rate Control:** Adjust speech speed (words per minute)
 - **Personality Modes:** Three built-in modes (celebrate, friendly, alert)
 - **Flexible Input:** Supports arguments, stdin pipes, or file input
+- **Environment Variable:** Set default language via $SPEAK_LANG
 
 **Examples:**
 
@@ -1499,6 +1502,10 @@ speak "Hello, friend!"
 
 # Pipe from commands
 echo "Build complete!" | speak
+
+# German language
+speak --lang de "Guten Morgen!"
+speak -l de --celebrate "Alle Tests erfolgreich!"
 
 # Different voices
 speak -v Alex "Testing different voice"
@@ -1538,14 +1545,22 @@ speak --list-voices
 ```
 <!-- /check_docs -->
 
-**Popular Voices:**
-- **Samantha** - Friendly female voice (default, warm and clear)
-- **Alex** - Professional male voice (clear and neutral)
-- **Victoria** - British female voice (elegant)
-- **Daniel** - British male voice (distinguished)
-- **Karen** - Australian female voice (casual and friendly)
-- **Moira** - Irish female voice (charming)
-- **Fiona** - Scottish female voice (distinctive)
+**Language Support:**
+- **English (en)** - Default, premium neural voices
+  - **Serena (Premium)** - High-quality British female (default)
+  - **Alex** - Professional male voice (clear and neutral)
+  - **Eddy** - Natural male voice
+  - **Flo** - Natural female voice
+- **German (de)** - Native German voices
+  - **Anna** - German female voice
+  - **Eddy** - German male voice
+  - **Flo** - German female voice
+
+**Environment Variable:**
+Set default language in your shell config (~/.zshrc):
+```bash
+export SPEAK_LANG=de  # Use German by default
+```
 
 **Use Cases:**
 - Long-running task completion notifications

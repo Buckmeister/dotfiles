@@ -21,7 +21,7 @@ All commands, one page. Scan-friendly for digital people.
 
 | Command | Purpose | Example |
 |---------|---------|---------|
-| `speak "text"` | Text-to-speech | `speak -v Samantha "Hello"` |
+| `speak "text"` | Text-to-speech (en/de) | `speak --lang de "Guten Morgen"` |
 | `record` | Audio recording | `record -d 60 -r 48000` |
 | `battery` | Battery status | `battery` |
 | `get_github_url <repo>` | Latest GitHub release | `get_github_url rust-lang/rust` |

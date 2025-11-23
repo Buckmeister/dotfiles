@@ -592,6 +592,10 @@ speak "Build completed successfully"
 # Pipe from commands
 echo "Tests complete!" | speak
 
+# German language support
+speak --lang de "Guten Morgen!"
+speak -l de --celebrate "Alle Tests erfolgreich!"
+
 # Celebrate success
 speak --celebrate "All tests passed"
 
@@ -601,8 +605,8 @@ speak --alert "Deployment failed - check logs"
 # Friendly greeting
 speak --friendly "Welcome back!"
 
-# Custom voice (short and long forms)
-speak -v Samantha "Hello from Samantha"
+# Custom voice
+speak -v "Serena (Premium)" "Premium neural voice"
 speak --voice "Alex" "Testing male voice"
 
 # Adjust speech rate (words per minute)
