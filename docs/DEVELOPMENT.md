@@ -587,7 +587,7 @@ function test_feature_two() {
 run_test_suite
 ```
 
-**See also:** [tests/README.md](tests/README.md) and [TESTING.md](TESTING.md) for comprehensive testing documentation.
+**See also:** [tests/README.md](../tests/README.md) and [TESTING.md](TESTING.md) for comprehensive testing documentation.
 
 ---
 

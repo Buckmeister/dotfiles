@@ -1,24 +1,16 @@
-# 🎵 Dotfiles Symphony
+# Dotfiles
 
-> *Where configuration meets orchestration, and your terminal sings.*
+Cross-platform configuration management system with hierarchical menus, intelligent OS detection, and comprehensive testing.
 
-A beautifully crafted, cross-platform dotfiles system featuring an interactive hierarchical menu with breadcrumb navigation, intelligent OS detection, and a harmonious blend of development tools. Like a well-composed symphony, every component works together to create something greater than the sum of its parts.
+## Features
 
----
-
-## ✨ What Makes This Special
-
-This isn't just another dotfiles repository. It's a **complete configuration management system** that:
-
-- 🎨 **Beautiful Hierarchical Menu** - Navigate through organized categories with breadcrumb navigation, keyboard-driven controls, and elegant OneDark color scheme
-- 🌍 **Cross-Platform Intelligence** - Automatically detects macOS, Linux, or Windows and adapts accordingly
-- 📚 **The Librarian** - A friendly system health checker that knows every component of your dotfiles
-- 🔗 **Symlink Architecture** - Clean, organized file structure with automatic linking
-- 🎯 **Modular Post-Install** - Individual scripts for languages, tools, and configurations
-- 🧪 **Comprehensive Testing** - 251 tests across 15 suites with ~96% code coverage
-- 📝 **Documentation Quality Assurance** - Automatic validation ensures examples stay synchronized with code
-- 📦 **Universal Package Management** - One YAML manifest installs packages across any platform (brew, apt, cargo, npm, and more)
-- 💙 **Crafted with Care** - Every detail considered, every message friendly
+- **Hierarchical Menu** - Navigate organized categories with breadcrumb navigation (OneDark color scheme)
+- **Cross-Platform** - macOS, Linux, Windows/WSL with automatic OS detection
+- **Modular Post-Install** - Individual scripts for languages, tools, configurations
+- **Universal Packages** - One YAML manifest for brew, apt, cargo, npm, and more
+- **Comprehensive Testing** - 251 tests, ~96% code coverage
+- **Self-Validating Docs** - Artifact markers ensure examples match code
+- **Symlink Architecture** - Organized file structure with automatic linking
 
 ---
 
@@ -77,23 +69,26 @@ The setup script will:
 
 ---
 
-## 🎼 The Symphony of Components
+## Components
 
-### Core Infrastructure
-- **`setup.zsh`** - The conductor: orchestrates the entire setup process
-- **`wizard.zsh`** - Interactive configuration wizard for first-time setup
-- **`profile_manager.zsh`** - Profile system for different machine contexts
-- **`menu_hierarchical.zsh`** - Hierarchical menu with breadcrumb navigation and organized categories
-- **`menu_tui.zsh`** - Legacy flat menu (available with `--flat-menu` flag)
-- **`librarian.zsh`** - Your friendly system health reporter
-- **`link_dotfiles.zsh`** - Creates all the necessary symlinks
-- **`update_all.zsh`** - Central update system for packages and toolchains
+### Core Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `setup.zsh` | Main setup orchestration |
+| `wizard.zsh` | Interactive configuration wizard |
+| `profile_manager.zsh` | Machine profile system |
+| `menu_hierarchical.zsh` | Hierarchical menu with breadcrumbs |
+| `menu_tui.zsh` | Legacy flat menu (`--flat-menu`) |
+| `librarian.zsh` | System health reporter |
+| `link_dotfiles.zsh` | Symlink manager |
+| `update_all.zsh` | Package & toolchain updater |
 
 ### Shared Libraries (`bin/lib/`)
 
-The dotfiles system includes **14 specialized libraries** providing 200+ functions for UI, validation, package management, menu systems, and more. These libraries ensure consistent behavior, beautiful output, and cross-platform compatibility across all 80+ scripts in the repository.
+**14 libraries, 200+ functions** for UI, validation, package management, and menu systems.
 
-**Quick overview:**
+**Categories:**
 - **Core:** colors.zsh, ui.zsh, utils.zsh, greetings.zsh
 - **Infrastructure:** arguments.zsh, dependencies.zsh, validators.zsh
 - **Package Management:** package_managers.zsh, installers.zsh, os_operations.zsh

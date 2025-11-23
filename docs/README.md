@@ -50,10 +50,10 @@ These specialized docs are located elsewhere in the repository:
 - [tests/XEN_TESTING.md](../tests/XEN_TESTING.md) - XCP-NG VM testing guide
 
 **Other:**
-- [bin/menu_tui.md](../bin/menu_tui.md) - TUI menu architecture documentation
-- [../README.md](../README.md) - Project overview and quick start
-- [../CHANGELOG.md](../CHANGELOG.md) - Version history and release notes
-- [../ACTION_PLAN.md](../ACTION_PLAN.md) - Active todo list and project roadmap
+- [bin/lib/MENU_ENGINE_API.md](../bin/lib/MENU_ENGINE_API.md) - Menu engine API documentation
+- [README.md (root)](../README.md) - Project overview and quick start
+- [CHANGELOG.md](../CHANGELOG.md) - Version history and release notes
+- [ACTION_PLAN.md](../ACTION_PLAN.md) - Active todo list and project roadmap
 
 ---
 

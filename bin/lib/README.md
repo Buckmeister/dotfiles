@@ -1739,7 +1739,7 @@ print_success "Installation complete"
 
 ## See Also
 
-- **[CLAUDE.md](../../CLAUDE.md)** - Architecture guide and development workflow
+- **[CLAUDE.md](../../docs/CLAUDE.md)** - Architecture guide and development workflow
 - **[tests/README.md](../../tests/README.md)** - Test suite documentation
 - **[post-install/README.md](../../post-install/README.md)** - Post-install script system
 

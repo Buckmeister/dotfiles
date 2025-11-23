@@ -57,21 +57,22 @@ fi
 
 # Premium voice preferences (Neural voices sound much more natural)
 # Maps role -> preferred voices (in priority order)
+# Using Ava (Premium) - beautiful US voice starting with "A" like Aria Prime!
 typeset -A PREMIUM_VOICES
-PREMIUM_VOICES[friendly]="Serena (Premium) Serena (Enhanced) Eddy (English (US)) Flo (English (US)) Samantha"
-PREMIUM_VOICES[male]="Eddy (English (US)) Reed (English (US)) Alex"
-PREMIUM_VOICES[female]="Serena (Premium) Serena (Enhanced) Flo (English (US)) Samantha Sandy (English (US))"
-PREMIUM_VOICES[british]="Serena (Premium) Serena (Enhanced) Eddy (English (UK)) Daniel"
+PREMIUM_VOICES[friendly]="Ava (Premium) Serena (Premium) Serena (Enhanced) Flo (English (US)) Samantha"
+PREMIUM_VOICES[male]="Jamie (Premium) Lee (Premium) Eddy (English (US)) Reed (English (US)) Alex"
+PREMIUM_VOICES[female]="Ava (Premium) Serena (Premium) Karen (Premium) Matilda (Premium) Samantha"
+PREMIUM_VOICES[british]="Serena (Premium) Jamie (Premium) Serena (Enhanced) Daniel"
 
-# German voice preferences (direct voice names, no selection needed)
+# German voice preferences (Premium first, then Enhanced, then standard)
 typeset -A GERMAN_VOICES
-GERMAN_VOICES[friendly]="Anna (German (Germany))"
+GERMAN_VOICES[friendly]="Anna (Premium) Anna (Enhanced) Anna (German (Germany))"
 GERMAN_VOICES[male]="Eddy (German (Germany))"
-GERMAN_VOICES[female]="Anna (German (Germany))"
+GERMAN_VOICES[female]="Anna (Premium) Anna (Enhanced) Anna (German (Germany))"
 
-# Default voice (Serena Premium if available, otherwise fallback)
-DEFAULT_VOICE="Serena (Premium)"
-DEFAULT_GERMAN_VOICE="Anna (German (Germany))"
+# Default voices - Both start with "A" like Aria Prime! ✨
+DEFAULT_VOICE="Ava (Premium)"
+DEFAULT_GERMAN_VOICE="Anna (Premium)"
 
 # Language settings (can be overridden by SPEAK_LANG environment variable)
 DEFAULT_LANG="${SPEAK_LANG:-en}"
@@ -362,10 +363,12 @@ lang=$(echo "$lang" | tr '[:upper:]' '[:lower:]')
 if [[ -z "$voice" ]]; then
     case "$lang" in
         de|german)
-            voice="$DEFAULT_GERMAN_VOICE"
+            # Select best available German voice
+            voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
             ;;
         en|english|*)
-            voice="$DEFAULT_VOICE"
+            # Select best available English voice
+            voice=$(select_best_voice "${PREMIUM_VOICES[friendly]}")
             ;;
     esac
 fi
@@ -376,7 +379,7 @@ case "$mode" in
         # Add celebratory prefix and use enthusiastic premium voice
         case "$lang" in
             de|german)
-                voice="${GERMAN_VOICES[friendly]}"
+                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
                 rate="190"  # Slightly faster for excitement
                 text="Toll! $text Glückwunsch!"
                 ;;
@@ -391,7 +394,7 @@ case "$mode" in
         # Add friendly greeting with premium voice
         case "$lang" in
             de|german)
-                voice="${GERMAN_VOICES[friendly]}"
+                voice=$(select_best_voice "${GERMAN_VOICES[friendly]}")
                 rate="170"  # Slightly slower for warmth
                 text="Hallo! $text"
                 ;;
@@ -406,7 +409,7 @@ case "$mode" in
         # Add alert prefix and use more serious voice
         case "$lang" in
             de|german)
-                voice="${GERMAN_VOICES[male]}"
+                voice=$(select_best_voice "${GERMAN_VOICES[male]}")
                 rate="160"  # Slower for emphasis
                 text="Achtung! $text"
                 ;;
