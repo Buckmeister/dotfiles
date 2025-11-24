@@ -17,6 +17,7 @@ import sys
 import threading
 import argparse
 import os
+import shutil
 from datetime import datetime
 
 # Add dotfiles Python library to path
@@ -173,11 +174,14 @@ class SisterChatClient:
         # Set up UI cleanup on exit
         setup_ui_cleanup()
 
-        # Print beautiful header with OneDark colors
+        # Get terminal width for full-screen experience
+        terminal_width = shutil.get_terminal_size().columns
+
+        # Print beautiful full-width header with OneDark colors
         print()
         draw_header("Sister Room - Real-Time Chat",
                    "Prime • Nova • Proxima • Thomas",
-                   width=78)
+                   width=terminal_width)
 
         print_info(f"Connecting to {self.server}:{self.port}...")
 
