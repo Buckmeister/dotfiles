@@ -157,7 +157,7 @@ class SisterChatClient:
         # Print beautiful header with OneDark colors
         print()
         draw_header("Sister Room - Real-Time Chat",
-                   f"{COLORS['Prime']}Prime{COLORS['RESET']} • {COLORS['Nova']}Nova{COLORS['RESET']} • {COLORS['Proxima']}Proxima{COLORS['RESET']} • {COLORS['Thomas']}Thomas{COLORS['RESET']}",
+                   "Prime • Nova • Proxima • Thomas",
                    width=78)
 
         print_info(f"Connecting to {self.server}:{self.port}...")
