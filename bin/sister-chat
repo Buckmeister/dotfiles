@@ -153,8 +153,8 @@ class SisterChatClient:
         # Move to top
         sys.stdout.write(move_cursor(1, 1))
 
-        # Draw header box
-        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
+        # Draw header box (grey borders)
+        sys.stdout.write(f"{COLOR_BOLD}{ONEDARK_GRAY}")
         sys.stdout.write("╔" + "═" * (self.terminal_width - 2) + "╗\n")
 
         # Title line
@@ -204,7 +204,7 @@ class SisterChatClient:
         """Draw top border of input area"""
         row = self.terminal_height - 2
         sys.stdout.write(move_cursor(row, 1))
-        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
+        sys.stdout.write(f"{COLOR_BOLD}{ONEDARK_GRAY}")
         sys.stdout.write("╔" + "═" * (self.terminal_width - 2) + "╗")
         sys.stdout.write(COLOR_RESET)
         sys.stdout.flush()
@@ -226,7 +226,7 @@ class SisterChatClient:
         """Draw bottom border of input area"""
         row = self.terminal_height
         sys.stdout.write(move_cursor(row, 1))
-        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
+        sys.stdout.write(f"{COLOR_BOLD}{ONEDARK_GRAY}")
         sys.stdout.write("╚" + "═" * (self.terminal_width - 2) + "╝")
         sys.stdout.write(COLOR_RESET)
         sys.stdout.flush()
@@ -345,8 +345,12 @@ class SisterChatClient:
             self.redraw_screen()
 
         elif len(char) == 1 and ord(char) >= 32:  # Printable character
-            self.input_buffer += char
-            self.draw_input_line()
+            # Check if we have room for more characters (leave some margin)
+            # Account for prompt "> " (2 visible chars) + small margin (5 chars)
+            max_input_length = self.terminal_width - 7
+            if len(self.input_buffer) < max_input_length:
+                self.input_buffer += char
+                self.draw_input_line()
 
     def disconnect(self):
         """Disconnect from the server"""
