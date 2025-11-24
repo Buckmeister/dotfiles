@@ -82,7 +82,7 @@ class SisterChatClient:
         self.terminal_width = 0
         self.terminal_height = 0
         self.header_height = 4  # Header takes 4 lines
-        self.footer_height = 2  # Separator line + input line
+        self.footer_height = 3  # Input area: top border + input + bottom border
         self.scroll_offset = 0  # For future scroll support
 
         # Terminal settings
@@ -174,82 +174,61 @@ class SisterChatClient:
         sys.stdout.flush()
 
     def draw_messages(self):
-        """Draw messages in the scrolling area with frame"""
+        """Draw messages in the scrolling area (no borders)"""
         # Calculate available lines for messages
         message_area_height = self.terminal_height - self.header_height - self.footer_height
 
         # Get messages to display (last N that fit)
         messages_to_show = list(self.messages)[-message_area_height:]
 
-        # Draw each message line with side borders
+        # Draw each message line (plain, no borders)
         for i in range(message_area_height):
             row = self.header_height + 1 + i
             sys.stdout.write(move_cursor(row, 1))
             sys.stdout.write(CLEAR_LINE)
 
-            # Left border
-            sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}║{COLOR_RESET} ")
-
             if i < len(messages_to_show):
-                # Message content (trim if too long to fit with borders)
-                max_message_width = self.terminal_width - 4  # 2 borders + 2 spaces
+                # Message content (trim if too long)
                 message = messages_to_show[i]
                 # Count visible characters (without ANSI codes)
                 visible_len = len(re.sub(r'\033\[[0-9;]*m', '', message))
-                if visible_len > max_message_width:
+                if visible_len > self.terminal_width:
                     # Truncate message
-                    sys.stdout.write(message[:max_message_width - 3] + "...")
+                    sys.stdout.write(message[:self.terminal_width - 3] + "...")
                 else:
                     sys.stdout.write(message)
-                    # Pad to align right border
-                    padding = max_message_width - visible_len
-                    sys.stdout.write(" " * padding)
-            else:
-                # Empty line - just padding
-                sys.stdout.write(" " * (self.terminal_width - 4))
-
-            # Right border
-            sys.stdout.write(f" {COLOR_BOLD}{UI_HEADER_COLOR}║{COLOR_RESET}")
 
         sys.stdout.flush()
 
-    def draw_input_separator(self):
-        """Draw separator line above input"""
-        row = self.terminal_height - 1
+    def draw_input_top_border(self):
+        """Draw top border of input area"""
+        row = self.terminal_height - 2
         sys.stdout.write(move_cursor(row, 1))
         sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
-        sys.stdout.write("╠" + "═" * (self.terminal_width - 2) + "╣")
+        sys.stdout.write("╔" + "═" * (self.terminal_width - 2) + "╗")
         sys.stdout.write(COLOR_RESET)
         sys.stdout.flush()
 
     def draw_input_line(self):
-        """Draw the input prompt at the bottom with borders"""
-        row = self.terminal_height
+        """Draw the input prompt (no side borders)"""
+        row = self.terminal_height - 1
         sys.stdout.write(move_cursor(row, 1))
         sys.stdout.write(CLEAR_LINE)
 
-        # Left border
-        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}║{COLOR_RESET} ")
-
-        # Draw input prompt
+        # Draw input prompt (no borders)
         prompt = f"{COLORS['Thomas']}> {COLOR_RESET}"
         sys.stdout.write(prompt)
         sys.stdout.write(self.input_buffer)
 
-        # Calculate padding to right border
-        # Account for visible characters only (not ANSI codes)
-        prompt_visible = len(re.sub(r'\033\[[0-9;]*m', '', prompt))
-        input_visible = len(self.input_buffer)
-        content_width = prompt_visible + input_visible
-        max_width = self.terminal_width - 4  # borders + spaces
+        sys.stdout.flush()
 
-        if content_width < max_width:
-            padding = max_width - content_width
-            sys.stdout.write(" " * padding)
-
-        # Right border
-        sys.stdout.write(f" {COLOR_BOLD}{UI_HEADER_COLOR}║{COLOR_RESET}")
-
+    def draw_input_bottom_border(self):
+        """Draw bottom border of input area"""
+        row = self.terminal_height
+        sys.stdout.write(move_cursor(row, 1))
+        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
+        sys.stdout.write("╚" + "═" * (self.terminal_width - 2) + "╝")
+        sys.stdout.write(COLOR_RESET)
         sys.stdout.flush()
 
     def redraw_screen(self):
@@ -257,8 +236,9 @@ class SisterChatClient:
         self.get_terminal_size()
         self.draw_header()
         self.draw_messages()
-        self.draw_input_separator()
+        self.draw_input_top_border()
         self.draw_input_line()
+        self.draw_input_bottom_border()
 
     def add_message(self, sender, text):
         """Add a message to the display"""
@@ -271,10 +251,11 @@ class SisterChatClient:
 
         self.messages.append(formatted)
 
-        # Redraw messages, separator, and input
+        # Redraw messages and input area
         self.draw_messages()
-        self.draw_input_separator()
+        self.draw_input_top_border()
         self.draw_input_line()
+        self.draw_input_bottom_border()
 
     def receive_messages(self):
         """Background thread to receive and display messages"""
