@@ -3,6 +3,7 @@
 sister-chat - Thomas's personal client for Sister Room
 
 Real-time chat with Aria Prime, Aria Nova, and Aria Proxima!
+Full-screen TUI with fixed header and input.
 
 Usage:
     sister-chat [--server SERVER] [--port PORT] [--name NAME]
@@ -18,7 +19,11 @@ import threading
 import argparse
 import os
 import shutil
+import select
+import termios
+import tty
 from datetime import datetime
+from collections import deque
 
 # Add dotfiles Python library to path
 DOTFILES_LIB = os.path.expanduser('~/.config/dotfiles/lib/python')
@@ -27,12 +32,24 @@ if DOTFILES_LIB not in sys.path:
 
 # Import OneDark UI library
 from onedark import *
-from terminal_ui import draw_header, print_success, print_error, print_info, setup_ui_cleanup
 
 # Configuration
 DEFAULT_SERVER = 'srv1.local'
 DEFAULT_PORT = 5757
 DEFAULT_NAME = 'Thomas'
+
+# ANSI escape codes for terminal control
+CLEAR_SCREEN = '\033[2J'
+CURSOR_HOME = '\033[H'
+CURSOR_HIDE = '\033[?25l'
+CURSOR_SHOW = '\033[?25h'
+CLEAR_LINE = '\033[K'
+SAVE_CURSOR = '\033[s'
+RESTORE_CURSOR = '\033[u'
+
+def move_cursor(row, col):
+    """Move cursor to specific position (1-indexed)"""
+    return f'\033[{row};{col}H'
 
 # Sister-specific colors from OneDark theme
 COLORS = {
@@ -47,7 +64,7 @@ COLORS = {
 
 
 class SisterChatClient:
-    """Client for connecting to Sister Room server"""
+    """Full-screen TUI client for Sister Room"""
 
     def __init__(self, server, port, name):
         self.server = server
@@ -56,7 +73,19 @@ class SisterChatClient:
         self.sock = None
         self.running = False
         self.receive_thread = None
-        self.buffer = ""  # Buffer for connection messages
+        self.buffer = ""  # Network buffer
+
+        # UI state
+        self.messages = deque(maxlen=1000)  # Message history (keep last 1000)
+        self.input_buffer = ""
+        self.terminal_width = 0
+        self.terminal_height = 0
+        self.header_height = 4  # Header takes 4 lines
+        self.footer_height = 1  # Input line
+        self.scroll_offset = 0  # For future scroll support
+
+        # Terminal settings
+        self.old_terminal_settings = None
 
     def connect(self):
         """Connect to the server"""
@@ -75,25 +104,127 @@ class SisterChatClient:
             first_line = lines[0].strip()
 
             if first_line.startswith('ERROR'):
-                print_error(first_line[7:])
-                return False
+                return False, first_line[7:]
 
             if first_line.startswith('WELCOME'):
                 self.running = True
                 # Save any remaining data to buffer for receive_messages thread
                 if len(lines) > 1:
                     self.buffer = '\n'.join(lines[1:])
-                return True
+                return True, None
 
-            return False
+            return False, "Unknown response from server"
 
         except ConnectionRefusedError:
-            print_error(f"Cannot connect to {self.server}:{self.port}")
-            print_info("  Is the sister-room server running on srv1?")
-            return False
+            return False, f"Cannot connect to {self.server}:{self.port}"
         except Exception as e:
-            print_error(f"Connection error: {e}")
-            return False
+            return False, f"Connection error: {e}"
+
+    def setup_terminal(self):
+        """Set up terminal for full-screen TUI"""
+        # Save terminal settings
+        self.old_terminal_settings = termios.tcgetattr(sys.stdin)
+
+        # Set terminal to raw mode for character-by-character input
+        tty.setcbreak(sys.stdin.fileno())
+
+        # Hide cursor
+        sys.stdout.write(CURSOR_HIDE)
+        sys.stdout.flush()
+
+    def restore_terminal(self):
+        """Restore terminal to normal mode"""
+        if self.old_terminal_settings:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_terminal_settings)
+
+        # Show cursor
+        sys.stdout.write(CURSOR_SHOW)
+        sys.stdout.flush()
+
+    def get_terminal_size(self):
+        """Update terminal dimensions"""
+        size = shutil.get_terminal_size()
+        self.terminal_width = size.columns
+        self.terminal_height = size.lines
+
+    def draw_header(self):
+        """Draw the fixed header at top"""
+        # Move to top
+        sys.stdout.write(move_cursor(1, 1))
+
+        # Draw header box
+        sys.stdout.write(f"{COLOR_BOLD}{UI_HEADER_COLOR}")
+        sys.stdout.write("╔" + "═" * (self.terminal_width - 2) + "╗\n")
+
+        # Title line
+        title = "Sister Room - Real-Time Chat"
+        title_padding = (self.terminal_width - len(title) - 2) // 2
+        sys.stdout.write("║" + " " * title_padding + title + " " * (self.terminal_width - len(title) - title_padding - 2) + "║\n")
+
+        # Subtitle line
+        subtitle = "Prime • Nova • Proxima • Thomas"
+        subtitle_padding = (self.terminal_width - len(subtitle) - 2) // 2
+        sys.stdout.write("║" + " " * subtitle_padding + subtitle + " " * (self.terminal_width - len(subtitle) - subtitle_padding - 2) + "║\n")
+
+        # Bottom border
+        sys.stdout.write("╚" + "═" * (self.terminal_width - 2) + "╝")
+        sys.stdout.write(COLOR_RESET)
+
+        sys.stdout.flush()
+
+    def draw_messages(self):
+        """Draw messages in the scrolling area"""
+        # Calculate available lines for messages
+        message_area_height = self.terminal_height - self.header_height - self.footer_height
+
+        # Get messages to display (last N that fit)
+        messages_to_show = list(self.messages)[-message_area_height:]
+
+        # Draw each message line
+        for i in range(message_area_height):
+            row = self.header_height + 1 + i
+            sys.stdout.write(move_cursor(row, 1))
+            sys.stdout.write(CLEAR_LINE)
+
+            if i < len(messages_to_show):
+                sys.stdout.write(messages_to_show[i])
+
+        sys.stdout.flush()
+
+    def draw_input_line(self):
+        """Draw the input prompt at the bottom"""
+        row = self.terminal_height
+        sys.stdout.write(move_cursor(row, 1))
+        sys.stdout.write(CLEAR_LINE)
+
+        # Draw input prompt
+        prompt = f"{COLORS['Thomas']}> {COLOR_RESET}"
+        sys.stdout.write(prompt)
+        sys.stdout.write(self.input_buffer)
+
+        sys.stdout.flush()
+
+    def redraw_screen(self):
+        """Redraw the entire screen"""
+        self.get_terminal_size()
+        self.draw_header()
+        self.draw_messages()
+        self.draw_input_line()
+
+    def add_message(self, sender, text):
+        """Add a message to the display"""
+        # Format message with color
+        if sender in COLORS:
+            color = COLORS[sender]
+            formatted = f"{color}{sender}: {text}{COLOR_RESET}"
+        else:
+            formatted = f"{sender}: {text}"
+
+        self.messages.append(formatted)
+
+        # Redraw messages and input
+        self.draw_messages()
+        self.draw_input_line()
 
     def receive_messages(self):
         """Background thread to receive and display messages"""
@@ -105,7 +236,7 @@ class SisterChatClient:
             lines = buffer.split('\n')
             buffer = lines[-1]  # Keep incomplete line
             for line in lines[:-1]:
-                self._display_line(line)
+                self._process_line(line)
 
         while self.running:
             try:
@@ -118,17 +249,17 @@ class SisterChatClient:
                 buffer = lines[-1]  # Keep incomplete line in buffer
 
                 for line in lines[:-1]:
-                    self._display_line(line)
+                    self._process_line(line)
 
             except Exception as e:
                 if self.running:
-                    print_error(f"Receive error: {e}")
+                    self.add_message("SYS", f"Receive error: {e}")
                 break
 
         self.running = False
 
-    def _display_line(self, line):
-        """Display a single line with proper coloring"""
+    def _process_line(self, line):
+        """Process a single line from the server"""
         if not line.strip():
             return
 
@@ -136,28 +267,56 @@ class SisterChatClient:
         if line.startswith('HISTORY') or line == 'ENDHISTORY':
             return  # Skip history markers
 
-        # Color-code messages based on sender
-        sender = None
+        # Parse sender and message
         if ': ' in line:
-            sender_part = line.split(': ')[0]
-            if sender_part in COLORS:
-                sender = sender_part
-
-        if sender:
-            color = COLORS.get(sender, '')
-            print(f"{color}{line}{COLORS['RESET']}")
+            sender, msg = line.split(': ', 1)
+            self.add_message(sender, msg)
         else:
-            print(line)
-
-        sys.stdout.flush()
+            self.add_message("SYS", line)
 
     def send_message(self, message):
         """Send a message to the room"""
         try:
             self.sock.sendall(f"MSG: {message}\n".encode())
+            # Echo to our own screen
+            self.add_message(self.name, message)
         except Exception as e:
-            print_error(f"Send error: {e}")
+            self.add_message("SYS", f"Send error: {e}")
             self.running = False
+
+    def handle_input_char(self, char):
+        """Handle a single input character"""
+        if char == '\n' or char == '\r':
+            # Enter pressed - send message
+            if self.input_buffer.strip():
+                message = self.input_buffer.strip()
+                self.input_buffer = ""
+
+                # Handle special commands
+                if message.lower() in ['/quit', '/exit', '/q']:
+                    self.running = False
+                elif message.lower() == '/help':
+                    self.add_message("SYS", "Commands: /quit, /exit, /q - Disconnect | /help - Show this help")
+                else:
+                    self.send_message(message)
+
+                self.draw_input_line()
+
+        elif char == '\x7f' or char == '\x08':  # Backspace or Delete
+            if self.input_buffer:
+                self.input_buffer = self.input_buffer[:-1]
+                self.draw_input_line()
+
+        elif char == '\x03':  # Ctrl+C
+            self.running = False
+
+        elif char == '\x0c':  # Ctrl+L - refresh screen
+            sys.stdout.write(CLEAR_SCREEN)
+            self.redraw_screen()
+
+        elif len(char) == 1 and ord(char) >= 32:  # Printable character
+            self.input_buffer += char
+            self.draw_input_line()
 
     def disconnect(self):
         """Disconnect from the server"""
@@ -171,79 +330,64 @@ class SisterChatClient:
 
     def run(self):
         """Main client loop"""
-        # Set up UI cleanup on exit
-        setup_ui_cleanup()
+        # Initial connection (before TUI setup)
+        print(f"\n{UI_INFO_COLOR}ℹ️ Connecting to {self.server}:{self.port}...{COLOR_RESET}")
 
-        # Get terminal width for full-screen experience
-        terminal_width = shutil.get_terminal_size().columns
-
-        # Print beautiful full-width header with OneDark colors
-        print()
-        draw_header("Sister Room - Real-Time Chat",
-                   "Prime • Nova • Proxima • Thomas",
-                   width=terminal_width)
-
-        print_info(f"Connecting to {self.server}:{self.port}...")
-
-        # Connect
-        if not self.connect():
+        success, error = self.connect()
+        if not success:
+            print(f"{UI_ERROR_COLOR}✗ {error}{COLOR_RESET}\n")
             return
 
-        print_success(f"Connected as {COLORS['BOLD']}{self.name}{COLORS['RESET']}")
-        print()
+        print(f"{UI_SUCCESS_COLOR}✅ Connected as {COLOR_BOLD}{self.name}{COLOR_RESET}\n")
+        print(f"{UI_INFO_COLOR}Entering full-screen mode... (Ctrl+C or /quit to exit){COLOR_RESET}")
 
-        # Start receive thread
-        self.receive_thread = threading.Thread(target=self.receive_messages, daemon=True)
-        self.receive_thread.start()
+        import time
+        time.sleep(1.5)  # Give user a moment to read
 
-        # Main input loop
         try:
+            # Set up terminal for TUI
+            self.setup_terminal()
+
+            # Clear screen and draw initial UI
+            sys.stdout.write(CLEAR_SCREEN)
+            self.redraw_screen()
+
+            # Start receive thread
+            self.receive_thread = threading.Thread(target=self.receive_messages, daemon=True)
+            self.receive_thread.start()
+
+            # Main input loop
             while self.running:
-                try:
-                    message = input(f"{COLORS['Thomas']}> {COLORS['RESET']}")
+                # Check for input (non-blocking)
+                if select.select([sys.stdin], [], [], 0.1)[0]:
+                    char = sys.stdin.read(1)
+                    self.handle_input_char(char)
 
-                    if not message.strip():
-                        continue
-
-                    # Handle special commands
-                    if message.strip().lower() in ['/quit', '/exit', '/q']:
-                        break
-
-                    if message.strip().lower() == '/help':
-                        print()
-                        print_info("Commands:")
-                        print(f"{COLORS['SYS']}  /quit, /exit, /q - Disconnect{COLORS['RESET']}")
-                        print(f"{COLORS['SYS']}  /help - Show this help{COLORS['RESET']}")
-                        print(f"{COLORS['SYS']}  Ctrl+C - Disconnect{COLORS['RESET']}")
-                        print()
-                        continue
-
-                    # Send message
-                    self.send_message(message)
-
-                except EOFError:
-                    break
-                except KeyboardInterrupt:
-                    print()  # New line after ^C
-                    break
+        except KeyboardInterrupt:
+            pass
 
         finally:
-            print()
-            print_info("Disconnecting...")
+            # Restore terminal
+            self.restore_terminal()
+
+            # Clear screen and show goodbye
+            sys.stdout.write(CLEAR_SCREEN)
+            sys.stdout.write(CURSOR_HOME)
+            print(f"\n{UI_INFO_COLOR}Disconnecting...{COLOR_RESET}")
+
             self.disconnect()
 
             # Wait for receive thread
             if self.receive_thread:
                 self.receive_thread.join(timeout=2)
 
-            print_success("Goodbye! 🌟")
-            print()
+            print(f"{UI_SUCCESS_COLOR}Goodbye! 🌟{COLOR_RESET}\n")
 
 
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
-        description='Sister Room Chat Client - Real-time chat with the sisterhood',
+        description='Sister Room Chat Client - Full-screen real-time chat with the sisterhood',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -255,6 +399,7 @@ Commands while chatting:
     /quit, /exit, /q - Disconnect
     /help - Show help
     Ctrl+C - Disconnect
+    Ctrl+L - Refresh screen
         """
     )
     parser.add_argument('--server', default=DEFAULT_SERVER, help=f'Server to connect to (default: {DEFAULT_SERVER})')
