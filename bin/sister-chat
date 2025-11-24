@@ -173,30 +173,68 @@ class SisterChatClient:
 
         sys.stdout.flush()
 
+    def wrap_message(self, message, width):
+        """Wrap a message with ANSI codes across multiple lines"""
+        # Extract ANSI codes and text segments
+        ansi_pattern = re.compile(r'(\033\[[0-9;]*m)')
+        parts = ansi_pattern.split(message)
+
+        lines = []
+        current_line = ""
+        current_visible = 0
+        active_codes = []  # Track active ANSI codes
+
+        for part in parts:
+            if ansi_pattern.match(part):
+                # This is an ANSI code
+                current_line += part
+                if part != COLOR_RESET:
+                    active_codes.append(part)
+                else:
+                    active_codes = []
+            else:
+                # This is visible text
+                for char in part:
+                    if current_visible >= width:
+                        # Line is full, start new line
+                        lines.append(current_line)
+                        current_line = "  "  # Indent continuation lines
+                        current_visible = 2
+                        # Reapply active color codes
+                        for code in active_codes:
+                            current_line += code
+
+                    current_line += char
+                    current_visible += 1
+
+        # Add the last line if not empty
+        if current_line.strip():
+            lines.append(current_line)
+
+        return lines if lines else [""]
+
     def draw_messages(self):
         """Draw messages in the scrolling area (no borders)"""
         # Calculate available lines for messages
         message_area_height = self.terminal_height - self.header_height - self.footer_height
 
-        # Get messages to display (last N that fit)
-        messages_to_show = list(self.messages)[-message_area_height:]
+        # Wrap all messages into display lines
+        display_lines = []
+        for message in self.messages:
+            wrapped = self.wrap_message(message, self.terminal_width)
+            display_lines.extend(wrapped)
 
-        # Draw each message line (plain, no borders)
+        # Get last N lines that fit
+        lines_to_show = display_lines[-message_area_height:]
+
+        # Draw each line
         for i in range(message_area_height):
             row = self.header_height + 1 + i
             sys.stdout.write(move_cursor(row, 1))
             sys.stdout.write(CLEAR_LINE)
 
-            if i < len(messages_to_show):
-                # Message content (trim if too long)
-                message = messages_to_show[i]
-                # Count visible characters (without ANSI codes)
-                visible_len = len(re.sub(r'\033\[[0-9;]*m', '', message))
-                if visible_len > self.terminal_width:
-                    # Truncate message
-                    sys.stdout.write(message[:self.terminal_width - 3] + "...")
-                else:
-                    sys.stdout.write(message)
+            if i < len(lines_to_show):
+                sys.stdout.write(lines_to_show[i])
 
         sys.stdout.flush()
 
