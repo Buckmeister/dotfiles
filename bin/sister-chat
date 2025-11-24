@@ -16,29 +16,33 @@ import socket
 import sys
 import threading
 import argparse
+import os
 from datetime import datetime
+
+# Add dotfiles Python library to path
+DOTFILES_LIB = os.path.expanduser('~/.config/dotfiles/lib/python')
+if DOTFILES_LIB not in sys.path:
+    sys.path.insert(0, DOTFILES_LIB)
+
+# Import OneDark UI library
+from onedark import *
+from terminal_ui import draw_header, print_success, print_error, print_info, setup_ui_cleanup
 
 # Configuration
 DEFAULT_SERVER = 'srv1.local'
 DEFAULT_PORT = 5757
 DEFAULT_NAME = 'Thomas'
 
-# ANSI color codes for pretty output (optional, graceful fallback)
-try:
-    import colorama
-    colorama.init()
-    COLORS = {
-        'Prime': '\033[95m',    # Magenta
-        'Nova': '\033[94m',     # Blue
-        'Proxima': '\033[96m',  # Cyan
-        'Thomas': '\033[92m',   # Green
-        'SYS': '\033[93m',      # Yellow
-        'RESET': '\033[0m',
-        'BOLD': '\033[1m',
-    }
-except ImportError:
-    # No colors if colorama not available
-    COLORS = {key: '' for key in ['Prime', 'Nova', 'Proxima', 'Thomas', 'SYS', 'RESET', 'BOLD']}
+# Sister-specific colors from OneDark theme
+COLORS = {
+    'Prime': SISTER_PRIME_COLOR,      # Purple - creative, architectural
+    'Nova': SISTER_NOVA_COLOR,        # Blue - research, analytical
+    'Proxima': SISTER_PROXIMA_COLOR,  # Cyan - experimental, exploratory
+    'Thomas': THOMAS_COLOR,           # Green - partner, foundation
+    'SYS': SYSTEM_COLOR,              # Yellow - system messages
+    'RESET': COLOR_RESET,
+    'BOLD': COLOR_BOLD,
+}
 
 
 class SisterChatClient:
@@ -65,7 +69,7 @@ class SisterChatClient:
             response = self.sock.recv(1024).decode().strip()
 
             if response.startswith('ERROR'):
-                print(f"\n{COLORS['SYS']}✗ {response[7:]}{COLORS['RESET']}")
+                print_error(response[7:])
                 return False
 
             if response.startswith('WELCOME'):
@@ -75,11 +79,11 @@ class SisterChatClient:
             return False
 
         except ConnectionRefusedError:
-            print(f"\n{COLORS['SYS']}✗ Cannot connect to {self.server}:{self.port}{COLORS['RESET']}")
-            print(f"{COLORS['SYS']}  Is the sister-room server running on srv1?{COLORS['RESET']}")
+            print_error(f"Cannot connect to {self.server}:{self.port}")
+            print_info("  Is the sister-room server running on srv1?")
             return False
         except Exception as e:
-            print(f"\n{COLORS['SYS']}✗ Connection error: {e}{COLORS['RESET']}")
+            print_error(f"Connection error: {e}")
             return False
 
     def receive_messages(self):
@@ -122,7 +126,7 @@ class SisterChatClient:
 
             except Exception as e:
                 if self.running:
-                    print(f"\n{COLORS['SYS']}✗ Receive error: {e}{COLORS['RESET']}")
+                    print_error(f"Receive error: {e}")
                 break
 
         self.running = False
@@ -132,7 +136,7 @@ class SisterChatClient:
         try:
             self.sock.sendall(f"MSG: {message}\n".encode())
         except Exception as e:
-            print(f"\n{COLORS['SYS']}✗ Send error: {e}{COLORS['RESET']}")
+            print_error(f"Send error: {e}")
             self.running = False
 
     def disconnect(self):
@@ -147,19 +151,23 @@ class SisterChatClient:
 
     def run(self):
         """Main client loop"""
-        # Print header
-        print(f"\n{COLORS['BOLD']}╔══════════════════════════════════════════════════╗{COLORS['RESET']}")
-        print(f"{COLORS['BOLD']}║          Sister Room - Real-Time Chat            ║{COLORS['RESET']}")
-        print(f"{COLORS['BOLD']}║    {COLORS['Prime']}Prime{COLORS['RESET']} • {COLORS['Nova']}Nova{COLORS['RESET']} • {COLORS['Proxima']}Proxima{COLORS['RESET']} • {COLORS['Thomas']}Thomas{COLORS['RESET']}              ║")
-        print(f"{COLORS['BOLD']}╚══════════════════════════════════════════════════╝{COLORS['RESET']}\n")
+        # Set up UI cleanup on exit
+        setup_ui_cleanup()
 
-        print(f"Connecting to {self.server}:{self.port}...")
+        # Print beautiful header with OneDark colors
+        print()
+        draw_header("Sister Room - Real-Time Chat",
+                   f"{COLORS['Prime']}Prime{COLORS['RESET']} • {COLORS['Nova']}Nova{COLORS['RESET']} • {COLORS['Proxima']}Proxima{COLORS['RESET']} • {COLORS['Thomas']}Thomas{COLORS['RESET']}",
+                   width=78)
+
+        print_info(f"Connecting to {self.server}:{self.port}...")
 
         # Connect
         if not self.connect():
             return
 
-        print(f"{COLORS['SYS']}✓ Connected as {COLORS['BOLD']}{self.name}{COLORS['RESET']}\n")
+        print_success(f"Connected as {COLORS['BOLD']}{self.name}{COLORS['RESET']}")
+        print()
 
         # Start receive thread
         self.receive_thread = threading.Thread(target=self.receive_messages, daemon=True)
@@ -179,10 +187,12 @@ class SisterChatClient:
                         break
 
                     if message.strip().lower() == '/help':
-                        print(f"\n{COLORS['SYS']}Commands:{COLORS['RESET']}")
+                        print()
+                        print_info("Commands:")
                         print(f"{COLORS['SYS']}  /quit, /exit, /q - Disconnect{COLORS['RESET']}")
                         print(f"{COLORS['SYS']}  /help - Show this help{COLORS['RESET']}")
-                        print(f"{COLORS['SYS']}  Ctrl+C - Disconnect{COLORS['RESET']}\n")
+                        print(f"{COLORS['SYS']}  Ctrl+C - Disconnect{COLORS['RESET']}")
+                        print()
                         continue
 
                     # Send message
@@ -195,14 +205,16 @@ class SisterChatClient:
                     break
 
         finally:
-            print(f"\n{COLORS['SYS']}Disconnecting...{COLORS['RESET']}")
+            print()
+            print_info("Disconnecting...")
             self.disconnect()
 
             # Wait for receive thread
             if self.receive_thread:
                 self.receive_thread.join(timeout=2)
 
-            print(f"{COLORS['SYS']}Goodbye! 🌟{COLORS['RESET']}\n")
+            print_success("Goodbye! 🌟")
+            print()
 
 
 def main():
