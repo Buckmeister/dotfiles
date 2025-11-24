@@ -55,6 +55,7 @@ class SisterChatClient:
         self.sock = None
         self.running = False
         self.receive_thread = None
+        self.buffer = ""  # Buffer for connection messages
 
     def connect(self):
         """Connect to the server"""
@@ -65,15 +66,22 @@ class SisterChatClient:
             # Send CONNECT message
             self.sock.sendall(f"CONNECT {self.name}\n".encode())
 
-            # Wait for WELCOME or ERROR
-            response = self.sock.recv(1024).decode().strip()
+            # Wait for WELCOME or ERROR (and possibly more data)
+            data = self.sock.recv(4096).decode()
 
-            if response.startswith('ERROR'):
-                print_error(response[7:])
+            # Split into lines
+            lines = data.split('\n')
+            first_line = lines[0].strip()
+
+            if first_line.startswith('ERROR'):
+                print_error(first_line[7:])
                 return False
 
-            if response.startswith('WELCOME'):
+            if first_line.startswith('WELCOME'):
                 self.running = True
+                # Save any remaining data to buffer for receive_messages thread
+                if len(lines) > 1:
+                    self.buffer = '\n'.join(lines[1:])
                 return True
 
             return False
@@ -88,7 +96,15 @@ class SisterChatClient:
 
     def receive_messages(self):
         """Background thread to receive and display messages"""
-        buffer = ""
+        buffer = self.buffer  # Start with any buffered data from connect()
+        self.buffer = ""  # Clear the connection buffer
+
+        # Process any initial buffered data before entering main loop
+        if buffer:
+            lines = buffer.split('\n')
+            buffer = lines[-1]  # Keep incomplete line
+            for line in lines[:-1]:
+                self._display_line(line)
 
         while self.running:
             try:
@@ -101,28 +117,7 @@ class SisterChatClient:
                 buffer = lines[-1]  # Keep incomplete line in buffer
 
                 for line in lines[:-1]:
-                    if not line.strip():
-                        continue
-
-                    # Special handling for certain message types
-                    if line.startswith('HISTORY') or line == 'ENDHISTORY':
-                        continue  # Skip history markers
-
-                    # Color-code messages based on sender
-                    sender = None
-                    if ': ' in line:
-                        sender_part = line.split(': ')[0]
-                        if sender_part in COLORS:
-                            sender = sender_part
-
-                    if sender:
-                        color = COLORS.get(sender, '')
-                        print(f"{color}{line}{COLORS['RESET']}")
-                    else:
-                        print(line)
-
-                    # Move cursor back to input line (optional, for better UX)
-                    sys.stdout.flush()
+                    self._display_line(line)
 
             except Exception as e:
                 if self.running:
@@ -130,6 +125,30 @@ class SisterChatClient:
                 break
 
         self.running = False
+
+    def _display_line(self, line):
+        """Display a single line with proper coloring"""
+        if not line.strip():
+            return
+
+        # Special handling for certain message types
+        if line.startswith('HISTORY') or line == 'ENDHISTORY':
+            return  # Skip history markers
+
+        # Color-code messages based on sender
+        sender = None
+        if ': ' in line:
+            sender_part = line.split(': ')[0]
+            if sender_part in COLORS:
+                sender = sender_part
+
+        if sender:
+            color = COLORS.get(sender, '')
+            print(f"{color}{line}{COLORS['RESET']}")
+        else:
+            print(line)
+
+        sys.stdout.flush()
 
     def send_message(self, message):
         """Send a message to the room"""
