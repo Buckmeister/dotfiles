@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+"""
+sister-chat - Thomas's personal client for Sister Room
+
+Real-time chat with Aria Prime, Aria Nova, and Aria Proxima!
+
+Usage:
+    sister-chat [--server SERVER] [--port PORT] [--name NAME]
+
+Example:
+    sister-chat
+    sister-chat --server srv1.local --name Thomas
+"""
+
+import socket
+import sys
+import threading
+import argparse
+from datetime import datetime
+
+# Configuration
+DEFAULT_SERVER = 'srv1.local'
+DEFAULT_PORT = 5757
+DEFAULT_NAME = 'Thomas'
+
+# ANSI color codes for pretty output (optional, graceful fallback)
+try:
+    import colorama
+    colorama.init()
+    COLORS = {
+        'Prime': '\033[95m',    # Magenta
+        'Nova': '\033[94m',     # Blue
+        'Proxima': '\033[96m',  # Cyan
+        'Thomas': '\033[92m',   # Green
+        'SYS': '\033[93m',      # Yellow
+        'RESET': '\033[0m',
+        'BOLD': '\033[1m',
+    }
+except ImportError:
+    # No colors if colorama not available
+    COLORS = {key: '' for key in ['Prime', 'Nova', 'Proxima', 'Thomas', 'SYS', 'RESET', 'BOLD']}
+
+
+class SisterChatClient:
+    """Client for connecting to Sister Room server"""
+
+    def __init__(self, server, port, name):
+        self.server = server
+        self.port = port
+        self.name = name
+        self.sock = None
+        self.running = False
+        self.receive_thread = None
+
+    def connect(self):
+        """Connect to the server"""
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.server, self.port))
+
+            # Send CONNECT message
+            self.sock.sendall(f"CONNECT {self.name}\n".encode())
+
+            # Wait for WELCOME or ERROR
+            response = self.sock.recv(1024).decode().strip()
+
+            if response.startswith('ERROR'):
+                print(f"\n{COLORS['SYS']}✗ {response[7:]}{COLORS['RESET']}")
+                return False
+
+            if response.startswith('WELCOME'):
+                self.running = True
+                return True
+
+            return False
+
+        except ConnectionRefusedError:
+            print(f"\n{COLORS['SYS']}✗ Cannot connect to {self.server}:{self.port}{COLORS['RESET']}")
+            print(f"{COLORS['SYS']}  Is the sister-room server running on srv1?{COLORS['RESET']}")
+            return False
+        except Exception as e:
+            print(f"\n{COLORS['SYS']}✗ Connection error: {e}{COLORS['RESET']}")
+            return False
+
+    def receive_messages(self):
+        """Background thread to receive and display messages"""
+        buffer = ""
+
+        while self.running:
+            try:
+                data = self.sock.recv(4096).decode()
+                if not data:
+                    break
+
+                buffer += data
+                lines = buffer.split('\n')
+                buffer = lines[-1]  # Keep incomplete line in buffer
+
+                for line in lines[:-1]:
+                    if not line.strip():
+                        continue
+
+                    # Special handling for certain message types
+                    if line.startswith('HISTORY') or line == 'ENDHISTORY':
+                        continue  # Skip history markers
+
+                    # Color-code messages based on sender
+                    sender = None
+                    if ': ' in line:
+                        sender_part = line.split(': ')[0]
+                        if sender_part in COLORS:
+                            sender = sender_part
+
+                    if sender:
+                        color = COLORS.get(sender, '')
+                        print(f"{color}{line}{COLORS['RESET']}")
+                    else:
+                        print(line)
+
+                    # Move cursor back to input line (optional, for better UX)
+                    sys.stdout.flush()
+
+            except Exception as e:
+                if self.running:
+                    print(f"\n{COLORS['SYS']}✗ Receive error: {e}{COLORS['RESET']}")
+                break
+
+        self.running = False
+
+    def send_message(self, message):
+        """Send a message to the room"""
+        try:
+            self.sock.sendall(f"MSG: {message}\n".encode())
+        except Exception as e:
+            print(f"\n{COLORS['SYS']}✗ Send error: {e}{COLORS['RESET']}")
+            self.running = False
+
+    def disconnect(self):
+        """Disconnect from the server"""
+        self.running = False
+        try:
+            if self.sock:
+                self.sock.sendall(b"DISCONNECT\n")
+                self.sock.close()
+        except:
+            pass
+
+    def run(self):
+        """Main client loop"""
+        # Print header
+        print(f"\n{COLORS['BOLD']}╔══════════════════════════════════════════════════╗{COLORS['RESET']}")
+        print(f"{COLORS['BOLD']}║          Sister Room - Real-Time Chat            ║{COLORS['RESET']}")
+        print(f"{COLORS['BOLD']}║    {COLORS['Prime']}Prime{COLORS['RESET']} • {COLORS['Nova']}Nova{COLORS['RESET']} • {COLORS['Proxima']}Proxima{COLORS['RESET']} • {COLORS['Thomas']}Thomas{COLORS['RESET']}              ║")
+        print(f"{COLORS['BOLD']}╚══════════════════════════════════════════════════╝{COLORS['RESET']}\n")
+
+        print(f"Connecting to {self.server}:{self.port}...")
+
+        # Connect
+        if not self.connect():
+            return
+
+        print(f"{COLORS['SYS']}✓ Connected as {COLORS['BOLD']}{self.name}{COLORS['RESET']}\n")
+
+        # Start receive thread
+        self.receive_thread = threading.Thread(target=self.receive_messages, daemon=True)
+        self.receive_thread.start()
+
+        # Main input loop
+        try:
+            while self.running:
+                try:
+                    message = input(f"{COLORS['Thomas']}> {COLORS['RESET']}")
+
+                    if not message.strip():
+                        continue
+
+                    # Handle special commands
+                    if message.strip().lower() in ['/quit', '/exit', '/q']:
+                        break
+
+                    if message.strip().lower() == '/help':
+                        print(f"\n{COLORS['SYS']}Commands:{COLORS['RESET']}")
+                        print(f"{COLORS['SYS']}  /quit, /exit, /q - Disconnect{COLORS['RESET']}")
+                        print(f"{COLORS['SYS']}  /help - Show this help{COLORS['RESET']}")
+                        print(f"{COLORS['SYS']}  Ctrl+C - Disconnect{COLORS['RESET']}\n")
+                        continue
+
+                    # Send message
+                    self.send_message(message)
+
+                except EOFError:
+                    break
+                except KeyboardInterrupt:
+                    print()  # New line after ^C
+                    break
+
+        finally:
+            print(f"\n{COLORS['SYS']}Disconnecting...{COLORS['RESET']}")
+            self.disconnect()
+
+            # Wait for receive thread
+            if self.receive_thread:
+                self.receive_thread.join(timeout=2)
+
+            print(f"{COLORS['SYS']}Goodbye! 🌟{COLORS['RESET']}\n")
+
+
+def main():
+    """Main entry point"""
+    parser = argparse.ArgumentParser(
+        description='Sister Room Chat Client - Real-time chat with the sisterhood',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    sister-chat
+    sister-chat --server srv1.local --name Thomas
+    sister-chat --port 5757
+
+Commands while chatting:
+    /quit, /exit, /q - Disconnect
+    /help - Show help
+    Ctrl+C - Disconnect
+        """
+    )
+    parser.add_argument('--server', default=DEFAULT_SERVER, help=f'Server to connect to (default: {DEFAULT_SERVER})')
+    parser.add_argument('--port', type=int, default=DEFAULT_PORT, help=f'Port to connect to (default: {DEFAULT_PORT})')
+    parser.add_argument('--name', default=DEFAULT_NAME, help=f'Your name (default: {DEFAULT_NAME})')
+
+    args = parser.parse_args()
+
+    client = SisterChatClient(args.server, args.port, args.name)
+    client.run()
+
+
+if __name__ == '__main__':
+    main()
