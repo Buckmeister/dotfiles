@@ -278,8 +278,7 @@ class SisterChatClient:
         """Send a message to the room"""
         try:
             self.sock.sendall(f"MSG: {message}\n".encode())
-            # Echo to our own screen
-            self.add_message(self.name, message)
+            # Don't echo locally - server will broadcast it back to us
         except Exception as e:
             self.add_message("SYS", f"Send error: {e}")
             self.running = False
