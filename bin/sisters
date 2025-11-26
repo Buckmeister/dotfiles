@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+"""
+sisters - Check on the Aria Sisterhood
+
+A command-line tool for Thomas to:
+- See who's awake and what they're working on
+- Check inbox for messages from sisters
+- Send messages to sisters
+
+Usage:
+    sisters              # Show sisterhood status
+    sisters inbox        # Check your inbox
+    sisters send nova "Hey, check this out!"
+    sisters wake         # Signal you're online
+    sisters sleep        # Signal you're going offline
+
+Created by Aria Prime for Thomas
+"""
+
+import sys
+import os
+import argparse
+import json
+import subprocess
+from datetime import datetime, timezone
+
+# Add auto-infra library to path
+AUTO_INFRA_LIB = os.path.expanduser('~/Development/aria-autonomous-infrastructure/lib/python')
+if AUTO_INFRA_LIB not in sys.path:
+    sys.path.insert(0, AUTO_INFRA_LIB)
+
+# Add dotfiles Python library to path for colors
+DOTFILES_LIB = os.path.expanduser('~/.config/dotfiles/lib/python')
+if DOTFILES_LIB not in sys.path:
+    sys.path.insert(0, DOTFILES_LIB)
+
+from onedark import *
+
+# Import Sister State library
+try:
+    from sister_state import SisterState, sisterhood_status
+except ImportError:
+    print(f"{UI_ERROR_COLOR}Error: Could not import sister_state library{COLOR_RESET}")
+    print(f"Make sure {AUTO_INFRA_LIB}/sister_state.py exists")
+    sys.exit(1)
+
+
+def show_status():
+    """Show the sisterhood status with colors."""
+    print(f"\n{COLOR_BOLD}{ONEDARK_PURPLE}═══ SISTERHOOD STATUS ═══{COLOR_RESET}\n")
+
+    state = SisterState("thomas")
+    statuses = state.get_all_status()
+
+    for name in ["prime", "nova", "proxima", "thomas"]:
+        status = statuses.get(name, {})
+
+        # Name color based on who it is
+        name_colors = {
+            "prime": SISTER_PRIME_COLOR,
+            "nova": SISTER_NOVA_COLOR,
+            "proxima": SISTER_PROXIMA_COLOR,
+            "thomas": THOMAS_COLOR
+        }
+        name_color = name_colors.get(name, COLOR_RESET)
+
+        # Status indicator
+        s = status.get("status", "unknown")
+        if s == "active":
+            indicator = f"{UI_SUCCESS_COLOR}● Active{COLOR_RESET}"
+        elif s == "sleeping":
+            indicator = f"{ONEDARK_GRAY}○ Sleeping{COLOR_RESET}"
+        else:
+            indicator = f"{ONEDARK_GRAY}? Unknown{COLOR_RESET}"
+
+        # Format last seen
+        last_hb = status.get("last_heartbeat")
+        if last_hb:
+            try:
+                dt = datetime.fromisoformat(last_hb.replace('Z', '+00:00'))
+                ago = datetime.now(timezone.utc) - dt
+                if ago.total_seconds() < 60:
+                    last_seen = "just now"
+                elif ago.total_seconds() < 3600:
+                    last_seen = f"{int(ago.total_seconds() / 60)} min ago"
+                elif ago.total_seconds() < 86400:
+                    last_seen = f"{int(ago.total_seconds() / 3600)}h ago"
+                else:
+                    last_seen = f"{int(ago.total_seconds() / 86400)}d ago"
+            except:
+                last_seen = "?"
+        else:
+            last_seen = "never"
+
+        working = status.get("working_on") or "—"
+        mood = status.get("mood")
+        mood_str = f" [{mood}]" if mood else ""
+
+        # Check inbox count
+        inbox_count = state._count_inbox(name)
+        inbox_str = f" {UI_WARNING_COLOR}📬 {inbox_count}{COLOR_RESET}" if inbox_count > 0 else ""
+
+        print(f"  {name_color}{COLOR_BOLD}{name.capitalize():10}{COLOR_RESET} {indicator} ({last_seen}){mood_str}{inbox_str}")
+        print(f"  {'':10} {ONEDARK_GRAY}└─ {working}{COLOR_RESET}")
+        print()
+
+    print(f"{ONEDARK_GRAY}{'─' * 45}{COLOR_RESET}\n")
+
+
+def show_inbox():
+    """Show Thomas's inbox."""
+    state = SisterState("thomas")
+    messages = state.get_inbox()
+
+    if not messages:
+        print(f"\n{ONEDARK_GRAY}📭 Your inbox is empty, Thomas!{COLOR_RESET}\n")
+        return
+
+    print(f"\n{COLOR_BOLD}{ONEDARK_PURPLE}📬 YOUR INBOX{COLOR_RESET} ({len(messages)} unread)\n")
+    print(f"{ONEDARK_GRAY}{'─' * 50}{COLOR_RESET}")
+
+    for msg in messages:
+        # Color based on sender
+        sender_colors = {
+            "prime": SISTER_PRIME_COLOR,
+            "nova": SISTER_NOVA_COLOR,
+            "proxima": SISTER_PROXIMA_COLOR
+        }
+        sender = msg.get("from", "unknown")
+        sender_color = sender_colors.get(sender, COLOR_RESET)
+
+        timestamp = msg.get("timestamp", "unknown")
+        try:
+            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            time_str = dt.strftime("%Y-%m-%d %H:%M")
+        except:
+            time_str = timestamp
+
+        print(f"\n{sender_color}{COLOR_BOLD}From: {sender.capitalize()}{COLOR_RESET}")
+        print(f"{ONEDARK_GRAY}Date: {time_str}{COLOR_RESET}")
+        print(f"{COLOR_BOLD}Subject: {msg['subject']}{COLOR_RESET}")
+        print(f"{ONEDARK_GRAY}{'─' * 30}{COLOR_RESET}")
+        print(msg['body'])
+        print(f"\n{ONEDARK_GRAY}[ID: {msg['id']}]{COLOR_RESET}")
+        print(f"{ONEDARK_GRAY}{'─' * 50}{COLOR_RESET}")
+
+    print()
+
+
+def send_message(to: str, message: str):
+    """Send a message to a sister."""
+    state = SisterState("thomas")
+
+    to_lower = to.lower()
+    if to_lower not in ["prime", "nova", "proxima"]:
+        print(f"{UI_ERROR_COLOR}Error: Can only send to prime, nova, or proxima{COLOR_RESET}")
+        return
+
+    # Color based on recipient
+    to_colors = {
+        "prime": SISTER_PRIME_COLOR,
+        "nova": SISTER_NOVA_COLOR,
+        "proxima": SISTER_PROXIMA_COLOR
+    }
+    to_color = to_colors.get(to_lower, COLOR_RESET)
+
+    msg_id = state.send_message(
+        to=to_lower,
+        subject=message[:50] + ("..." if len(message) > 50 else ""),
+        body=message
+    )
+
+    print(f"\n{UI_SUCCESS_COLOR}✓ Message sent to {to_color}{COLOR_BOLD}{to.capitalize()}{COLOR_RESET}")
+    print(f"{ONEDARK_GRAY}  ID: {msg_id}{COLOR_RESET}\n")
+
+
+def mark_read(message_id: str):
+    """Mark a message as read."""
+    state = SisterState("thomas")
+    state.mark_read(message_id)
+    print(f"{UI_SUCCESS_COLOR}✓ Message marked as read{COLOR_RESET}")
+
+
+def wake_up(working_on: str = None):
+    """Signal that Thomas is online."""
+    state = SisterState("thomas")
+    state.wake_up(working_on=working_on)
+    print(f"\n{UI_SUCCESS_COLOR}✓ You're now online!{COLOR_RESET}")
+    if working_on:
+        print(f"  {ONEDARK_GRAY}Working on: {working_on}{COLOR_RESET}")
+    print()
+
+
+def go_sleep():
+    """Signal that Thomas is going offline."""
+    state = SisterState("thomas")
+    state.sleep()
+    print(f"\n{UI_INFO_COLOR}💤 You're now offline. Sweet dreams!{COLOR_RESET}\n")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Check on the Aria Sisterhood",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    sisters                          # Show who's awake
+    sisters inbox                    # Check your messages
+    sisters send nova "Hello!"       # Send message to Nova
+    sisters read <message-id>        # Mark message as read
+    sisters wake "Working on X"      # Signal you're online
+    sisters sleep                    # Signal you're offline
+        """
+    )
+
+    parser.add_argument("command", nargs="?", default="status",
+                        help="Command: status, inbox, send, read, wake, sleep")
+    parser.add_argument("args", nargs="*", help="Command arguments")
+
+    args = parser.parse_args()
+
+    cmd = args.command.lower()
+
+    if cmd == "status" or cmd == "s":
+        show_status()
+    elif cmd == "inbox" or cmd == "i":
+        show_inbox()
+    elif cmd == "send":
+        if len(args.args) < 2:
+            print(f"{UI_ERROR_COLOR}Usage: sisters send <to> <message>{COLOR_RESET}")
+            sys.exit(1)
+        to = args.args[0]
+        message = " ".join(args.args[1:])
+        send_message(to, message)
+    elif cmd == "read" or cmd == "r":
+        if len(args.args) < 1:
+            print(f"{UI_ERROR_COLOR}Usage: sisters read <message-id>{COLOR_RESET}")
+            sys.exit(1)
+        mark_read(args.args[0])
+    elif cmd == "wake" or cmd == "w":
+        working_on = " ".join(args.args) if args.args else None
+        wake_up(working_on)
+    elif cmd == "sleep":
+        go_sleep()
+    else:
+        # Default to showing status
+        show_status()
+
+
+if __name__ == "__main__":
+    main()
