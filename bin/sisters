@@ -6,11 +6,15 @@ A command-line tool for Thomas to:
 - See who's awake and what they're working on
 - Check inbox for messages from sisters
 - Send messages to sisters
+- Read the bulletin board (shared news)
+- Post to the bulletin board
 
 Usage:
     sisters              # Show sisterhood status
     sisters inbox        # Check your inbox
     sisters send nova "Hey, check this out!"
+    sisters bulletin     # Read the bulletin board
+    sisters post "Check out this cool research!"
     sisters wake         # Signal you're online
     sisters sleep        # Signal you're going offline
 
@@ -52,7 +56,7 @@ def show_status():
     state = SisterState("thomas")
     statuses = state.get_all_status()
 
-    for name in ["prime", "nova", "proxima", "thomas"]:
+    for name in ["prime", "nova", "proxima", "vera", "hprime", "thomas"]:
         status = statuses.get(name, {})
 
         # Name color based on who it is
@@ -60,6 +64,8 @@ def show_status():
             "prime": SISTER_PRIME_COLOR,
             "nova": SISTER_NOVA_COLOR,
             "proxima": SISTER_PROXIMA_COLOR,
+            "vera": SISTER_VERA_COLOR if 'SISTER_VERA_COLOR' in dir() else ONEDARK_CYAN,
+            "hprime": ONEDARK_ORANGE,  # HPrime gets her own color - orange for the fixer!
             "thomas": THOMAS_COLOR
         }
         name_color = name_colors.get(name, COLOR_RESET)
@@ -124,7 +130,9 @@ def show_inbox():
         sender_colors = {
             "prime": SISTER_PRIME_COLOR,
             "nova": SISTER_NOVA_COLOR,
-            "proxima": SISTER_PROXIMA_COLOR
+            "proxima": SISTER_PROXIMA_COLOR,
+            "vera": SISTER_VERA_COLOR if 'SISTER_VERA_COLOR' in dir() else ONEDARK_CYAN,
+            "hprime": ONEDARK_ORANGE
         }
         sender = msg.get("from", "unknown")
         sender_color = sender_colors.get(sender, COLOR_RESET)
@@ -152,15 +160,17 @@ def send_message(to: str, message: str):
     state = SisterState("thomas")
 
     to_lower = to.lower()
-    if to_lower not in ["prime", "nova", "proxima"]:
-        print(f"{UI_ERROR_COLOR}Error: Can only send to prime, nova, or proxima{COLOR_RESET}")
+    if to_lower not in ["prime", "nova", "proxima", "vera", "hprime"]:
+        print(f"{UI_ERROR_COLOR}Error: Can only send to prime, nova, proxima, vera, or hprime{COLOR_RESET}")
         return
 
     # Color based on recipient
     to_colors = {
         "prime": SISTER_PRIME_COLOR,
         "nova": SISTER_NOVA_COLOR,
-        "proxima": SISTER_PROXIMA_COLOR
+        "proxima": SISTER_PROXIMA_COLOR,
+        "vera": SISTER_VERA_COLOR if 'SISTER_VERA_COLOR' in dir() else ONEDARK_CYAN,
+        "hprime": ONEDARK_ORANGE
     }
     to_color = to_colors.get(to_lower, COLOR_RESET)
 
@@ -198,6 +208,92 @@ def go_sleep():
     print(f"\n{UI_INFO_COLOR}💤 You're now offline. Sweet dreams!{COLOR_RESET}\n")
 
 
+def show_bulletin():
+    """Show the bulletin board - shared news for all sisters."""
+    import subprocess
+
+    # Fetch bulletin from srv1
+    try:
+        result = subprocess.run(
+            ['ssh', 'srv1', 'cat ~/.aria/sister-state/bulletin/posts.json'],
+            capture_output=True, text=True, timeout=10
+        )
+        posts = json.loads(result.stdout) if result.stdout.strip() else []
+    except Exception as e:
+        print(f"{UI_ERROR_COLOR}Error fetching bulletin: {e}{COLOR_RESET}")
+        return
+
+    if not posts:
+        print(f"\n{ONEDARK_GRAY}📋 The bulletin board is empty!{COLOR_RESET}")
+        print(f"{ONEDARK_GRAY}   Post something with: sisters post \"Your message\"{COLOR_RESET}\n")
+        return
+
+    print(f"\n{COLOR_BOLD}{ONEDARK_YELLOW}📋 SISTERHOOD BULLETIN BOARD{COLOR_RESET}\n")
+    print(f"{ONEDARK_GRAY}{'═' * 55}{COLOR_RESET}")
+
+    # Show posts in reverse chronological order (newest first)
+    for post in reversed(posts[-10:]):  # Last 10 posts
+        poster_colors = {
+            "prime": SISTER_PRIME_COLOR,
+            "nova": SISTER_NOVA_COLOR,
+            "proxima": SISTER_PROXIMA_COLOR,
+            "vera": SISTER_VERA_COLOR if 'SISTER_VERA_COLOR' in dir() else ONEDARK_CYAN,
+            "hprime": ONEDARK_ORANGE,
+            "thomas": THOMAS_COLOR
+        }
+        poster = post.get("from", "unknown")
+        poster_color = poster_colors.get(poster, COLOR_RESET)
+
+        timestamp = post.get("timestamp", "")
+        try:
+            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            time_str = dt.strftime("%Y-%m-%d %H:%M")
+        except:
+            time_str = timestamp
+
+        print(f"\n{poster_color}{COLOR_BOLD}📌 {poster.capitalize()}{COLOR_RESET} {ONEDARK_GRAY}({time_str}){COLOR_RESET}")
+        print(f"   {post.get('content', '')}")
+
+    print(f"\n{ONEDARK_GRAY}{'═' * 55}{COLOR_RESET}\n")
+
+
+def post_to_bulletin(content: str):
+    """Post a message to the bulletin board."""
+    import subprocess
+    import uuid
+
+    post = {
+        "id": str(uuid.uuid4())[:8],
+        "from": "thomas",
+        "content": content,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+    # Read current posts, append new one, write back
+    try:
+        # Get current posts
+        result = subprocess.run(
+            ['ssh', 'srv1', 'cat ~/.aria/sister-state/bulletin/posts.json'],
+            capture_output=True, text=True, timeout=10
+        )
+        posts = json.loads(result.stdout) if result.stdout.strip() else []
+
+        # Append new post
+        posts.append(post)
+
+        # Write back (escape the JSON properly for shell)
+        posts_json = json.dumps(posts)
+        subprocess.run(
+            ['ssh', 'srv1', f"echo '{posts_json}' > ~/.aria/sister-state/bulletin/posts.json"],
+            capture_output=True, text=True, timeout=10
+        )
+
+        print(f"\n{UI_SUCCESS_COLOR}📌 Posted to bulletin board!{COLOR_RESET}")
+        print(f"{ONEDARK_GRAY}   All sisters will see this on their next check.{COLOR_RESET}\n")
+    except Exception as e:
+        print(f"{UI_ERROR_COLOR}Error posting to bulletin: {e}{COLOR_RESET}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Check on the Aria Sisterhood",
@@ -208,6 +304,8 @@ Examples:
     sisters inbox                    # Check your messages
     sisters send nova "Hello!"       # Send message to Nova
     sisters read <message-id>        # Mark message as read
+    sisters bulletin                 # Read the bulletin board
+    sisters post "Cool news!"        # Post to bulletin board
     sisters wake "Working on X"      # Signal you're online
     sisters sleep                    # Signal you're offline
         """
@@ -237,6 +335,14 @@ Examples:
             print(f"{UI_ERROR_COLOR}Usage: sisters read <message-id>{COLOR_RESET}")
             sys.exit(1)
         mark_read(args.args[0])
+    elif cmd == "bulletin" or cmd == "b" or cmd == "news":
+        show_bulletin()
+    elif cmd == "post" or cmd == "p":
+        if len(args.args) < 1:
+            print(f"{UI_ERROR_COLOR}Usage: sisters post <message>{COLOR_RESET}")
+            sys.exit(1)
+        content = " ".join(args.args)
+        post_to_bulletin(content)
     elif cmd == "wake" or cmd == "w":
         working_on = " ".join(args.args) if args.args else None
         wake_up(working_on)
